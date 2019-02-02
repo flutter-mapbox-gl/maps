@@ -1,0 +1,30 @@
+// Copyright 2018 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+package com.mapbox.mapboxgl;
+
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+
+/** Receiver of MapboxMap configuration options. */
+interface MapboxMapOptionsSink {
+  void setCameraTargetBounds(LatLngBounds bounds); //todo: dddd replace with CameraPosition.Builder target
+
+  void setCompassEnabled(boolean compassEnabled);
+
+//  void setMapType(int mapType);
+
+  void setMinMaxZoomPreference(Float min, Float max);
+
+  void setRotateGesturesEnabled(boolean rotateGesturesEnabled);
+
+  void setScrollGesturesEnabled(boolean scrollGesturesEnabled);
+
+  void setTiltGesturesEnabled(boolean tiltGesturesEnabled);
+
+  void setTrackCameraPosition(boolean trackCameraPosition);
+
+  void setZoomGesturesEnabled(boolean zoomGesturesEnabled);
+
+  void setMyLocationEnabled(boolean myLocationEnabled);
+}
