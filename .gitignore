@@ -2,3 +2,5 @@ android/.classpath
 android/.project
 .packages
 .vscode/
+.idea/
+
