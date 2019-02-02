@@ -25,7 +25,8 @@ class MapboxExampleState extends State<MapboxExample> {
         MapView(
           onMapViewCreated: _onMapViewCreated,
           onTap: (point, coords) async {
-            List ls = await controller.queryRenderedFeatures(point, ['LayerName'], null);
+            List ls = await controller.queryRenderedFeatures(
+                point, ['LayerName'], null);
             print("queryRenderedFeatures test $ls");
           },
         ),
@@ -54,13 +55,15 @@ class MapboxExampleState extends State<MapboxExample> {
               child: Text('at ease'),
               onPressed: () async {
                 // controller.easeTo(Camera(target: LatLng(lat: 32, lng: 35), zoom: 12), 2000);
-                controller.easeTo(Camera(target: LatLng(lat: 32, lng: 35)), 2000);
+                controller.easeTo(
+                    Camera(target: LatLng(lat: 32, lng: 35)), 2000);
               },
             ),
             RaisedButton(
               child: Text('fly to'),
               onPressed: () async {
-                controller.flyTo(Camera(target: LatLng(lat: 32, lng: 35)), 2000);
+                controller.flyTo(
+                    Camera(target: LatLng(lat: 32, lng: 35)), 2000);
               },
             ),
             RaisedButton(
