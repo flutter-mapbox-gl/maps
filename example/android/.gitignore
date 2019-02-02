@@ -8,4 +8,4 @@
 /build
 /captures
 GeneratedPluginRegistrant.java
-android/app/src/main/res/values/developer-config.xml
+app/src/main/res/values/developer-config.xml
