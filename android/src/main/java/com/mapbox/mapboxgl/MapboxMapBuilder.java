@@ -17,7 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 class MapboxMapBuilder implements MapboxMapOptionsSink {
   public final String TAG = getClass().getSimpleName();
-  private final MapboxMapOptions options = new MapboxMapOptions().textureMode(true);
+  private final MapboxMapOptions options = new MapboxMapOptions()
+    .textureMode(true)
+    .attributionEnabled(false);
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
 
