@@ -15,8 +15,11 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 
 import com.mapbox.mapboxsdk.Mapbox;
@@ -30,6 +33,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 
+import com.mapbox.mapboxsdk.maps.Style;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
@@ -75,8 +79,7 @@ final class MapboxMapController
       AtomicInteger activityState,
       PluginRegistry.Registrar registrar,
       MapboxMapOptions options) {
-    Mapbox.getInstance(context,
-            "pk.eyJ1IjoiZ3VybmlzaHQiLCJhIjoiY2pvN2dzczh5MGRjajNxcDducGYzNDVoaiJ9.RsM_popPmu_G4B3NDk0kFQ");
+    Mapbox.getInstance(context, getAccessToken(context));
     this.id = id;
     this.context = context;
     this.activityState = activityState;
@@ -88,6 +91,19 @@ final class MapboxMapController
         new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
     this.registrarActivityHashCode = registrar.activity().hashCode();
+  }
+
+  private static String getAccessToken(@NonNull Context context){
+    try {
+      ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+      Bundle bundle = ai.metaData;
+      return bundle.getString("com.mapbox.token");
+    } catch (PackageManager.NameNotFoundException e) {
+      Log.e(TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
+    } catch (NullPointerException e) {
+      Log.e(TAG, "Failed to load meta-data, NullPointer: " + e.getMessage());
+    }
+    return null;
   }
 
   @Override
@@ -123,7 +139,10 @@ final class MapboxMapController
         mapView.onCreate(null);
         break;
       case DESTROYED:
-        // Nothing to do, the activity has been completely destroyed.
+        mapboxMap.removeOnCameraIdleListener(this);
+        mapboxMap.removeOnCameraMoveStartedListener(this);
+        mapboxMap.removeOnCameraMoveListener(this);
+        mapView.onDestroy();
         break;
       default:
         throw new IllegalArgumentException(
@@ -173,14 +192,15 @@ final class MapboxMapController
   @Override
   public void onMapReady(MapboxMap mapboxMap) {
     this.mapboxMap = mapboxMap;
+    mapboxMap.setStyle(Style.MAPBOX_STREETS);
     mapboxMap.setOnInfoWindowClickListener(this);
     if (mapReadyResult != null) {
       mapReadyResult.success(null);
       mapReadyResult = null;
     }
-    mapboxMap.setOnCameraMoveStartedListener(this);
-    mapboxMap.setOnCameraMoveListener(this);
-    mapboxMap.setOnCameraIdleListener(this);
+    mapboxMap.addOnCameraMoveStartedListener(this);
+    mapboxMap.addOnCameraMoveListener(this);
+    mapboxMap.addOnCameraIdleListener(this);
     //mapboxMap.setOnMarkerClickListener(this);
     updateMyLocationEnabled();
   }
@@ -203,17 +223,21 @@ final class MapboxMapController
         }
       case "camera#move":
         {
-          final CameraUpdate cameraUpdate =
-              Convert.toCameraUpdate(call.argument("cameraUpdate"), density);
-          moveCamera(cameraUpdate);
+          final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
+          if(cameraUpdate!=null){
+            // camera transformation not handled yet
+            moveCamera(cameraUpdate);
+          }
           result.success(null);
           break;
         }
       case "camera#animate":
         {
-          final CameraUpdate cameraUpdate =
-              Convert.toCameraUpdate(call.argument("cameraUpdate"), density);
-          animateCamera(cameraUpdate);
+          final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
+          if(cameraUpdate!=null) {
+            // camera transformation not handled yet
+            animateCamera(cameraUpdate);
+          }
           result.success(null);
           break;
         }
@@ -421,17 +445,7 @@ final class MapboxMapController
   }
 
   private void updateMyLocationEnabled() {
-
-    throw new UnsupportedOperationException("updateMyLocationEnabled");
-
-//    if (hasLocationPermission()) {
-//      mapboxMap.setMyLocationEnabled(myLocationEnabled);
-//    } else {
-//      // TODO(amirh): Make the options update fail.
-//      // https://github.com/flutter/flutter/issues/24327
-//      Log.e(TAG, "Cannot enable MyLocation layer as location permissions are not granted");
-//    }
-
+    //throw new UnsupportedOperationException("updateMyLocationEnabled")
   }
 
   private boolean hasLocationPermission() {

@@ -11,6 +11,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,7 +56,11 @@ class Convert {
     return builder.build();
   }
 
-  static CameraUpdate toCameraUpdate(Object o, float density) {
+  static boolean isScrollByCameraUpdate(Object o){
+    return toString(toList(o).get(0)).equals("scrollBy");
+  }
+
+  static CameraUpdate toCameraUpdate(Object o, MapboxMap mapboxMap, float density) {
     final List<?> data = toList(o);
     switch (toString(data.get(0))) {
       case "newCameraPosition":
@@ -68,9 +73,11 @@ class Convert {
       case "newLatLngZoom":
         return CameraUpdateFactory.newLatLngZoom(toLatLng(data.get(1)), toFloat(data.get(2)));
       case "scrollBy":
-        return CameraUpdateFactory.scrollBy( //
-          toFractionalPixels(data.get(1), density), //
-          toFractionalPixels(data.get(2), density));
+        mapboxMap.scrollBy(
+          toFractionalPixels(data.get(1), density),
+          toFractionalPixels(data.get(2), density)
+        );
+        return null;
       case "zoomBy":
         if (data.size() == 2) {
           return CameraUpdateFactory.zoomBy(toFloat(data.get(1)));

@@ -37,6 +37,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     dependencies {
-        implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:6.8.1"
+        implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:7.1.1"
     }
 }
