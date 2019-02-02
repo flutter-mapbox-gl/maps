@@ -1,77 +1,48 @@
+// Copyright 2018 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'animate_camera.dart';
+import 'map_ui.dart';
+import 'move_camera.dart';
+import 'page.dart';
+import 'place_marker.dart';
+import 'scrolling_map.dart';
 
-void main() => runApp(MaterialApp(home: MapboxExample()));
+final List<Page> _allPages = <Page>[
+  MapUiPage(),
+  AnimateCameraPage(),
+  MoveCameraPage(),
+  PlaceMarkerPage(),
+  ScrollingMapPage(),
+];
 
-class MapboxExample extends StatefulWidget {
-  @override
-  MapboxExampleState createState() {
-    return new MapboxExampleState();
-  }
-}
-
-class MapboxExampleState extends State<MapboxExample> {
-  MapViewController controller;
-
-  void _onMapViewCreated(MapViewController controller) {
-    this.controller = controller;
+class MapsDemo extends StatelessWidget {
+  void _pushPage(BuildContext context, Page page) {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => Scaffold(
+              appBar: AppBar(title: Text(page.title)),
+              body: page,
+            )));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Flutter MapView example')),
-      body: Stack(children: [
-        MapView(
-          onMapViewCreated: _onMapViewCreated,
-          onTap: (point, coords) async {
-            List ls = await controller.queryRenderedFeatures(point, ['LayerName'], null);
-            print("queryRenderedFeatures test $ls");
-          },
-        ),
-        Column(
-          children: [
-            RaisedButton(
-              child: Text('Show User Location'),
-              onPressed: () async {
-                //check permissions before this, or turn them on manually.
-                controller.showUserLocation();
-              },
+      appBar: AppBar(title: const Text('MapboxMaps examples')),
+      body: ListView.builder(
+        itemCount: _allPages.length,
+        itemBuilder: (_, int index) => ListTile(
+              leading: _allPages[index].leading,
+              title: Text(_allPages[index].title),
+              onTap: () => _pushPage(context, _allPages[index]),
             ),
-            RaisedButton(
-              child: Text('getStyle'),
-              onPressed: () async {
-                print(await controller.getStyleUrl());
-              },
-            ),
-            RaisedButton(
-              child: Text('setStyle'),
-              onPressed: () async {
-                controller.setStyleUrl("mapbox://styles/mapbox/satellite-v9");
-              },
-            ),
-            RaisedButton(
-              child: Text('at ease'),
-              onPressed: () async {
-                // controller.easeTo(Camera(target: LatLng(lat: 32, lng: 35), zoom: 12), 2000);
-                controller.easeTo(Camera(target: LatLng(lat: 32, lng: 35)), 2000);
-              },
-            ),
-            RaisedButton(
-              child: Text('fly to'),
-              onPressed: () async {
-                controller.flyTo(Camera(target: LatLng(lat: 32, lng: 35)), 2000);
-              },
-            ),
-            RaisedButton(
-              child: Text('zoom only'),
-              onPressed: () async {
-                controller.zoom(10, 2000);
-              },
-            ),
-          ],
-        ),
-      ]),
+      ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(home: MapsDemo()));
 }

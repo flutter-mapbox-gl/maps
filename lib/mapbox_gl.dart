@@ -1,28 +1,22 @@
+// Copyright 2018 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 library mapbox_gl;
 
-import 'dart:convert';
+import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
 
-
-part 'src/controller.dart';
-part 'src/flutter_mapbox_view.dart';
+part 'src/bitmap.dart';
+part 'src/callbacks.dart';
 part 'src/camera.dart';
-part 'src/models.dart';
-
-// import 'dart:async';
-
-// import 'package:flutter/services.dart';
-
-// class MapboxGl {
-//   static const MethodChannel _channel =
-//       const MethodChannel('mapbox_gl');
-
-//   static Future<String> get platformVersion async {
-//     final String version = await _channel.invokeMethod('getPlatformVersion');
-//     return version;
-//   }
-// }
+part 'src/controller.dart';
+part 'src/mapbox_map.dart';
+part 'src/marker.dart';
+part 'src/location.dart';
+part 'src/ui.dart';

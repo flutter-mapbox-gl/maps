@@ -1,208 +1,217 @@
+// Copyright 2018 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 part of mapbox_gl;
 
-typedef OnMapTapCallback(ScreenPoint point, LatLng coordinates);
-
-class MapViewController extends ChangeNotifier {
-  final MethodChannel _channel;
-  // MapViewControllerListener _listener;
-  OnMapTapCallback onTap;
-
-  MapViewController(int id, {this.onTap}) : _channel = new MethodChannel('com.mapbox/mapboxgl_$id') {
+/// Controller for a single MapboxMap instance running on the host platform.
+///
+/// Change listeners are notified upon changes to any of
+///
+/// * the [options] property
+/// * the collection of [Marker]s added to this map
+/// * the [isCameraMoving] property
+/// * the [cameraPosition] property
+///
+/// Listeners are notified after changes have been applied on the platform side.
+///
+/// Marker tap events can be received by adding callbacks to [onMarkerTapped].
+class MapboxMapController extends ChangeNotifier {
+  MapboxMapController._(
+      this._id, MethodChannel channel, CameraPosition initialCameraPosition)
+      : assert(_id != null),
+        assert(channel != null),
+        _channel = channel {
+    _cameraPosition = initialCameraPosition;
     _channel.setMethodCallHandler(_handleMethodCall);
   }
 
+  static Future<MapboxMapController> init(
+      int id, CameraPosition initialCameraPosition) async {
+    assert(id != null);
+    final MethodChannel channel =
+        MethodChannel('plugins.flutter.io/mapbox_maps_$id');
+    await channel.invokeMethod('map#waitForMap');
+    return MapboxMapController._(id, channel, initialCameraPosition);
+  }
+
+  final MethodChannel _channel;
+
+  /// Callbacks to receive tap events for markers placed on this map.
+  final ArgumentCallbacks<Marker> onMarkerTapped = ArgumentCallbacks<Marker>();
+
+  /// Callbacks to receive tap events for info windows on markers
+  final ArgumentCallbacks<Marker> onInfoWindowTapped =
+      ArgumentCallbacks<Marker>();
+
+  /// The current set of markers on this map.
+  ///
+  /// The returned set will be a detached snapshot of the markers collection.
+  Set<Marker> get markers => Set<Marker>.from(_markers.values);
+  final Map<String, Marker> _markers = <String, Marker>{};
+
+  /// True if the map camera is currently moving.
+  bool get isCameraMoving => _isCameraMoving;
+  bool _isCameraMoving = false;
+
+  /// Returns the most recent camera position reported by the platform side.
+  /// Will be null, if [MapboxMap.trackCameraPosition] is false.
+  CameraPosition get cameraPosition => _cameraPosition;
+  CameraPosition _cameraPosition;
+
+  final int _id;
+
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
-      case 'onTap':
-        final double x = call.arguments['x'];
-        final double y = call.arguments['y'];
-        final double lng = call.arguments['lng'];
-        final double lat = call.arguments['lat'];
-        if (onTap != null) onTap(ScreenPoint(x, y), LatLng(lng: lng, lat: lat));
+      case 'infoWindow#onTap':
+        final String markerId = call.arguments['marker'];
+        final Marker marker = _markers[markerId];
+        if (marker != null) {
+          onInfoWindowTapped(marker);
+        }
         break;
 
+      case 'marker#onTap':
+        final String markerId = call.arguments['marker'];
+        final Marker marker = _markers[markerId];
+        if (marker != null) {
+          onMarkerTapped(marker);
+        }
+        break;
+      case 'camera#onMoveStarted':
+        _isCameraMoving = true;
+        notifyListeners();
+        break;
+      case 'camera#onMove':
+        _cameraPosition = CameraPosition.fromMap(call.arguments['position']);
+        notifyListeners();
+        break;
+      case 'camera#onIdle':
+        _isCameraMoving = false;
+        notifyListeners();
+        break;
       default:
-        print("unknown methpd called");
+        throw MissingPluginException();
     }
   }
 
-
-  Future<Null> showUserLocation() async {
-    try {
-      await _channel.invokeMethod('showUserLocation');
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+  /// Updates configuration options of the map user interface.
+  ///
+  /// Change listeners are notified once the update has been made on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes after listeners have been notified.
+  Future<void> _updateMapOptions(Map<String, dynamic> optionsUpdate) async {
+    assert(optionsUpdate != null);
+    final dynamic json = await _channel.invokeMethod(
+      'map#update',
+      <String, dynamic>{
+        'options': optionsUpdate,
+      },
+    );
+    _cameraPosition = CameraPosition.fromMap(json);
+    notifyListeners();
   }
 
-  Future<Null> setStyleUrl(String styleUrl) async {
-    try {
-      await _channel.invokeMethod('setStyleUrl', styleUrl);
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+  /// Starts an animated change of the map camera position.
+  ///
+  /// The returned [Future] completes after the change has been started on the
+  /// platform side.
+  Future<void> animateCamera(CameraUpdate cameraUpdate) async {
+    await _channel.invokeMethod('camera#animate', <String, dynamic>{
+      'cameraUpdate': cameraUpdate._toJson(),
+    });
   }
 
-  Future<String> getStyleUrl() async {
-    try {
-      final Map<Object, Object> reply = await _channel.invokeMethod(
-        'getStyleUrl',
-        // <String, Object>{'textureId': _textureId},
-      );
-      return reply['styleUrl'];
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+  /// Changes the map camera position.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> moveCamera(CameraUpdate cameraUpdate) async {
+    await _channel.invokeMethod('camera#move', <String, dynamic>{
+      'cameraUpdate': cameraUpdate._toJson(),
+    });
   }
 
-  //
-  // Camera API
-  //
-
-  Future<Null> easeTo(Camera camera, int duration) async {
-    try {
-      await _channel.invokeMethod(
-        'easeTo',
-        <String, Object>{
-          'camera': camera.toMap(),
-          'duration': duration,
-        },
-      );
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+  /// Adds a marker to the map, configured using the specified custom [options].
+  ///
+  /// Change listeners are notified once the marker has been added on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes with the added marker once listeners have
+  /// been notified.
+  Future<Marker> addMarker(MarkerOptions options) async {
+    final MarkerOptions effectiveOptions =
+        MarkerOptions.defaultOptions.copyWith(options);
+    final String markerId = await _channel.invokeMethod(
+      'marker#add',
+      <String, dynamic>{
+        'options': effectiveOptions._toJson(),
+      },
+    );
+    final Marker marker = Marker(markerId, effectiveOptions);
+    _markers[markerId] = marker;
+    notifyListeners();
+    return marker;
   }
 
-  Future<Null> flyTo(Camera camera, int duration) async {
-    try {
-      await _channel.invokeMethod(
-        'flyTo',
-        <String, Object>{
-          'camera': camera.toMap(),
-          'duration': duration,
-        },
-      );
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+  /// Updates the specified [marker] with the given [changes]. The marker must
+  /// be a current member of the [markers] set.
+  ///
+  /// Change listeners are notified once the marker has been updated on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> updateMarker(Marker marker, MarkerOptions changes) async {
+    assert(marker != null);
+    assert(_markers[marker._id] == marker);
+    assert(changes != null);
+    await _channel.invokeMethod('marker#update', <String, dynamic>{
+      'marker': marker._id,
+      'options': changes._toJson(),
+    });
+    marker._options = marker._options.copyWith(changes);
+    notifyListeners();
   }
 
-  Future<Null> jumpTo(Camera camera) async {
-    try {
-      await _channel.invokeMethod(
-        'jumpTo',
-        <String, Object>{'camera': camera.toMap()},
-      );
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+  /// Removes the specified [marker] from the map. The marker must be a current
+  /// member of the [markers] set.
+  ///
+  /// Change listeners are notified once the marker has been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> removeMarker(Marker marker) async {
+    assert(marker != null);
+    assert(_markers[marker._id] == marker);
+    await _removeMarker(marker._id);
+    notifyListeners();
   }
 
-  Future<Null> zoom(double zoom, int duration) async {
-    try {
-      await _channel.invokeMethod(
-        'zoom',
-        <String, Object>{'zoom': zoom, 'duration': duration},
-      );
-    } on PlatformException catch (e) {
-      return new Future.error(e);
+  /// Removes all [markers] from the map.
+  ///
+  /// Change listeners are notified once all markers have been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> clearMarkers() async {
+    assert(_markers != null);
+    final List<String> markerIds = List<String>.from(_markers.keys);
+    for (String id in markerIds) {
+      await _removeMarker(id);
     }
+    notifyListeners();
   }
 
-  Future<List> queryRenderedFeatures(
-      ScreenPoint point, List<String> layerIds, String filter) async {
-    try {
-      final Map<Object, Object> reply = await _channel.invokeMethod(
-        'queryRenderedFeatures',
-        <String, Object>{
-          'x': point.x,
-          'y': point.y,
-          'layerIds': layerIds,
-          'filter': filter,
-        },
-      );
-      return reply['features'];
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+  /// Helper method to remove a single marker from the map. Consumed by
+  /// [removeMarker] and [clearMarkers].
+  ///
+  /// The returned [Future] completes once the marker has been removed from
+  /// [_markers].
+  Future<void> _removeMarker(String id) async {
+    await _channel.invokeMethod('marker#remove', <String, dynamic>{
+      'marker': id,
+    });
+    _markers.remove(id);
   }
-
-  /// see https://www.mapbox.com/mapbox-gl-js/api/#map#setlayoutproperty
-  /// example for a layeout property: https://www.mapbox.com/mapbox-gl-js/example/toggle-layers/
-  /// example with setPaintProperty: https://www.mapbox.com/mapbox-gl-js/example/adjust-layer-opacity/
-  Future<Null> setLayerProperty(String layer, String propertyName, dynamic value,
-      {Map options}) async {
-    try {
-      await _channel.invokeMethod(
-        'setLayerProperty',
-         <String, Object>{
-          'layer': layer,
-          'propertyName': propertyName,
-          'value': value,
-          'options': options, 
-        },
-      );
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  /// see https://www.mapbox.com/mapbox-gl-js/api/#map#setlayoutproperty
-  /// I am still working on it (don't have an example yet)
-  Future<Null> setFilter(String layer, {List<Map> filter}) async {
-    try {
-      await _channel.invokeMethod(
-        'setFilter',
-        <String, Object>{
-          'layer': layer,
-          'filter': filter, 
-        },
-      );
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  /// see https://www.mapbox.com/mapbox-gl-js/api/#map#setlayoutproperty
-  /// No example yet
-  Future<Null> addLayer(Layer layer, {String before}) async {
-    try {
-      await _channel.invokeMethod(
-        'addLayer',
-        <String, Object>{
-          'layer': layer, //this should be converted to a map, or a JSON or something.
-          'before': before,
-        },
-      );
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  /// see https://www.mapbox.com/mapbox-gl-js/api/#map#setlayoutproperty
-  /// No example yet
-  Future<Null> setSourceGeoJson(String sourceName, Map<String, dynamic> geoJson) async {
-    try {
-      String geoJsonString = json.encode(geoJson);
-      await _channel.invokeMethod(
-        'setSourceGeoJson',
-        <String, Object>{
-          'sourceName': sourceName,
-          'geoJson': geoJsonString,
-        },
-      );
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  // Future<double> getZoom() async {
-  //   try {
-  //     final Map<Object, Object> reply = await _channel.invokeMethod('getZoom');
-  //     return reply['zoom'];
-  //   } on PlatformException catch (e) {
-  //     return new Future.error(e);
-  //   }
-  // }
-
 }
