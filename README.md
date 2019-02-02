@@ -1,42 +1,24 @@
 # Flutter Mapbox GL Native
 
-> **Please note that this project is community driven and is not an official Mapbox supported product.** We welcome [feedback](https://github.com/tobrun/flutter-mapbox-gl/issues) and contributions.
+> **Please note that this project is community driven and is not an official Mapbox product.** We welcome [feedback](https://github.com/tobrun/flutter-mapbox-gl/issues) and contributions.
 
 This Flutter plugin for [mapbox-gl-native](https://github.com/mapbox/mapbox-gl-native) enables
-embedded interactive and customizable vector maps inside of a Flutter widget. This project plugin is in early development stage. Only Android is supported for now.
-the plugin relies on Flutter's new mechanism for embedding Android and iOS views.
+embedded interactive and customizable vector maps inside a Flutter widget by embedding Android and iOS views. This project plugin is in early development stage. Only Android is supported for now.
 
 ![screenshot.png](screenshot.png)
 
 ## Getting Started
 
-### Android
+### Mapbox Access Token
 
-Following examples use Mapbox vector tiles, which require a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/). After you get the key, place it in project's Android directory:
+This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/). After you get the key, place it in project's Android directory:
 - Add your access token to `$project_dir/example/android/app/src/values/developer-config.xml`
 
-#### Demo app
+#### Example app
 
 - Install [Flutter](https://flutter.io/get-started/) and validate its installation with `flutter doctor`
 - Clone this repository with `git clone git@github.com:mapbox/flutter-mapbox-gl.git`
 - Run the app with `cd flutter_mapbox/example && flutter run`
-
-#### New project
-
-- Create new Flutter project in your IDE or via terminal
-- Add `mapbox_gl: ^0.0.1` dependency to `pubspec.yaml` file and [get the package](https://flutter.io/using-packages/#adding-a-package-dependency-to-an-app)
-- Add Mapbox read token value in the application manifest `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<manifest ...
-  <application ...
-    <meta-data android:name="com.mapbox.token" android:value="YOUR_TOKEN_HERE" />
-```
-
-- Import Mapbox widgets and add them to your widget tree
-```
-import 'package:mapbox_gl/mapbox_gl.dart';
-```
 
 ## Documentation
 
