@@ -11,9 +11,7 @@ interface MapboxMapOptionsSink {
   void setCameraTargetBounds(LatLngBounds bounds); //todo: dddd replace with CameraPosition.Builder target
 
   void setCompassEnabled(boolean compassEnabled);
-
-//  void setMapType(int mapType);
-
+  
   void setMinMaxZoomPreference(Float min, Float max);
 
   void setRotateGesturesEnabled(boolean rotateGesturesEnabled);

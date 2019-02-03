@@ -20,27 +20,6 @@ import java.util.Map;
 
 /** Conversions between JSON-like values and MapboxMaps data types. */
 class Convert {
-//  private static BitmapDescriptor toBitmapDescriptor(Object o) {
-//    final List<?> data = toList(o);
-//    switch (toString(data.get(0))) {
-//      case "defaultMarker":
-//        if (data.size() == 1) {
-//          return BitmapDescriptorFactory.defaultMarker();
-//        } else {
-//          return BitmapDescriptorFactory.defaultMarker(toFloat(data.get(1)));
-//        }
-//      case "fromAsset":
-//        if (data.size() == 2) {
-//          return BitmapDescriptorFactory.fromAsset(
-//              FlutterMain.getLookupKeyForAsset(toString(data.get(1))));
-//        } else {
-//          return BitmapDescriptorFactory.fromAsset(
-//              FlutterMain.getLookupKeyForAsset(toString(data.get(1)), toString(data.get(2))));
-//        }
-//      default:
-//        throw new IllegalArgumentException("Cannot interpret " + o + " as BitmapDescriptor");
-//    }
-//  }
 
   private static boolean toBoolean(Object o) {
     return (Boolean) o;
@@ -184,10 +163,6 @@ class Convert {
     if (compassEnabled != null) {
       sink.setCompassEnabled(toBoolean(compassEnabled));
     }
-//    final Object mapType = data.get("mapType");
-//    if (mapType != null) {
-//      sink.setMapType(toInt(mapType));
-//    }
     final Object minMaxZoomPreference = data.get("minMaxZoomPreference");
     if (minMaxZoomPreference != null) {
       final List<?> zoomPreferenceData = toList(minMaxZoomPreference);
@@ -220,59 +195,4 @@ class Convert {
       sink.setMyLocationEnabled(toBoolean(myLocationEnabled));
     }
   }
-
-//  static void interpretMarkerOptions(Object o, MarkerOptionsSink sink) {
-//    final Map<?, ?> data = toMap(o);
-//    final Object alpha = data.get("alpha");
-//    if (alpha != null) {
-//      sink.setAlpha(toFloat(alpha));
-//    }
-//    final Object anchor = data.get("anchor");
-//    if (anchor != null) {
-//      final List<?> anchorData = toList(anchor);
-//      sink.setAnchor(toFloat(anchorData.get(0)), toFloat(anchorData.get(1)));
-//    }
-//    final Object consumesTapEvents = data.get("consumesTapEvents");
-//    if (consumesTapEvents != null) {
-//      sink.setConsumeTapEvents(toBoolean(consumesTapEvents));
-//    }
-//    final Object draggable = data.get("draggable");
-//    if (draggable != null) {
-//      sink.setDraggable(toBoolean(draggable));
-//    }
-//    final Object flat = data.get("flat");
-//    if (flat != null) {
-//      sink.setFlat(toBoolean(flat));
-//    }
-//    final Object icon = data.get("icon");
-//    if (icon != null) {
-//      sink.setIcon(toBitmapDescriptor(icon));
-//    }
-//    final Object infoWindowAnchor = data.get("infoWindowAnchor");
-//    if (infoWindowAnchor != null) {
-//      final List<?> anchorData = toList(infoWindowAnchor);
-//      sink.setInfoWindowAnchor(toFloat(anchorData.get(0)), toFloat(anchorData.get(1)));
-//    }
-//    final Object infoWindowText = data.get("infoWindowText");
-//    if (infoWindowText != null) {
-//      final List<?> textData = toList(infoWindowText);
-//      sink.setInfoWindowText(toString(textData.get(0)), toString(textData.get(1)));
-//    }
-//    final Object position = data.get("position");
-//    if (position != null) {
-//      sink.setPosition(toLatLng(position));
-//    }
-//    final Object rotation = data.get("rotation");
-//    if (rotation != null) {
-//      sink.setRotation(toFloat(rotation));
-//    }
-//    final Object visible = data.get("visible");
-//    if (visible != null) {
-//      sink.setVisible(toBoolean(visible));
-//    }
-//    final Object zIndex = data.get("zIndex");
-//    if (zIndex != null) {
-//      sink.setZIndex(toFloat(zIndex));
-//    }
-//  }
 }
