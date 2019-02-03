@@ -2,9 +2,11 @@ import Flutter
 import UIKit
 import Mapbox
 
-class MapboxMapController: NSObject, FlutterPlatformView {
+class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate {
     
-    var mapView: MGLMapView
+    private var mapView: MGLMapView
+    private var isMapReady = false
+    private var mapReadyResult: FlutterResult?
     
     func view() -> UIView {
         return mapView
@@ -18,12 +20,28 @@ class MapboxMapController: NSObject, FlutterPlatformView {
         
         let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: messenger)
         channel.setMethodCallHandler(onMethodCall)
+        
+        mapView.delegate = self
     }
     
-    func onMethodCall(methodCall: FlutterMethodCall, result: FlutterResult) {
+    func onMethodCall(methodCall: FlutterMethodCall, result: @escaping FlutterResult) {
         switch(methodCall.method) {
+        case "map#waitForMap":
+            if isMapReady {
+                result(nil)
+            } else {
+                mapReadyResult = result
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+    
+    /*
+     *  MGLMapViewDelegate
+     */
+    func mapView(_ mapView: MGLMapView, didFinishLoading style: MGLStyle) {
+        isMapReady = true
+        mapReadyResult?(nil)
     }
 }
