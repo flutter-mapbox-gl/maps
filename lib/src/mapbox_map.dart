@@ -13,7 +13,8 @@ class MapboxMap extends StatefulWidget {
     this.gestureRecognizers,
     this.compassEnabled = true,
     this.cameraTargetBounds = CameraTargetBounds.unbounded,
-    this.mapType = MapType.normal,
+    // this.mapType = MapType.normal,
+    this.styleString,
     this.minMaxZoomPreference = MinMaxZoomPreference.unbounded,
     this.rotateGesturesEnabled = true,
     this.scrollGesturesEnabled = true,
@@ -21,6 +22,7 @@ class MapboxMap extends StatefulWidget {
     this.tiltGesturesEnabled = true,
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
+    this.onMapClick,
   }) : assert(initialCameraPosition != null);
 
   final MapCreatedCallback onMapCreated;
@@ -33,9 +35,13 @@ class MapboxMap extends StatefulWidget {
 
   /// Geographical bounding box for the camera target.
   final CameraTargetBounds cameraTargetBounds;
+  
+  // final MapType mapType;
 
-  /// Type of map tiles to be rendered.
-  final MapType mapType;
+  /// Style URL or Style JSON
+  /// Can be a MapboxStyle constant, any Mapbox Style URL,
+  /// or a StyleJSON (https://docs.mapbox.com/mapbox-gl-js/style-spec/)
+  final String styleString;
 
   /// Preferred bounds for the camera zoom level.
   ///
@@ -92,6 +98,8 @@ class MapboxMap extends StatefulWidget {
   /// When this set is empty or null, the map will only handle pointer events for gestures that
   /// were not claimed by any other gesture recognizer.
   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
+
+  final OnMapClickCallback onMapClick;
 
   @override
   State createState() => _MapboxMapState();
@@ -157,7 +165,7 @@ class _MapboxMapState extends State<MapboxMap> {
 
   Future<void> onPlatformViewCreated(int id) async {
     final MapboxMapController controller =
-        await MapboxMapController.init(id, widget.initialCameraPosition);
+        await MapboxMapController.init(id, widget.initialCameraPosition, onMapClick: widget.onMapClick);
     _controller.complete(controller);
     if (widget.onMapCreated != null) {
       widget.onMapCreated(controller);
@@ -173,7 +181,8 @@ class _MapboxMapOptions {
   _MapboxMapOptions({
     this.compassEnabled,
     this.cameraTargetBounds,
-    this.mapType,
+    // this.mapType,
+    this.styleString,
     this.minMaxZoomPreference,
     this.rotateGesturesEnabled,
     this.scrollGesturesEnabled,
@@ -187,7 +196,8 @@ class _MapboxMapOptions {
     return _MapboxMapOptions(
       compassEnabled: map.compassEnabled,
       cameraTargetBounds: map.cameraTargetBounds,
-      mapType: map.mapType,
+      // mapType: map.mapType,
+      styleString: map.styleString,
       minMaxZoomPreference: map.minMaxZoomPreference,
       rotateGesturesEnabled: map.rotateGesturesEnabled,
       scrollGesturesEnabled: map.scrollGesturesEnabled,
@@ -202,7 +212,9 @@ class _MapboxMapOptions {
 
   final CameraTargetBounds cameraTargetBounds;
 
-  final MapType mapType;
+  // final MapType mapType;
+
+  final String styleString;
 
   final MinMaxZoomPreference minMaxZoomPreference;
 
@@ -229,7 +241,8 @@ class _MapboxMapOptions {
 
     addIfNonNull('compassEnabled', compassEnabled);
     addIfNonNull('cameraTargetBounds', cameraTargetBounds?._toJson());
-    addIfNonNull('mapType', mapType?.index);
+    // addIfNonNull('mapType', mapType?.index);
+    addIfNonNull('styleString', styleString);
     addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?._toJson());
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);
     addIfNonNull('scrollGesturesEnabled', scrollGesturesEnabled);

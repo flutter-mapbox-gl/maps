@@ -14,6 +14,9 @@ interface MapboxMapOptionsSink {
 
 //  void setMapType(int mapType);
 
+  // TODO: styleString is not actually a part of options. consider moving
+  void setStyleString(String styleString); 
+
   void setMinMaxZoomPreference(Float min, Float max);
 
   void setRotateGesturesEnabled(boolean rotateGesturesEnabled);
