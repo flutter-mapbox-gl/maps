@@ -3,7 +3,7 @@
 > **Please note that this project is community driven and is not an official Mapbox product.** We welcome [feedback](https://github.com/tobrun/flutter-mapbox-gl/issues) and contributions.
 
 This Flutter plugin for [mapbox-gl-native](https://github.com/mapbox/mapbox-gl-native) enables
-embedded interactive and customizable vector maps inside a Flutter widget by embedding Android and iOS views. This project plugin is in early development stage. Only Android is supported for now.
+embedded interactive and customizable vector maps inside a Flutter widget by embedding Android and iOS views. This project plugin is in early development stage.
 
 ![screenshot.png](screenshot.png)
 
@@ -11,8 +11,20 @@ embedded interactive and customizable vector maps inside a Flutter widget by emb
 
 ### Mapbox Access Token
 
-This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/). After you get the key, place it in project's Android directory:
+This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/). 
+
+#### Android
+After you get the key, place it in project's Android directory:
 - Add your access token to `$project_dir/example/android/app/src/values/developer-config.xml`
+
+#### iOS
+Add this lines to your Info.plist
+```plist
+<key>io.flutter.embedded_views_preview</key>
+<true/>
+<key>MGLMapboxAccessToken</key>
+<string>YOUR_TOKEN_HERE</string>
+```
 
 #### Example app
 
