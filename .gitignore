@@ -4,3 +4,4 @@ android/.project
 .vscode/
 .idea/
 
+android/.settings/org.eclipse.buildship.core.prefs

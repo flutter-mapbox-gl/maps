@@ -10,6 +10,7 @@ import android.util.Log;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
+import com.mapbox.mapboxsdk.maps.Style;
 
 import io.flutter.plugin.common.PluginRegistry;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,11 +23,12 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     .attributionEnabled(false);
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
+  private String styleString = Style.MAPBOX_STREETS;
 
   MapboxMapController build(
       int id, Context context, AtomicInteger state, PluginRegistry.Registrar registrar) {
     final MapboxMapController controller =
-        new MapboxMapController(id, context, state, registrar, options);
+        new MapboxMapController(id, context, state, registrar, options, styleString);
     controller.init();
     controller.setMyLocationEnabled(myLocationEnabled);
     controller.setTrackCameraPosition(trackCameraPosition);
@@ -49,10 +51,11 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     //options.latLngBoundsForCameraTarget(bounds);
   }
 
-//  @Override
-//  public void setMapType(int mapType) {
-//    options.mapType(mapType);
-//  }
+  @Override
+  public void setStyleString(String styleString) {
+    this.styleString = styleString;
+    //options. styleString(styleString);
+  }
 
   @Override
   public void setMinMaxZoomPreference(Float min, Float max) {

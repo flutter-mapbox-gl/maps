@@ -42,7 +42,7 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _compassEnabled = true;
   CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
   MinMaxZoomPreference _minMaxZoomPreference = MinMaxZoomPreference.unbounded;
-  MapType _mapType = MapType.normal;
+  String _styleString = MapboxStyles.MAPBOX_STREETS;
   bool _rotateGesturesEnabled = true;
   bool _scrollGesturesEnabled = true;
   bool _tiltGesturesEnabled = true;
@@ -114,14 +114,12 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
-  Widget _mapTypeCycler() {
-    final MapType nextType =
-        MapType.values[(_mapType.index + 1) % MapType.values.length];
+  Widget _setStyleToSatellite() {
     return FlatButton(
-      child: Text('change map type to $nextType'),
+      child: Text('change map style to Satellite'),
       onPressed: () {
         setState(() {
-          _mapType = nextType;
+          _styleString = MapboxStyles.SATELLITE;
         });
       },
     );
@@ -191,12 +189,19 @@ class MapUiBodyState extends State<MapUiBody> {
       compassEnabled: _compassEnabled,
       cameraTargetBounds: _cameraTargetBounds,
       minMaxZoomPreference: _minMaxZoomPreference,
-      mapType: _mapType,
+      styleString: _styleString,
       rotateGesturesEnabled: _rotateGesturesEnabled,
       scrollGesturesEnabled: _scrollGesturesEnabled,
       tiltGesturesEnabled: _tiltGesturesEnabled,
       zoomGesturesEnabled: _zoomGesturesEnabled,
       myLocationEnabled: _myLocationEnabled,
+      onMapClick: (point, latLng) async {
+        print("${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
+        List features = await mapController.queryRenderedFeatures(point, [],null);
+        if (features.length>0) {
+          print(features[0]);
+        }
+      }
     );
 
     final List<Widget> columnChildren = <Widget>[
@@ -226,7 +231,7 @@ class MapUiBodyState extends State<MapUiBody> {
               Text(_isMoving ? '(Camera moving)' : '(Camera idle)'),
               _compassToggler(),
               _latLngBoundsToggler(),
-              _mapTypeCycler(),
+              _setStyleToSatellite(),
               _zoomBoundsToggler(),
               _rotateToggler(),
               _scrollToggler(),

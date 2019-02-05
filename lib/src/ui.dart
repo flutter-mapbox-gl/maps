@@ -4,25 +4,56 @@
 
 part of mapbox_gl;
 
-/// Type of map tiles to display.
-// Enum constants must be indexed to match the corresponding int constants of
-// the Android platform API, see
-// <https://developers.google.com/android/reference/com/google/android/gms/maps/MapboxMap.html#MAP_TYPE_NORMAL>
-enum MapType {
-  /// Do not display map tiles.
-  none,
+class MapboxStyles {
+  static const String MAPBOX_STREETS = "mapbox://styles/mapbox/streets-v11";
+  /**
+   * Outdoors: A general-purpose style tailored to outdoor activities. Using this constant means
+   * your map style will always use the latest version and may change as we improve the style.
+   */
+  static const String OUTDOORS = "mapbox://styles/mapbox/outdoors-v11";
 
-  /// Normal tiles (traffic and labels, subtle terrain information).
-  normal,
+  /**
+   * Light: Subtle light backdrop for data visualizations. Using this constant means your map
+   * style will always use the latest version and may change as we improve the style.
+   */
+  static const String LIGHT = "mapbox://styles/mapbox/light-v10";
 
-  /// Satellite imaging tiles (aerial photos)
-  satellite,
+  /**
+   * Dark: Subtle dark backdrop for data visualizations. Using this constant means your map style
+   * will always use the latest version and may change as we improve the style.
+   */
+  static const String DARK = "mapbox://styles/mapbox/dark-v10";
 
-  /// Terrain tiles (indicates type and height of terrain)
-  terrain,
+  /**
+   * Satellite: A beautiful global satellite and aerial imagery layer. Using this constant means
+   * your map style will always use the latest version and may change as we improve the style.
+   */
+  static const String SATELLITE = "mapbox://styles/mapbox/satellite-v9";
 
-  /// Hybrid tiles (satellite images with some labels/overlays)
-  hybrid,
+  /**
+   * Satellite Streets: Global satellite and aerial imagery with unobtrusive labels. Using this
+   * constant means your map style will always use the latest version and may change as we
+   * improve the style.
+   */
+  static const String SATELLITE_STREETS = "mapbox://styles/mapbox/satellite-streets-v11";
+
+  /**
+   * Traffic Day: Color-coded roads based on live traffic congestion data. Traffic data is currently
+   * available in
+   * <a href="https://www.mapbox.com/help/how-directions-work/#traffic-data">these select
+   * countries</a>. Using this constant means your map style will always use the latest version and
+   * may change as we improve the style.
+   */
+  static const String TRAFFIC_DAY = "mapbox://styles/mapbox/traffic-day-v2";
+
+  /**
+   * Traffic Night: Color-coded roads based on live traffic congestion data, designed to maximize
+   * legibility in low-light situations. Traffic data is currently available in
+   * <a href="https://www.mapbox.com/help/how-directions-work/#traffic-data">these select
+   * countries</a>. Using this constant means your map style will always use the latest version and
+   * may change as we improve the style.
+   */
+  static const String TRAFFIC_NIGHT = "mapbox://styles/mapbox/traffic-night-v2";
 }
 
 /// Bounds for the map camera target.
