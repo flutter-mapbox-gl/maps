@@ -4,27 +4,6 @@
 
 part of mapbox_gl;
 
-/// Type of map tiles to display.
-// Enum constants must be indexed to match the corresponding int constants of
-// the Android platform API, see
-// <https://developers.google.com/android/reference/com/google/android/gms/maps/MapboxMap.html#MAP_TYPE_NORMAL>
-enum MapType {
-  /// Do not display map tiles.
-  none,
-
-  /// Normal tiles (traffic and labels, subtle terrain information).
-  normal,
-
-  /// Satellite imaging tiles (aerial photos)
-  satellite,
-
-  /// Terrain tiles (indicates type and height of terrain)
-  terrain,
-
-  /// Hybrid tiles (satellite images with some labels/overlays)
-  hybrid,
-}
-
 class MapboxStyles {
   static const String MAPBOX_STREETS = "mapbox://styles/mapbox/streets-v11";
   /**

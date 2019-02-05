@@ -13,7 +13,6 @@ class MapboxMap extends StatefulWidget {
     this.gestureRecognizers,
     this.compassEnabled = true,
     this.cameraTargetBounds = CameraTargetBounds.unbounded,
-    // this.mapType = MapType.normal,
     this.styleString,
     this.minMaxZoomPreference = MinMaxZoomPreference.unbounded,
     this.rotateGesturesEnabled = true,
@@ -36,8 +35,6 @@ class MapboxMap extends StatefulWidget {
   /// Geographical bounding box for the camera target.
   final CameraTargetBounds cameraTargetBounds;
   
-  // final MapType mapType;
-
   /// Style URL or Style JSON
   /// Can be a MapboxStyle constant, any Mapbox Style URL,
   /// or a StyleJSON (https://docs.mapbox.com/mapbox-gl-js/style-spec/)
@@ -181,7 +178,6 @@ class _MapboxMapOptions {
   _MapboxMapOptions({
     this.compassEnabled,
     this.cameraTargetBounds,
-    // this.mapType,
     this.styleString,
     this.minMaxZoomPreference,
     this.rotateGesturesEnabled,
@@ -196,7 +192,6 @@ class _MapboxMapOptions {
     return _MapboxMapOptions(
       compassEnabled: map.compassEnabled,
       cameraTargetBounds: map.cameraTargetBounds,
-      // mapType: map.mapType,
       styleString: map.styleString,
       minMaxZoomPreference: map.minMaxZoomPreference,
       rotateGesturesEnabled: map.rotateGesturesEnabled,
@@ -211,8 +206,6 @@ class _MapboxMapOptions {
   final bool compassEnabled;
 
   final CameraTargetBounds cameraTargetBounds;
-
-  // final MapType mapType;
 
   final String styleString;
 
@@ -241,7 +234,6 @@ class _MapboxMapOptions {
 
     addIfNonNull('compassEnabled', compassEnabled);
     addIfNonNull('cameraTargetBounds', cameraTargetBounds?._toJson());
-    // addIfNonNull('mapType', mapType?.index);
     addIfNonNull('styleString', styleString);
     addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?._toJson());
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);

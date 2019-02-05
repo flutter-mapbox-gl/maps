@@ -99,7 +99,9 @@ class MapboxMapController extends ChangeNotifier {
         final double y = call.arguments['y'];
         final double lng = call.arguments['lng'];
         final double lat = call.arguments['lat'];
-        if (onMapClick != null) onMapClick(Point<double>(x, y), LatLng(lat, lng));
+        if (onMapClick != null) {
+          onMapClick(Point<double>(x, y), LatLng(lat, lng));
+        }
         break;
       default:
         throw MissingPluginException();

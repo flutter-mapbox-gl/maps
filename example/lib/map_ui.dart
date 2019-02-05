@@ -42,7 +42,6 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _compassEnabled = true;
   CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
   MinMaxZoomPreference _minMaxZoomPreference = MinMaxZoomPreference.unbounded;
-  // MapType _mapType = MapType.normal;
   String _styleString = MapboxStyles.MAPBOX_STREETS;
   bool _rotateGesturesEnabled = true;
   bool _scrollGesturesEnabled = true;
@@ -190,7 +189,6 @@ class MapUiBodyState extends State<MapUiBody> {
       compassEnabled: _compassEnabled,
       cameraTargetBounds: _cameraTargetBounds,
       minMaxZoomPreference: _minMaxZoomPreference,
-      // mapType: _mapType,
       styleString: _styleString,
       rotateGesturesEnabled: _rotateGesturesEnabled,
       scrollGesturesEnabled: _scrollGesturesEnabled,

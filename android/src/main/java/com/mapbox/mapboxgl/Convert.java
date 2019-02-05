@@ -184,10 +184,6 @@ class Convert {
     if (compassEnabled != null) {
       sink.setCompassEnabled(toBoolean(compassEnabled));
     }
-//    final Object mapType = data.get("mapType");
-//    if (mapType != null) {
-//      sink.setMapType(toInt(mapType));
-//    }
     final Object styleString = data.get("styleString");
     if (styleString != null) {
       sink.setStyleString(toString(styleString));

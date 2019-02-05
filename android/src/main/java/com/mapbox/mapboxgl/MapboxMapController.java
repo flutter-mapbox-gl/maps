@@ -230,13 +230,12 @@ final class MapboxMapController
   @Override
   public void setStyleString(String styleString) {
     //check if json, url or plain string:
-    if(styleString==null || styleString.isEmpty()) {
+    if (styleString==null || styleString.isEmpty()) {
       Log.e(TAG,"setStyleString - string empty or null");
-    } else if(styleString.startsWith("{") || styleString.startsWith("[")){
+    } else if (styleString.startsWith("{") || styleString.startsWith("[")){
       mapboxMap.setStyle(new Style.Builder().fromJson(styleString), onStyleLoadedCallback);
     } else {
       mapboxMap.setStyle(new Style.Builder().fromUrl(styleString), onStyleLoadedCallback);
-      //If the URL is not valid, the deault mapbox behevior is to log an error and show a blank map
     }
   }
   
@@ -301,8 +300,7 @@ final class MapboxMapController
           Map<String, Object> reply = new HashMap<>();
           List<Feature> features;
 
-          ArrayList<String> arrayLayerIds = (ArrayList<String>) call.argument("layerIds");
-          String[] layerIds = arrayLayerIds.toArray(new String[arrayLayerIds.size()]);         
+          String[] layerIds = ((List<String>) call.argument("layerIds")).toArray();
 
           String filter = (String) call.argument("filter");
 
@@ -418,8 +416,9 @@ final class MapboxMapController
       return;
     }
     disposed = true;
-    if (locationComponent != null)
+    if (locationComponent != null) {
       locationComponent.setLocationComponentEnabled(false);
+    }
     mapView.onDestroy();
     registrar.activity().getApplication().unregisterActivityLifecycleCallbacks(this);
   }
@@ -491,12 +490,6 @@ final class MapboxMapController
   public void setCompassEnabled(boolean compassEnabled) {
     mapboxMap.getUiSettings().setCompassEnabled(compassEnabled);
   }
-
-//  @Override
-//  public void setMapType(int mapType) {
-//    throw new UnsupportedOperationException("setMapType");
-//    //mapboxMap.setMapType(mapType);
-//  }
 
   @Override
   public void setTrackCameraPosition(boolean trackCameraPosition) {

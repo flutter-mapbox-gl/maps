@@ -51,11 +51,6 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     //options.latLngBoundsForCameraTarget(bounds);
   }
 
-//  @Override
-//  public void setMapType(int mapType) {
-//    options.mapType(mapType);
-//  }
-
   @Override
   public void setStyleString(String styleString) {
     this.styleString = styleString;
