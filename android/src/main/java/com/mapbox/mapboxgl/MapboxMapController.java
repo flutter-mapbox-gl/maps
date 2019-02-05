@@ -300,7 +300,7 @@ final class MapboxMapController
           Map<String, Object> reply = new HashMap<>();
           List<Feature> features;
 
-          String[] layerIds = ((List<String>) call.argument("layerIds")).toArray();
+          String[] layerIds = ((List<String>) call.argument("layerIds")).toArray(new String[0]);
 
           String filter = (String) call.argument("filter");
 
