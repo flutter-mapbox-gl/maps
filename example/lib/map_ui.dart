@@ -49,7 +49,6 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _zoomGesturesEnabled = true;
   bool _myLocationEnabled = true;
   MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
-  MyLocationVerticalAlignment _myLocationVerticalAlignment = MyLocationVerticalAlignment.Center;
 
   @override
   void initState() {
@@ -211,7 +210,6 @@ class MapUiBodyState extends State<MapUiBody> {
       zoomGesturesEnabled: _zoomGesturesEnabled,
       myLocationEnabled: _myLocationEnabled,
       myLocationTrackingMode: _myLocationTrackingMode,
-      myLocationVerticalAlignment: _myLocationVerticalAlignment,
       onMapClick: (point, latLng) async {
         print("${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
         List features = await mapController.queryRenderedFeatures(point, [],null);
