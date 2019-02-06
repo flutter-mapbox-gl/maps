@@ -48,6 +48,8 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _tiltGesturesEnabled = true;
   bool _zoomGesturesEnabled = true;
   bool _myLocationEnabled = true;
+  MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
+  MyLocationVerticalAlignment _myLocationVerticalAlignment = MyLocationVerticalAlignment.Center;
 
   @override
   void initState() {
@@ -69,6 +71,19 @@ class MapUiBodyState extends State<MapUiBody> {
   void dispose() {
     mapController.removeListener(_onMapChanged);
     super.dispose();
+  }
+
+  Widget _myLocationTrackingModeCycler() {
+    final MyLocationTrackingMode nextType =
+        MyLocationTrackingMode.values[(_myLocationTrackingMode.index + 1) % MyLocationTrackingMode.values.length];
+    return FlatButton(
+      child: Text('change to $nextType'),
+      onPressed: () {
+        setState(() {
+          _myLocationTrackingMode = nextType;
+        });
+      },
+    );
   }
 
   Widget _compassToggler() {
@@ -195,12 +210,19 @@ class MapUiBodyState extends State<MapUiBody> {
       tiltGesturesEnabled: _tiltGesturesEnabled,
       zoomGesturesEnabled: _zoomGesturesEnabled,
       myLocationEnabled: _myLocationEnabled,
+      myLocationTrackingMode: _myLocationTrackingMode,
+      myLocationVerticalAlignment: _myLocationVerticalAlignment,
       onMapClick: (point, latLng) async {
         print("${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
         List features = await mapController.queryRenderedFeatures(point, [],null);
         if (features.length>0) {
           print(features[0]);
         }
+      },
+      onCameraTrackingDismissed: () {
+        this.setState(() {
+          _myLocationTrackingMode = MyLocationTrackingMode.None;
+        });
       }
     );
 
@@ -230,6 +252,7 @@ class MapUiBodyState extends State<MapUiBody> {
               Text('camera tilt: ${_position.tilt}'),
               Text(_isMoving ? '(Camera moving)' : '(Camera idle)'),
               _compassToggler(),
+              _myLocationTrackingModeCycler(),
               _latLngBoundsToggler(),
               _setStyleToSatellite(),
               _zoomBoundsToggler(),

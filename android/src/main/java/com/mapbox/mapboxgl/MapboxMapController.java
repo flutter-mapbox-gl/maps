@@ -40,6 +40,8 @@ import com.mapbox.mapboxsdk.style.expressions.Expression;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
+import com.mapbox.mapboxsdk.location.LocationComponentOptions;
+import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
@@ -71,6 +73,7 @@ final class MapboxMapController
         MapboxMapOptionsSink,
         MethodChannel.MethodCallHandler,
         com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
+        OnCameraTrackingChangedListener,
         //OnMarkerTappedListener,
         PlatformView {
   private static final String TAG = "MapboxMapController";
@@ -83,6 +86,8 @@ final class MapboxMapController
   private MapboxMap mapboxMap;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
+  private int myLocationTrackingMode = 0;
+  private int myLocationVerticalAlignment = 0;
   private boolean disposed = false;
   private final float density;
   private MethodChannel.Result mapReadyResult;
@@ -90,6 +95,10 @@ final class MapboxMapController
   private final Context context;
   private final String styleStringInitial;
   LocationComponent locationComponent = null;
+
+  private static final int LocationVerticalAlignmentCenter = 0; //TODO: implement
+  private static final int LocationVerticalAlignmentTop = 1; //TODO: implement
+  private static final int LocationVerticalAlignmentBottom = 2; //TODO: implement
 
   MapboxMapController(
       int id,
@@ -249,11 +258,16 @@ final class MapboxMapController
   @SuppressWarnings( {"MissingPermission"})
   private void enableLocationComponent() {
     if (hasLocationPermission()) {
+      LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(context)
+        .trackingGesturesManagement(true)
+        .build();
       locationComponent = mapboxMap.getLocationComponent();
-      locationComponent.activateLocationComponent(context, mapboxMap.getStyle());
+      locationComponent.activateLocationComponent(context, mapboxMap.getStyle(), locationComponentOptions);
       locationComponent.setLocationComponentEnabled(true);
-      locationComponent.setCameraMode(CameraMode.TRACKING);
       locationComponent.setRenderMode(RenderMode.COMPASS);
+      updateMyLocationTrackingMode();
+      setMyLocationTrackingMode(this.myLocationTrackingMode);
+      locationComponent.addOnCameraTrackingChangedListener(this);
     } else {
       Log.e(TAG, "missing location permissions");
     }
@@ -383,6 +397,15 @@ final class MapboxMapController
   @Override
   public void onCameraIdle() {
     methodChannel.invokeMethod("camera#onIdle", Collections.singletonMap("map", id));
+  }
+
+  @Override
+  public void onCameraTrackingChanged(int currentMode) {
+  }
+
+  @Override
+  public void onCameraTrackingDismissed() {
+    methodChannel.invokeMethod("map#onCameraTrackingDismissed",new HashMap<>());
   }
 
 //  @Override
@@ -538,10 +561,42 @@ final class MapboxMapController
     }
   }
 
+  @Override
+  public void setMyLocationTrackingMode(int myLocationTrackingMode) {
+    if (this.myLocationTrackingMode == myLocationTrackingMode) {
+      return;
+    }
+    this.myLocationTrackingMode = myLocationTrackingMode;
+    if (mapboxMap != null && locationComponent != null) {
+      updateMyLocationTrackingMode();
+    }
+  }
+
+  @Override
+  public void setMyLocationVerticalAlignment(int myLocationVerticalAlignment) {
+    if (this.myLocationVerticalAlignment == myLocationVerticalAlignment) {
+      return;
+    }
+    this.myLocationVerticalAlignment = myLocationVerticalAlignment;
+    if (mapboxMap != null && locationComponent != null) {
+      updateMyLocationVerticalAlignment();
+    }
+  }
+
   private void updateMyLocationEnabled() {
-    // if (locationComponent != null)  {
-    //   locationComponent.setLocationComponentEnabled(this.myLocationEnabled);
-    // }
+    //TODO: call location initialization if changed to true and not initialized yet.;
+    //Show/Hide use location as needed
+  }
+
+  private void updateMyLocationTrackingMode() {
+    int[] mapboxTrackingModes = new int[]{ CameraMode.NONE, CameraMode.TRACKING, CameraMode.TRACKING_COMPASS, CameraMode.TRACKING_GPS };
+    locationComponent.setCameraMode(mapboxTrackingModes[this.myLocationTrackingMode]);
+  }
+  
+  private void updateMyLocationVerticalAlignment() {
+    //not implemented yet.
+    // Learn from here: 
+    // https://github.com/mapbox/react-native-mapbox-gl/blob/master/android/rctmgl/src/main/java/com/mapbox/rctmgl/components/mapview/RCTMGLMapView.java#L1411
   }
 
   private boolean hasLocationPermission() {
