@@ -87,7 +87,6 @@ final class MapboxMapController
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
   private int myLocationTrackingMode = 0;
-  private int myLocationVerticalAlignment = 0;
   private boolean disposed = false;
   private final float density;
   private MethodChannel.Result mapReadyResult;
@@ -95,10 +94,6 @@ final class MapboxMapController
   private final Context context;
   private final String styleStringInitial;
   LocationComponent locationComponent = null;
-
-  private static final int LocationVerticalAlignmentCenter = 0; //TODO: implement
-  private static final int LocationVerticalAlignmentTop = 1; //TODO: implement
-  private static final int LocationVerticalAlignmentBottom = 2; //TODO: implement
 
   MapboxMapController(
       int id,
@@ -572,17 +567,6 @@ final class MapboxMapController
     }
   }
 
-  @Override
-  public void setMyLocationVerticalAlignment(int myLocationVerticalAlignment) {
-    if (this.myLocationVerticalAlignment == myLocationVerticalAlignment) {
-      return;
-    }
-    this.myLocationVerticalAlignment = myLocationVerticalAlignment;
-    if (mapboxMap != null && locationComponent != null) {
-      updateMyLocationVerticalAlignment();
-    }
-  }
-
   private void updateMyLocationEnabled() {
     //TODO: call location initialization if changed to true and not initialized yet.;
     //Show/Hide use location as needed
@@ -593,12 +577,6 @@ final class MapboxMapController
     locationComponent.setCameraMode(mapboxTrackingModes[this.myLocationTrackingMode]);
   }
   
-  private void updateMyLocationVerticalAlignment() {
-    //not implemented yet.
-    // Learn from here: 
-    // https://github.com/mapbox/react-native-mapbox-gl/blob/master/android/rctmgl/src/main/java/com/mapbox/rctmgl/components/mapview/RCTMGLMapView.java#L1411
-  }
-
   private boolean hasLocationPermission() {
     return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED

@@ -64,12 +64,6 @@ enum MyLocationTrackingMode {
   TrackingGPS,
 }
 
-enum MyLocationVerticalAlignment {
-  Center,
-  Top,
-  Bottom
-}
-
 /// Bounds for the map camera target.
 // Used with [MapboxMapOptions] to wrap a [LatLngBounds] value. This allows
 // distinguishing between specifying an unbounded target (null `LatLngBounds`)

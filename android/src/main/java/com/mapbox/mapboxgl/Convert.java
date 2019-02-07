@@ -223,10 +223,6 @@ class Convert {
     if (myLocationTrackingMode != null) {
       sink.setMyLocationTrackingMode(toInt(myLocationTrackingMode));
     }
-    final Object myLocationVerticalAlignment = data.get("myLocationVerticalAlignment");
-    if (myLocationVerticalAlignment != null) {
-      sink.setMyLocationVerticalAlignment(toInt(myLocationVerticalAlignment));
-    }
   }
 
 //  static void interpretMarkerOptions(Object o, MarkerOptionsSink sink) {

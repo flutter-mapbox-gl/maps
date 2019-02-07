@@ -24,7 +24,6 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
   private int myLocationTrackingMode = 0;
-  private int myLocationVerticalAlignment = 0;
   private String styleString = Style.MAPBOX_STREETS;
 
   MapboxMapController build(
@@ -33,7 +32,6 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
         new MapboxMapController(id, context, state, registrar, options, styleString);
     controller.init();
     controller.setMyLocationEnabled(myLocationEnabled);
-    controller.setMyLocationTrackingMode(myLocationTrackingMode);
     controller.setMyLocationTrackingMode(myLocationTrackingMode);
     controller.setTrackCameraPosition(trackCameraPosition);
     return controller;
@@ -105,9 +103,5 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   public void setMyLocationTrackingMode(int myLocationTrackingMode) {
     this.myLocationTrackingMode = myLocationTrackingMode;
   }
-
-  @Override
-  public void setMyLocationVerticalAlignment(int myLocationVerticalAlignment) {
-    this.myLocationVerticalAlignment = myLocationVerticalAlignment;
-  }
+  
 }

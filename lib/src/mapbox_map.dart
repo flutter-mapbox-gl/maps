@@ -22,7 +22,6 @@ class MapboxMap extends StatefulWidget {
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
-    this.myLocationVerticalAlignment = MyLocationVerticalAlignment.Center,
     this.onMapClick,
     this.onCameraTrackingDismissed,
   }) : assert(initialCameraPosition != null);
@@ -90,11 +89,6 @@ class MapboxMap extends StatefulWidget {
 
   /// The mode used to track the user location on the map
   final MyLocationTrackingMode myLocationTrackingMode;
-
-  /// not implemented yet! TODO
-  /// The vertical alignment of the user location within in map.
-  /// This is only enabled while tracking the users location.
-  final MyLocationVerticalAlignment myLocationVerticalAlignment;
 
   /// Which gestures should be consumed by the map.
   ///
@@ -203,7 +197,6 @@ class _MapboxMapOptions {
     this.zoomGesturesEnabled,
     this.myLocationEnabled,
     this.myLocationTrackingMode,
-    this.myLocationVerticalAlignment,
   });
 
   static _MapboxMapOptions fromWidget(MapboxMap map) {
@@ -219,7 +212,6 @@ class _MapboxMapOptions {
       zoomGesturesEnabled: map.zoomGesturesEnabled,
       myLocationEnabled: map.myLocationEnabled,
       myLocationTrackingMode: map.myLocationTrackingMode,
-      myLocationVerticalAlignment: map.myLocationVerticalAlignment,
     );
   }
 
@@ -245,8 +237,6 @@ class _MapboxMapOptions {
 
   final MyLocationTrackingMode myLocationTrackingMode;
 
-  final MyLocationVerticalAlignment myLocationVerticalAlignment;
-
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> optionsMap = <String, dynamic>{};
 
@@ -267,8 +257,6 @@ class _MapboxMapOptions {
     addIfNonNull('trackCameraPosition', trackCameraPosition);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
-    addIfNonNull(
-        'myLocationVerticalAlignment', myLocationVerticalAlignment?.index);
     return optionsMap;
   }
 
