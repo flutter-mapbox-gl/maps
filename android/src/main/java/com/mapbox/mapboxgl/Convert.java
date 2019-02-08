@@ -93,7 +93,7 @@ class Convert {
       case "bearingTo":
         return CameraUpdateFactory.bearingTo(toFloat(data.get(1)));
       case "tiltTo":
-        return CameraUpdateFactory.tiltTo(toFloat(data.get(1)));
+        return CameraUpdateFactory.tiltTo(toFloat(data.get(1))); 
       default:
         throw new IllegalArgumentException("Cannot interpret " + o + " as CameraUpdate");
     }
