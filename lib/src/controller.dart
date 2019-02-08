@@ -6,6 +6,8 @@ part of mapbox_gl;
 
 typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
 
+typedef void OnCameraTrackingDismissedCallback();
+
 /// Controller for a single MapboxMap instance running on the host platform.
 ///
 /// Change listeners are notified upon changes to any of
@@ -20,7 +22,8 @@ typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
 /// Marker tap events can be received by adding callbacks to [onMarkerTapped].
 class MapboxMapController extends ChangeNotifier {
   MapboxMapController._(
-      this._id, MethodChannel channel, CameraPosition initialCameraPosition, {this.onMapClick})
+      this._id, MethodChannel channel, CameraPosition initialCameraPosition,
+      {this.onMapClick, this.onCameraTrackingDismissed})
       : assert(_id != null),
         assert(channel != null),
         _channel = channel {
@@ -29,17 +32,23 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   static Future<MapboxMapController> init(
-      int id, CameraPosition initialCameraPosition, {OnMapClickCallback onMapClick}) async {
+      int id, CameraPosition initialCameraPosition,
+      {OnMapClickCallback onMapClick,
+      OnCameraTrackingDismissedCallback onCameraTrackingDismissed}) async {
     assert(id != null);
     final MethodChannel channel =
         MethodChannel('plugins.flutter.io/mapbox_maps_$id');
     await channel.invokeMethod('map#waitForMap');
-    return MapboxMapController._(id, channel, initialCameraPosition, onMapClick: onMapClick);
+    return MapboxMapController._(id, channel, initialCameraPosition,
+        onMapClick: onMapClick,
+        onCameraTrackingDismissed: onCameraTrackingDismissed);
   }
 
   final MethodChannel _channel;
 
   final OnMapClickCallback onMapClick;
+
+  final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
 
   /// Callbacks to receive tap events for markers placed on this map.
   final ArgumentCallbacks<Marker> onMarkerTapped = ArgumentCallbacks<Marker>();
@@ -101,6 +110,11 @@ class MapboxMapController extends ChangeNotifier {
         final double lat = call.arguments['lat'];
         if (onMapClick != null) {
           onMapClick(Point<double>(x, y), LatLng(lat, lng));
+        }
+        break;
+      case 'map#onCameraTrackingDismissed':
+        if (onCameraTrackingDismissed != null) {
+          onCameraTrackingDismissed();
         }
         break;
       default:
@@ -246,23 +260,23 @@ class MapboxMapController extends ChangeNotifier {
     }
   }
 
-  Future<List> queryRenderedFeaturesInRect(Rect rect, List<String> layerIds, String filter) async {
-	    try {
-	      final Map<Object, Object> reply = await _channel.invokeMethod(
-	        'map#queryRenderedFeatures',
-	        <String, Object>{
-	          'left': rect.left,
-	          'top': rect.top,
-	          'right': rect.right,
-	          'bottom': rect.bottom,
-	          'layerIds': layerIds,
-	          'filter': filter,
-	        },
-	      );
-	      return reply['features'];
-	    } on PlatformException catch (e) {
-	      return new Future.error(e);
-	    }
-	  }
-
+  Future<List> queryRenderedFeaturesInRect(
+      Rect rect, List<String> layerIds, String filter) async {
+    try {
+      final Map<Object, Object> reply = await _channel.invokeMethod(
+        'map#queryRenderedFeatures',
+        <String, Object>{
+          'left': rect.left,
+          'top': rect.top,
+          'right': rect.right,
+          'bottom': rect.bottom,
+          'layerIds': layerIds,
+          'filter': filter,
+        },
+      );
+      return reply['features'];
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
 }

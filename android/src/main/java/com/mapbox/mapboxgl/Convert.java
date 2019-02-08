@@ -219,6 +219,10 @@ class Convert {
     if (myLocationEnabled != null) {
       sink.setMyLocationEnabled(toBoolean(myLocationEnabled));
     }
+    final Object myLocationTrackingMode = data.get("myLocationTrackingMode");
+    if (myLocationTrackingMode != null) {
+      sink.setMyLocationTrackingMode(toInt(myLocationTrackingMode));
+    }
   }
 
 //  static void interpretMarkerOptions(Object o, MarkerOptionsSink sink) {

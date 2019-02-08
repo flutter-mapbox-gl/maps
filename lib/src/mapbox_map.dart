@@ -21,7 +21,9 @@ class MapboxMap extends StatefulWidget {
     this.tiltGesturesEnabled = true,
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
+    this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
     this.onMapClick,
+    this.onCameraTrackingDismissed,
   }) : assert(initialCameraPosition != null);
 
   final MapCreatedCallback onMapCreated;
@@ -34,7 +36,7 @@ class MapboxMap extends StatefulWidget {
 
   /// Geographical bounding box for the camera target.
   final CameraTargetBounds cameraTargetBounds;
-  
+
   /// Style URL or Style JSON
   /// Can be a MapboxStyle constant, any Mapbox Style URL,
   /// or a StyleJSON (https://docs.mapbox.com/mapbox-gl-js/style-spec/)
@@ -85,6 +87,9 @@ class MapboxMap extends StatefulWidget {
   /// when the map tries to turn on the My Location layer.
   final bool myLocationEnabled;
 
+  /// The mode used to track the user location on the map
+  final MyLocationTrackingMode myLocationTrackingMode;
+
   /// Which gestures should be consumed by the map.
   ///
   /// It is possible for other gesture recognizers to be competing with the map on pointer
@@ -97,6 +102,9 @@ class MapboxMap extends StatefulWidget {
   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
 
   final OnMapClickCallback onMapClick;
+
+  /// Called when the location tracking mode changes, such as when the user moves the map
+  final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
 
   @override
   State createState() => _MapboxMapState();
@@ -161,8 +169,10 @@ class _MapboxMapState extends State<MapboxMap> {
   }
 
   Future<void> onPlatformViewCreated(int id) async {
-    final MapboxMapController controller =
-        await MapboxMapController.init(id, widget.initialCameraPosition, onMapClick: widget.onMapClick);
+    final MapboxMapController controller = await MapboxMapController.init(
+        id, widget.initialCameraPosition,
+        onMapClick: widget.onMapClick,
+        onCameraTrackingDismissed: widget.onCameraTrackingDismissed);
     _controller.complete(controller);
     if (widget.onMapCreated != null) {
       widget.onMapCreated(controller);
@@ -186,6 +196,7 @@ class _MapboxMapOptions {
     this.trackCameraPosition,
     this.zoomGesturesEnabled,
     this.myLocationEnabled,
+    this.myLocationTrackingMode,
   });
 
   static _MapboxMapOptions fromWidget(MapboxMap map) {
@@ -200,6 +211,7 @@ class _MapboxMapOptions {
       trackCameraPosition: map.trackCameraPosition,
       zoomGesturesEnabled: map.zoomGesturesEnabled,
       myLocationEnabled: map.myLocationEnabled,
+      myLocationTrackingMode: map.myLocationTrackingMode,
     );
   }
 
@@ -223,6 +235,8 @@ class _MapboxMapOptions {
 
   final bool myLocationEnabled;
 
+  final MyLocationTrackingMode myLocationTrackingMode;
+
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> optionsMap = <String, dynamic>{};
 
@@ -242,6 +256,7 @@ class _MapboxMapOptions {
     addIfNonNull('zoomGesturesEnabled', zoomGesturesEnabled);
     addIfNonNull('trackCameraPosition', trackCameraPosition);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
+    addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
     return optionsMap;
   }
 
