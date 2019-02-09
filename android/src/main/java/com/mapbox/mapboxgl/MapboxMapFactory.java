@@ -9,6 +9,7 @@ import com.mapbox.mapboxsdk.camera.CameraPosition;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.platform.PlatformView;
 import io.flutter.plugin.platform.PlatformViewFactory;
+
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
