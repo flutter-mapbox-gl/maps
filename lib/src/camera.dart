@@ -176,6 +176,16 @@ class CameraUpdate {
     return CameraUpdate._(<dynamic>['zoomTo', zoom]);
   }
 
+  /// Returns a camera update that sets the camera bearing.
+  static CameraUpdate bearingTo(double bearing) {
+    return CameraUpdate._(<dynamic>['bearingTo', bearing]);
+  }
+  
+  /// Returns a camera update that sets the camera bearing.
+  static CameraUpdate tiltTo(double tilt) {
+    return CameraUpdate._(<dynamic>['tiltTo', tilt]);
+  }
+
   final dynamic _json;
 
   dynamic _toJson() => _json;
