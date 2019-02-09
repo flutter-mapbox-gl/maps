@@ -13,13 +13,13 @@ typedef void OnCameraTrackingDismissedCallback();
 /// Change listeners are notified upon changes to any of
 ///
 /// * the [options] property
-/// * the collection of [Marker]s added to this map
+/// * the collection of [Symbol]s added to this map
 /// * the [isCameraMoving] property
 /// * the [cameraPosition] property
 ///
 /// Listeners are notified after changes have been applied on the platform side.
 ///
-/// Marker tap events can be received by adding callbacks to [onMarkerTapped].
+/// Symbol tap events can be received by adding callbacks to [onSymbolTapped].
 class MapboxMapController extends ChangeNotifier {
   MapboxMapController._(
       this._id, MethodChannel channel, CameraPosition initialCameraPosition,
@@ -50,18 +50,18 @@ class MapboxMapController extends ChangeNotifier {
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
 
-  /// Callbacks to receive tap events for markers placed on this map.
-  final ArgumentCallbacks<Marker> onMarkerTapped = ArgumentCallbacks<Marker>();
+  /// Callbacks to receive tap events for symbols placed on this map.
+  final ArgumentCallbacks<Symbol> onSymbolTapped = ArgumentCallbacks<Symbol>();
 
-  /// Callbacks to receive tap events for info windows on markers
-  final ArgumentCallbacks<Marker> onInfoWindowTapped =
-      ArgumentCallbacks<Marker>();
+  /// Callbacks to receive tap events for info windows on symbols
+  final ArgumentCallbacks<Symbol> onInfoWindowTapped =
+      ArgumentCallbacks<Symbol>();
 
-  /// The current set of markers on this map.
+  /// The current set of symbols on this map.
   ///
-  /// The returned set will be a detached snapshot of the markers collection.
-  Set<Marker> get markers => Set<Marker>.from(_markers.values);
-  final Map<String, Marker> _markers = <String, Marker>{};
+  /// The returned set will be a detached snapshot of the symbols collection.
+  Set<Symbol> get symbols => Set<Symbol>.from(_symbols.values);
+  final Map<String, Symbol> _symbols = <String, Symbol>{};
 
   /// True if the map camera is currently moving.
   bool get isCameraMoving => _isCameraMoving;
@@ -77,18 +77,17 @@ class MapboxMapController extends ChangeNotifier {
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'infoWindow#onTap':
-        final String markerId = call.arguments['marker'];
-        final Marker marker = _markers[markerId];
-        if (marker != null) {
-          onInfoWindowTapped(marker);
+        final String symbolId = call.arguments['symbol'];
+        final Symbol symbol = _symbols[symbolId];
+        if (symbol != null) {
+          onInfoWindowTapped(symbol);
         }
         break;
-
-      case 'marker#onTap':
-        final String markerId = call.arguments['marker'];
-        final Marker marker = _markers[markerId];
-        if (marker != null) {
-          onMarkerTapped(marker);
+      case 'symbol#onTap':
+        final String symbolId = call.arguments['symbol'];
+        final Symbol symbol = _symbols[symbolId];
+        if (symbol != null) {
+          onSymbolTapped(symbol);
         }
         break;
       case 'camera#onMoveStarted':
@@ -160,86 +159,86 @@ class MapboxMapController extends ChangeNotifier {
     });
   }
 
-  /// Adds a marker to the map, configured using the specified custom [options].
+  /// Adds a symbol to the map, configured using the specified custom [options].
   ///
-  /// Change listeners are notified once the marker has been added on the
+  /// Change listeners are notified once the symbol has been added on the
   /// platform side.
   ///
-  /// The returned [Future] completes with the added marker once listeners have
+  /// The returned [Future] completes with the added symbol once listeners have
   /// been notified.
-  Future<Marker> addMarker(MarkerOptions options) async {
-    final MarkerOptions effectiveOptions =
-        MarkerOptions.defaultOptions.copyWith(options);
-    final String markerId = await _channel.invokeMethod(
-      'marker#add',
+  Future<Symbol> addSymbol(SymbolOptions options) async {
+    final SymbolOptions effectiveOptions =
+        SymbolOptions.defaultOptions.copyWith(options);
+    final String symbolId = await _channel.invokeMethod(
+      'symbol#add',
       <String, dynamic>{
         'options': effectiveOptions._toJson(),
       },
     );
-    final Marker marker = Marker(markerId, effectiveOptions);
-    _markers[markerId] = marker;
+    final Symbol symbol = Symbol(symbolId, effectiveOptions);
+    _symbols[symbolId] = symbol;
     notifyListeners();
-    return marker;
+    return symbol;
   }
 
-  /// Updates the specified [marker] with the given [changes]. The marker must
-  /// be a current member of the [markers] set.
+  /// Updates the specified [symbol] with the given [changes]. The symbol must
+  /// be a current member of the [symbols] set.
   ///
-  /// Change listeners are notified once the marker has been updated on the
+  /// Change listeners are notified once the symbol has been updated on the
   /// platform side.
   ///
   /// The returned [Future] completes once listeners have been notified.
-  Future<void> updateMarker(Marker marker, MarkerOptions changes) async {
-    assert(marker != null);
-    assert(_markers[marker._id] == marker);
+  Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
+    assert(symbol != null);
+    assert(_symbols[symbol._id] == symbol);
     assert(changes != null);
-    await _channel.invokeMethod('marker#update', <String, dynamic>{
-      'marker': marker._id,
+    await _channel.invokeMethod('symbol#update', <String, dynamic>{
+      'symbol': symbol._id,
       'options': changes._toJson(),
     });
-    marker._options = marker._options.copyWith(changes);
+    symbol._options = symbol._options.copyWith(changes);
     notifyListeners();
   }
 
-  /// Removes the specified [marker] from the map. The marker must be a current
-  /// member of the [markers] set.
+  /// Removes the specified [symbol] from the map. The symbol must be a current
+  /// member of the [symbols] set.
   ///
-  /// Change listeners are notified once the marker has been removed on the
+  /// Change listeners are notified once the symbol has been removed on the
   /// platform side.
   ///
   /// The returned [Future] completes once listeners have been notified.
-  Future<void> removeMarker(Marker marker) async {
-    assert(marker != null);
-    assert(_markers[marker._id] == marker);
-    await _removeMarker(marker._id);
+  Future<void> removeSymbol(Symbol symbol) async {
+    assert(symbol != null);
+    assert(_symbols[symbol._id] == symbol);
+    await _removeSymbol(symbol._id);
     notifyListeners();
   }
 
-  /// Removes all [markers] from the map.
+  /// Removes all [symbols] from the map.
   ///
-  /// Change listeners are notified once all markers have been removed on the
+  /// Change listeners are notified once all symbols have been removed on the
   /// platform side.
   ///
   /// The returned [Future] completes once listeners have been notified.
-  Future<void> clearMarkers() async {
-    assert(_markers != null);
-    final List<String> markerIds = List<String>.from(_markers.keys);
-    for (String id in markerIds) {
-      await _removeMarker(id);
+  Future<void> clearSymbols() async {
+    assert(_symbols != null);
+    final List<String> symbolIds = List<String>.from(_symbols.keys);
+    for (String id in symbolIds) {
+      await _removeSymbol(id);
     }
     notifyListeners();
   }
 
-  /// Helper method to remove a single marker from the map. Consumed by
-  /// [removeMarker] and [clearMarkers].
+  /// Helper method to remove a single symbol from the map. Consumed by
+  /// [removeSymbol] and [clearSymbols].
   ///
-  /// The returned [Future] completes once the marker has been removed from
-  /// [_markers].
-  Future<void> _removeMarker(String id) async {
-    await _channel.invokeMethod('marker#remove', <String, dynamic>{
-      'marker': id,
+  /// The returned [Future] completes once the symbol has been removed from
+  /// [_symbols].
+  Future<void> _removeSymbol(String id) async {
+    await _channel.invokeMethod('symbol#remove', <String, dynamic>{
+      'symbol': id,
     });
-    _markers.remove(id);
+    _symbols.remove(id);
   }
 
   Future<List> queryRenderedFeatures(

@@ -6,14 +6,16 @@ package com.mapbox.mapboxgl;
 
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 
-/** Receiver of MapboxMap configuration options. */
+/**
+ * Receiver of MapboxMap configuration options.
+ */
 interface MapboxMapOptionsSink {
   void setCameraTargetBounds(LatLngBounds bounds); //todo: dddd replace with CameraPosition.Builder target
 
   void setCompassEnabled(boolean compassEnabled);
 
   // TODO: styleString is not actually a part of options. consider moving
-  void setStyleString(String styleString); 
+  void setStyleString(String styleString);
 
   void setMinMaxZoomPreference(Float min, Float max);
 
@@ -28,6 +30,6 @@ interface MapboxMapOptionsSink {
   void setZoomGesturesEnabled(boolean zoomGesturesEnabled);
 
   void setMyLocationEnabled(boolean myLocationEnabled);
-  
+
   void setMyLocationTrackingMode(int myLocationTrackingMode);
 }
