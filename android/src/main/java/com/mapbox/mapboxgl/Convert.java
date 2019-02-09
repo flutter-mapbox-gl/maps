@@ -6,6 +6,7 @@ package com.mapbox.mapboxgl;
 
 import android.graphics.Point;
 
+import android.util.Log;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -225,58 +226,114 @@ class Convert {
     }
   }
 
-//  static void interpretMarkerOptions(Object o, MarkerOptionsSink sink) {
-//    final Map<?, ?> data = toMap(o);
-//    final Object alpha = data.get("alpha");
-//    if (alpha != null) {
-//      sink.setAlpha(toFloat(alpha));
-//    }
-//    final Object anchor = data.get("anchor");
-//    if (anchor != null) {
-//      final List<?> anchorData = toList(anchor);
-//      sink.setAnchor(toFloat(anchorData.get(0)), toFloat(anchorData.get(1)));
-//    }
-//    final Object consumesTapEvents = data.get("consumesTapEvents");
-//    if (consumesTapEvents != null) {
-//      sink.setConsumeTapEvents(toBoolean(consumesTapEvents));
-//    }
-//    final Object draggable = data.get("draggable");
-//    if (draggable != null) {
-//      sink.setDraggable(toBoolean(draggable));
-//    }
-//    final Object flat = data.get("flat");
-//    if (flat != null) {
-//      sink.setFlat(toBoolean(flat));
-//    }
-//    final Object icon = data.get("icon");
-//    if (icon != null) {
-//      sink.setIcon(toBitmapDescriptor(icon));
-//    }
-//    final Object infoWindowAnchor = data.get("infoWindowAnchor");
-//    if (infoWindowAnchor != null) {
-//      final List<?> anchorData = toList(infoWindowAnchor);
-//      sink.setInfoWindowAnchor(toFloat(anchorData.get(0)), toFloat(anchorData.get(1)));
-//    }
-//    final Object infoWindowText = data.get("infoWindowText");
-//    if (infoWindowText != null) {
-//      final List<?> textData = toList(infoWindowText);
-//      sink.setInfoWindowText(toString(textData.get(0)), toString(textData.get(1)));
-//    }
-//    final Object position = data.get("position");
-//    if (position != null) {
-//      sink.setPosition(toLatLng(position));
-//    }
-//    final Object rotation = data.get("rotation");
-//    if (rotation != null) {
-//      sink.setRotation(toFloat(rotation));
-//    }
-//    final Object visible = data.get("visible");
-//    if (visible != null) {
-//      sink.setVisible(toBoolean(visible));
-//    }
-//    final Object zIndex = data.get("zIndex");
-//    if (zIndex != null) {
-//      sink.setZIndex(toFloat(zIndex));
-//    }
-//  }
+  static void interpretSymbolOptions(Object o, SymbolOptionsSink sink) {
+    Log.e("SymbolBuilder", "INTERPRET SYMBOLS");
+    final Map<?, ?> data = toMap(o);
+    final Object iconSize = data.get("iconSize");
+    if(iconSize != null) {
+      sink.setIconSize(toFloat(iconSize));
+    }
+    final Object iconImage = data.get("iconImage");
+    if(iconImage != null) {
+      Log.e("SymbolBuilder", "CONVERT ICON IMAGE");
+      sink.setIconImage(toString(iconImage));
+    }
+    final Object iconRotate = data.get("iconRotate");
+    if(iconRotate != null) {
+      sink.setIconRotate(toFloat(iconRotate));
+    }
+    final Object iconOffset = data.get("iconOffset");
+    if(iconOffset != null) {
+      sink.setIconOffset(new float[]{toFloat(toList(iconOffset).get(0)), toFloat(toList(iconOffset).get(1))});
+    }
+    final Object iconAnchor = data.get("iconAnchor");
+    if(iconAnchor != null) {
+      sink.setIconAnchor(toString(iconAnchor));
+    }
+    final Object textField = data.get("textField");
+    if(textField != null) {
+      sink.setTextField(toString(textField));
+    }
+    final Object textSize = data.get("textSize");
+    if(textSize != null) {
+      sink.setTextSize(toFloat(textSize));
+    }
+    final Object textMaxWidth = data.get("textMaxWidth");
+    if(textMaxWidth != null) {
+      sink.setTextMaxWidth(toFloat(textMaxWidth));
+    }
+    final Object textLetterSpacing = data.get("textLetterSpacing");
+    if(textLetterSpacing != null) {
+      sink.setTextLetterSpacing(toFloat(textLetterSpacing));
+    }
+    final Object textJustify = data.get("textJustify");
+    if(textJustify != null) {
+      sink.setTextJustify(toString(textJustify));
+    }
+    final Object textAnchor = data.get("textAnchor");
+    if(textAnchor != null) {
+      sink.setTextAnchor(toString(textAnchor));
+    }
+    final Object textRotate = data.get("textRotate");
+    if(textRotate != null) {
+      sink.setTextRotate(toFloat(textRotate));
+    }
+    final Object textTransform = data.get("textTransform");
+    if(textTransform != null) {
+      sink.setTextTransform(toString(textTransform));
+    }
+    final Object textOffset = data.get("textOffset");
+    if(textOffset != null) {
+      sink.setTextOffset(new float[]{toFloat(toList(textOffset).get(0)), toFloat(toList(textOffset).get(1))});
+    }
+    final Object iconOpacity = data.get("iconOpacity");
+    if(iconOpacity != null) {
+      sink.setIconOpacity(toFloat(iconOpacity));
+    }
+    final Object iconColor = data.get("iconColor");
+    if(iconColor != null) {
+      sink.setIconColor(toString(iconColor));
+    }
+    final Object iconHaloColor = data.get("iconHaloColor");
+    if(iconHaloColor != null) {
+      sink.setIconHaloColor(toString(iconHaloColor));
+    }
+    final Object iconHaloWidth = data.get("iconHaloWidth");
+    if(iconHaloWidth != null) {
+      sink.setIconHaloWidth(toFloat(iconHaloWidth));
+    }
+    final Object iconHaloBlur = data.get("iconHaloBlur");
+    if(iconHaloBlur != null) {
+      sink.setIconHaloBlur(toFloat(iconHaloBlur));
+    }
+    final Object textOpacity = data.get("textOpacity");
+    if(textOpacity != null) {
+      sink.setTextOpacity(toFloat(textOpacity));
+    }
+    final Object textColor = data.get("textColor");
+    if(textColor != null) {
+      sink.setTextColor(toString(textColor));
+    }
+    final Object textHaloColor = data.get("textHaloColor");
+    if(textHaloColor != null) {
+      sink.setTextHaloColor(toString(textHaloColor));
+    }
+    final Object textHaloWidth = data.get("textHaloWidth");
+    if(textHaloWidth != null) {
+      sink.setTextHaloWidth(toFloat(textHaloWidth));
+    }
+    final Object textHaloBlur = data.get("textHaloBlur");
+    if(textHaloBlur != null) {
+      sink.setTextHaloBlur(toFloat(textHaloBlur));
+    }
+    final Object geometry = data.get("geometry");
+    if (geometry != null) {
+      sink.setGeometry(toLatLng(geometry));
+    }
+    final Object zIndex = data.get("zIndex");
+    if (zIndex != null) {
+      sink.setZIndex(toInt(zIndex));
+    }
+  }
+
 }

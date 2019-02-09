@@ -25,7 +25,6 @@ import android.graphics.PointF;
 
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
-import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 
@@ -36,6 +35,8 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.geojson.Feature;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -57,6 +58,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
 import java.util.ArrayList;
+import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -67,14 +69,14 @@ final class MapboxMapController
         MapboxMap.OnCameraIdleListener,
         MapboxMap.OnCameraMoveListener,
         MapboxMap.OnCameraMoveStartedListener,
-        MapboxMap.OnInfoWindowClickListener,
-       // MapboxMap.OnMarkerClickListener,//todo: deprecated in 7
+       // MapboxMap.OnInfoWindowClickListener,
+       // MapboxMap.OnSymbolClickListener,//todo: deprecated in 7
         MapboxMap.OnMapClickListener,
         MapboxMapOptionsSink,
         MethodChannel.MethodCallHandler,
         com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
         OnCameraTrackingChangedListener,
-        //OnMarkerTappedListener,
+        //OnSymbolTappedListener,
         PlatformView {
   private static final String TAG = "MapboxMapController";
   private final int id;
@@ -82,8 +84,9 @@ final class MapboxMapController
   private final MethodChannel methodChannel;
   private final PluginRegistry.Registrar registrar;
   private final MapView mapView;
-  //private final Map<String, MarkerController> markers;
+  private final Map<String, SymbolController> symbols;
   private MapboxMap mapboxMap;
+  private SymbolManager symbolManager;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
   private int myLocationTrackingMode = 0;
@@ -109,7 +112,7 @@ final class MapboxMapController
     this.registrar = registrar;
     this.styleStringInitial = styleStringInitial;
     this.mapView = new MapView(context, options);
-  //  this.markers = new HashMap<>();
+    this.symbols = new HashMap<>();
     this.density = context.getResources().getDisplayMetrics().density;
     methodChannel =
         new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_maps_" + id);
@@ -188,36 +191,36 @@ final class MapboxMapController
     return trackCameraPosition ? mapboxMap.getCameraPosition() : null;
   }
 
-//  private MarkerBuilder newMarkerBuilder() {
-//    return new MarkerBuilder(this);
-//  }
+  private SymbolBuilder newSymbolBuilder() {
+    return new SymbolBuilder(symbolManager);
+  }
 
-//  Marker addMarker(MarkerOptions markerOptions, boolean consumesTapEvents) {
-//    final Marker marker = mapboxMap.addMarker(markerOptions);
-//    markers.put(marker.getId(), new MarkerController(marker, consumesTapEvents, this));
-//    return marker;
-//  }
-//
-//  private void removeMarker(String markerId) {
-//    final MarkerController markerController = markers.remove(markerId);
-//    if (markerController != null) {
-//      markerController.remove();
-//    }
-//  }
-//
-//  private MarkerController marker(String markerId) {
-//    final MarkerController marker = markers.get(markerId);
-//    if (marker == null) {
-//      throw new IllegalArgumentException("Unknown marker: " + markerId);
-//    }
-//    return marker;
-//  }
+  Symbol addSymbol(SymbolOptions symbolOptions, boolean consumesTapEvents) {
+    final Symbol symbol = symbolManager.create(symbolOptions);
+    symbols.put(String.valueOf(symbol.getId()), new SymbolController(symbol, consumesTapEvents, null));
+    return symbol;
+  }
+
+  private void removeSymbol(String symbolId) {
+    final SymbolController symbolController = symbols.remove(symbolId);
+    if (symbolController != null) {
+      symbolController.remove();
+    }
+  }
+
+  private SymbolController symbol(String symbolId) {
+    final SymbolController symbol = symbols.get(symbolId);
+    if (symbol == null) {
+      throw new IllegalArgumentException("Unknown symbol: " + symbolId);
+    }
+    return symbol;
+  }
 
   @Override
   public void onMapReady(MapboxMap mapboxMap) {
     this.mapboxMap = mapboxMap;
     // mapboxMap.setStyle(Style.MAPBOX_STREETS);
-    mapboxMap.setOnInfoWindowClickListener(this);
+    //mapboxMap.setOnInfoWindowClickListener(this);
     if (mapReadyResult != null) {
       mapReadyResult.success(null);
       mapReadyResult = null;
@@ -225,7 +228,7 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveStartedListener(this);
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
-    //mapboxMap.setOnMarkerClickListener(this);
+    //mapboxMap.setOnSymbolClickListener(this);
     mapboxMap.addOnMapClickListener(this);
     setStyleString(styleStringInitial);
     // updateMyLocationEnabled();
@@ -246,18 +249,19 @@ final class MapboxMapController
   Style.OnStyleLoaded onStyleLoadedCallback = new Style.OnStyleLoaded() {
     @Override
     public void onStyleLoaded(@NonNull Style style) {
-      enableLocationComponent();
+      enableSymbolmanager(style);
+      enableLocationComponent(style);
     }
   };
 
   @SuppressWarnings( {"MissingPermission"})
-  private void enableLocationComponent() {
+  private void enableLocationComponent(@NonNull Style style) {
     if (hasLocationPermission()) {
       LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(context)
         .trackingGesturesManagement(true)
         .build();
       locationComponent = mapboxMap.getLocationComponent();
-      locationComponent.activateLocationComponent(context, mapboxMap.getStyle(), locationComponentOptions);
+      locationComponent.activateLocationComponent(context, style, locationComponentOptions);
       locationComponent.setLocationComponentEnabled(true);
       locationComponent.setRenderMode(RenderMode.COMPASS);
       updateMyLocationTrackingMode();
@@ -265,6 +269,12 @@ final class MapboxMapController
       locationComponent.addOnCameraTrackingChangedListener(this);
     } else {
       Log.e(TAG, "missing location permissions");
+    }
+  }
+
+  private void enableSymbolmanager(@NonNull Style style){
+    if (symbolManager==null) {
+      symbolManager = new SymbolManager(mapView, mapboxMap, style);
     }
   }
 
@@ -335,29 +345,30 @@ final class MapboxMapController
           result.success(reply);
           break;
         }
-//      case "marker#add":
-//        {
-//          final MarkerBuilder markerBuilder = newMarkerBuilder();
-//          Convert.interpretMarkerOptions(call.argument("options"), markerBuilder);
-//          final String markerId = markerBuilder.build();
-//          result.success(markerId);
-//          break;
-//        }
-//      case "marker#remove":
-//        {
-//          final String markerId = call.argument("marker");
-//          removeMarker(markerId);
-//          result.success(null);
-//          break;
-//        }
-//      case "marker#update":
-//        {
-//          final String markerId = call.argument("marker");
-//          final MarkerController marker = marker(markerId);
-//          Convert.interpretMarkerOptions(call.argument("options"), marker);
-//          result.success(null);
-//          break;
-//        }
+      case "symbol#add":
+        {
+          Log.e("Symbol", "SYMBOL ADD");
+          final SymbolBuilder symbolBuilder = newSymbolBuilder();
+          Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
+          final String symbolId = symbolBuilder.build();
+          result.success(symbolId);
+          break;
+        }
+      case "symbol#remove":
+        {
+          final String symbolId = call.argument("symbol");
+          removeSymbol(symbolId);
+          result.success(null);
+          break;
+        }
+      case "symbol#update":
+        {
+          final String symbolId = call.argument("symbol");
+          final SymbolController symbol = symbol(symbolId);
+          Convert.interpretSymbolOptions(call.argument("options"), symbol);
+          result.success(null);
+          break;
+        }
       default:
         result.notImplemented();
     }
@@ -371,13 +382,13 @@ final class MapboxMapController
     methodChannel.invokeMethod("camera#onMoveStarted", arguments);
   }
 
-  @Override
-  public boolean onInfoWindowClick(Marker marker) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-    arguments.put("marker", marker.getId());
-    methodChannel.invokeMethod("infoWindow#onTap", arguments);
-    return false;//todo: need to know if consumed the event or not
-  }
+//  @Override
+//  public boolean onInfoWindowClick(Symbol symbol) {
+//    final Map<String, Object> arguments = new HashMap<>(2);
+//    arguments.put("symbol", symbol.getId());
+//    methodChannel.invokeMethod("infoWindow#onTap", arguments);
+//    return false;//todo: need to know if consumed the event or not
+//  }
 
   @Override
   public void onCameraMove() {
@@ -404,16 +415,16 @@ final class MapboxMapController
   }
 
 //  @Override
-//  public void onMarkerTapped(Marker marker) {
+//  public void onSymbolTapped(Symbol symbol) {
 //    final Map<String, Object> arguments = new HashMap<>(2);
-//    arguments.put("marker", marker.getId());
-//    methodChannel.invokeMethod("marker#onTap", arguments);
+//    arguments.put("symbol", symbol.getId());
+//    methodChannel.invokeMethod("symbol#onTap", arguments);
 //  }
 //
 //  @Override
-//  public boolean onMarkerClick(Marker marker) {
-//    final MarkerController markerController = markers.get(marker.getId());
-//    return (markerController != null && markerController.onTap());
+//  public boolean onSymbolClick(Symbol symbol) {
+//    final SymbolController symbolController = symbols.get(symbol.getId());
+//    return (symbolController != null && symbolController.onTap());
 //  }
 
   @Override
@@ -436,6 +447,9 @@ final class MapboxMapController
     disposed = true;
     if (locationComponent != null) {
       locationComponent.setLocationComponentEnabled(false);
+    }
+    if (symbolManager != null) {
+      symbolManager.onDestroy();
     }
     mapView.onDestroy();
     registrar.activity().getApplication().unregisterActivityLifecycleCallbacks(this);

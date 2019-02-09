@@ -18,6 +18,6 @@ part 'src/callbacks.dart';
 part 'src/camera.dart';
 part 'src/controller.dart';
 part 'src/mapbox_map.dart';
-part 'src/marker.dart';
 part 'src/location.dart';
+part 'src/symbol.dart';
 part 'src/ui.dart';

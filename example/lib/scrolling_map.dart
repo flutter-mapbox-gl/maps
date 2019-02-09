@@ -99,12 +99,12 @@ class ScrollingMapBody extends StatelessWidget {
   }
 
   void onMapCreated(MapboxMapController controller) {
-    controller.addMarker(MarkerOptions(
-      position: LatLng(
+    controller.addSymbol(SymbolOptions(
+      geometry: LatLng(
         center.latitude,
         center.longitude,
       ),
-      infoWindowText: const InfoWindowText('An interesting location', '*'),
+      iconImage: "airport-15"
     ));
   }
 }
