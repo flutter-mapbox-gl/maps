@@ -7,6 +7,7 @@
 package com.mapbox.mapboxgl;
 
 import android.util.Log;
+
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
@@ -22,12 +23,8 @@ class SymbolBuilder implements SymbolOptionsSink {
     this.symbolOptions = new SymbolOptions();
   }
 
-  String build() {
-    Log.e("SymbolBuilder", "ICON IMAGE ID" + symbolOptions.getIconImage());
-    final Symbol symbol = symbolManager.create(symbolOptions);
-    Log.e("SymbolBuilder", symbol.getGeometry().toString());
-    Log.e("SymbolBuilder", "-- symbolCreated");
-    return String.valueOf(symbol.getId());
+  Symbol build() {
+    return symbolManager.create(symbolOptions);
   }
 
   @Override

@@ -35,6 +35,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.geojson.Feature;
+import com.mapbox.mapboxsdk.plugins.annotation.OnSymbolClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
@@ -52,32 +53,36 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.platform.PlatformView;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
 import java.util.ArrayList;
+
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 
 import android.graphics.PointF;
 import android.graphics.RectF;
 
-/** Controller of a single MapboxMaps MapView instance. */
+/**
+ * Controller of a single MapboxMaps MapView instance.
+ */
 final class MapboxMapController
-    implements Application.ActivityLifecycleCallbacks,
-        MapboxMap.OnCameraIdleListener,
-        MapboxMap.OnCameraMoveListener,
-        MapboxMap.OnCameraMoveStartedListener,
-       // MapboxMap.OnInfoWindowClickListener,
-       // MapboxMap.OnSymbolClickListener,//todo: deprecated in 7
-        MapboxMap.OnMapClickListener,
-        MapboxMapOptionsSink,
-        MethodChannel.MethodCallHandler,
-        com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
-        OnCameraTrackingChangedListener,
-        //OnSymbolTappedListener,
-        PlatformView {
+  implements Application.ActivityLifecycleCallbacks,
+  MapboxMap.OnCameraIdleListener,
+  MapboxMap.OnCameraMoveListener,
+  MapboxMap.OnCameraMoveStartedListener,
+  // MapboxMap.OnInfoWindowClickListener,
+  OnSymbolClickListener,
+  MapboxMap.OnMapClickListener,
+  MapboxMapOptionsSink,
+  MethodChannel.MethodCallHandler,
+  com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
+  OnCameraTrackingChangedListener,
+  OnSymbolTappedListener,
+  PlatformView {
   private static final String TAG = "MapboxMapController";
   private final int id;
   private final AtomicInteger activityState;
@@ -99,12 +104,12 @@ final class MapboxMapController
   LocationComponent locationComponent = null;
 
   MapboxMapController(
-      int id,
-      Context context,
-      AtomicInteger activityState,
-      PluginRegistry.Registrar registrar,
-      MapboxMapOptions options,
-      String styleStringInitial) {
+    int id,
+    Context context,
+    AtomicInteger activityState,
+    PluginRegistry.Registrar registrar,
+    MapboxMapOptions options,
+    String styleStringInitial) {
     Mapbox.getInstance(context, getAccessToken(context));
     this.id = id;
     this.context = context;
@@ -115,12 +120,12 @@ final class MapboxMapController
     this.symbols = new HashMap<>();
     this.density = context.getResources().getDisplayMetrics().density;
     methodChannel =
-        new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_maps_" + id);
+      new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
     this.registrarActivityHashCode = registrar.activity().hashCode();
   }
 
-  private static String getAccessToken(@NonNull Context context){
+  private static String getAccessToken(@NonNull Context context) {
     try {
       ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
       Bundle bundle = ai.metaData;
@@ -173,7 +178,7 @@ final class MapboxMapController
         break;
       default:
         throw new IllegalArgumentException(
-            "Cannot interpret " + activityState.get() + " as an activity state");
+          "Cannot interpret " + activityState.get() + " as an activity state");
     }
     registrar.activity().getApplication().registerActivityLifecycleCallbacks(this);
     mapView.getMapAsync(this);
@@ -195,16 +200,12 @@ final class MapboxMapController
     return new SymbolBuilder(symbolManager);
   }
 
-  Symbol addSymbol(SymbolOptions symbolOptions, boolean consumesTapEvents) {
-    final Symbol symbol = symbolManager.create(symbolOptions);
-    symbols.put(String.valueOf(symbol.getId()), new SymbolController(symbol, consumesTapEvents, null));
-    return symbol;
-  }
-
   private void removeSymbol(String symbolId) {
+    Log.v("FLTTR", "REMOVE SYMBOLID");
     final SymbolController symbolController = symbols.remove(symbolId);
     if (symbolController != null) {
-      symbolController.remove();
+      Log.v("FLTTR", "REMOVE SYMBOLID2");
+      symbolController.remove(symbolManager);
     }
   }
 
@@ -228,8 +229,7 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveStartedListener(this);
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
-    //mapboxMap.setOnSymbolClickListener(this);
-    mapboxMap.addOnMapClickListener(this);
+    //mapboxMap.addOnMapClickListener(this);
     setStyleString(styleStringInitial);
     // updateMyLocationEnabled();
   }
@@ -237,15 +237,15 @@ final class MapboxMapController
   @Override
   public void setStyleString(String styleString) {
     //check if json, url or plain string:
-    if (styleString==null || styleString.isEmpty()) {
-      Log.e(TAG,"setStyleString - string empty or null");
-    } else if (styleString.startsWith("{") || styleString.startsWith("[")){
+    if (styleString == null || styleString.isEmpty()) {
+      Log.e(TAG, "setStyleString - string empty or null");
+    } else if (styleString.startsWith("{") || styleString.startsWith("[")) {
       mapboxMap.setStyle(new Style.Builder().fromJson(styleString), onStyleLoadedCallback);
     } else {
       mapboxMap.setStyle(new Style.Builder().fromUrl(styleString), onStyleLoadedCallback);
     }
   }
-  
+
   Style.OnStyleLoaded onStyleLoadedCallback = new Style.OnStyleLoaded() {
     @Override
     public void onStyleLoaded(@NonNull Style style) {
@@ -272,9 +272,11 @@ final class MapboxMapController
     }
   }
 
-  private void enableSymbolmanager(@NonNull Style style){
-    if (symbolManager==null) {
+  private void enableSymbolmanager(@NonNull Style style) {
+    if (symbolManager == null) {
       symbolManager = new SymbolManager(mapView, mapboxMap, style);
+      Log.e("FLTTR", "Add click listener");
+      symbolManager.addClickListener(this);
     }
   }
 
@@ -288,87 +290,81 @@ final class MapboxMapController
         }
         mapReadyResult = result;
         break;
-      case "map#update":
-        {
-          Convert.interpretMapboxMapOptions(call.argument("options"), this);
-          result.success(Convert.toJson(getCameraPosition()));
-          break;
+      case "map#update": {
+        Convert.interpretMapboxMapOptions(call.argument("options"), this);
+        result.success(Convert.toJson(getCameraPosition()));
+        break;
+      }
+      case "camera#move": {
+        final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
+        if (cameraUpdate != null) {
+          // camera transformation not handled yet
+          moveCamera(cameraUpdate);
         }
-      case "camera#move":
-        {
-          final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
-          if(cameraUpdate!=null){
-            // camera transformation not handled yet
-            moveCamera(cameraUpdate);
-          }
-          result.success(null);
-          break;
+        result.success(null);
+        break;
+      }
+      case "camera#animate": {
+        final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
+        if (cameraUpdate != null) {
+          // camera transformation not handled yet
+          animateCamera(cameraUpdate);
         }
-      case "camera#animate":
-        {
-          final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
-          if(cameraUpdate!=null) {
-            // camera transformation not handled yet
-            animateCamera(cameraUpdate);
-          }
-          result.success(null);
-          break;
-        }
-      case "map#queryRenderedFeatures": 
-        {
-          Map<String, Object> reply = new HashMap<>();
-          List<Feature> features;
+        result.success(null);
+        break;
+      }
+      case "map#queryRenderedFeatures": {
+        Map<String, Object> reply = new HashMap<>();
+        List<Feature> features;
 
-          String[] layerIds = ((List<String>) call.argument("layerIds")).toArray(new String[0]);
+        String[] layerIds = ((List<String>) call.argument("layerIds")).toArray(new String[0]);
 
-          String filter = (String) call.argument("filter");
+        String filter = (String) call.argument("filter");
 
-          Expression filterExpression = filter == null ? null : new Expression(filter);
-          if (call.hasArgument("x")) {
-            Double x = call.argument("x");
-            Double y = call.argument("y");
-            PointF pixel = new PointF(x.floatValue(), y.floatValue());
-            features = mapboxMap.queryRenderedFeatures(pixel, filterExpression, layerIds);
-          } else {
-            Double left = call.argument("left");
-            Double top = call.argument("top");
-            Double right = call.argument("right");
-            Double bottom = call.argument("bottom");
-            RectF rectF = new RectF(left.floatValue(), top.floatValue(), right.floatValue(), bottom.floatValue());
-            features = mapboxMap.queryRenderedFeatures(rectF, filterExpression, layerIds);
-          }
-          List<String> featuresJson = new ArrayList<>();
-          for (Feature feature : features) {
-            featuresJson.add(feature.toJson());
-          }
-          reply.put("features", featuresJson);
-          result.success(reply);
-          break;
+        Expression filterExpression = filter == null ? null : new Expression(filter);
+        if (call.hasArgument("x")) {
+          Double x = call.argument("x");
+          Double y = call.argument("y");
+          PointF pixel = new PointF(x.floatValue(), y.floatValue());
+          features = mapboxMap.queryRenderedFeatures(pixel, filterExpression, layerIds);
+        } else {
+          Double left = call.argument("left");
+          Double top = call.argument("top");
+          Double right = call.argument("right");
+          Double bottom = call.argument("bottom");
+          RectF rectF = new RectF(left.floatValue(), top.floatValue(), right.floatValue(), bottom.floatValue());
+          features = mapboxMap.queryRenderedFeatures(rectF, filterExpression, layerIds);
         }
-      case "symbol#add":
-        {
-          Log.e("Symbol", "SYMBOL ADD");
-          final SymbolBuilder symbolBuilder = newSymbolBuilder();
-          Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
-          final String symbolId = symbolBuilder.build();
-          result.success(symbolId);
-          break;
+        List<String> featuresJson = new ArrayList<>();
+        for (Feature feature : features) {
+          featuresJson.add(feature.toJson());
         }
-      case "symbol#remove":
-        {
-          final String symbolId = call.argument("symbol");
-          removeSymbol(symbolId);
-          result.success(null);
-          break;
-        }
-      case "symbol#update":
-        {
-          final String symbolId = call.argument("symbol");
-          final SymbolController symbol = symbol(symbolId);
-          Convert.interpretSymbolOptions(call.argument("options"), symbol);
-          result.success(null);
-          break;
-        }
+        reply.put("features", featuresJson);
+        result.success(reply);
+        break;
+      }
+      case "symbol#add": {
+        final SymbolBuilder symbolBuilder = newSymbolBuilder();
+        Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
+        final Symbol symbol = symbolBuilder.build();
+        final String symbolId = String.valueOf(symbol.getId());
+        symbols.put(symbolId, new SymbolController(symbol, true, this));
+        result.success(symbolId);
+        break;
+      }
+      case "symbol#remove": {
+        final String symbolId = call.argument("symbol");
+        removeSymbol(symbolId);
+        result.success(null);
+        break;
+      }
+      case "symbol#update": {
+        final String symbolId = call.argument("symbol");
+        final SymbolController symbol = symbol(symbolId);
+        Convert.interpretSymbolOptions(call.argument("options"), symbol);
+        result.success(null);
+        break;
+      }
       default:
         result.notImplemented();
     }
@@ -411,21 +407,23 @@ final class MapboxMapController
 
   @Override
   public void onCameraTrackingDismissed() {
-    methodChannel.invokeMethod("map#onCameraTrackingDismissed",new HashMap<>());
+    methodChannel.invokeMethod("map#onCameraTrackingDismissed", new HashMap<>());
   }
 
-//  @Override
-//  public void onSymbolTapped(Symbol symbol) {
-//    final Map<String, Object> arguments = new HashMap<>(2);
-//    arguments.put("symbol", symbol.getId());
-//    methodChannel.invokeMethod("symbol#onTap", arguments);
-//  }
-//
-//  @Override
-//  public boolean onSymbolClick(Symbol symbol) {
-//    final SymbolController symbolController = symbols.get(symbol.getId());
-//    return (symbolController != null && symbolController.onTap());
-//  }
+  @Override
+  public void onAnnotationClick(Symbol symbol) {
+    final SymbolController symbolController = symbols.get(String.valueOf(symbol.getId()));
+    if (symbolController != null) {
+      symbolController.onTap();
+    }
+  }
+
+  @Override
+  public void onSymbolTapped(Symbol symbol) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+    arguments.put("symbol", String.valueOf(symbol.getId()));
+    methodChannel.invokeMethod("symbol#onTap", arguments);
+  }
 
   @Override
   public boolean onMapClick(@NonNull LatLng point) {
@@ -587,15 +585,15 @@ final class MapboxMapController
   }
 
   private void updateMyLocationTrackingMode() {
-    int[] mapboxTrackingModes = new int[]{ CameraMode.NONE, CameraMode.TRACKING, CameraMode.TRACKING_COMPASS, CameraMode.TRACKING_GPS };
+    int[] mapboxTrackingModes = new int[] {CameraMode.NONE, CameraMode.TRACKING, CameraMode.TRACKING_COMPASS, CameraMode.TRACKING_GPS};
     locationComponent.setCameraMode(mapboxTrackingModes[this.myLocationTrackingMode]);
   }
-  
+
   private boolean hasLocationPermission() {
     return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
-        || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED;
+      == PackageManager.PERMISSION_GRANTED
+      || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+      == PackageManager.PERMISSION_GRANTED;
   }
 
   private int checkSelfPermission(String permission) {
@@ -603,7 +601,7 @@ final class MapboxMapController
       throw new IllegalArgumentException("permission is null");
     }
     return context.checkPermission(
-        permission, android.os.Process.myPid(), android.os.Process.myUid());
+      permission, android.os.Process.myPid(), android.os.Process.myUid());
   }
 
 

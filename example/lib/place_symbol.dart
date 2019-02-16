@@ -47,20 +47,18 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   void _onSymbolTapped(Symbol symbol) {
     if (_selectedSymbol != null) {
-//      _updateSelectedSymbol(
-//        const SymbolOptions(icon: BitmapDescriptor.defaultSymbol),
-//      );
+      _updateSelectedSymbol(
+        const SymbolOptions(iconImage: "airport-15"),
+      );
     }
     setState(() {
       _selectedSymbol = symbol;
     });
-    /* _updateSelectedSymbol(
+    _updateSelectedSymbol(
       SymbolOptions(
-        icon: BitmapDescriptor.defaultSymbolWithHue(
-          BitmapDescriptor.hueGreen,
-        ),
+        iconImage: "bus-15",
       ),
-    );*/
+    );
   }
 
   void _updateSelectedSymbol(SymbolOptions changes) {
@@ -146,7 +144,11 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   Future<void> _changeRotation() async {
-    final double current = _selectedSymbol.options.iconRotate;
+    double current = _selectedSymbol.options.iconRotate;
+    if (current==null) {
+      current = 0;
+    }
+
     _updateSelectedSymbol(
       SymbolOptions(iconRotate: current == 330.0 ? 0.0 : current + 30.0),
     );

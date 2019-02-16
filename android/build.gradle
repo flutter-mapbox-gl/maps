@@ -40,4 +40,8 @@ android {
         implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:7.1.2"
         implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v7:0.5.0"
     }
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
 }

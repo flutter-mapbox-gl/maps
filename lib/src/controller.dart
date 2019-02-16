@@ -83,7 +83,6 @@ class MapboxMapController extends ChangeNotifier {
           onInfoWindowTapped(symbol);
         }
         break;
-
       case 'symbol#onTap':
         final String symbolId = call.arguments['symbol'];
         final Symbol symbol = _symbols[symbolId];

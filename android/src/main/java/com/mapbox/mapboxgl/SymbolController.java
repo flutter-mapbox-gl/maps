@@ -7,9 +7,11 @@
 package com.mapbox.mapboxgl;
 
 import android.graphics.PointF;
+
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.utils.ColorUtils;
 
 /**
@@ -33,8 +35,8 @@ class SymbolController implements SymbolOptionsSink {
     return consumeTapEvents;
   }
 
-  void remove() {
-    //symbol.remove();
+  void remove(SymbolManager symbolManager) {
+    symbolManager.delete(symbol);
   }
 
   @Override

@@ -13,6 +13,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.Style;
 
 import io.flutter.plugin.common.PluginRegistry;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -27,9 +28,9 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private String styleString = Style.MAPBOX_STREETS;
 
   MapboxMapController build(
-      int id, Context context, AtomicInteger state, PluginRegistry.Registrar registrar) {
+    int id, Context context, AtomicInteger state, PluginRegistry.Registrar registrar) {
     final MapboxMapController controller =
-        new MapboxMapController(id, context, state, registrar, options, styleString);
+      new MapboxMapController(id, context, state, registrar, options, styleString);
     controller.init();
     controller.setMyLocationEnabled(myLocationEnabled);
     controller.setMyLocationTrackingMode(myLocationTrackingMode);
@@ -48,7 +49,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
 
   @Override
   public void setCameraTargetBounds(LatLngBounds bounds) {
-    Log.e(TAG,"setCameraTargetBounds is supported only after map initiated.");
+    Log.e(TAG, "setCameraTargetBounds is supported only after map initiated.");
     //throw new UnsupportedOperationException("setCameraTargetBounds is supported only after map initiated.");
     //options.latLngBoundsForCameraTarget(bounds);
   }
@@ -103,5 +104,5 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   public void setMyLocationTrackingMode(int myLocationTrackingMode) {
     this.myLocationTrackingMode = myLocationTrackingMode;
   }
-  
+
 }
