@@ -46,8 +46,8 @@ class SymbolOptions {
   const SymbolOptions({
     this.iconSize,
     this.iconImage,
-    this.iconRotate,
-    this.iconOffset,
+    this.iconRotate = 0,
+    this.iconOffset = const Offset(0,0),
     this.iconAnchor,
     this.textField,
     this.textSize,
@@ -57,8 +57,8 @@ class SymbolOptions {
     this.textAnchor,
     this.textRotate,
     this.textTransform,
-    this.textOffset,
-    this.iconOpacity,
+    this.textOffset = const Offset(0, 0),
+    this.iconOpacity = 1.0,
     this.iconColor,
     this.iconHaloColor,
     this.iconHaloWidth,
@@ -70,6 +70,7 @@ class SymbolOptions {
     this.textHaloBlur,
     this.geometry,
     this.zIndex,
+    this.draggable,
   });
 
   final double iconSize;
@@ -98,6 +99,7 @@ class SymbolOptions {
   final double textHaloBlur;
   final LatLng geometry;
   final int zIndex;
+  final bool draggable;
 
   static const SymbolOptions defaultOptions = SymbolOptions(
 
@@ -134,6 +136,7 @@ class SymbolOptions {
       textHaloBlur: changes.textHaloBlur ?? textHaloBlur,
       geometry: changes.geometry ?? geometry,
       zIndex: changes.zIndex ?? zIndex,
+      draggable: changes.draggable ?? draggable,
     );
   }
 
@@ -172,6 +175,7 @@ class SymbolOptions {
     addIfPresent('textHaloBlur', textHaloBlur);
     addIfPresent('geometry', geometry?._toJson());
     addIfPresent('zIndex', zIndex);
+    addIfPresent('draggable', draggable);
     return json;
   }
 

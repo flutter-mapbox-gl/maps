@@ -24,6 +24,9 @@ import java.util.Map;
  * Conversions between JSON-like values and MapboxMaps data types.
  */
 class Convert {
+
+  private final static String TAG = "tvn";
+
 //  private static BitmapDescriptor toBitmapDescriptor(Object o) {
 //    final List<?> data = toList(o);
 //    switch (toString(data.get(0))) {
@@ -230,7 +233,6 @@ class Convert {
   }
 
   static void interpretSymbolOptions(Object o, SymbolOptionsSink sink) {
-    Log.e("SymbolBuilder", "INTERPRET SYMBOLS");
     final Map<?, ?> data = toMap(o);
     final Object iconSize = data.get("iconSize");
     if (iconSize != null) {
@@ -238,7 +240,6 @@ class Convert {
     }
     final Object iconImage = data.get("iconImage");
     if (iconImage != null) {
-      Log.e("SymbolBuilder", "CONVERT ICON IMAGE");
       sink.setIconImage(toString(iconImage));
     }
     final Object iconRotate = data.get("iconRotate");
@@ -337,6 +338,9 @@ class Convert {
     if (zIndex != null) {
       sink.setZIndex(toInt(zIndex));
     }
+    final Object draggable = data.get("draggable");
+    if (draggable != null) {
+      sink.setDraggable(toBoolean(draggable));
+    }
   }
-
 }

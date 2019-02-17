@@ -7,6 +7,7 @@
 package com.mapbox.mapboxgl;
 
 import android.graphics.PointF;
+import android.util.Log;
 
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -111,6 +112,7 @@ class SymbolController implements SymbolOptionsSink {
 
   @Override
   public void setIconOpacity(float iconOpacity) {
+    Log.e("tvn", "Controller set opacity! "+iconOpacity);
     symbol.setIconOpacity(iconOpacity);
   }
 
@@ -167,5 +169,14 @@ class SymbolController implements SymbolOptionsSink {
   @Override
   public void setGeometry(LatLng geometry) {
     symbol.setGeometry(Point.fromLngLat(geometry.getLongitude(), geometry.getLatitude()));
+  }
+
+  @Override
+  public void setDraggable(boolean draggable) {
+    symbol.setDraggable(draggable);
+  }
+
+  public void update(SymbolManager symbolManager) {
+    symbolManager.update(symbol);
   }
 }

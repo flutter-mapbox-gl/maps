@@ -48,7 +48,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   void _onSymbolTapped(Symbol symbol) {
     if (_selectedSymbol != null) {
       _updateSelectedSymbol(
-        const SymbolOptions(iconImage: "airport-15"),
+        const SymbolOptions(iconSize: 1.0),
       );
     }
     setState(() {
@@ -56,7 +56,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     });
     _updateSelectedSymbol(
       SymbolOptions(
-        iconImage: "bus-15",
+        iconSize: 1.4,
       ),
     );
   }
@@ -109,31 +109,10 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     _updateSelectedSymbol(SymbolOptions(iconOffset: newAnchor));
   }
 
-  Future<void> _changeInfoAnchor() async {
-    //final Offset currentAnchor = _selectedSymbol.options.infoWindowAnchor;
-    //final Offset newAnchor = Offset(1.0 - currentAnchor.dy, currentAnchor.dx);
-    //_updateSelectedSymbol(SymbolOptions(infoWindowAnchor: newAnchor));
-  }
-
   Future<void> _toggleDraggable() async {
-    // _updateSelectedSymbol(
-    //  SymbolOptions(draggable: !_selectedSymbol.options.draggable),
-    //);
-  }
-
-  Future<void> _toggleFlat() async {
-    // only supported as part of symbol manager, not per symbol
-    //_updateSelectedSymbol(SymbolOptions(flat: !_selectedSymbol.options.flat));
-  }
-
-  Future<void> _changeInfo() async {
-//    final InfoWindowText currentInfo = _selectedSymbol.options.infoWindowText;
-//    _updateSelectedSymbol(SymbolOptions(
-//      infoWindowText: InfoWindowText(
-//        currentInfo.title,
-//        currentInfo.snippet + '*',
-//      ),
-//    ));
+     _updateSelectedSymbol(
+      SymbolOptions(draggable: !_selectedSymbol.options.draggable),
+    );
   }
 
   Future<void> _changeAlpha() async {
@@ -145,10 +124,6 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   Future<void> _changeRotation() async {
     double current = _selectedSymbol.options.iconRotate;
-    if (current==null) {
-      current = 0;
-    }
-
     _updateSelectedSymbol(
       SymbolOptions(iconRotate: current == 330.0 ? 0.0 : current + 30.0),
     );
@@ -204,17 +179,6 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           child: const Text('remove'),
                           onPressed: (_selectedSymbol == null) ? null : _remove,
                         ),
-                        FlatButton(
-                          child: const Text('change info'),
-                          onPressed:
-                              (_selectedSymbol == null) ? null : _changeInfo,
-                        ),
-                        FlatButton(
-                          child: const Text('change info anchor'),
-                          onPressed: (_selectedSymbol == null)
-                              ? null
-                              : _changeInfoAnchor,
-                        ),
                       ],
                     ),
                     Column(
@@ -234,11 +198,6 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           onPressed: (_selectedSymbol == null)
                               ? null
                               : _toggleDraggable,
-                        ),
-                        FlatButton(
-                          child: const Text('toggle flat'),
-                          onPressed:
-                              (_selectedSymbol == null) ? null : _toggleFlat,
                         ),
                         FlatButton(
                           child: const Text('change position'),

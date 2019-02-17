@@ -37,7 +37,6 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.plugins.annotation.OnSymbolClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -46,8 +45,6 @@ import com.mapbox.mapboxsdk.location.LocationComponentOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
-import com.mapbox.mapboxsdk.style.layers.RasterLayer;
-import com.mapbox.mapboxsdk.style.sources.RasterSource;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -63,7 +60,6 @@ import java.util.ArrayList;
 
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 
-import android.graphics.PointF;
 import android.graphics.RectF;
 
 /**
@@ -74,7 +70,6 @@ final class MapboxMapController
   MapboxMap.OnCameraIdleListener,
   MapboxMap.OnCameraMoveListener,
   MapboxMap.OnCameraMoveStartedListener,
-  // MapboxMap.OnInfoWindowClickListener,
   OnSymbolClickListener,
   MapboxMap.OnMapClickListener,
   MapboxMapOptionsSink,
@@ -101,7 +96,7 @@ final class MapboxMapController
   private final int registrarActivityHashCode;
   private final Context context;
   private final String styleStringInitial;
-  LocationComponent locationComponent = null;
+  private LocationComponent locationComponent = null;
 
   MapboxMapController(
     int id,
@@ -220,8 +215,6 @@ final class MapboxMapController
   @Override
   public void onMapReady(MapboxMap mapboxMap) {
     this.mapboxMap = mapboxMap;
-    // mapboxMap.setStyle(Style.MAPBOX_STREETS);
-    //mapboxMap.setOnInfoWindowClickListener(this);
     if (mapReadyResult != null) {
       mapReadyResult.success(null);
       mapReadyResult = null;
@@ -229,7 +222,6 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveStartedListener(this);
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
-    //mapboxMap.addOnMapClickListener(this);
     setStyleString(styleStringInitial);
     // updateMyLocationEnabled();
   }
@@ -275,8 +267,15 @@ final class MapboxMapController
   private void enableSymbolmanager(@NonNull Style style) {
     if (symbolManager == null) {
       symbolManager = new SymbolManager(mapView, mapboxMap, style);
-      Log.e("FLTTR", "Add click listener");
+      symbolManager.setIconAllowOverlap(true);
+      symbolManager.setIconIgnorePlacement(true);
+      symbolManager.setTextAllowOverlap(true);
+      symbolManager.setTextIgnorePlacement(true);
       symbolManager.addClickListener(this);
+
+      // needs to be placed after SymbolManager#addClickListener,
+      // is fixed with 0.6.0 of annotations plugin
+      mapboxMap.addOnMapClickListener(this);
     }
   }
 
@@ -362,6 +361,7 @@ final class MapboxMapController
         final String symbolId = call.argument("symbol");
         final SymbolController symbol = symbol(symbolId);
         Convert.interpretSymbolOptions(call.argument("options"), symbol);
+        symbol.update(symbolManager);
         result.success(null);
         break;
       }
@@ -377,14 +377,6 @@ final class MapboxMapController
     arguments.put("isGesture", isGesture);
     methodChannel.invokeMethod("camera#onMoveStarted", arguments);
   }
-
-//  @Override
-//  public boolean onInfoWindowClick(Symbol symbol) {
-//    final Map<String, Object> arguments = new HashMap<>(2);
-//    arguments.put("symbol", symbol.getId());
-//    methodChannel.invokeMethod("infoWindow#onTap", arguments);
-//    return false;//todo: need to know if consumed the event or not
-//  }
 
   @Override
   public void onCameraMove() {
@@ -603,6 +595,5 @@ final class MapboxMapController
     return context.checkPermission(
       permission, android.os.Process.myPid(), android.os.Process.myUid());
   }
-
 
 }
