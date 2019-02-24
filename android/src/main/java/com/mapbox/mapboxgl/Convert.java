@@ -13,6 +13,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.log.Logger;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 import java.util.Arrays;
@@ -25,7 +26,7 @@ import java.util.Map;
  */
 class Convert {
 
-  private final static String TAG = "tvn";
+  private final static String TAG = "Convert";
 
 //  private static BitmapDescriptor toBitmapDescriptor(Object o) {
 //    final List<?> data = toList(o);
@@ -236,26 +237,32 @@ class Convert {
     final Map<?, ?> data = toMap(o);
     final Object iconSize = data.get("iconSize");
     if (iconSize != null) {
+      Logger.e(TAG, "setIconSize" + iconSize);
       sink.setIconSize(toFloat(iconSize));
     }
     final Object iconImage = data.get("iconImage");
     if (iconImage != null) {
+      Logger.e(TAG, "setIconImage" +  iconImage);
       sink.setIconImage(toString(iconImage));
     }
     final Object iconRotate = data.get("iconRotate");
     if (iconRotate != null) {
+      Logger.e(TAG, "SetIconRotate" + iconRotate);
       sink.setIconRotate(toFloat(iconRotate));
     }
     final Object iconOffset = data.get("iconOffset");
     if (iconOffset != null) {
+      Logger.e(TAG, "SetIconOffset" +  iconOffset);
       sink.setIconOffset(new float[] {toFloat(toList(iconOffset).get(0)), toFloat(toList(iconOffset).get(1))});
     }
     final Object iconAnchor = data.get("iconAnchor");
     if (iconAnchor != null) {
+      Logger.e(TAG, "SetIconAnchor" +  iconAnchor);
       sink.setIconAnchor(toString(iconAnchor));
     }
     final Object textField = data.get("textField");
     if (textField != null) {
+      Logger.e(TAG, "SetTextField" + textField);
       sink.setTextField(toString(textField));
     }
     final Object textSize = data.get("textSize");
@@ -292,6 +299,7 @@ class Convert {
     }
     final Object iconOpacity = data.get("iconOpacity");
     if (iconOpacity != null) {
+      Logger.e(TAG, "SetIconOpactiy" + iconOpacity);
       sink.setIconOpacity(toFloat(iconOpacity));
     }
     final Object iconColor = data.get("iconColor");
@@ -332,14 +340,17 @@ class Convert {
     }
     final Object geometry = data.get("geometry");
     if (geometry != null) {
+      Logger.e(TAG, "SetGeometry");
       sink.setGeometry(toLatLng(geometry));
     }
     final Object zIndex = data.get("zIndex");
     if (zIndex != null) {
+      Logger.e(TAG, "SetZIndex");
       sink.setZIndex(toInt(zIndex));
     }
     final Object draggable = data.get("draggable");
     if (draggable != null) {
+      Logger.e(TAG, "SetDraggable");
       sink.setDraggable(toBoolean(draggable));
     }
   }

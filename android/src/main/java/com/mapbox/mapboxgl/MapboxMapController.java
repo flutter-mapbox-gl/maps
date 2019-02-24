@@ -196,10 +196,8 @@ final class MapboxMapController
   }
 
   private void removeSymbol(String symbolId) {
-    Log.v("FLTTR", "REMOVE SYMBOLID");
     final SymbolController symbolController = symbols.remove(symbolId);
     if (symbolController != null) {
-      Log.v("FLTTR", "REMOVE SYMBOLID2");
       symbolController.remove(symbolManager);
     }
   }

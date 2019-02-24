@@ -104,19 +104,34 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _changeAnchor() {
-    final Offset currentAnchor = _selectedSymbol.options.iconOffset;
+    Offset currentAnchor = _selectedSymbol.options.iconOffset;
+    if (currentAnchor == null) {
+      // default value
+      currentAnchor = Offset(0.0, 0.0);
+    }
     final Offset newAnchor = Offset(1.0 - currentAnchor.dy, currentAnchor.dx);
     _updateSelectedSymbol(SymbolOptions(iconOffset: newAnchor));
   }
 
   Future<void> _toggleDraggable() async {
-     _updateSelectedSymbol(
-      SymbolOptions(draggable: !_selectedSymbol.options.draggable),
+    bool draggable = _selectedSymbol.options.draggable;
+    if (draggable == null) {
+      // default value
+      draggable = false;
+    }
+
+    _updateSelectedSymbol(
+      SymbolOptions(draggable: !draggable),
     );
   }
 
   Future<void> _changeAlpha() async {
-    final double current = _selectedSymbol.options.iconOpacity;
+    double current = _selectedSymbol.options.iconOpacity;
+    if (current == null) {
+      // default value
+      current = 1.0;
+    }
+
     _updateSelectedSymbol(
       SymbolOptions(iconOpacity: current < 0.1 ? 1.0 : current * 0.75),
     );
@@ -124,20 +139,34 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   Future<void> _changeRotation() async {
     double current = _selectedSymbol.options.iconRotate;
+    if (current == null) {
+      // default value
+      current = 0;
+    }
     _updateSelectedSymbol(
       SymbolOptions(iconRotate: current == 330.0 ? 0.0 : current + 30.0),
     );
   }
 
   Future<void> _toggleVisible() async {
+    double current = _selectedSymbol.options.iconOpacity;
+    if (current == null) {
+      // default value
+      current = 1.0;
+    }
+
     _updateSelectedSymbol(
       SymbolOptions(
-          iconOpacity: _selectedSymbol.options.iconOpacity == 0.0 ? 0.0 : 1.0),
+          iconOpacity: current == 0.0 ? 1.0 : 0.0),
     );
   }
 
   Future<void> _changeZIndex() async {
-    final int current = _selectedSymbol.options.zIndex;
+    int current = _selectedSymbol.options.zIndex;
+    if (current == null) {
+      // default value
+      current = 0;
+    }
     _updateSelectedSymbol(
       SymbolOptions(zIndex: current == 12 ? 0 : current + 1),
     );
