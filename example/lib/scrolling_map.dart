@@ -106,5 +106,14 @@ class ScrollingMapBody extends StatelessWidget {
       ),
       iconImage: "airport-15"
     ));
+    controller.addLine(
+      LineOptions(
+          geometry: [
+        LatLng(-33.86711, 151.1947171),
+        LatLng(-33.86711, 151.1947171),
+        LatLng(-32.86711, 151.1947171),
+        LatLng(-33.86711, 152.1947171),
+      ]),
+    );
   }
 }
