@@ -20,4 +20,5 @@ part 'src/controller.dart';
 part 'src/mapbox_map.dart';
 part 'src/location.dart';
 part 'src/symbol.dart';
+part 'src/line.dart';
 part 'src/ui.dart';

@@ -15,7 +15,9 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.log.Logger;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.geojson.LineString;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -150,6 +152,19 @@ class Convert {
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
     builder.includes(bounds);
     return builder.build();
+  }
+
+  private static List<LatLng> toLatLngList(Object o) {
+    if (o == null) {
+      return null;
+    }
+    final List<?> data = toList(o);
+    List<LatLng> latLngList = new ArrayList<>();
+    data.forEach((element) -> {
+      final List<?> coords = toList(element);
+      latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
+    });
+    return latLngList;
   }
 
   private static List<?> toList(Object o) {
@@ -347,6 +362,60 @@ class Convert {
     if (zIndex != null) {
       Logger.e(TAG, "SetZIndex");
       sink.setZIndex(toInt(zIndex));
+    }
+    final Object draggable = data.get("draggable");
+    if (draggable != null) {
+      Logger.e(TAG, "SetDraggable");
+      sink.setDraggable(toBoolean(draggable));
+    }
+  }
+
+  static void interpretLineOptions(Object o, LineOptionsSink sink) {
+    final Map<?, ?> data = toMap(o);
+    final Object lineJoin = data.get("lineJoin");
+    if (lineJoin != null) {
+      Logger.e(TAG, "setLineJoin" +  lineJoin);
+      sink.setLineJoin(toString(lineJoin));
+    }
+    final Object lineOpacity = data.get("lineOpacity");
+    if (lineOpacity != null) {
+      Logger.e(TAG, "setLineOpacity" + lineOpacity);
+      sink.setLineOpacity(toFloat(lineOpacity));
+    }
+    final Object lineColor = data.get("lineColor");
+    if (lineColor != null) {
+      Logger.e(TAG, "setLineColor" +  lineColor);
+      sink.setLineColor(toString(lineColor));
+    }
+    final Object lineWidth = data.get("lineWidth");
+    if (lineWidth != null) {
+      Logger.e(TAG, "setLineWidth" + lineWidth);
+      sink.setLineWidth(toFloat(lineWidth));
+    }
+    final Object lineGapWidth = data.get("lineGapWidth");
+    if (lineGapWidth != null) {
+      Logger.e(TAG, "setLineGapWidth" + lineGapWidth);
+      sink.setLineGapWidth(toFloat(lineGapWidth));
+    }
+    final Object lineOffset = data.get("lineOffset");
+    if (lineOffset != null) {
+      Logger.e(TAG, "setLineOffset" + lineOffset);
+      sink.setLineOffset(toFloat(lineOffset));
+    }
+    final Object lineBlur = data.get("lineBlur");
+    if (lineBlur != null) {
+      Logger.e(TAG, "setLineBlur" + lineBlur);
+      sink.setLineBlur(toFloat(lineBlur));
+    }
+    final Object linePattern = data.get("linePattern");
+    if (linePattern != null) {
+      Logger.e(TAG, "setLinePattern" +  linePattern);
+      sink.setLinePattern(toString(linePattern));
+    }
+    final Object geometry = data.get("geometry");
+    if (geometry != null) {
+      Logger.e(TAG, "SetGeometry");
+      sink.setGeometry(toLatLngList(geometry));
     }
     final Object draggable = data.get("draggable");
     if (draggable != null) {

@@ -37,6 +37,7 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.plugins.annotation.OnSymbolClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
+import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -59,6 +60,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
+import com.mapbox.mapboxsdk.plugins.annotation.Line;
 
 import android.graphics.RectF;
 
@@ -77,6 +79,7 @@ final class MapboxMapController
   com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
   OnCameraTrackingChangedListener,
   OnSymbolTappedListener,
+  OnLineTappedListener,
   PlatformView {
   private static final String TAG = "MapboxMapController";
   private final int id;
@@ -85,8 +88,10 @@ final class MapboxMapController
   private final PluginRegistry.Registrar registrar;
   private final MapView mapView;
   private final Map<String, SymbolController> symbols;
+  private final Map<String, LineController> lines;
   private MapboxMap mapboxMap;
   private SymbolManager symbolManager;
+  private LineManager lineManager;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
   private int myLocationTrackingMode = 0;
@@ -113,6 +118,7 @@ final class MapboxMapController
     this.styleStringInitial = styleStringInitial;
     this.mapView = new MapView(context, options);
     this.symbols = new HashMap<>();
+    this.lines = new HashMap<>();
     this.density = context.getResources().getDisplayMetrics().density;
     methodChannel =
       new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_maps_" + id);
@@ -210,6 +216,25 @@ final class MapboxMapController
     return symbol;
   }
 
+  private LineBuilder newLineBuilder() {
+    return new LineBuilder(lineManager);
+  }
+
+  private void removeLine(String lineId) {
+    final LineController lineController = lines.remove(lineId);
+    if (lineController != null) {
+      lineController.remove(lineManager);
+    }
+  }
+
+  private LineController line(String lineId) {
+    final LineController line = lines.get(lineId);
+    if (line == null) {
+      throw new IllegalArgumentException("Unknown line: " + lineId);
+    }
+    return line;
+  }
+
   @Override
   public void onMapReady(MapboxMap mapboxMap) {
     this.mapboxMap = mapboxMap;
@@ -239,7 +264,8 @@ final class MapboxMapController
   Style.OnStyleLoaded onStyleLoadedCallback = new Style.OnStyleLoaded() {
     @Override
     public void onStyleLoaded(@NonNull Style style) {
-      enableSymbolmanager(style);
+      enableLineManager(style);
+      enableSymbolManager(style);
       enableLocationComponent(style);
     }
   };
@@ -262,7 +288,7 @@ final class MapboxMapController
     }
   }
 
-  private void enableSymbolmanager(@NonNull Style style) {
+  private void enableSymbolManager(@NonNull Style style) {
     if (symbolManager == null) {
       symbolManager = new SymbolManager(mapView, mapboxMap, style);
       symbolManager.setIconAllowOverlap(true);
@@ -274,6 +300,13 @@ final class MapboxMapController
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(this);
+    }
+  }
+
+  private void enableLineManager(@NonNull Style style) {
+    if (lineManager == null) {
+      lineManager = new LineManager(mapView, mapboxMap, style);
+      // lineManager.addClickListener(this);
     }
   }
 
@@ -363,6 +396,29 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "line#add": {
+        final LineBuilder lineBuilder = newLineBuilder();
+        Convert.interpretLineOptions(call.argument("options"), lineBuilder);
+        final Line line = lineBuilder.build();
+        final String lineId = String.valueOf(line.getId());
+        lines.put(lineId, new LineController(line, true, this));
+        result.success(lineId);
+        break;
+      }
+      case "line#remove": {
+        final String lineId = call.argument("line");
+        removeLine(lineId);
+        result.success(null);
+        break;
+      }
+      case "line#update": {
+        final String lineId = call.argument("line");
+        final LineController line = line(lineId);
+        Convert.interpretLineOptions(call.argument("options"), line);
+        line.update(lineManager);
+        result.success(null);
+        break;
+      }
       default:
         result.notImplemented();
     }
@@ -416,6 +472,13 @@ final class MapboxMapController
   }
 
   @Override
+  public void onLineTapped(Line line) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+    arguments.put("line", String.valueOf(line.getId()));
+    methodChannel.invokeMethod("line#onTap", arguments);
+  }
+
+  @Override
   public boolean onMapClick(@NonNull LatLng point) {
     PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
     final Map<String, Object> arguments = new HashMap<>(5);
@@ -438,6 +501,9 @@ final class MapboxMapController
     }
     if (symbolManager != null) {
       symbolManager.onDestroy();
+    }
+    if (lineManager != null) {
+      lineManager.onDestroy();
     }
     mapView.onDestroy();
     registrar.activity().getApplication().unregisterActivityLifecycleCallbacks(this);
