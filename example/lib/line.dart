@@ -70,12 +70,16 @@ class LineBodyState extends State<LineBody> {
   void _add() {
     controller.addLine(
       LineOptions(
-          geometry: [
-        LatLng(-33.86711, 151.1947171),
-        LatLng(-33.86711, 151.1947171),
-        LatLng(-32.86711, 151.1947171),
-        LatLng(-33.86711, 152.1947171),
-      ]),
+        geometry: [
+          LatLng(-33.86711, 151.1947171),
+          LatLng(-33.86711, 151.1947171),
+          LatLng(-32.86711, 151.1947171),
+          LatLng(-33.86711, 152.1947171),
+        ],
+        lineColor: "#ff0000",
+        lineWidth: 7.0,
+        lineOpacity: 0.5,
+      ),
     );
     setState(() {
       _lineCount += 1;
