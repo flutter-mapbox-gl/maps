@@ -157,6 +157,22 @@ class AnimateCameraState extends State<AnimateCamera> {
                   },
                   child: const Text('zoomTo'),
                 ),
+                FlatButton(
+                  onPressed: () {
+                    mapController.animateCamera(
+                      CameraUpdate.bearingTo(45.0),
+                    );
+                  },
+                  child: const Text('bearingTo'),
+                ),
+                FlatButton(
+                  onPressed: () {
+                    mapController.animateCamera(
+                      CameraUpdate.tiltTo(30.0),
+                    );
+                  },
+                  child: const Text('tiltTo'),
+                ),
               ],
             ),
           ],

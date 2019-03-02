@@ -12,7 +12,8 @@ interface MapboxMapOptionsSink {
 
   void setCompassEnabled(boolean compassEnabled);
 
-//  void setMapType(int mapType);
+  // TODO: styleString is not actually a part of options. consider moving
+  void setStyleString(String styleString); 
 
   void setMinMaxZoomPreference(Float min, Float max);
 
@@ -27,4 +28,6 @@ interface MapboxMapOptionsSink {
   void setZoomGesturesEnabled(boolean zoomGesturesEnabled);
 
   void setMyLocationEnabled(boolean myLocationEnabled);
+  
+  void setMyLocationTrackingMode(int myLocationTrackingMode);
 }

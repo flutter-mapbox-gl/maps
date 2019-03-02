@@ -90,6 +90,10 @@ class Convert {
         return CameraUpdateFactory.zoomOut();
       case "zoomTo":
         return CameraUpdateFactory.zoomTo(toFloat(data.get(1)));
+      case "bearingTo":
+        return CameraUpdateFactory.bearingTo(toFloat(data.get(1)));
+      case "tiltTo":
+        return CameraUpdateFactory.tiltTo(toFloat(data.get(1))); 
       default:
         throw new IllegalArgumentException("Cannot interpret " + o + " as CameraUpdate");
     }
@@ -184,10 +188,10 @@ class Convert {
     if (compassEnabled != null) {
       sink.setCompassEnabled(toBoolean(compassEnabled));
     }
-//    final Object mapType = data.get("mapType");
-//    if (mapType != null) {
-//      sink.setMapType(toInt(mapType));
-//    }
+    final Object styleString = data.get("styleString");
+    if (styleString != null) {
+      sink.setStyleString(toString(styleString));
+    }
     final Object minMaxZoomPreference = data.get("minMaxZoomPreference");
     if (minMaxZoomPreference != null) {
       final List<?> zoomPreferenceData = toList(minMaxZoomPreference);
@@ -218,6 +222,10 @@ class Convert {
     final Object myLocationEnabled = data.get("myLocationEnabled");
     if (myLocationEnabled != null) {
       sink.setMyLocationEnabled(toBoolean(myLocationEnabled));
+    }
+    final Object myLocationTrackingMode = data.get("myLocationTrackingMode");
+    if (myLocationTrackingMode != null) {
+      sink.setMyLocationTrackingMode(toInt(myLocationTrackingMode));
     }
   }
 

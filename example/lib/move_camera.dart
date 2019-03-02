@@ -156,6 +156,22 @@ class MoveCameraState extends State<MoveCamera> {
                   },
                   child: const Text('zoomTo'),
                 ),
+                FlatButton(
+                  onPressed: () {
+                    mapController.moveCamera(
+                      CameraUpdate.bearingTo(45.0),
+                    );
+                  },
+                  child: const Text('bearingTo'),
+                ),
+                FlatButton(
+                  onPressed: () {
+                    mapController.moveCamera(
+                      CameraUpdate.tiltTo(30.0),
+                    );
+                  },
+                  child: const Text('tiltTo'),
+                ),
               ],
             ),
           ],

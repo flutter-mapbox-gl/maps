@@ -13,7 +13,7 @@ class MapboxMap extends StatefulWidget {
     this.gestureRecognizers,
     this.compassEnabled = true,
     this.cameraTargetBounds = CameraTargetBounds.unbounded,
-    this.mapType = MapType.normal,
+    this.styleString,
     this.minMaxZoomPreference = MinMaxZoomPreference.unbounded,
     this.rotateGesturesEnabled = true,
     this.scrollGesturesEnabled = true,
@@ -21,6 +21,9 @@ class MapboxMap extends StatefulWidget {
     this.tiltGesturesEnabled = true,
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
+    this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
+    this.onMapClick,
+    this.onCameraTrackingDismissed,
   }) : assert(initialCameraPosition != null);
 
   final MapCreatedCallback onMapCreated;
@@ -34,8 +37,10 @@ class MapboxMap extends StatefulWidget {
   /// Geographical bounding box for the camera target.
   final CameraTargetBounds cameraTargetBounds;
 
-  /// Type of map tiles to be rendered.
-  final MapType mapType;
+  /// Style URL or Style JSON
+  /// Can be a MapboxStyle constant, any Mapbox Style URL,
+  /// or a StyleJSON (https://docs.mapbox.com/mapbox-gl-js/style-spec/)
+  final String styleString;
 
   /// Preferred bounds for the camera zoom level.
   ///
@@ -82,6 +87,9 @@ class MapboxMap extends StatefulWidget {
   /// when the map tries to turn on the My Location layer.
   final bool myLocationEnabled;
 
+  /// The mode used to track the user location on the map
+  final MyLocationTrackingMode myLocationTrackingMode;
+
   /// Which gestures should be consumed by the map.
   ///
   /// It is possible for other gesture recognizers to be competing with the map on pointer
@@ -92,6 +100,11 @@ class MapboxMap extends StatefulWidget {
   /// When this set is empty or null, the map will only handle pointer events for gestures that
   /// were not claimed by any other gesture recognizer.
   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
+
+  final OnMapClickCallback onMapClick;
+
+  /// Called when the location tracking mode changes, such as when the user moves the map
+  final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
 
   @override
   State createState() => _MapboxMapState();
@@ -156,8 +169,10 @@ class _MapboxMapState extends State<MapboxMap> {
   }
 
   Future<void> onPlatformViewCreated(int id) async {
-    final MapboxMapController controller =
-        await MapboxMapController.init(id, widget.initialCameraPosition);
+    final MapboxMapController controller = await MapboxMapController.init(
+        id, widget.initialCameraPosition,
+        onMapClick: widget.onMapClick,
+        onCameraTrackingDismissed: widget.onCameraTrackingDismissed);
     _controller.complete(controller);
     if (widget.onMapCreated != null) {
       widget.onMapCreated(controller);
@@ -173,7 +188,7 @@ class _MapboxMapOptions {
   _MapboxMapOptions({
     this.compassEnabled,
     this.cameraTargetBounds,
-    this.mapType,
+    this.styleString,
     this.minMaxZoomPreference,
     this.rotateGesturesEnabled,
     this.scrollGesturesEnabled,
@@ -181,13 +196,14 @@ class _MapboxMapOptions {
     this.trackCameraPosition,
     this.zoomGesturesEnabled,
     this.myLocationEnabled,
+    this.myLocationTrackingMode,
   });
 
   static _MapboxMapOptions fromWidget(MapboxMap map) {
     return _MapboxMapOptions(
       compassEnabled: map.compassEnabled,
       cameraTargetBounds: map.cameraTargetBounds,
-      mapType: map.mapType,
+      styleString: map.styleString,
       minMaxZoomPreference: map.minMaxZoomPreference,
       rotateGesturesEnabled: map.rotateGesturesEnabled,
       scrollGesturesEnabled: map.scrollGesturesEnabled,
@@ -195,6 +211,7 @@ class _MapboxMapOptions {
       trackCameraPosition: map.trackCameraPosition,
       zoomGesturesEnabled: map.zoomGesturesEnabled,
       myLocationEnabled: map.myLocationEnabled,
+      myLocationTrackingMode: map.myLocationTrackingMode,
     );
   }
 
@@ -202,7 +219,7 @@ class _MapboxMapOptions {
 
   final CameraTargetBounds cameraTargetBounds;
 
-  final MapType mapType;
+  final String styleString;
 
   final MinMaxZoomPreference minMaxZoomPreference;
 
@@ -218,6 +235,8 @@ class _MapboxMapOptions {
 
   final bool myLocationEnabled;
 
+  final MyLocationTrackingMode myLocationTrackingMode;
+
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> optionsMap = <String, dynamic>{};
 
@@ -229,7 +248,7 @@ class _MapboxMapOptions {
 
     addIfNonNull('compassEnabled', compassEnabled);
     addIfNonNull('cameraTargetBounds', cameraTargetBounds?._toJson());
-    addIfNonNull('mapType', mapType?.index);
+    addIfNonNull('styleString', styleString);
     addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?._toJson());
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);
     addIfNonNull('scrollGesturesEnabled', scrollGesturesEnabled);
@@ -237,6 +256,7 @@ class _MapboxMapOptions {
     addIfNonNull('zoomGesturesEnabled', zoomGesturesEnabled);
     addIfNonNull('trackCameraPosition', trackCameraPosition);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
+    addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
     return optionsMap;
   }
 

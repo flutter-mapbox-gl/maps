@@ -5,6 +5,7 @@
 library mapbox_gl;
 
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
