@@ -12,7 +12,25 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var cameraTargetBounds: MGLCoordinateBounds?
     private var trackCameraPosition = false
     private var myLocationEnabled = false
-    
+
+    struct MapboxMapStyle {
+        // Traffic Day and Traffic Night are currently not supported.
+        static let MAPBOX_STREETS = "mapbox://styles/mapbox/streets-v11"
+        static let OUTDOORS = "mapbox://styles/mapbox/outdoors-v11"
+        static let LIGHT = "mapbox://styles/mapbox/light-v10"
+        static let DARK = "mapbox://styles/mapbox/dark-v10"
+        static let SATELLITE = "mapbox://styles/mapbox/satellite-v9"
+        static let SATELLITE_STREETS = "mapbox://styles/mapbox/satellite-streets-v11"
+    }
+    let MapboxMapStyleLookup = [
+        MapboxMapStyle.MAPBOX_STREETS: MGLStyle.streetsStyleURL,
+        MapboxMapStyle.OUTDOORS: MGLStyle.outdoorsStyleURL,
+        MapboxMapStyle.LIGHT: MGLStyle.lightStyleURL,
+        MapboxMapStyle.DARK: MGLStyle.darkStyleURL,
+        MapboxMapStyle.SATELLITE: MGLStyle.satelliteStyleURL,
+        MapboxMapStyle.SATELLITE_STREETS: MGLStyle.satelliteStreetsStyleURL
+    ]
+
     func view() -> UIView {
         return mapView
     }
@@ -118,6 +136,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func setMinMaxZoomPreference(min: Double, max: Double) {
         mapView.minimumZoomLevel = min
         mapView.maximumZoomLevel = max
+    }
+    func setStyleString(style: String) {
+        if let styleURL = MapboxMapStyleLookup[style] {
+            mapView.styleURL = styleURL
+        } else {
+            mapView.styleURL = MGLStyle.streetsStyleURL
+        }
     }
     func setRotateGesturesEnabled(rotateGesturesEnabled: Bool) {
         mapView.allowsRotating = rotateGesturesEnabled
