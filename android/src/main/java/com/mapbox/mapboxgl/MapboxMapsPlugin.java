@@ -7,7 +7,9 @@ package com.mapbox.mapboxgl;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -30,9 +32,9 @@ public class MapboxMapsPlugin implements Application.ActivityLifecycleCallbacks 
     final MapboxMapsPlugin plugin = new MapboxMapsPlugin(registrar);
     registrar.activity().getApplication().registerActivityLifecycleCallbacks(plugin);
     registrar
-        .platformViewRegistry()
-        .registerViewFactory(
-            "plugins.flutter.io/mapbox_gl", new MapboxMapFactory(plugin.state, registrar));
+      .platformViewRegistry()
+      .registerViewFactory(
+        "plugins.flutter.io/mapbox_gl", new MapboxMapFactory(plugin.state, registrar));
   }
 
   @Override
@@ -76,7 +78,8 @@ public class MapboxMapsPlugin implements Application.ActivityLifecycleCallbacks 
   }
 
   @Override
-  public void onActivitySaveInstanceState(Activity activity, Bundle outState) {}
+  public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+  }
 
   @Override
   public void onActivityDestroyed(Activity activity) {
