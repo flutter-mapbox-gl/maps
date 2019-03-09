@@ -241,32 +241,26 @@ class Convert {
     final Map<?, ?> data = toMap(o);
     final Object iconSize = data.get("iconSize");
     if (iconSize != null) {
-      Logger.e(TAG, "setIconSize" + iconSize);
       sink.setIconSize(toFloat(iconSize));
     }
     final Object iconImage = data.get("iconImage");
     if (iconImage != null) {
-      Logger.e(TAG, "setIconImage" +  iconImage);
       sink.setIconImage(toString(iconImage));
     }
     final Object iconRotate = data.get("iconRotate");
     if (iconRotate != null) {
-      Logger.e(TAG, "SetIconRotate" + iconRotate);
       sink.setIconRotate(toFloat(iconRotate));
     }
     final Object iconOffset = data.get("iconOffset");
     if (iconOffset != null) {
-      Logger.e(TAG, "SetIconOffset" +  iconOffset);
       sink.setIconOffset(new float[] {toFloat(toList(iconOffset).get(0)), toFloat(toList(iconOffset).get(1))});
     }
     final Object iconAnchor = data.get("iconAnchor");
     if (iconAnchor != null) {
-      Logger.e(TAG, "SetIconAnchor" +  iconAnchor);
       sink.setIconAnchor(toString(iconAnchor));
     }
     final Object textField = data.get("textField");
     if (textField != null) {
-      Logger.e(TAG, "SetTextField" + textField);
       sink.setTextField(toString(textField));
     }
     final Object textSize = data.get("textSize");
@@ -303,7 +297,6 @@ class Convert {
     }
     final Object iconOpacity = data.get("iconOpacity");
     if (iconOpacity != null) {
-      Logger.e(TAG, "SetIconOpactiy" + iconOpacity);
       sink.setIconOpacity(toFloat(iconOpacity));
     }
     final Object iconColor = data.get("iconColor");
@@ -344,17 +337,54 @@ class Convert {
     }
     final Object geometry = data.get("geometry");
     if (geometry != null) {
-      Logger.e(TAG, "SetGeometry");
       sink.setGeometry(toLatLng(geometry));
     }
     final Object zIndex = data.get("zIndex");
     if (zIndex != null) {
-      Logger.e(TAG, "SetZIndex");
       sink.setZIndex(toInt(zIndex));
     }
     final Object draggable = data.get("draggable");
     if (draggable != null) {
-      Logger.e(TAG, "SetDraggable");
+      sink.setDraggable(toBoolean(draggable));
+    }
+  }
+
+  static void interpretCircleOptions(Object o, CircleOptionsSink sink) {
+    final Map<?, ?> data = toMap(o);
+    final Object circleRadius = data.get("circleRadius");
+    if (circleRadius != null) {
+      sink.setCircleRadius(toFloat(circleRadius));
+    }
+    final Object circleColor = data.get("circleColor");
+    if (circleColor != null) {
+      sink.setCircleColor(toString(circleColor));
+    }
+    final Object circleBlur = data.get("circleBlur");
+    if (circleBlur != null) {
+      sink.setCircleBlur(toFloat(circleBlur));
+    }
+    final Object circleOpacity = data.get("circleOpacity");
+    if (circleOpacity != null) {
+      sink.setCircleOpacity(toFloat(circleOpacity));
+    }
+    final Object circleStrokeWidth = data.get("circleStrokeWidth");
+    if (circleStrokeWidth != null) {
+      sink.setCircleStrokeWidth(toFloat(circleStrokeWidth));
+    }
+    final Object circleStrokeColor = data.get("circleStrokeColor");
+    if (circleStrokeColor != null) {
+      sink.setCircleStrokeColor(toString(circleStrokeColor));
+    }
+    final Object circleStrokeOpacity = data.get("circleStrokeOpacity");
+    if (circleStrokeOpacity != null) {
+      sink.setCircleStrokeOpacity(toFloat(circleStrokeOpacity));
+    }
+    final Object geometry = data.get("geometry");
+    if (geometry != null) {
+      sink.setGeometry(toLatLng(geometry));
+    }
+    final Object draggable = data.get("draggable");
+    if (draggable != null) {
       sink.setDraggable(toBoolean(draggable));
     }
   }
