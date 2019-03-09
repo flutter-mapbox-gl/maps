@@ -6,13 +6,12 @@
 
 package com.mapbox.mapboxgl;
 
+import android.graphics.Color;
 import android.graphics.PointF;
-
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
-import com.mapbox.mapboxsdk.utils.ColorUtils;
 
 /**
  * Controller of a single Symbol on the map.
@@ -116,12 +115,12 @@ class SymbolController implements SymbolOptionsSink {
 
   @Override
   public void setIconColor(String iconColor) {
-    symbol.setIconColor(ColorUtils.rgbaToColor(iconColor));
+    symbol.setIconColor(Color.parseColor(iconColor));
   }
 
   @Override
   public void setIconHaloColor(String iconHaloColor) {
-    symbol.setIconHaloColor(ColorUtils.rgbaToColor(iconHaloColor));
+    symbol.setIconHaloColor(Color.parseColor(iconHaloColor));
   }
 
   @Override
@@ -141,12 +140,12 @@ class SymbolController implements SymbolOptionsSink {
 
   @Override
   public void setTextColor(String textColor) {
-    symbol.setTextColor(ColorUtils.rgbaToColor((textColor)));
+    symbol.setTextColor(Color.parseColor(textColor));
   }
 
   @Override
   public void setTextHaloColor(String textHaloColor) {
-    symbol.setTextHaloColor(ColorUtils.rgbaToColor(textHaloColor));
+    symbol.setTextHaloColor(Color.parseColor(textHaloColor));
   }
 
   @Override
