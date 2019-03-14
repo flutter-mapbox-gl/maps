@@ -56,7 +56,7 @@ class Convert {
             return MGLMapCamera(lookingAtCenter: camera.centerCoordinate, altitude: altitude, pitch: camera.pitch, heading: camera.heading)
         case "scrollBy":
             guard let x = cameraUpdate[1] as? CGFloat else { return nil }
-            guard let y = cameraUpdate[1] as? CGFloat else { return nil }
+            guard let y = cameraUpdate[2] as? CGFloat else { return nil }
             let camera = mapView.camera
             let mapPoint = mapView.convert(camera.centerCoordinate, toPointTo: mapView)
             let movedPoint = CGPoint(x: mapPoint.x + x, y: mapPoint.y + y)
@@ -71,8 +71,10 @@ class Convert {
             if (cameraUpdate.count == 2) {
                 return camera
             } else {
-                guard let point = cameraUpdate[2] as? [CGFloat] else { return nil }
-                //TODO
+                guard let point = cameraUpdate[2] as? [CGFloat], point.count == 2 else { return nil }
+                let movedPoint = CGPoint(x: point[0], y: point[1])
+                camera.centerCoordinate = mapView.convert(movedPoint, toCoordinateFrom: mapView)
+                return camera
             }
         case "zoomIn":
             let camera = mapView.camera
