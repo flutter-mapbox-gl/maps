@@ -120,10 +120,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         mapView.maximumZoomLevel = max
     }
     func setStyleString(styleString: String) {
-        if let styleURL = MapboxMapStyle.fromUrl(styleString: styleString) {
-            mapView.styleURL = styleURL
+        // Check if json, url or plain string:
+        if styleString.isEmpty {
+            NSLog("setStyleString - string empty")
+        } else if (styleString.hasPrefix("{") || styleString.hasPrefix("[")) {
+            // Currently the iOS Mapbox SDK does not have a builder for json.
+            NSLog("setStyleString - JSON style currently not supported")
         } else {
-            mapView.styleURL = MGLStyle.streetsStyleURL
+            mapView.styleURL = MapboxMapStyle.fromUrl(styleString: styleString)
         }
     }
     func setRotateGesturesEnabled(rotateGesturesEnabled: Bool) {
