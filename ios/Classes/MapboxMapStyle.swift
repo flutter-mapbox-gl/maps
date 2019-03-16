@@ -2,7 +2,7 @@ import Mapbox
 
 class MapboxMapStyle {
     
-    struct MapboxMapStyles {
+    private struct MapboxMapStyles {
         // Traffic Day and Traffic Night are currently not supported.
         static let MAPBOX_STREETS = "mapbox://styles/mapbox/streets-v11"
         static let OUTDOORS = "mapbox://styles/mapbox/outdoors-v11"
@@ -12,7 +12,7 @@ class MapboxMapStyle {
         static let SATELLITE_STREETS = "mapbox://styles/mapbox/satellite-streets-v11"
     }
     
-    public static let MapboxMapStyleLookup = [
+    private static let MapboxMapStyleLookup = [
         MapboxMapStyles.MAPBOX_STREETS: MGLStyle.streetsStyleURL,
         MapboxMapStyles.OUTDOORS: MGLStyle.outdoorsStyleURL,
         MapboxMapStyles.LIGHT: MGLStyle.lightStyleURL,
@@ -20,4 +20,9 @@ class MapboxMapStyle {
         MapboxMapStyles.SATELLITE: MGLStyle.satelliteStyleURL,
         MapboxMapStyles.SATELLITE_STREETS: MGLStyle.satelliteStreetsStyleURL
     ]
+    
+    
+    static func fromUrl(styleString: String) -> URL? {
+        return MapboxMapStyle.MapboxMapStyleLookup[styleString]
+    }
 }
