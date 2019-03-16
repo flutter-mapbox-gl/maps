@@ -13,7 +13,7 @@ class Convert {
             delegate.setMinMaxZoomPreference(min: minMaxZoomPreference[0], max: minMaxZoomPreference[1])
         }
         if let styleString = options["styleString"] as? String {
-            delegate.setStyleString(style: styleString)
+            delegate.setStyleString(styleString: styleString)
         }
         if let rotateGesturesEnabled = options["rotateGesturesEnabled"] as? Bool {
             delegate.setRotateGesturesEnabled(rotateGesturesEnabled: rotateGesturesEnabled)

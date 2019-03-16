@@ -119,8 +119,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         mapView.minimumZoomLevel = min
         mapView.maximumZoomLevel = max
     }
-    func setStyleString(style: String) {
-        if let styleURL = MapboxMapStyle.MapboxMapStyleLookup[style] {
+    func setStyleString(styleString: String) {
+        if let styleURL = MapboxMapStyle.MapboxMapStyleLookup[styleString] {
             mapView.styleURL = styleURL
         } else {
             mapView.styleURL = MGLStyle.streetsStyleURL
