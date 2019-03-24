@@ -35,7 +35,8 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.geojson.Feature;
-import com.mapbox.mapboxsdk.plugins.annotation.OnSymbolClickListener;
+import com.mapbox.mapboxsdk.plugins.annotation.Annotation;
+import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
@@ -72,7 +73,7 @@ final class MapboxMapController
   MapboxMap.OnCameraIdleListener,
   MapboxMap.OnCameraMoveListener,
   MapboxMap.OnCameraMoveStartedListener,
-  OnSymbolClickListener,
+  OnAnnotationClickListener,
   MapboxMap.OnMapClickListener,
   MapboxMapOptionsSink,
   MethodChannel.MethodCallHandler,
@@ -298,14 +299,14 @@ final class MapboxMapController
       symbolManager.setIconIgnorePlacement(true);
       symbolManager.setTextAllowOverlap(true);
       symbolManager.setTextIgnorePlacement(true);
-      symbolManager.addClickListener(this);
+      symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
 
   private void enableLineManager(@NonNull Style style) {
     if (lineManager == null) {
       lineManager = new LineManager(mapView, mapboxMap, style);
-      // lineManager.addClickListener(this);
+      lineManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
 
@@ -456,10 +457,19 @@ final class MapboxMapController
   }
 
   @Override
-  public void onAnnotationClick(Symbol symbol) {
-    final SymbolController symbolController = symbols.get(String.valueOf(symbol.getId()));
-    if (symbolController != null) {
-      symbolController.onTap();
+  public void onAnnotationClick(Annotation annotation) {
+    if (annotation instanceof Symbol) {
+      final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
+      if (symbolController != null) {
+        symbolController.onTap();
+      }
+    }
+
+    if (annotation instanceof Line) {
+      final LineController lineController = lines.get(String.valueOf(annotation.getId()));
+      if (lineController != null) {
+        lineController.onTap();
+      }
     }
   }
 

@@ -49,8 +49,8 @@ class LineBodyState extends State<LineBody> {
     if (_selectedLine != null) {
       _updateSelectedLine(
         const LineOptions(
-            //linecolor:
-            ),
+          lineWidth: 28.0,
+        ),
       );
     }
     setState(() {
@@ -77,7 +77,7 @@ class LineBodyState extends State<LineBody> {
           LatLng(-33.86711, 152.1947171),
         ],
         lineColor: "#ff0000",
-        lineWidth: 7.0,
+        lineWidth: 14.0,
         lineOpacity: 0.5,
       ),
     );
@@ -94,89 +94,29 @@ class LineBodyState extends State<LineBody> {
     });
   }
 
-  // void _changePosition() {
-  //   final LatLng current = _selectedLine.options.geometry;
-  //   final Offset offset = Offset(
-  //     center.latitude - current.latitude,
-  //     center.longitude - current.longitude,
-  //   );
-  //   _updateSelectedLine(
-  //     LineOptions(
-  //       geometry: LatLng(
-  //         center.latitude + offset.dy,
-  //         center.longitude + offset.dx,
-  //       ),
-  //     ),
-  //   );
-  // }
 
-  // void _changeAnchor() {
-  //   Offset currentAnchor = _selectedLine.options.iconOffset;
-  //   if (currentAnchor == null) {
-  //     // default value
-  //     currentAnchor = Offset(0.0, 0.0);
-  //   }
-  //   final Offset newAnchor = Offset(1.0 - currentAnchor.dy, currentAnchor.dx);
-  //   _updateSelectedLine(LineOptions(iconOffset: newAnchor));
-  // }
+  Future<void> _changeAlpha() async {
+    double current = _selectedLine.options.lineOpacity;
+    if (current == null) {
+      // default value
+      current = 1.0;
+    }
 
-  // Future<void> _toggleDraggable() async {
-  //   bool draggable = _selectedLine.options.draggable;
-  //   if (draggable == null) {
-  //     // default value
-  //     draggable = false;
-  //   }
+    _updateSelectedLine(
+      LineOptions(lineOpacity: current < 0.1 ? 1.0 : current * 0.75),
+    );
+  }
 
-  //   _updateSelectedLine(
-  //     LineOptions(draggable: !draggable),
-  //   );
-  // }
-
-  // Future<void> _changeAlpha() async {
-  //   double current = _selectedLine.options.iconOpacity;
-  //   if (current == null) {
-  //     // default value
-  //     current = 1.0;
-  //   }
-
-  //   _updateSelectedLine(
-  //     LineOptions(iconOpacity: current < 0.1 ? 1.0 : current * 0.75),
-  //   );
-  // }
-
-  // Future<void> _changeRotation() async {
-  //   double current = _selectedLine.options.iconRotate;
-  //   if (current == null) {
-  //     // default value
-  //     current = 0;
-  //   }
-  //   _updateSelectedLine(
-  //     LineOptions(iconRotate: current == 330.0 ? 0.0 : current + 30.0),
-  //   );
-  // }
-
-  // Future<void> _toggleVisible() async {
-  //   double current = _selectedLine.options.iconOpacity;
-  //   if (current == null) {
-  //     // default value
-  //     current = 1.0;
-  //   }
-
-  //   _updateSelectedLine(
-  //     LineOptions(iconOpacity: current == 0.0 ? 1.0 : 0.0),
-  //   );
-  // }
-
-  // Future<void> _changeZIndex() async {
-  //   int current = _selectedLine.options.zIndex;
-  //   if (current == null) {
-  //     // default value
-  //     current = 0;
-  //   }
-  //   _updateSelectedLine(
-  //     LineOptions(zIndex: current == 12 ? 0 : current + 1),
-  //   );
-  // }
+  Future<void> _toggleVisible() async {
+    double current = _selectedLine.options.lineOpacity;
+    if (current == null) {
+      // default value
+      current = 1.0;
+    }
+    _updateSelectedLine(
+      LineOptions(lineOpacity: current == 0.0 ? 1.0 : 0.0),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,41 +158,16 @@ class LineBodyState extends State<LineBody> {
                     ),
                     Column(
                       children: <Widget>[
-                        // FlatButton(
-                        //   child: const Text('change alpha'),
-                        //   onPressed:
-                        //       (_selectedLine == null) ? null : _changeAlpha,
-                        // ),
-                        // FlatButton(
-                        //   child: const Text('change anchor'),
-                        //   onPressed:
-                        //       (_selectedLine == null) ? null : _changeAnchor,
-                        // ),
-                        // FlatButton(
-                        //   child: const Text('toggle draggable'),
-                        //   onPressed:
-                        //       (_selectedLine == null) ? null : _toggleDraggable,
-                        // ),
-                        // FlatButton(
-                        //   child: const Text('change position'),
-                        //   onPressed:
-                        //       (_selectedLine == null) ? null : _changePosition,
-                        // ),
-                        // FlatButton(
-                        //   child: const Text('change rotation'),
-                        //   onPressed:
-                        //       (_selectedLine == null) ? null : _changeRotation,
-                        // ),
-                        // FlatButton(
-                        //   child: const Text('toggle visible'),
-                        //   onPressed:
-                        //       (_selectedLine == null) ? null : _toggleVisible,
-                        // ),
-                        // FlatButton(
-                        //   child: const Text('change zIndex'),
-                        //   onPressed:
-                        //       (_selectedLine == null) ? null : _changeZIndex,
-                        // ),
+                        FlatButton(
+                          child: const Text('change alpha'),
+                          onPressed:
+                              (_selectedLine == null) ? null : _changeAlpha,
+                        ),
+                        FlatButton(
+                          child: const Text('toggle visible'),
+                          onPressed:
+                              (_selectedLine == null) ? null : _toggleVisible,
+                        ),
                       ],
                     ),
                   ],
