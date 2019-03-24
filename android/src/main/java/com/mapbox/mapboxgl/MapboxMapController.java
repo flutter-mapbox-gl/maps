@@ -18,7 +18,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.graphics.PointF;
@@ -61,7 +61,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
-import android.graphics.PointF;
+
 import android.graphics.RectF;
 
 /**
