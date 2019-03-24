@@ -12,7 +12,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var cameraTargetBounds: MGLCoordinateBounds?
     private var trackCameraPosition = false
     private var myLocationEnabled = false
-    
+
     func view() -> UIView {
         return mapView
     }
@@ -118,6 +118,17 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func setMinMaxZoomPreference(min: Double, max: Double) {
         mapView.minimumZoomLevel = min
         mapView.maximumZoomLevel = max
+    }
+    func setStyleString(styleString: String) {
+        // Check if json, url or plain string:
+        if styleString.isEmpty {
+            NSLog("setStyleString - string empty")
+        } else if (styleString.hasPrefix("{") || styleString.hasPrefix("[")) {
+            // Currently the iOS Mapbox SDK does not have a builder for json.
+            NSLog("setStyleString - JSON style currently not supported")
+        } else {
+            mapView.styleURL = MapboxMapStyle.fromUrl(styleString: styleString)
+        }
     }
     func setRotateGesturesEnabled(rotateGesturesEnabled: Bool) {
         mapView.allowsRotating = rotateGesturesEnabled
