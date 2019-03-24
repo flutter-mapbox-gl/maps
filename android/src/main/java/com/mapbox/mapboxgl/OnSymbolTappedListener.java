@@ -4,8 +4,8 @@
 
 package com.mapbox.mapboxgl;
 
-import com.mapbox.mapboxsdk.annotations.Marker;
+import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 
-interface OnMarkerTappedListener {
-  void onMarkerTapped(Marker marker);
+interface OnSymbolTappedListener {
+  void onSymbolTapped(Symbol symbol);
 }
