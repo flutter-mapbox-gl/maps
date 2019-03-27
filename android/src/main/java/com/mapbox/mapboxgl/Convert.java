@@ -5,17 +5,15 @@
 package com.mapbox.mapboxgl;
 
 import android.graphics.Point;
-
-import android.util.Log;
-
+import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
-import com.mapbox.mapboxsdk.log.Logger;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -101,7 +99,7 @@ class Convert {
       case "bearingTo":
         return CameraUpdateFactory.bearingTo(toFloat(data.get(1)));
       case "tiltTo":
-        return CameraUpdateFactory.tiltTo(toFloat(data.get(1))); 
+        return CameraUpdateFactory.tiltTo(toFloat(data.get(1)));
       default:
         throw new IllegalArgumentException("Cannot interpret " + o + " as CameraUpdate");
     }
@@ -387,5 +385,53 @@ class Convert {
     if (draggable != null) {
       sink.setDraggable(toBoolean(draggable));
     }
+  }
+
+  static void interpretFillOptions(Object o, FillOptionsSink sink) {
+    final Map<?, ?> data = toMap(o);
+    final Object fillOpacity = data.get("fillOpacity");
+    if (fillOpacity != null) {
+      sink.setFillOpacity(toFloat(fillOpacity));
+    }
+    final Object fillColor = data.get("fillColor");
+    if (fillColor != null) {
+      sink.setFillColor(toString(fillColor));
+    }
+    final Object fillOutlineColor = data.get("fillOutlineColor");
+    if (fillOutlineColor != null) {
+      sink.setFillOutlineColor(toString(fillOutlineColor));
+    }
+    final Object fillPattern = data.get("fillPattern");
+    if (fillPattern != null) {
+      sink.setFillPattern(toString(fillPattern));
+    }
+    final Object geometry = data.get("geometry");
+    if (geometry != null) {
+      sink.setGeometry(toLatLngListList(geometry));
+    }
+    final Object draggable = data.get("draggable");
+    if (draggable != null) {
+      sink.setDraggable(toBoolean(draggable));
+    }
+  }
+
+  private static List<List<LatLng>> toLatLngListList(Object o) {
+    if (o == null) {
+      return null;
+    }
+    // todo add conversion
+    return new ArrayList<>();
+  }
+
+  static Polygon interpretListLatLng(List<List<LatLng>> geometry) {
+    List<List<com.mapbox.geojson.Point>> points = new ArrayList<>(geometry.size());
+    for (List<LatLng> innerGeometry : geometry) {
+      List<com.mapbox.geojson.Point> innerPoints = new ArrayList<>(innerGeometry.size());
+      for (LatLng latLng : innerGeometry) {
+        innerPoints.add(com.mapbox.geojson.Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude()));
+      }
+      points.add(innerPoints);
+    }
+    return Polygon.fromLngLats(points);
   }
 }
