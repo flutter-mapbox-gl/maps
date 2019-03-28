@@ -85,12 +85,12 @@ final class MapboxMapController
   private final MethodChannel methodChannel;
   private final PluginRegistry.Registrar registrar;
   private final MapView mapView;
+  private MapboxMap mapboxMap;
   private final Map<String, SymbolController> symbols;
   private final Map<String, LineController> lines;
-  private MapboxMap mapboxMap;
+  private final Map<String, CircleController> circles;
   private SymbolManager symbolManager;
   private LineManager lineManager;
-  private final Map<String, CircleController> circles;
   private CircleManager circleManager;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
@@ -201,18 +201,14 @@ final class MapboxMapController
   private SymbolBuilder newSymbolBuilder() {
     return new SymbolBuilder(symbolManager);
   }
-
-  private CircleBuilder newCircleBuilder() {
-    return new CircleBuilder(circleManager);
-  }
-
+  
   private void removeSymbol(String symbolId) {
     final SymbolController symbolController = symbols.remove(symbolId);
     if (symbolController != null) {
       symbolController.remove(symbolManager);
     }
   }
-
+  
   private SymbolController symbol(String symbolId) {
     final SymbolController symbol = symbols.get(symbolId);
     if (symbol == null) {
@@ -220,18 +216,18 @@ final class MapboxMapController
     }
     return symbol;
   }
-
+  
   private LineBuilder newLineBuilder() {
     return new LineBuilder(lineManager);
   }
-
+  
   private void removeLine(String lineId) {
     final LineController lineController = lines.remove(lineId);
     if (lineController != null) {
       lineController.remove(lineManager);
     }
   }
-
+  
   private LineController line(String lineId) {
     final LineController line = lines.get(lineId);
     if (line == null) {
@@ -240,6 +236,10 @@ final class MapboxMapController
     return line;
   }
 
+  private CircleBuilder newCircleBuilder() {
+    return new CircleBuilder(circleManager);
+  }
+    
   private void removeCircle(String circleId) {
     final CircleController circleController = circles.remove(circleId);
     if (circleController != null) {
