@@ -13,7 +13,7 @@ import android.content.pm.PackageManager;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import com.mapbox.geojson.Feature;
