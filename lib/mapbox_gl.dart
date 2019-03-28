@@ -21,4 +21,5 @@ part 'src/mapbox_map.dart';
 part 'src/location.dart';
 part 'src/symbol.dart';
 part 'src/line.dart';
+part 'src/circle.dart';
 part 'src/ui.dart';

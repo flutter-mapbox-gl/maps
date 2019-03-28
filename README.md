@@ -24,8 +24,10 @@ This project uses Mapbox vector tiles, which requires a Mapbox account and a Map
 After you get the key, place it in project's Android directory:
 - Add your access token to `$project_dir/example/android/app/src/values/developer-config.xml`
 
-##### iOS
-Add this lines to your Info.plist
+
+#### iOS
+Add these lines to your Info.plist
+
 ```plist
 <key>io.flutter.embedded_views_preview</key>
 <true/>

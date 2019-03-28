@@ -55,6 +55,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
+        case "camera#move":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
+            if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
+                mapView.setCamera(camera, animated: false)
+            }
+        case "camera#animate":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
+            if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
+                mapView.setCamera(camera, animated: true)
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
