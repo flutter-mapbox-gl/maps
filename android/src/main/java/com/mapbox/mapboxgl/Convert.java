@@ -164,10 +164,10 @@ class Convert {
     }
     final List<?> data = toList(o);
     List<LatLng> latLngList = new ArrayList<>();
-    data.forEach((element) -> {
-      final List<?> coords = toList(element);
+    for (int i=0; i<data.size(); i++) {
+      final List<?> coords = toList(data.get(i));
       latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
-    });
+    }
     return latLngList;
   }
 
