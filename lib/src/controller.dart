@@ -14,12 +14,14 @@ typedef void OnCameraTrackingDismissedCallback();
 ///
 /// * the [options] property
 /// * the collection of [Symbol]s added to this map
+/// * the collection of [Line]s added to this map
 /// * the [isCameraMoving] property
 /// * the [cameraPosition] property
 ///
 /// Listeners are notified after changes have been applied on the platform side.
 ///
 /// Symbol tap events can be received by adding callbacks to [onSymbolTapped].
+/// Line tap events can be received by adding callbacks to [onLineTapped].
 /// Circle tap events can be received by adding callbacks to [onCircleTapped].
 class MapboxMapController extends ChangeNotifier {
   MapboxMapController._(
@@ -67,6 +69,15 @@ class MapboxMapController extends ChangeNotifier {
   Set<Symbol> get symbols => Set<Symbol>.from(_symbols.values);
   final Map<String, Symbol> _symbols = <String, Symbol>{};
 
+  /// Callbacks to receive tap events for lines placed on this map.
+  final ArgumentCallbacks<Line> onLineTapped = ArgumentCallbacks<Line>();
+
+  /// The current set of lines on this map.
+  ///
+  /// The returned set will be a detached snapshot of the lines collection.
+  Set<Line> get lines => Set<Line>.from(_lines.values);
+  final Map<String, Line> _lines = <String, Line>{};
+
   /// The current set of circles on this map.
   ///
   /// The returned set will be a detached snapshot of the symbols collection.
@@ -98,6 +109,13 @@ class MapboxMapController extends ChangeNotifier {
         final Symbol symbol = _symbols[symbolId];
         if (symbol != null) {
           onSymbolTapped(symbol);
+        }
+        break;
+      case 'line#onTap':
+        final String lineId = call.arguments['line'];
+        final Line line = _lines[lineId];
+        if (line != null) {
+          onLineTapped(line);
         }
         break;
       case 'circle#onTap':
@@ -256,6 +274,88 @@ class MapboxMapController extends ChangeNotifier {
       'symbol': id,
     });
     _symbols.remove(id);
+  }
+
+  /// Adds a line to the map, configured using the specified custom [options].
+  ///
+  /// Change listeners are notified once the line has been added on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes with the added line once listeners have
+  /// been notified.
+  Future<Line> addLine(LineOptions options) async {
+    final LineOptions effectiveOptions =
+        LineOptions.defaultOptions.copyWith(options);
+    final String lineId = await _channel.invokeMethod(
+      'line#add',
+      <String, dynamic>{
+        'options': effectiveOptions._toJson(),
+      },
+    );
+    final Line line = Line(lineId, effectiveOptions);
+    _lines[lineId] = line;
+    notifyListeners();
+    return line;
+  }
+
+  /// Updates the specified [line] with the given [changes]. The line must
+  /// be a current member of the [lines] set.
+  ///
+  /// Change listeners are notified once the line has been updated on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> updateLine(Line line, LineOptions changes) async {
+    assert(line != null);
+    assert(_lines[line._id] == line);
+    assert(changes != null);
+    await _channel.invokeMethod('line#update', <String, dynamic>{
+      'line': line._id,
+      'options': changes._toJson(),
+    });
+    line._options = line._options.copyWith(changes);
+    notifyListeners();
+  }
+
+  /// Removes the specified [line] from the map. The line must be a current
+  /// member of the [lines] set.
+  ///
+  /// Change listeners are notified once the line has been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> removeLine(Line line) async {
+    assert(line != null);
+    assert(_lines[line._id] == line);
+    await _removeLine(line._id);
+    notifyListeners();
+  }
+
+  /// Removes all [lines] from the map.
+  ///
+  /// Change listeners are notified once all lines have been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> clearLines() async {
+    assert(_lines != null);
+    final List<String> lineIds = List<String>.from(_lines.keys);
+    for (String id in lineIds) {
+      await _removeLine(id);
+    }
+    notifyListeners();
+  }
+
+  /// Helper method to remove a single line from the map. Consumed by
+  /// [removeLine] and [clearLines].
+  ///
+  /// The returned [Future] completes once the line has been removed from
+  /// [_lines].
+  Future<void> _removeLine(String id) async {
+    await _channel.invokeMethod('line#remove', <String, dynamic>{
+      'line': id,
+    });
+    _lines.remove(id);
   }
 
   /// Adds a circle to the map, configured using the specified custom [options].

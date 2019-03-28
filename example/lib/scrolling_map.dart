@@ -100,11 +100,23 @@ class ScrollingMapBody extends StatelessWidget {
 
   void onMapCreated(MapboxMapController controller) {
     controller.addSymbol(SymbolOptions(
-      geometry: LatLng(
-        center.latitude,
-        center.longitude,
+        geometry: LatLng(
+          center.latitude,
+          center.longitude,
+        ),
+        iconImage: "airport-15"));
+    controller.addLine(
+      LineOptions(
+        geometry: [
+          LatLng(-33.86711, 151.1947171),
+          LatLng(-33.86711, 151.1947171),
+          LatLng(-32.86711, 151.1947171),
+          LatLng(-33.86711, 152.1947171),
+        ],
+        lineColor: "#ff0000",
+        lineWidth: 7.0,
+        lineOpacity: 0.5,
       ),
-      iconImage: "airport-15"
-    ));
+    );
   }
 }

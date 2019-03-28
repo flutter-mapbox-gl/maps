@@ -16,10 +16,11 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
-import com.mapbox.geojson.Feature;
+
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
+
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.location.LocationComponent;
@@ -37,6 +38,9 @@ import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
+import com.mapbox.mapboxsdk.plugins.annotation.Line;
+import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
+import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -72,6 +76,7 @@ final class MapboxMapController
   com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
   OnCameraTrackingChangedListener,
   OnSymbolTappedListener,
+  OnLineTappedListener,
   OnCircleTappedListener,
   PlatformView {
   private static final String TAG = "MapboxMapController";
@@ -80,10 +85,12 @@ final class MapboxMapController
   private final MethodChannel methodChannel;
   private final PluginRegistry.Registrar registrar;
   private final MapView mapView;
-  private final Map<String, SymbolController> symbols;
-  private final Map<String, CircleController> circles;
   private MapboxMap mapboxMap;
+  private final Map<String, SymbolController> symbols;
+  private final Map<String, LineController> lines;
+  private final Map<String, CircleController> circles;
   private SymbolManager symbolManager;
+  private LineManager lineManager;
   private CircleManager circleManager;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
@@ -111,6 +118,7 @@ final class MapboxMapController
     this.styleStringInitial = styleStringInitial;
     this.mapView = new MapView(context, options);
     this.symbols = new HashMap<>();
+    this.lines = new HashMap<>();
     this.circles = new HashMap<>();
     this.density = context.getResources().getDisplayMetrics().density;
     methodChannel =
@@ -193,18 +201,14 @@ final class MapboxMapController
   private SymbolBuilder newSymbolBuilder() {
     return new SymbolBuilder(symbolManager);
   }
-
-  private CircleBuilder newCircleBuilder() {
-    return new CircleBuilder(circleManager);
-  }
-
+  
   private void removeSymbol(String symbolId) {
     final SymbolController symbolController = symbols.remove(symbolId);
     if (symbolController != null) {
       symbolController.remove(symbolManager);
     }
   }
-
+  
   private SymbolController symbol(String symbolId) {
     final SymbolController symbol = symbols.get(symbolId);
     if (symbol == null) {
@@ -212,7 +216,30 @@ final class MapboxMapController
     }
     return symbol;
   }
+  
+  private LineBuilder newLineBuilder() {
+    return new LineBuilder(lineManager);
+  }
+  
+  private void removeLine(String lineId) {
+    final LineController lineController = lines.remove(lineId);
+    if (lineController != null) {
+      lineController.remove(lineManager);
+    }
+  }
+  
+  private LineController line(String lineId) {
+    final LineController line = lines.get(lineId);
+    if (line == null) {
+      throw new IllegalArgumentException("Unknown line: " + lineId);
+    }
+    return line;
+  }
 
+  private CircleBuilder newCircleBuilder() {
+    return new CircleBuilder(circleManager);
+  }
+    
   private void removeCircle(String circleId) {
     final CircleController circleController = circles.remove(circleId);
     if (circleController != null) {
@@ -257,6 +284,7 @@ final class MapboxMapController
   Style.OnStyleLoaded onStyleLoadedCallback = new Style.OnStyleLoaded() {
     @Override
     public void onStyleLoaded(@NonNull Style style) {
+      enableLineManager(style);
       enableSymbolManager(style);
       enableCircleManager(style);
       enableLocationComponent(style);
@@ -295,6 +323,13 @@ final class MapboxMapController
     }
   }
 
+  private void enableLineManager(@NonNull Style style) {
+    if (lineManager == null) {
+      lineManager = new LineManager(mapView, mapboxMap, style);
+      lineManager.addClickListener(MapboxMapController.this::onAnnotationClick);
+    }
+  }
+    
   private void enableCircleManager(@NonNull Style style) {
     if (circleManager == null) {
       circleManager = new CircleManager(mapView, mapboxMap, style);
@@ -388,6 +423,29 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "line#add": {
+        final LineBuilder lineBuilder = newLineBuilder();
+        Convert.interpretLineOptions(call.argument("options"), lineBuilder);
+        final Line line = lineBuilder.build();
+        final String lineId = String.valueOf(line.getId());
+        lines.put(lineId, new LineController(line, true, this));
+        result.success(lineId);
+        break;
+      }
+      case "line#remove": {
+        final String lineId = call.argument("line");
+        removeLine(lineId);
+        result.success(null);
+        break;
+      }
+      case "line#update": {
+        final String lineId = call.argument("line");
+        final LineController line = line(lineId);
+        Convert.interpretLineOptions(call.argument("options"), line);
+        line.update(lineManager);
+        result.success(null);
+        break;
+      }
       case "circle#add": {
         final CircleBuilder circleBuilder = newCircleBuilder();
         Convert.interpretCircleOptions(call.argument("options"), circleBuilder);
@@ -458,6 +516,13 @@ final class MapboxMapController
       }
     }
 
+    if (annotation instanceof Line) {
+      final LineController lineController = lines.get(String.valueOf(annotation.getId()));
+      if (lineController != null) {
+        lineController.onTap();
+      }
+    }
+    
     if (annotation instanceof Circle) {
       final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
       if (circleController != null) {
@@ -471,6 +536,13 @@ final class MapboxMapController
     final Map<String, Object> arguments = new HashMap<>(2);
     arguments.put("symbol", String.valueOf(symbol.getId()));
     methodChannel.invokeMethod("symbol#onTap", arguments);
+  }
+
+  @Override
+  public void onLineTapped(Line line) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+    arguments.put("line", String.valueOf(line.getId()));
+    methodChannel.invokeMethod("line#onTap", arguments);
   }
 
   @Override
@@ -503,6 +575,9 @@ final class MapboxMapController
     }
     if (symbolManager != null) {
       symbolManager.onDestroy();
+    }
+    if (lineManager != null) {
+      lineManager.onDestroy();
     }
     if (circleManager != null) {
       circleManager.onDestroy();
