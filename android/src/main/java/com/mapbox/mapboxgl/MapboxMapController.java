@@ -91,8 +91,6 @@ final class MapboxMapController
   private SymbolManager symbolManager;
   private LineManager lineManager;
   private final Map<String, CircleController> circles;
-  private MapboxMap mapboxMap;
-  private SymbolManager symbolManager;
   private CircleManager circleManager;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
@@ -240,6 +238,8 @@ final class MapboxMapController
       throw new IllegalArgumentException("Unknown line: " + lineId);
     }
     return line;
+  }
+
   private void removeCircle(String circleId) {
     final CircleController circleController = circles.remove(circleId);
     if (circleController != null) {
@@ -443,6 +443,9 @@ final class MapboxMapController
         final LineController line = line(lineId);
         Convert.interpretLineOptions(call.argument("options"), line);
         line.update(lineManager);
+        result.success(null);
+        break;
+      }
       case "circle#add": {
         final CircleBuilder circleBuilder = newCircleBuilder();
         Convert.interpretCircleOptions(call.argument("options"), circleBuilder);
