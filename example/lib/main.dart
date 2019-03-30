@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl_example/line.dart';
+import 'line.dart';
 import 'animate_camera.dart';
 import 'map_ui.dart';
 import 'move_camera.dart';
