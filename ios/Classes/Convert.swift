@@ -120,4 +120,12 @@ class Convert {
     class func getAltitude(zoom: Double, mapView: MGLMapView) -> Double {
         return MGLAltitudeForZoomLevel(zoom, mapView.camera.pitch, mapView.camera.centerCoordinate.latitude, mapView.frame.size)
     }
+    
+    class func interpretLineOptions(options: Any?, delegate: LineOptionsSink) {
+        guard let options = options as? [String: Any] else { return }
+        
+        if let geometry = options["geometry"] as? [[Double]] {
+            delegate.setGeometry(geometry: geometry)
+        }        
+    }
 }

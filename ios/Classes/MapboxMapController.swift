@@ -69,6 +69,20 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
                 mapView.setCamera(camera, animated: true)
             }
+        case "line#add":
+            guard let lineManager = lineManager else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            
+            // Create a line and populate it.
+            let lineBuilder = LineBuilder(lineManager: lineManager)
+            Convert.interpretLineOptions(options: arguments["options"], delegate: lineBuilder)
+            if let line = lineBuilder.build() {
+                //                result(line.id)
+                let data = try! JSONEncoder().encode(line)
+                result(String(bytes: data, encoding: .utf8))
+            } else {
+                result(nil)
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
