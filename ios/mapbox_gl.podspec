@@ -18,6 +18,5 @@ A new Flutter plugin.
   s.dependency 'Mapbox-iOS-SDK', '~> 4.8.0'
 
   s.ios.deployment_target = '9.0'
-  s.swift_version = '5.0'
 end
 
