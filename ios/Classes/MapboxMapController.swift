@@ -13,6 +13,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var trackCameraPosition = false
     private var myLocationEnabled = false
 
+    private var lineManager: LineManager?
+    
     func view() -> UIView {
         return mapView
     }
@@ -91,6 +93,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             let camera = mapView.camera
             camera.pitch = initialTilt
             mapView.setCamera(camera, animated: false)
+        }
+        
+        lineManager = LineManager()
+        if let lineManager = lineManager {
+            style.addSource(lineManager.source)
+            style.addLayer(lineManager.layer!)
         }
         
         mapReadyResult?(nil)
