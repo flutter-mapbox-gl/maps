@@ -13,4 +13,20 @@ class AnnotationManager<G: Geometry>  {
         source = MGLShapeSource(identifier: sourceId, shape: nil, options: nil)
         annotations = [Float: Annotation<G>]()
     }
+    
+    func create(options: Options<G>) -> Annotation<G> {
+        let annotation = options.build(id: currentId)
+        annotations[currentId] = annotation
+        currentId += 1
+        updateSource()
+        return annotation
+    }
+    
+    func updateSource() {
+        let features = Array(annotations.values)
+        let featureCollection = FeatureCollection<G>(features: features)
+        let data = try! JSONEncoder().encode(featureCollection)
+        let shape = try! MGLShape(data: data, encoding: String.Encoding.utf8.rawValue) as? MGLShapeCollectionFeature
+        source.shape = shape
+    }
 }
