@@ -15,6 +15,38 @@ class LineBuilder: LineOptionsSink {
         lineOptions.setGeometry(geometry: geojsonGeometry)
     }
     
+    func setLineJoin(lineJoin: String) {
+        lineOptions.lineJoin = lineJoin
+    }
+    
+    func setLineOpacity(lineOpacity: Double) {
+        lineOptions.lineOpacity = lineOpacity
+    }
+    
+    func setLineColor(lineColor: String) {
+        lineOptions.lineColor = lineColor
+    }
+    
+    func setLineWidth(lineWidth: Double) {
+        lineOptions.lineWidth = lineWidth
+    }
+    
+    func setLineGapWidth(lineGapWidth: Double) {
+        lineOptions.lineGapWidth = lineGapWidth
+    }
+    
+    func setLineOffset(lineOffset: Double) {
+        lineOptions.lineOffset = lineOffset
+    }
+    
+    func setLineBlur(lineBlur: Double) {
+        lineOptions.lineBlur = lineBlur
+    }
+    
+    func setLinePattern(linePattern: String) {
+        lineOptions.linePattern = linePattern
+    }
+    
     func build() -> Line? {
         return lineManager.create(options: lineOptions)
     }
