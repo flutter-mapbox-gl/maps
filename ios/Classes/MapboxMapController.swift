@@ -77,9 +77,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             let lineBuilder = LineBuilder(lineManager: lineManager)
             Convert.interpretLineOptions(options: arguments["options"], delegate: lineBuilder)
             if let line = lineBuilder.build() {
-                //                result(line.id)
-                let data = try! JSONEncoder().encode(line)
-                result(String(bytes: data, encoding: .utf8))
+                result(line.id)
             } else {
                 result(nil)
             }
