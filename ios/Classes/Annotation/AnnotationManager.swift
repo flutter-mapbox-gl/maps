@@ -14,12 +14,14 @@ class AnnotationManager<G: Geometry>  {
         annotations = [Float: Annotation<G>]()
     }
     
-    func create(options: Options<G>) -> Annotation<G> {
-        let annotation = options.build(id: currentId)
-        annotations[currentId] = annotation
-        currentId += 1
-        updateSource()
-        return annotation
+    func create(options: Options<G>) -> Annotation<G>? {
+        if let annotation = options.build(id: currentId) {
+            annotations[currentId] = annotation
+            currentId += 1
+            updateSource()
+            return annotation
+        }
+        return nil
     }
     
     func updateSource() {
