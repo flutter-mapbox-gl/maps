@@ -1,3 +1,8 @@
+struct LineGeometry: LineString {
+    let type = "LineString"
+    var coordinates: [[Double]]
+}
+
 // Geometry protocols
 
 protocol Geometry: Encodable {

@@ -1,0 +1,1 @@
+typealias Line = Annotation<LineGeometry>
