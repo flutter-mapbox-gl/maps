@@ -13,6 +13,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var trackCameraPosition = false
     private var myLocationEnabled = false
 
+    private var channel: FlutterMethodChannel?
     private var lineManager: LineManager?
     
     func view() -> UIView {
@@ -25,8 +26,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
         super.init()
         
-        let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: messenger)
-        channel.setMethodCallHandler(onMethodCall)
+        channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: messenger)
+        channel!.setMethodCallHandler(onMethodCall)
         
         mapView.delegate = self
         
@@ -38,6 +39,28 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 mapView.setCenter(camera.centerCoordinate, zoomLevel: zoom, direction: camera.heading, animated: false)
                 initialTilt = camera.pitch
             }
+        }
+        
+        // Add a single tap gesture recognizer. This gesture requires the built-in MGLMapView tap gestures (such as those for zoom and annotation selection) to fail.
+        let singleTap = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(sender:)))
+        for recognizer in mapView.gestureRecognizers! where recognizer is UITapGestureRecognizer {
+            singleTap.require(toFail: recognizer)
+        }
+        mapView.addGestureRecognizer(singleTap)
+    }
+    @objc @IBAction func handleMapTap(sender: UITapGestureRecognizer) {
+        // Get the CGPoint where the user tapped.
+        let spot = sender.location(in: mapView)
+        
+        // Access the features at that point within the state layer.
+        let features = mapView.visibleFeatures(at: spot, styleLayerIdentifiers: Set(["mapbox-ios-line-layer"]))
+        if let feature = features.first, let channel = channel {
+            var arguments: [String: Any] = [:]
+            if let id = feature.identifier {
+                NSLog("Feature: \(id)")
+                arguments["line"] = "\(id)"
+            }
+            channel.invokeMethod("line#onTap", arguments: arguments)
         }
     }
     
@@ -77,7 +100,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             let lineBuilder = LineBuilder(lineManager: lineManager)
             Convert.interpretLineOptions(options: arguments["options"], delegate: lineBuilder)
             if let line = lineBuilder.build() {
-                result(line.id)
+                result("\(line.id)")
             } else {
                 result(nil)
             }
@@ -159,7 +182,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             // Currently the iOS Mapbox SDK does not have a builder for json.
             NSLog("setStyleString - JSON style currently not supported")
         } else {
-            mapView.styleURL = MapboxMapStyle.fromUrl(styleString: styleString)
+            mapView.styleURL = URL(string: styleString)
         }
     }
     func setRotateGesturesEnabled(rotateGesturesEnabled: Bool) {
