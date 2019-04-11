@@ -4,22 +4,20 @@ struct FeatureCollection<G: Geometry>: Encodable {
 }
 
 struct Feature<G: Geometry>: Encodable {
-    var id: Float
+    var id: UInt64
     let type: String = "Feature"
     var geometry: G
     var properties: [String : AnyEncodable]
 }
 
 struct AnyEncodable: Encodable {
-    var _encodeFunc: (Encoder) throws -> Void
-    
+    var encodable: Encodable
+
     init(_ encodable: Encodable) {
-        func _encode(to encoder: Encoder) throws {
-            try encodable.encode(to: encoder)
-        }
-        self._encodeFunc = _encode
+        self.encodable = encodable
     }
+    
     func encode(to encoder: Encoder) throws {
-        try _encodeFunc(encoder)
+        try encodable.encode(to: encoder)
     }
 }

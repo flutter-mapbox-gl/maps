@@ -19,6 +19,9 @@ class LineOptions: Options<LineGeometry> {
     
     var lineJoin: String? {
         get {
+            if let value = properties[LineOptions.KEY_LINE_JOIN] {
+                return value.encodable as? String
+            }
             return nil
         }
         set(newValue) {
@@ -28,6 +31,9 @@ class LineOptions: Options<LineGeometry> {
     
     var lineOpacity: Double? {
         get {
+            if let value = properties[LineOptions.KEY_LINE_OPACITY] {
+                return value.encodable as? Double
+            }
             return nil
         }
         set(newValue) {
@@ -37,6 +43,9 @@ class LineOptions: Options<LineGeometry> {
     
     var lineColor: String? {
         get {
+            if let value = properties[LineOptions.KEY_LINE_COLOR] {
+                return value.encodable as? String
+            }
             return nil
         }
         set(newValue) {
@@ -46,6 +55,9 @@ class LineOptions: Options<LineGeometry> {
     
     var lineWidth: Double? {
         get {
+            if let value = properties[LineOptions.KEY_LINE_WIDTH] {
+                return value.encodable as? Double
+            }
             return nil
         }
         set(newValue) {
@@ -55,6 +67,9 @@ class LineOptions: Options<LineGeometry> {
     
     var lineGapWidth: Double? {
         get {
+            if let value = properties[LineOptions.KEY_LINE_GAP_WIDTH] {
+                return value.encodable as? Double
+            }
             return nil
         }
         set(newValue) {
@@ -64,6 +79,9 @@ class LineOptions: Options<LineGeometry> {
     
     var lineOffset: Double? {
         get {
+            if let value = properties[LineOptions.KEY_LINE_OFFSET] {
+                return value.encodable as? Double
+            }
             return nil
         }
         set(newValue) {
@@ -73,6 +91,9 @@ class LineOptions: Options<LineGeometry> {
     
     var lineBlur: Double? {
         get {
+            if let value = properties[LineOptions.KEY_LINE_BLUR] {
+                return value.encodable as? Double
+            }
             return nil
         }
         set(newValue) {
@@ -82,6 +103,9 @@ class LineOptions: Options<LineGeometry> {
     
     var linePattern: String? {
         get {
+            if let value = properties[LineOptions.KEY_LINE_PATTERN] {
+                return value.encodable as? String
+            }
             return nil
         }
         set(newValue) {
@@ -89,7 +113,7 @@ class LineOptions: Options<LineGeometry> {
         }
     }
     
-    override func build(id: Float) -> Feature<LineGeometry>? {
+    override func build(id: UInt64) -> Feature<LineGeometry>? {
         if let geometry = geometry  {
             return Line(id: id, geometry: geometry, properties: properties)
         }

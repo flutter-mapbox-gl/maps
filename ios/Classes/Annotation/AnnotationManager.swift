@@ -6,12 +6,12 @@ import Mapbox
 class AnnotationManager<G: Geometry>  {
     private(set) var source: MGLShapeSource
     
-    internal var annotations: [Float: Annotation<G>]
-    private var currentId: Float = 0
+    internal var annotations: [UInt64: Annotation<G>]
+    private var currentId: UInt64 = 0
     
     init(sourceId: String) {
         source = MGLShapeSource(identifier: sourceId, shape: nil, options: nil)
-        annotations = [Float: Annotation<G>]()
+        annotations = [UInt64: Annotation<G>]()
     }
     
     func create(options: Options<G>) -> Annotation<G>? {
