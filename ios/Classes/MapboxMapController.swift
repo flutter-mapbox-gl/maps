@@ -116,6 +116,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             Convert.interpretLineOptions(options: arguments["options"], delegate: lineBuilder)
             lineBuilder.update(id: lineId)
             result(nil)
+        case "line#remove":
+            guard let lineManager = lineManager else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineIdString = arguments["line"] as? String else { return }
+            guard let lineId = UInt64(lineIdString) else { return }
+            guard let line = lineManager.getAnnotation(id: lineId) else { return }
+            
+            lineManager.delete(annotation: line)
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }

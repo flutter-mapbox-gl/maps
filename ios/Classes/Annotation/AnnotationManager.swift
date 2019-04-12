@@ -41,6 +41,13 @@ class AnnotationManager<G: Geometry>  {
         }
     }
     
+    func delete(annotation: Annotation<G>) {
+        if let _ = annotations[annotation.id] {
+            annotations.removeValue(forKey: annotation.id)
+            updateSource()
+        }
+    }
+    
     private func updateSource() {
         let features = Array(annotations.values)
         let featureCollection = FeatureCollection<G>(features: features)
