@@ -48,6 +48,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         mapView.addGestureRecognizer(singleTap)
     }
+    
     @objc @IBAction func handleMapTap(sender: UITapGestureRecognizer) {
         // Get the CGPoint where the user tapped.
         let spot = sender.location(in: mapView)
@@ -57,7 +58,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         if let feature = features.first, let channel = channel {
             var arguments: [String: Any] = [:]
             if let id = feature.identifier {
-                NSLog("Feature: \(id)")
                 arguments["line"] = "\(id)"
             }
             channel.invokeMethod("line#onTap", arguments: arguments)
