@@ -10,8 +10,16 @@ class LineOptions: Options<LineGeometry> {
     static let KEY_LINE_BLUR = "line-blur"
     static let KEY_LINE_PATTERN = "line-pattern"
 
-    private var properties = [String: AnyEncodable]()
+    private var properties: [String: AnyEncodable]
     
+    init(properties: [String: AnyEncodable]) {
+        self.properties = properties
+    }
+
+    convenience override init() {
+        self.init(properties: [String: AnyEncodable]())
+    }
+
     private(set) var geometry: LineGeometry?
     func setGeometry(geometry: [[Double]]) {
         self.geometry = LineGeometry(coordinates: geometry)
