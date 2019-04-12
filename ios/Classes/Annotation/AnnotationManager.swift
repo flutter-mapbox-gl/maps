@@ -14,6 +14,10 @@ class AnnotationManager<G: Geometry>  {
         annotations = [UInt64: Annotation<G>]()
     }
     
+    func getAnnotation(id: UInt64) -> Annotation<G>? {
+        return annotations[id]
+    }
+    
     func create(options: Options<G>) -> Annotation<G>? {
         if let annotation = options.build(id: currentId) {
             annotations[currentId] = annotation
@@ -24,7 +28,20 @@ class AnnotationManager<G: Geometry>  {
         return nil
     }
     
-    func updateSource() {
+    func update(id: UInt64, options: Options<G>) {
+        if let annotation = options.build(id: id) {
+            update(annotation: annotation)
+        }
+    }
+    
+    func update(annotation: Annotation<G>) {
+        if let _ = annotations[annotation.id] {
+            annotations[annotation.id] = annotation
+            updateSource()
+        }
+    }
+    
+    private func updateSource() {
         let features = Array(annotations.values)
         let featureCollection = FeatureCollection<G>(features: features)
         let data = try! JSONEncoder().encode(featureCollection)

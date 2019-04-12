@@ -104,6 +104,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
+        case "line#update":
+            guard let lineManager = lineManager else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineIdString = arguments["line"] as? String else { return }
+            guard let lineId = UInt64(lineIdString) else { return }
+            guard let line = lineManager.getAnnotation(id: lineId) else { return }
+            
+            // Create a line and update it.
+            let lineBuilder = LineBuilder(lineManager: lineManager, line: line)
+            Convert.interpretLineOptions(options: arguments["options"], delegate: lineBuilder)
+            lineBuilder.update(id: lineId)
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
