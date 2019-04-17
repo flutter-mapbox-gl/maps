@@ -139,7 +139,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             // Currently the iOS Mapbox SDK does not have a builder for json.
             NSLog("setStyleString - JSON style currently not supported")
         } else {
-            mapView.styleURL = MapboxMapStyle.fromUrl(styleString: styleString)
+            mapView.styleURL = URL(string: styleString)
         }
     }
     func setRotateGesturesEnabled(rotateGesturesEnabled: Bool) {
