@@ -165,4 +165,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         self.myLocationEnabled = myLocationEnabled
         updateMyLocationEnabled()
     }
+    func setMyLocationTrackingMode(myLocationTrackingMode: MGLUserTrackingMode) {
+        mapView.userTrackingMode = myLocationTrackingMode
+    }
 }

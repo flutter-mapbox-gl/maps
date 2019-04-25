@@ -33,6 +33,9 @@ class Convert {
         if let myLocationEnabled = options["myLocationEnabled"] as? Bool {
             delegate.setMyLocationEnabled(myLocationEnabled: myLocationEnabled)
         }
+        if let myLocationTrackingMode = options["myLocationTrackingMode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
+            delegate.setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
+        }
     }
     
     class func parseCameraUpdate(cameraUpdate: [Any], mapView: MGLMapView) -> MGLMapCamera? {
