@@ -126,6 +126,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     func setCompassEnabled(compassEnabled: Bool) {
         mapView.compassView.isHidden = compassEnabled
+        mapView.compassView.isHidden = !compassEnabled
     }
     func setMinMaxZoomPreference(min: Double, max: Double) {
         mapView.minimumZoomLevel = min
@@ -139,7 +140,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             // Currently the iOS Mapbox SDK does not have a builder for json.
             NSLog("setStyleString - JSON style currently not supported")
         } else {
-            mapView.styleURL = MapboxMapStyle.fromUrl(styleString: styleString)
+            mapView.styleURL = URL(string: styleString)
         }
     }
     func setRotateGesturesEnabled(rotateGesturesEnabled: Bool) {
@@ -163,5 +164,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         self.myLocationEnabled = myLocationEnabled
         updateMyLocationEnabled()
+    }
+    func setMyLocationTrackingMode(myLocationTrackingMode: MGLUserTrackingMode) {
+        mapView.userTrackingMode = myLocationTrackingMode
     }
 }

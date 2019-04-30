@@ -21,9 +21,12 @@ This project is available on [pub.dartlang](https://pub.dartlang.org/packages/ma
 This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
 
 ##### Android
-After you get the key, place it in project's Android directory:
-- Add your access token to `$project_dir/example/android/app/src/main/res/values/developer-config.xml`
+Add Mapbox read token value in the application manifest ```android/app/src/main/AndroidManifest.xml:```
 
+```<manifest ...
+  <application ...
+    <meta-data android:name="com.mapbox.token" android:value="YOUR_TOKEN_HERE" />
+```
 
 #### iOS
 Add these lines to your Info.plist

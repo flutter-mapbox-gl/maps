@@ -45,5 +45,7 @@
 	<true/>
 	<key>MGLMapboxAccessToken</key>
 	<string>YOUR_TOKEN_HERE</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string></string>
 </dict>
 </plist>

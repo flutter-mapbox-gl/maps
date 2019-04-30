@@ -12,4 +12,5 @@ protocol MapboxMapOptionsSink {
     func setTrackCameraPosition(trackCameraPosition: Bool)
     func setZoomGesturesEnabled(zoomGesturesEnabled: Bool)
     func setMyLocationEnabled(myLocationEnabled: Bool)
+    func setMyLocationTrackingMode(myLocationTrackingMode: MGLUserTrackingMode)
 }
