@@ -23,3 +23,14 @@ part 'src/symbol.dart';
 part 'src/line.dart';
 part 'src/circle.dart';
 part 'src/ui.dart';
+
+final MethodChannel _staticChannel =
+MethodChannel('plugins.flutter.io/mapbox_gl');
+
+Future<void> installOfflineMapTiles(String tilesDb) async {
+  await _staticChannel.invokeMethod('installOfflineMapTiles',
+    <String, dynamic>{
+      'tilesdb': tilesDb,
+    },
+  );
+}
