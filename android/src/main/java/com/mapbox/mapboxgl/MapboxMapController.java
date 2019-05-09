@@ -201,14 +201,14 @@ final class MapboxMapController
   private SymbolBuilder newSymbolBuilder() {
     return new SymbolBuilder(symbolManager);
   }
-  
+
   private void removeSymbol(String symbolId) {
     final SymbolController symbolController = symbols.remove(symbolId);
     if (symbolController != null) {
       symbolController.remove(symbolManager);
     }
   }
-  
+
   private SymbolController symbol(String symbolId) {
     final SymbolController symbol = symbols.get(symbolId);
     if (symbol == null) {
@@ -216,18 +216,18 @@ final class MapboxMapController
     }
     return symbol;
   }
-  
+
   private LineBuilder newLineBuilder() {
     return new LineBuilder(lineManager);
   }
-  
+
   private void removeLine(String lineId) {
     final LineController lineController = lines.remove(lineId);
     if (lineController != null) {
       lineController.remove(lineManager);
     }
   }
-  
+
   private LineController line(String lineId) {
     final LineController line = lines.get(lineId);
     if (line == null) {
@@ -239,7 +239,7 @@ final class MapboxMapController
   private CircleBuilder newCircleBuilder() {
     return new CircleBuilder(circleManager);
   }
-    
+
   private void removeCircle(String circleId) {
     final CircleController circleController = circles.remove(circleId);
     if (circleController != null) {
@@ -329,7 +329,7 @@ final class MapboxMapController
       lineManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
-    
+
   private void enableCircleManager(@NonNull Style style) {
     if (circleManager == null) {
       circleManager = new CircleManager(mapView, mapboxMap, style);
@@ -500,6 +500,9 @@ final class MapboxMapController
 
   @Override
   public void onCameraTrackingChanged(int currentMode) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+    arguments.put("mode", currentMode);
+    methodChannel.invokeMethod("map#onCameraTrackingChanged", arguments);
   }
 
   @Override
@@ -522,7 +525,7 @@ final class MapboxMapController
         lineController.onTap();
       }
     }
-    
+
     if (annotation instanceof Circle) {
       final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
       if (circleController != null) {
