@@ -15,13 +15,13 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 
-class StaticMethodHandler implements MethodChannel.MethodCallHandler {
-    private static final String TAG = StaticMethodHandler.class.getSimpleName();
+class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
+    private static final String TAG = GlobalMethodHandler.class.getSimpleName();
     private static final String DATABASE_NAME = "mbgl-offline.db";
     private static final int BUFFER_SIZE = 1024 * 2;
     private final PluginRegistry.Registrar registrar;
 
-    StaticMethodHandler(PluginRegistry.Registrar registrar) {
+    GlobalMethodHandler(PluginRegistry.Registrar registrar) {
         this.registrar = registrar;
     }
 
