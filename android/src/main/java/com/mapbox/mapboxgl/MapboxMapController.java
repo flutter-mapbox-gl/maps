@@ -470,6 +470,16 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "circle#getGeometry": {
+        final String circleId = call.argument("circle");
+        final CircleController circle = circle(circleId);
+        final LatLng circleLatLng = circle.getGeometry();
+        Map<String, Double> hashMapLatLng = new HashMap<>();
+        hashMapLatLng.put("latitude", circleLatLng.getLatitude());
+        hashMapLatLng.put("longitude", circleLatLng.getLongitude());
+        result.success(hashMapLatLng);
+        break;
+      }
       default:
         result.notImplemented();
     }

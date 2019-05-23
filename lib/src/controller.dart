@@ -399,6 +399,19 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// `circle.options.geometry` can't get real-time location.For example, when you
+  /// set circle `draggable` is true,and you dragged circle.At this time you
+  /// should use `getCircleLatLng()`
+  Future<LatLng> getCircleLatLng(Circle circle) async {
+    assert(circle != null);
+    assert(_circles[circle._id] == circle);
+    Map mapLatLng = await _channel.invokeMethod('circle#getGeometry', <String, dynamic>{
+      'circle': circle._id,
+    });
+    LatLng circleLatLng = new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
+    notifyListeners();
+    return circleLatLng;
+  }
 
   /// Removes the specified [circle] from the map. The circle must be a current
   /// member of the [circles] set.
