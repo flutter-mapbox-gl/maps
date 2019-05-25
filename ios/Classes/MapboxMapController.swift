@@ -4,6 +4,7 @@ import Mapbox
 
 class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink {
     
+    private var registrar: FlutterPluginRegistrar
     private var mapView: MGLMapView
     private var isMapReady = false
     private var mapReadyResult: FlutterResult?
@@ -17,13 +18,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         return mapView
     }
     
-    init(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, binaryMessenger messenger: FlutterBinaryMessenger) {
+    init(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, registrar: FlutterPluginRegistrar) {
         mapView = MGLMapView(frame: frame)
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.registrar = registrar
         
         super.init()
         
-        let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: messenger)
+        let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: registrar.messenger())
         channel.setMethodCallHandler(onMethodCall)
         
         mapView.delegate = self
@@ -77,7 +79,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
-
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -127,6 +128,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         let intersects = MGLCoordinateInCoordinateBounds(newVisibleCoordinates.ne, bbox) && MGLCoordinateInCoordinateBounds(newVisibleCoordinates.sw, bbox)
         
         return inside && intersects
+    }
+    
+    func mapView(_ mapView: MGLMapView, imageFor annotation: MGLAnnotation) -> MGLAnnotationImage? {
+        return nil
+    }
+    
+    // Allow callout view to appear when an annotation is tapped.
+    func mapView(_ mapView: MGLMapView, annotationCanShowCallout annotation: MGLAnnotation) -> Bool {
+        return true
     }
     
     /*
