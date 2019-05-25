@@ -159,7 +159,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         
         if let channel = channel {
-            channel.invokeMethod("line#onTap", arguments: ["symbol" : "\(symbol.id)"])
+            channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
         }
     }
     
