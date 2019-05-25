@@ -131,7 +131,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     
     func mapView(_ mapView: MGLMapView, imageFor annotation: MGLAnnotation) -> MGLAnnotationImage? {
-        return nil
+        // Only for Symbols images should loaded.
+        guard let symbol = annotation as? Symbol,
+            let iconImage = symbol.iconImage else {
+                return nil
+        }
+        // Reuse existing annotations for better performance.
+        var annotationImage = mapView.dequeueReusableAnnotationImage(withIdentifier: iconImage)
+        if annotationImage == nil {
+            // Initialize the annotation image (from predefined assets symbol folder).
+            let assetPath = registrar.lookupKey(forAsset: "assets/symbols/")
+            let image = UIImage.loadFromFile(imagePath: assetPath, imageName: iconImage)
+            if let image = image {
+                annotationImage = MGLAnnotationImage(image: image, reuseIdentifier: iconImage)
+            }
+        }
+        return annotationImage
     }
     
     // Allow callout view to appear when an annotation is tapped.
