@@ -65,14 +65,14 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     controller.updateSymbol(_selectedSymbol, changes);
   }
 
-  void _add() {
+  void _add(String iconImage) {
     controller.addSymbol(
       SymbolOptions(
           geometry: LatLng(
             center.latitude + sin(_symbolCount * pi / 6.0) / 20.0,
             center.longitude + cos(_symbolCount * pi / 6.0) / 20.0,
           ),
-          iconImage: "airport-15"),
+          iconImage: iconImage),
     );
     setState(() {
       _symbolCount += 1;
@@ -202,7 +202,11 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                       children: <Widget>[
                         FlatButton(
                           child: const Text('add'),
-                          onPressed: (_symbolCount == 12) ? null : _add,
+                          onPressed: () => (_symbolCount == 12) ? null : _add("airport-15"),
+                        ),
+                        FlatButton(
+                          child: const Text('add (custom icon)'),
+                          onPressed: () => (_symbolCount == 12) ? null : _add("custom-icon.png"),
                         ),
                         FlatButton(
                           child: const Text('remove'),
