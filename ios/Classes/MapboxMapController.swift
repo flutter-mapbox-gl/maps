@@ -67,6 +67,17 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
                 mapView.setCamera(camera, animated: true)
             }
+        case "symbol#add":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            let symbol = Symbol()
+            Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
+            if CLLocationCoordinate2DIsValid(symbol.geometry) {
+                mapView.addAnnotation(symbol)
+                result(symbol.id)
+            } else {
+                result(nil)
+            }
+
         default:
             result(FlutterMethodNotImplemented)
         }
