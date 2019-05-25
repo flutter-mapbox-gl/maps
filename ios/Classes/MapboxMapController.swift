@@ -5,6 +5,8 @@ import Mapbox
 class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink {
     
     private var registrar: FlutterPluginRegistrar
+    private var channel: FlutterMethodChannel?
+    
     private var mapView: MGLMapView
     private var isMapReady = false
     private var mapReadyResult: FlutterResult?
@@ -25,8 +27,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
         super.init()
         
-        let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: registrar.messenger())
-        channel.setMethodCallHandler(onMethodCall)
+        channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: registrar.messenger())
+        channel!.setMethodCallHandler(onMethodCall)
         
         mapView.delegate = self
         
@@ -147,6 +149,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
         }
         return annotationImage
+    }
+    
+    // On tap invoke the symbol#onTap callback.
+    func mapView(_ mapView: MGLMapView, didSelect annotation: MGLAnnotation) {
+        // Only for Symbols images should loaded.
+        guard let symbol = annotation as? Symbol else {
+            return
+        }
+        
+        if let channel = channel {
+            channel.invokeMethod("line#onTap", arguments: ["symbol" : "\(symbol.id)"])
+        }
     }
     
     // Allow callout view to appear when an annotation is tapped.
