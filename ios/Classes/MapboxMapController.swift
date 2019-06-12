@@ -81,6 +81,23 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
+        case "symbol#update":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIdString = arguments["symbol"] as? String else { return }
+
+            var symbol = Symbol()
+            if let annotations = mapView.annotations {
+                for (index, annotation) in annotations.enumerated() {
+                    if let symbolAnnotation = annotation as? Symbol {
+                        if symbolAnnotation.id == symbolIdString {
+                            symbol = symbolAnnotation
+                            break
+                        }
+                    }
+                }
+            }
+            Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
