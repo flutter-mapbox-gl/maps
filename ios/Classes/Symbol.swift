@@ -1,9 +1,10 @@
 import Mapbox
 
 class Symbol : MGLPointAnnotation, SymbolOptionsSink {
-    
+
+    private var _id = UUID().uuidString
     var id: String {
-        get { return "TODO:ID" }
+        get { return _id }
     }
 
     private var _iconImage: String?
