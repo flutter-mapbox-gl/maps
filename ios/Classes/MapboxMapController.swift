@@ -98,6 +98,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
             Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
             result(nil)
+        case "symbol#remove":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIdString = arguments["symbol"] as? String else { return }
+
+            if let annotations = mapView.annotations {
+                for (index, annotation) in annotations.enumerated() {
+                    if let symbolAnnotation = annotation as? Symbol {
+                        if symbolAnnotation.id == symbolIdString {
+                            mapView.removeAnnotation(annotation)
+                            break
+                        }
+                    }
+                }
+            }
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
