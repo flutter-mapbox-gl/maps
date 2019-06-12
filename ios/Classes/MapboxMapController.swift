@@ -84,40 +84,37 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "symbol#update":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let symbolIdString = arguments["symbol"] as? String else { return }
-
-            var symbol = Symbol()
-            if let annotations = mapView.annotations {
-                for (index, annotation) in annotations.enumerated() {
-                    if let symbolAnnotation = annotation as? Symbol {
-                        if symbolAnnotation.id == symbolIdString {
-                            symbol = symbolAnnotation
-                            break
-                        }
-                    }
-                }
+            
+            if let symbol = getSymbolInMapView(mapView: mapView, symbolId: symbolIdString) {
+                Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
             }
-            Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
             result(nil)
         case "symbol#remove":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let symbolIdString = arguments["symbol"] as? String else { return }
 
-            if let annotations = mapView.annotations {
-                for (index, annotation) in annotations.enumerated() {
-                    if let symbolAnnotation = annotation as? Symbol {
-                        if symbolAnnotation.id == symbolIdString {
-                            mapView.removeAnnotation(annotation)
-                            break
-                        }
-                    }
-                }
+            if let symbol = getSymbolInMapView(mapView: mapView, symbolId: symbolIdString) {
+                mapView.removeAnnotation(symbol)
             }
             result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
     }
-    
+
+    private func getSymbolInMapView(mapView: MGLMapView, symbolId: String) -> Symbol? {
+        if let annotations = mapView.annotations {
+            for (_, annotation) in annotations.enumerated() {
+                if let symbolAnnotation = annotation as? Symbol {
+                    if symbolAnnotation.id == symbolId {
+                        return symbolAnnotation
+                    }
+                }
+            }
+        }
+        return nil
+    }
+
     private func updateMyLocationEnabled() {
         //TODO
     }
