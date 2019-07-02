@@ -17,6 +17,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
@@ -412,11 +413,9 @@ final class MapboxMapController
         final Symbol symbol = symbolBuilder.build();
         final String symbolId = String.valueOf(symbol.getId());
         try { // Will throw if image does not exist (assumes it's a default icon)
-          AssetManager assetManager = registrar.context().getAssets();
-          String assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
-          AssetFileDescriptor assetFileDescriptor = assetManager.openFd(assetPath);
-          InputStream a = assetFileDescriptor.createInputStream();
-          Bitmap bitmap = BitmapFactory.decodeStream(a);
+          DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+          float density = displayMetrics.density;
+          Bitmap bitmap = getImage(symbol, density);
           mapboxMap.getStyle().addImage(symbol.getIconImage(), bitmap);
         } catch (IOException e) {
           e.printStackTrace();
@@ -489,6 +488,16 @@ final class MapboxMapController
       default:
         result.notImplemented();
     }
+  }
+
+  public Bitmap getImage(Symbol symbol, float density) throws IOException {
+    AssetManager assetManager = registrar.context().getAssets();
+    String assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
+    AssetFileDescriptor assetFileDescriptor = assetManager.openFd(assetPath);
+    InputStream a = assetFileDescriptor.createInputStream();
+    Bitmap bitmap = BitmapFactory.decodeStream(a);
+    assetFileDescriptor.close();
+    return bitmap;
   }
 
   @Override
