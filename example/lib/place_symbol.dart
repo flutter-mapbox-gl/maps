@@ -65,14 +65,15 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     controller.updateSymbol(_selectedSymbol, changes);
   }
 
-  void _add(String iconImage) {
+  void _add(String iconImage, [bool customImage=false]) {
     controller.addSymbol(
       SymbolOptions(
           geometry: LatLng(
             center.latitude + sin(_symbolCount * pi / 6.0) / 20.0,
             center.longitude + cos(_symbolCount * pi / 6.0) / 20.0,
           ),
-          iconImage: iconImage),
+          iconImage: iconImage,
+          customImage: customImage),
     );
     setState(() {
       _symbolCount += 1;
@@ -206,7 +207,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                         ),
                         FlatButton(
                           child: const Text('add (custom icon)'),
-                          onPressed: () => (_symbolCount == 12) ? null : _add("custom-icon.png"),
+                          onPressed: () => (_symbolCount == 12) ? null : _add("assets/symbols/custom-icon.png", true),
                         ),
                         FlatButton(
                           child: const Text('remove'),

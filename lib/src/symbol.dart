@@ -46,6 +46,7 @@ class SymbolOptions {
   const SymbolOptions({
     this.iconSize,
     this.iconImage,
+    this.customImage,
     this.iconRotate,
     this.iconOffset,
     this.iconAnchor,
@@ -75,6 +76,7 @@ class SymbolOptions {
 
   final double iconSize;
   final String iconImage;
+  final bool  customImage;
   final double iconRotate;
   final Offset iconOffset;
   final String iconAnchor;
@@ -112,6 +114,7 @@ class SymbolOptions {
     return SymbolOptions(
       iconSize: changes.iconSize ?? iconSize,
       iconImage: changes.iconImage ?? iconImage,
+      customImage: changes.customImage ?? customImage,
       iconRotate: changes.iconRotate ?? iconRotate,
       iconOffset: changes.iconOffset ?? iconOffset,
       iconAnchor: changes.iconAnchor ?? iconAnchor,
@@ -151,6 +154,7 @@ class SymbolOptions {
 
     addIfPresent('iconSize', iconSize);
     addIfPresent('iconImage', iconImage);
+    addIfPresent('customImage', customImage);
     addIfPresent('iconRotate', iconRotate);
     addIfPresent('iconOffset', _offsetToJson(iconOffset));
     addIfPresent('iconAnchor', iconAnchor);
