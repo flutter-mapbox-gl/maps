@@ -411,17 +411,15 @@ final class MapboxMapController
         Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
         final Symbol symbol = symbolBuilder.build();
         final String symbolId = String.valueOf(symbol.getId());
-        if (symbolBuilder.getCustomImage()) {
-          try {
-            AssetManager assetManager = registrar.context().getAssets();
-            String assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
-            AssetFileDescriptor assetFileDescriptor = assetManager.openFd(assetPath);
-            InputStream a = assetFileDescriptor.createInputStream();
-            Bitmap bitmap = BitmapFactory.decodeStream(a);
-            mapboxMap.getStyle().addImage(symbol.getIconImage(), bitmap);
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
+        try { // Will throw if image does not exist (assumes it's a default icon)
+          AssetManager assetManager = registrar.context().getAssets();
+          String assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
+          AssetFileDescriptor assetFileDescriptor = assetManager.openFd(assetPath);
+          InputStream a = assetFileDescriptor.createInputStream();
+          Bitmap bitmap = BitmapFactory.decodeStream(a);
+          mapboxMap.getStyle().addImage(symbol.getIconImage(), bitmap);
+        } catch (IOException e) {
+          e.printStackTrace();
         }
         symbols.put(symbolId, new SymbolController(symbol, true, this));
         result.success(symbolId);

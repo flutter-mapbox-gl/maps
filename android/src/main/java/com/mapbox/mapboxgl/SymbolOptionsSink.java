@@ -17,8 +17,6 @@ interface SymbolOptionsSink {
 
   void setIconImage(String iconImage);
 
-  void setCustomImage(boolean customImage);
-
   void setIconRotate(float iconRotate);
 
   void setIconOffset(float[] iconOffset);

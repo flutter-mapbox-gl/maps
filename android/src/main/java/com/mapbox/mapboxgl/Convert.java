@@ -259,10 +259,6 @@ class Convert {
     if (iconImage != null) {
       sink.setIconImage(toString(iconImage));
     }
-    final Object customImage = data.get("customImage");
-    if (customImage != null) {
-      sink.setCustomImage(toBoolean(customImage));
-    }
     final Object iconRotate = data.get("iconRotate");
     if (iconRotate != null) {
       sink.setIconRotate(toFloat(iconRotate));

@@ -49,9 +49,6 @@ class SymbolController implements SymbolOptionsSink {
   }
 
   @Override
-  public void setCustomImage(boolean customImage) {}
-
-  @Override
   public void setIconRotate(float iconRotate) {
     symbol.setIconRotate(iconRotate);
   }

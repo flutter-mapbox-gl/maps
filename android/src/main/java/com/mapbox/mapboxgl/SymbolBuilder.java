@@ -37,11 +37,6 @@ class SymbolBuilder implements SymbolOptionsSink {
   }
 
   @Override
-  public void setCustomImage(boolean customImage) {
-    this.customImage = customImage;
-  }
-
-  @Override
   public void setIconRotate(float iconRotate) {
     symbolOptions.withIconRotate(iconRotate);
   }
