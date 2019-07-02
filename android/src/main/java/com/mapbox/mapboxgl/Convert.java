@@ -6,8 +6,6 @@ package com.mapbox.mapboxgl;
 
 import android.graphics.Point;
 
-import android.util.Log;
-
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -15,7 +13,6 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.log.Logger;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.geojson.LineString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -261,8 +258,8 @@ class Convert {
     final Object iconImage = data.get("iconImage");
     if (iconImage != null) {
       sink.setIconImage(toString(iconImage));
-	}
-	final Object customImage = data.get("customImage");
+    }
+    final Object customImage = data.get("customImage");
     if (customImage != null) {
       sink.setCustomImage(toBoolean(customImage));
     }

@@ -6,8 +6,6 @@
 
 package com.mapbox.mapboxgl;
 
-import android.util.Log;
-
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
@@ -40,7 +38,7 @@ class SymbolBuilder implements SymbolOptionsSink {
 
   @Override
   public void setCustomImage(boolean customImage) {
-	this.customImage = customImage;
+    this.customImage = customImage;
   }
 
   @Override
@@ -168,7 +166,7 @@ class SymbolBuilder implements SymbolOptionsSink {
     symbolOptions.setDraggable(draggable);
   }
 
-  public boolean getCustomImage() {
-	  return this.customImage;
+  public boolean getCustomImage() { 
+    return this.customImage;
   }
 }

@@ -51,7 +51,6 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.platform.PlatformView;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -411,8 +410,8 @@ final class MapboxMapController
         final SymbolBuilder symbolBuilder = newSymbolBuilder();
         Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
         final Symbol symbol = symbolBuilder.build();
-		final String symbolId = String.valueOf(symbol.getId());
-		if (symbolBuilder.getCustomImage()) {
+        final String symbolId = String.valueOf(symbol.getId());
+        if (symbolBuilder.getCustomImage()) {
           try {
             AssetManager assetManager = registrar.context().getAssets();
             String assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
@@ -423,7 +422,7 @@ final class MapboxMapController
           } catch (IOException e) {
             e.printStackTrace();
           }
-		}
+        }
         symbols.put(symbolId, new SymbolController(symbol, true, this));
         result.success(symbolId);
         break;
