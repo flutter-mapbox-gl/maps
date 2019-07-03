@@ -416,6 +416,9 @@ final class MapboxMapController
           mapboxMap.getStyle().addImage(symbol.getIconImage(), bitmap);
         } catch (IOException e) {
           e.printStackTrace();
+        } catch (UnsupportedOperationException e) {
+          Log.e(TAG, "Possible invalid path.");
+          e.printStackTrace();
         }
 
         symbols.put(symbolId, new SymbolController(symbol, true, this));
@@ -787,7 +790,7 @@ final class MapboxMapController
         imagePath = stringBuilder.toString();
 
         // Reset for next time
-        imagePathList = Arrays.asList(symbol.getIconImage().split("/"));
+        imagePathList = new ArrayList<>(Arrays.asList(symbol.getIconImage().split("/")));
 
         // Get possible path
         assetPath = registrar.lookupKeyForAsset(imagePath);
