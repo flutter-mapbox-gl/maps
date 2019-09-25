@@ -29,6 +29,8 @@ interface MapboxMapOptionsSink {
 
   void setZoomGesturesEnabled(boolean zoomGesturesEnabled);
 
+  void setTrafficPluginEnabled(boolean trafficPluginEnabled);
+
   void setMyLocationEnabled(boolean myLocationEnabled);
 
   void setMyLocationTrackingMode(int myLocationTrackingMode);

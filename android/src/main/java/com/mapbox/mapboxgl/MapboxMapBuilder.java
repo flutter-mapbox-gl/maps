@@ -23,6 +23,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     .textureMode(true)
     .attributionEnabled(false);
   private boolean trackCameraPosition = false;
+  private boolean trafficPluginEnabled = false;
   private boolean myLocationEnabled = false;
   private int myLocationTrackingMode = 0;
   private String styleString = Style.MAPBOX_STREETS;
@@ -32,6 +33,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     final MapboxMapController controller =
       new MapboxMapController(id, context, state, registrar, options, styleString);
     controller.init();
+    controller.setTrafficPluginEnabled(trafficPluginEnabled);
     controller.setMyLocationEnabled(myLocationEnabled);
     controller.setMyLocationTrackingMode(myLocationTrackingMode);
     controller.setTrackCameraPosition(trackCameraPosition);
@@ -94,6 +96,9 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   public void setZoomGesturesEnabled(boolean zoomGesturesEnabled) {
     options.zoomGesturesEnabled(zoomGesturesEnabled);
   }
+
+  @Override
+  public void setTrafficPluginEnabled(boolean trafficPluginEnabled) { this.trafficPluginEnabled = trafficPluginEnabled; }
 
   @Override
   public void setMyLocationEnabled(boolean myLocationEnabled) {

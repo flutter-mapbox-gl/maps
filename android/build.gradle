@@ -39,6 +39,7 @@ android {
     dependencies {
         implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:7.3.0"
         implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v7:0.5.0"
+        implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-traffic-v7:0.8.0'
     }
     compileOptions {
         sourceCompatibility 1.8

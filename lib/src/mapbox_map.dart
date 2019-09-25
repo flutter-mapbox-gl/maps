@@ -20,6 +20,7 @@ class MapboxMap extends StatefulWidget {
     this.zoomGesturesEnabled = true,
     this.tiltGesturesEnabled = true,
     this.trackCameraPosition = false,
+    this.trafficPluginEnabled = false,
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
     this.onMapClick,
@@ -100,6 +101,8 @@ class MapboxMap extends StatefulWidget {
   /// When this set is empty or null, the map will only handle pointer events for gestures that
   /// were not claimed by any other gesture recognizer.
   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
+
+  final bool trafficPluginEnabled;
 
   final OnMapClickCallback onMapClick;
 
@@ -195,6 +198,7 @@ class _MapboxMapOptions {
     this.tiltGesturesEnabled,
     this.trackCameraPosition,
     this.zoomGesturesEnabled,
+    this.trafficPluginEnabled,
     this.myLocationEnabled,
     this.myLocationTrackingMode,
   });
@@ -210,6 +214,7 @@ class _MapboxMapOptions {
       tiltGesturesEnabled: map.tiltGesturesEnabled,
       trackCameraPosition: map.trackCameraPosition,
       zoomGesturesEnabled: map.zoomGesturesEnabled,
+      trafficPluginEnabled: map.trafficPluginEnabled,
       myLocationEnabled: map.myLocationEnabled,
       myLocationTrackingMode: map.myLocationTrackingMode,
     );
@@ -233,6 +238,8 @@ class _MapboxMapOptions {
 
   final bool zoomGesturesEnabled;
 
+  final bool trafficPluginEnabled;
+
   final bool myLocationEnabled;
 
   final MyLocationTrackingMode myLocationTrackingMode;
@@ -255,6 +262,7 @@ class _MapboxMapOptions {
     addIfNonNull('tiltGesturesEnabled', tiltGesturesEnabled);
     addIfNonNull('zoomGesturesEnabled', zoomGesturesEnabled);
     addIfNonNull('trackCameraPosition', trackCameraPosition);
+    addIfNonNull('trafficPluginEnabled', trafficPluginEnabled);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
     return optionsMap;
