@@ -12,12 +12,17 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineCallback;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
@@ -25,6 +30,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.location.LocationComponent;
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -106,6 +112,7 @@ final class MapboxMapController
     private final Context context;
     private final String styleStringInitial;
     private LocationComponent locationComponent = null;
+    private LocationEngine locationEngine = null;
 
     MapboxMapController(
             int id,
@@ -314,10 +321,17 @@ final class MapboxMapController
             LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(context)
                     .trackingGesturesManagement(true)
                     .build();
+            LocationComponentActivationOptions locationComponentActivationOptions = LocationComponentActivationOptions.builder(context, style)
+                    .locationComponentOptions(locationComponentOptions)
+                    .useDefaultLocationEngine(false)
+                    .build();
+            locationEngine = LocationEngineProvider.getBestLocationEngine(context);
+
             locationComponent = mapboxMap.getLocationComponent();
-            locationComponent.activateLocationComponent(context, style, locationComponentOptions);
+            locationComponent.activateLocationComponent(locationComponentActivationOptions);
             locationComponent.setLocationComponentEnabled(true);
             locationComponent.setRenderMode(RenderMode.COMPASS);
+            locationComponent.setLocationEngine(locationEngine);
             updateMyLocationTrackingMode();
             setMyLocationTrackingMode(this.myLocationTrackingMode);
             locationComponent.addOnCameraTrackingChangedListener(this);
@@ -482,6 +496,32 @@ final class MapboxMapController
                 Convert.interpretCircleOptions(call.argument("options"), circle);
                 circle.update(circleManager);
                 result.success(null);
+                break;
+            }
+            case "locationComponent#getLastLocation": {
+                Log.e(TAG, "location component: getLastLocation");
+                if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
+                    Map<String, Object> reply = new HashMap<>();
+                    locationEngine.getLastLocation(new LocationEngineCallback<LocationEngineResult>() {
+                        @Override
+                        public void onSuccess(LocationEngineResult locationEngineResult) {
+                            Location lastLocation = locationEngineResult.getLastLocation();
+                            if (lastLocation != null) {
+                                reply.put("latitude", lastLocation.getLatitude());
+                                reply.put("longitude", lastLocation.getLongitude());
+                                reply.put("altitude", lastLocation.getAltitude());
+                                result.success(reply);
+                            } else {
+                                result.error("", "", null); // ???
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            result.error("", "", null); // ???
+                        }
+                    });
+                }
                 break;
             }
             default:
@@ -707,9 +747,6 @@ final class MapboxMapController
 
     @Override
     public void setTrafficPluginEnabled(boolean trafficPluginEnabled) {
-        if (this.trafficPluginEnabled == trafficPluginEnabled) {
-            return;
-        }
         this.trafficPluginEnabled = trafficPluginEnabled;
         if (mapboxMap != null && trafficPlugin != null) {
             trafficPlugin.setVisibility(this.trafficPluginEnabled);
