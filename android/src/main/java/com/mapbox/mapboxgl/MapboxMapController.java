@@ -10,10 +10,15 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
@@ -50,7 +55,10 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.traffic.TrafficPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -433,6 +441,19 @@ final class MapboxMapController
                 Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
                 final Symbol symbol = symbolBuilder.build();
                 final String symbolId = String.valueOf(symbol.getId());
+
+                // Will throw if image does not exist (assumes it's a default icon)
+                try {
+                    DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+                    Bitmap bitmap = getImage(symbol, displayMetrics.density);
+                    mapboxMap.getStyle().addImage(symbol.getIconImage(), bitmap);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedOperationException e) {
+                    Log.e(TAG, "Possible invalid path.");
+                    e.printStackTrace();
+                }
+
                 symbols.put(symbolId, new SymbolController(symbol, true, this));
                 result.success(symbolId);
                 break;
@@ -800,4 +821,69 @@ final class MapboxMapController
                 permission, android.os.Process.myPid(), android.os.Process.myUid());
     }
 
+    // Tries to find highest scale image for display type
+    private Bitmap getImage(Symbol symbol, float density) throws IOException {
+        AssetManager assetManager = registrar.context().getAssets();
+        String assetPath;
+        AssetFileDescriptor assetFileDescriptor = null;
+
+        // Split possible path into
+        List<String> imagePathList = new ArrayList<>(Arrays.asList(symbol.getIconImage().split("/")));
+
+        if (imagePathList.size() > 1) { // Should stop most default icons
+            for (int i = (int) density; i >= 1; i--) { // Goes down by 1 each time (e.g. 3.0 -> 2.0 -> 1.0)
+
+                // If on last size, set default value
+                if (i == 1) {
+                    assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
+                    assetFileDescriptor = assetManager.openFd(assetPath);
+                    break;
+                }
+
+                // Add possible size to list
+                String strDensity = Float.toString((float) i) + "x";
+                int size = imagePathList.size();
+                imagePathList.add(size - 1, strDensity);
+
+                // Turn array into a string
+                String imagePath;
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int j = 0; j < imagePathList.size(); j++) {
+                    stringBuilder.append(imagePathList.get(j));
+                    if (j != imagePathList.size() - 1) {
+                        stringBuilder.append("/");
+                    }
+                }
+                imagePath = stringBuilder.toString();
+
+                // Reset for next time
+                imagePathList = new ArrayList<>(Arrays.asList(symbol.getIconImage().split("/")));
+
+                // Get possible path
+                assetPath = registrar.lookupKeyForAsset(imagePath);
+
+
+                try {
+                    // Read path (throws if doesn't exist)
+                    assetFileDescriptor = assetManager.openFd(assetPath);
+                    break; // If exists, break
+                } catch (IOException e) {
+                    if (assetFileDescriptor != null) {
+                        assetFileDescriptor.close(); // Path doesn't exist but still close for memory
+                    }
+                }
+            }
+        }
+
+        if (assetFileDescriptor == null) { // Verify it's not a default icon
+            assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
+            assetFileDescriptor = assetManager.openFd(assetPath); // Sets back to default
+        }
+
+        InputStream assetStream = assetFileDescriptor.createInputStream();
+        Bitmap bitmap = BitmapFactory.decodeStream(assetStream);
+        assetFileDescriptor.close(); // Close for memory
+
+        return bitmap;
+    }
 }
