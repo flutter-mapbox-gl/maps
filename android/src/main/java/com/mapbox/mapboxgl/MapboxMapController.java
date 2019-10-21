@@ -408,21 +408,23 @@ final class MapboxMapController
         Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
         final Symbol symbol = symbolBuilder.build();
         final String symbolId = String.valueOf(symbol.getId());
+        Bitmap bitmap = null;
 
-        // Will throw if image does not exist (assumes it's a default icon)
         try {
           DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-          Bitmap bitmap = getImage(symbol, displayMetrics.density);
-          mapboxMap.getStyle().addImage(symbol.getIconImage(), bitmap);
-        } catch (IOException e) {
-          e.printStackTrace();
+          bitmap = getImage(symbol, displayMetrics.density);
         } catch (UnsupportedOperationException e) {
           Log.e(TAG, "Possible invalid path.");
           e.printStackTrace();
         }
 
-        symbols.put(symbolId, new SymbolController(symbol, true, this));
-        result.success(symbolId);
+        if (bitmap != null) {
+          mapboxMap.getStyle().addImage(symbol.getIconImage(), bitmap);
+          symbols.put(symbolId, new SymbolController(symbol, true, this));
+          result.success(symbolId);
+        } else {
+          result.error("error", "Cannot load bitmap from asset.", null);
+        }
         break;
       }
       case "symbol#remove": {
@@ -754,70 +756,60 @@ final class MapboxMapController
       permission, android.os.Process.myPid(), android.os.Process.myUid());
   }
 
-  // Tries to find highest scale image for display type
-  private Bitmap getImage(Symbol symbol, float density) throws IOException {
+  /**
+   * Tries to find highest scale image for display type
+   * @param symbol
+   * @param density
+   * @return
+   */
+  private Bitmap getImage(Symbol symbol, float density) {
     AssetManager assetManager = registrar.context().getAssets();
-    String assetPath;
     AssetFileDescriptor assetFileDescriptor = null;
 
-    // Split possible path into
-    List<String> imagePathList = new ArrayList<>(Arrays.asList(symbol.getIconImage().split("/")));
+    // Split image path into parts.
+    List<String> imagePathList = Arrays.asList(symbol.getIconImage().split("/"));
+    List<String> assetPathList = new ArrayList<>();
 
-    if (imagePathList.size() > 1) { // Should stop most default icons
-      for (int i = (int) density; i >= 1; i--) { // Goes down by 1 each time (e.g. 3.0 -> 2.0 -> 1.0)
-
-        // If on last size, set default value
-        if (i == 1) {
-          assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
-          assetFileDescriptor = assetManager.openFd(assetPath);
-          break;
-        }
-
-        // Add possible size to list
-        String strDensity = Float.toString((float) i) + "x";
-        int size = imagePathList.size();
-        imagePathList.add(size - 1, strDensity);
-
-        // Turn array into a string
-        String imagePath;
+    // "On devices with a device pixel ratio of 1.8, the asset .../2.0x/my_icon.png would be chosen.
+    // For a device pixel ratio of 2.7, the asset .../3.0x/my_icon.png would be chosen."
+    // Source: https://flutter.dev/docs/development/ui/assets-and-images#resolution-aware
+    for (int i = (int) Math.ceil(density); i > 0; i--) {
+      String assetPath;
+      if (i == 1) {
+        // If density is 1.0x then simple take the default asset path
+        assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
+      } else {
+        // Build a resolution aware asset path as follows:
+        // <directory asset>/<ratio>/<image name>
+        // where ratio is 1.0x, 2.0x or 3.0x.
         StringBuilder stringBuilder = new StringBuilder();
-        for (int j = 0; j < imagePathList.size(); j++) {
+        for (int j = 0; j < imagePathList.size() - 1; j++) {
           stringBuilder.append(imagePathList.get(j));
-          if (j != imagePathList.size() - 1) {
-            stringBuilder.append("/");
-          }
+          stringBuilder.append("/");
         }
-        imagePath = stringBuilder.toString();
+        stringBuilder.append(((float) i) + "x");
+        stringBuilder.append("/");
+        stringBuilder.append(imagePathList.get(imagePathList.size()-1));
+        assetPath = registrar.lookupKeyForAsset(stringBuilder.toString());
+      }
+      // Build up a list of resolution aware asset paths.
+      assetPathList.add(assetPath);
+    }
 
-        // Reset for next time
-        imagePathList = new ArrayList<>(Arrays.asList(symbol.getIconImage().split("/")));
-
-        // Get possible path
-        assetPath = registrar.lookupKeyForAsset(imagePath);
-
-
-        try {
-          // Read path (throws if doesn't exist)
-          assetFileDescriptor = assetManager.openFd(assetPath);
-          break; // If exists, break
-        } catch (IOException e) {
-          if (assetFileDescriptor != null) {
-            assetFileDescriptor.close(); // Path doesn't exist but still close for memory
-          }
-        }
+    // Iterate over asset paths and get the highest scaled asset (as a bitmap).
+    Bitmap bitmap = null;
+    for (String assetPath : assetPathList) {
+      try {
+        // Read path (throws exception if doesn't exist).
+        assetFileDescriptor = assetManager.openFd(assetPath);
+        InputStream assetStream = assetFileDescriptor.createInputStream();
+        bitmap = BitmapFactory.decodeStream(assetStream);
+        assetFileDescriptor.close(); // Close for memory
+        break; // If exists, break
+      } catch (IOException e) {
+        // Skip
       }
     }
-
-    if (assetFileDescriptor == null) { // Verify it's not a default icon
-      assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
-      assetFileDescriptor = assetManager.openFd(assetPath); // Sets back to default
-    }
-
-    InputStream assetStream = assetFileDescriptor.createInputStream();
-    Bitmap bitmap = BitmapFactory.decodeStream(assetStream);
-    assetFileDescriptor.close(); // Close for memory
-
     return bitmap;
   }
-
 }
