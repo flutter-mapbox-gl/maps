@@ -51,6 +51,13 @@ enum MyLocationTrackingMode {
   TrackingGPS,
 }
 
+/// Render mode
+enum MyLocationRenderMode {
+  NORMAL,
+  COMPASS,
+  GPS,
+}
+
 /// Bounds for the map camera target.
 // Used with [MapboxMapOptions] to wrap a [LatLngBounds] value. This allows
 // distinguishing between specifying an unbounded target (null `LatLngBounds`)

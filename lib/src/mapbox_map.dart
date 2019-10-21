@@ -23,6 +23,7 @@ class MapboxMap extends StatefulWidget {
     this.trafficPluginEnabled = false,
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
+    this.myLocationRenderMode = MyLocationRenderMode.COMPASS,
     this.onMapClick,
     this.onCameraTrackingDismissed,
   }) : assert(initialCameraPosition != null);
@@ -90,6 +91,9 @@ class MapboxMap extends StatefulWidget {
 
   /// The mode used to track the user location on the map
   final MyLocationTrackingMode myLocationTrackingMode;
+
+  /// The mode to render the user location symbol
+  final MyLocationRenderMode myLocationRenderMode;
 
   /// Which gestures should be consumed by the map.
   ///
@@ -201,6 +205,7 @@ class _MapboxMapOptions {
     this.trafficPluginEnabled,
     this.myLocationEnabled,
     this.myLocationTrackingMode,
+    this.myLocationRenderMode,
   });
 
   static _MapboxMapOptions fromWidget(MapboxMap map) {
@@ -217,6 +222,7 @@ class _MapboxMapOptions {
       trafficPluginEnabled: map.trafficPluginEnabled,
       myLocationEnabled: map.myLocationEnabled,
       myLocationTrackingMode: map.myLocationTrackingMode,
+      myLocationRenderMode: map.myLocationRenderMode,
     );
   }
 
@@ -244,6 +250,8 @@ class _MapboxMapOptions {
 
   final MyLocationTrackingMode myLocationTrackingMode;
 
+  final MyLocationRenderMode myLocationRenderMode;
+
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> optionsMap = <String, dynamic>{};
 
@@ -265,6 +273,7 @@ class _MapboxMapOptions {
     addIfNonNull('trafficPluginEnabled', trafficPluginEnabled);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
+    addIfNonNull('myLocationRenderMode', myLocationRenderMode?.index);
     return optionsMap;
   }
 

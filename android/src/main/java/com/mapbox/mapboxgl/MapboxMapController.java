@@ -113,6 +113,7 @@ final class MapboxMapController
     private boolean trackCameraPosition = false;
     private boolean myLocationEnabled = false;
     private int myLocationTrackingMode = 0;
+    private int myLocationRenderMode = 0;
     private boolean disposed = false;
     private final float density;
     private MethodChannel.Result mapReadyResult;
@@ -338,10 +339,12 @@ final class MapboxMapController
             locationComponent = mapboxMap.getLocationComponent();
             locationComponent.activateLocationComponent(locationComponentActivationOptions);
             locationComponent.setLocationComponentEnabled(true);
-            locationComponent.setRenderMode(RenderMode.COMPASS);
+//            locationComponent.setRenderMode(RenderMode.COMPASS);
             locationComponent.setLocationEngine(locationEngine);
             updateMyLocationTrackingMode();
             setMyLocationTrackingMode(this.myLocationTrackingMode);
+            updateMyLocationRenderMode();
+            setMyLocationRenderMode(this.myLocationRenderMode);
             locationComponent.addOnCameraTrackingChangedListener(this);
         } else {
             Log.e(TAG, "missing location permissions");
@@ -796,6 +799,17 @@ final class MapboxMapController
         }
     }
 
+    @Override
+    public void setMyLocationRenderMode(int myLocationRenderMode) {
+        if (this.myLocationRenderMode == myLocationRenderMode) {
+            return;
+        }
+        this.myLocationRenderMode = myLocationRenderMode;
+        if (mapboxMap != null && locationComponent != null) {
+            updateMyLocationRenderMode();
+        }
+    }
+
     private void updateMyLocationEnabled() {
         //TODO: call location initialization if changed to true and not initialized yet.;
         //Show/Hide use location as needed
@@ -804,6 +818,11 @@ final class MapboxMapController
     private void updateMyLocationTrackingMode() {
         int[] mapboxTrackingModes = new int[]{CameraMode.NONE, CameraMode.TRACKING, CameraMode.TRACKING_COMPASS, CameraMode.TRACKING_GPS};
         locationComponent.setCameraMode(mapboxTrackingModes[this.myLocationTrackingMode]);
+    }
+
+    private void updateMyLocationRenderMode() {
+        int[] mapboxRenderModes = new int[]{RenderMode.NORMAL, RenderMode.COMPASS, RenderMode.GPS};
+        locationComponent.setRenderMode(mapboxRenderModes[this.myLocationRenderMode]);
     }
 
     private boolean hasLocationPermission() {

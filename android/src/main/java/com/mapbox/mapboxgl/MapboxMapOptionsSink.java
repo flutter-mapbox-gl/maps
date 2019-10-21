@@ -34,4 +34,6 @@ interface MapboxMapOptionsSink {
   void setMyLocationEnabled(boolean myLocationEnabled);
 
   void setMyLocationTrackingMode(int myLocationTrackingMode);
+
+  void setMyLocationRenderMode(int myLocationRenderMode);
 }
