@@ -23,3 +23,4 @@ part 'src/symbol.dart';
 part 'src/line.dart';
 part 'src/circle.dart';
 part 'src/ui.dart';
+part 'src/global.dart';
