@@ -151,8 +151,8 @@ class SymbolBuilder implements SymbolOptionsSink {
   }
 
   @Override
-  public void setZIndex(int zIndex) {
-    symbolOptions.withSymbolSortKey((float)zIndex);
+  public void setSymbolSortKey(float symbolSortKey) {
+    symbolOptions.withSymbolSortKey(symbolSortKey);
   }
 
   @Override

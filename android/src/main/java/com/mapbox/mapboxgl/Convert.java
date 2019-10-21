@@ -354,9 +354,9 @@ class Convert {
     if (geometry != null) {
       sink.setGeometry(toLatLng(geometry));
     }
-    final Object zIndex = data.get("zIndex");
-    if (zIndex != null) {
-      sink.setZIndex(toInt(zIndex));
+    final Object symbolSortKey = data.get("symbolSortKey");
+    if (symbolSortKey != null) {
+      sink.setSymbolSortKey(toFloat(symbolSortKey));
     }
     final Object draggable = data.get("draggable");
     if (draggable != null) {
