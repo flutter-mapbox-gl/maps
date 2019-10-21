@@ -164,17 +164,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func mapView(_ mapView: MGLMapView, imageFor annotation: MGLAnnotation) -> MGLAnnotationImage? {
         // Only for Symbols images should loaded.
         guard let symbol = annotation as? Symbol,
-            let iconImage = symbol.iconImage else {
+            let iconImageFullPath = symbol.iconImage else {
                 return nil
         }
         // Reuse existing annotations for better performance.
-        var annotationImage = mapView.dequeueReusableAnnotationImage(withIdentifier: iconImage)
+        var annotationImage = mapView.dequeueReusableAnnotationImage(withIdentifier: iconImageFullPath)
         if annotationImage == nil {
             // Initialize the annotation image (from predefined assets symbol folder).
-            let assetPath = registrar.lookupKey(forAsset: "assets/symbols/")
-            let image = UIImage.loadFromFile(imagePath: assetPath, imageName: iconImage)
-            if let image = image {
-                annotationImage = MGLAnnotationImage(image: image, reuseIdentifier: iconImage)
+            if let range = iconImageFullPath.range(of: "/", options: [.backwards]) {
+                let directory = String(iconImageFullPath[..<range.lowerBound])
+                let assetPath = registrar.lookupKey(forAsset: "\(directory)/")
+                let iconImageName = String(iconImageFullPath[range.upperBound...])
+                let image = UIImage.loadFromFile(imagePath: assetPath, imageName: iconImageName)
+                if let image = image {
+                    annotationImage = MGLAnnotationImage(image: image, reuseIdentifier: iconImageFullPath)
+                }
             }
         }
         return annotationImage
