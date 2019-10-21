@@ -776,7 +776,7 @@ final class MapboxMapController
     for (int i = (int) Math.ceil(density); i > 0; i--) {
       String assetPath;
       if (i == 1) {
-        // If density is 1.0x then simple take the default asset path
+        // If density is 1.0x then simply take the default asset path
         assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
       } else {
         // Build a resolution aware asset path as follows:
