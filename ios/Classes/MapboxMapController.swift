@@ -1,8 +1,11 @@
 import Flutter
 import UIKit
 import Mapbox
+import MapboxAnnotationExtension
 
-class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink {
+class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink, MGLAnnotationControllerDelegate {
+    
+    private var channel: FlutterMethodChannel?
     
     private var mapView: MGLMapView
     private var isMapReady = false
@@ -12,6 +15,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var cameraTargetBounds: MGLCoordinateBounds?
     private var trackCameraPosition = false
     private var myLocationEnabled = false
+    
+    private var symbolAnnotationController: MGLSymbolAnnotationController?
 
     func view() -> UIView {
         return mapView
@@ -23,8 +28,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
         super.init()
         
-        let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: messenger)
-        channel.setMethodCallHandler(onMethodCall)
+        channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: messenger)
+        channel!.setMethodCallHandler(onMethodCall)
         
         mapView.delegate = self
         
@@ -67,6 +72,46 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
                 mapView.setCamera(camera, animated: true)
             }
+        case "symbol#add":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            // Parse geometry
+            if let options = arguments["options"] as? [String: Any],
+                let geometry = options["geometry"] as? [Double] {
+                // Convert geometry to coordinate and create symbol.
+                let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+                let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
+                Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
+                symbolAnnotationController.addStyleAnnotation(symbol)
+                result(symbol.identifier)
+            } else {
+                result(nil)
+            }
+        case "symbol#update":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIdString = arguments["symbol"] as? String else { return }
+            
+            for symbol in symbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolIdString {
+                    Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol as! MGLSymbolStyleAnnotation)
+                    symbolAnnotationController.updateStyleAnnotation(symbol)
+                    break;
+                }
+            }
+            result(nil)
+        case "symbol#remove":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIdString = arguments["symbol"] as? String else { return }
+            
+            for symbol in symbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolIdString {
+                    symbolAnnotationController.removeStyleAnnotation(symbol)
+                    break;
+                }
+            }
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -81,6 +126,27 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     
     /*
+     *  MGLAnnotationControllerDelegate
+     */
+    func annotationController(_ annotationController: MGLAnnotationController, didSelect styleAnnotation: MGLStyleAnnotation) {
+        guard let channel = channel else {
+            return
+        }
+
+        if let symbol = styleAnnotation as? MGLSymbolStyleAnnotation {
+            channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.identifier)"])
+        }
+    }
+
+    // This is required in order to hide the default Maps SDK pin
+    func mapView(_ mapView: MGLMapView, viewFor annotation: MGLAnnotation) -> MGLAnnotationView? {
+        if annotation is MGLUserLocation {
+            return MGLUserLocationAnnotationView()
+        }
+        return MGLAnnotationView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+    }
+    
+    /*
      *  MGLMapViewDelegate
      */
     func mapView(_ mapView: MGLMapView, didFinishLoading style: MGLStyle) {
@@ -92,6 +158,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             camera.pitch = initialTilt
             mapView.setCamera(camera, animated: false)
         }
+        
+        symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
+        symbolAnnotationController!.annotationsInteractionEnabled = true
+        symbolAnnotationController?.delegate = self
         
         mapReadyResult?(nil)
     }
