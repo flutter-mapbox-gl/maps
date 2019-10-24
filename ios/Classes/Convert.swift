@@ -128,6 +128,22 @@ class Convert {
     class func interpretSymbolOptions(options: Any?, delegate: MGLSymbolStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
         
+        if let geometry = options["geometry"] as? [Double] {
+            // We cannot set the geometry directy on the annotation so calculate
+            // the difference and update the coordinate using the delta.
+            let currCoord = delegate.feature.coordinate
+            let newCoord = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+            let delta = CGVector(dx: newCoord.longitude - currCoord.longitude, dy: newCoord.latitude - currCoord.latitude)
+            delegate.updateGeometryCoordinates(withDelta: delta)
+        }
+        if let zIndex = options["zIndex"] as? Int {
+            delegate.symbolSortKey = zIndex
+        }
+        if let draggable = options["draggable"] as? Bool {
+            delegate.isDraggable = draggable
+        }
+
+        
         if let iconSize = options["iconSize"] as? CGFloat {
             delegate.iconScale = iconSize
         }
@@ -206,6 +222,11 @@ class Convert {
         if let textHaloBlur = options["textHaloBlur"] as? CGFloat {
             delegate.textHaloBlur = textHaloBlur
         }
+    }
+    
+    class func interpretCircleOptions(options: Any?, delegate: MGLCircleStyleAnnotation) {
+        guard let options = options as? [String: Any] else { return }
+        
         if let geometry = options["geometry"] as? [Double] {
             // We cannot set the geometry directy on the annotation so calculate
             // the difference and update the coordinate using the delta.
@@ -214,11 +235,30 @@ class Convert {
             let delta = CGVector(dx: newCoord.longitude - currCoord.longitude, dy: newCoord.latitude - currCoord.latitude)
             delegate.updateGeometryCoordinates(withDelta: delta)
         }
-        if let zIndex = options["zIndex"] as? Int {
-            delegate.symbolSortKey = zIndex
-        }
         if let draggable = options["draggable"] as? Bool {
             delegate.isDraggable = draggable
+        }
+
+        if let circleRadius = options["circleRadius"] as? CGFloat {
+            delegate.circleRadius = circleRadius
+        }
+        if let circleColor = options["circleColor"] as? String {
+            delegate.circleColor = UIColor(hexString: circleColor) ?? UIColor.black
+        }
+        if let circleBlur = options["circleBlur"] as? CGFloat {
+            delegate.circleBlur = circleBlur
+        }
+        if let circleOpacity = options["circleOpacity"] as? CGFloat {
+            delegate.circleOpacity = circleOpacity
+        }
+        if let circleStrokeWidth = options["circleStrokeWidth"] as? CGFloat {
+            delegate.circleStrokeWidth = circleStrokeWidth
+        }
+        if let circleStrokeColor = options["circleStrokeColor"] as? String {
+            delegate.circleStrokeColor = UIColor(hexString: circleStrokeColor) ?? UIColor.black
+        }
+        if let circleStrokeOpacity = options["circleStrokeOpacity"] as? CGFloat {
+            delegate.circleStrokeOpacity = circleStrokeOpacity
         }
     }
 }
