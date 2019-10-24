@@ -261,4 +261,41 @@ class Convert {
             delegate.circleStrokeOpacity = circleStrokeOpacity
         }
     }
+    
+    class func interpretLineOptions(options: Any?, delegate: MGLLineStyleAnnotation) {
+        guard let options = options as? [String: Any] else { return }
+
+//        if let geometry = options["geometry"] as? [[Double]] {
+//            delegate.setGeometry(geometry: geometry)
+//        }
+        if let draggable = options["draggable"] as? Bool {
+            delegate.isDraggable = draggable
+        }
+        
+        if let lineJoin = options["lineJoin"] as? String {
+            //TODO: Parse string to enum
+            delegate.lineJoin = .round
+        }
+        if let lineOpacity = options["lineOpacity"] as? CGFloat {
+            delegate.lineOpacity = lineOpacity
+        }
+        if let lineColor = options["lineColor"] as? String {
+            delegate.lineColor = UIColor(hexString: lineColor) ?? UIColor.black
+        }
+        if let lineWidth = options["lineWidth"] as? CGFloat {
+            delegate.lineWidth = lineWidth
+        }
+        if let lineGapWidth = options["lineGapWidth"] as? CGFloat {
+            delegate.lineGapWidth = lineGapWidth
+        }
+        if let lineOffset = options["lineOffset"] as? CGFloat {
+            delegate.lineOffset = lineOffset
+        }
+        if let lineBlur = options["lineBlur"] as? CGFloat {
+            delegate.lineBlur = lineBlur
+        }
+        if let linePattern = options["linePattern"] as? String {
+            delegate.linePattern = linePattern
+        }
+    }
 }
