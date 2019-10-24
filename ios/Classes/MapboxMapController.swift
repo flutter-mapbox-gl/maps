@@ -17,6 +17,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var myLocationEnabled = false
     
     private var symbolAnnotationController: MGLSymbolAnnotationController?
+    private var circleAnnotationController: MGLCircleAnnotationController?
 
     func view() -> UIView {
         return mapView
@@ -91,10 +92,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "symbol#update":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let symbolIdString = arguments["symbol"] as? String else { return }
+            guard let symbolId = arguments["symbol"] as? String else { return }
             
             for symbol in symbolAnnotationController.styleAnnotations(){
-                if symbol.identifier == symbolIdString {
+                if symbol.identifier == symbolId {
                     Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol as! MGLSymbolStyleAnnotation)
                     symbolAnnotationController.updateStyleAnnotation(symbol)
                     break;
@@ -104,11 +105,51 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "symbol#remove":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let symbolIdString = arguments["symbol"] as? String else { return }
+            guard let symbolId = arguments["symbol"] as? String else { return }
             
             for symbol in symbolAnnotationController.styleAnnotations(){
-                if symbol.identifier == symbolIdString {
+                if symbol.identifier == symbolId {
                     symbolAnnotationController.removeStyleAnnotation(symbol)
+                    break;
+                }
+            }
+            result(nil)
+        case "circle#add":
+            guard let circleAnnotationController = circleAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            // Parse geometry
+            if let options = arguments["options"] as? [String: Any],
+                let geometry = options["geometry"] as? [Double] {
+                // Convert geometry to coordinate and create circle.
+                let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+                let circle = MGLCircleStyleAnnotation(center: coordinate)
+                Convert.interpretCircleOptions(options: arguments["options"], delegate: circle)
+                circleAnnotationController.addStyleAnnotation(circle)
+                result(circle.identifier)
+            } else {
+                result(nil)
+            }
+        case "circle#update":
+            guard let circleAnnotationController = circleAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let circleId = arguments["circle"] as? String else { return }
+            
+            for circle in circleAnnotationController.styleAnnotations() {
+                if circle.identifier == circleId {
+                    Convert.interpretCircleOptions(options: arguments["options"], delegate: circle as! MGLCircleStyleAnnotation)
+                    circleAnnotationController.updateStyleAnnotation(circle)
+                    break;
+                }
+            }
+            result(nil)
+        case "circle#remove":
+            guard let circleAnnotationController = circleAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let circleId = arguments["circle"] as? String else { return }
+            
+            for circle in circleAnnotationController.styleAnnotations() {
+                if circle.identifier == circleId {
+                    circleAnnotationController.removeStyleAnnotation(circle)
                     break;
                 }
             }
@@ -136,6 +177,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
         if let symbol = styleAnnotation as? MGLSymbolStyleAnnotation {
             channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.identifier)"])
+        } else if let circle = styleAnnotation as? MGLCircleStyleAnnotation {
+            channel.invokeMethod("circle#onTap", arguments: ["circle" : "\(circle.identifier)"])
         }
     }
 
@@ -163,6 +206,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
         symbolAnnotationController!.annotationsInteractionEnabled = true
         symbolAnnotationController?.delegate = self
+
+        circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
+        circleAnnotationController!.annotationsInteractionEnabled = true
+        circleAnnotationController?.delegate = self
         
         mapReadyResult?(nil)
     }
