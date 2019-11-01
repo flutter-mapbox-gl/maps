@@ -408,23 +408,13 @@ final class MapboxMapController
         Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
         final Symbol symbol = symbolBuilder.build();
         final String symbolId = String.valueOf(symbol.getId());
-        Bitmap bitmap = null;
-
-        try {
-          DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-          bitmap = getScaledImage(symbol, displayMetrics.density);
-        } catch (UnsupportedOperationException e) {
-          Log.e(TAG, "Possible invalid path.");
-          e.printStackTrace();
-        }
-
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        final Bitmap bitmap = getScaledImage(symbol, displayMetrics.density);
         if (bitmap != null) {
-          mapboxMap.getStyle().addImage(symbol.getIconImage(), bitmap);
-          symbols.put(symbolId, new SymbolController(symbol, true, this));
-          result.success(symbolId);
-        } else {
-          result.error("error", "Cannot load bitmap from asset.", null);
+          mapboxMap.getStyle(style -> style.addImage(symbol.getIconImage(), bitmap));
         }
+        symbols.put(symbolId, new SymbolController(symbol, true, this));
+        result.success(symbolId);
         break;
       }
       case "symbol#remove": {
