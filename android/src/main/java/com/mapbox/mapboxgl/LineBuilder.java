@@ -73,6 +73,6 @@ class LineBuilder implements LineOptionsSink {
 
   @Override
   public void setDraggable(boolean draggable) {
-    lineOptions.setDraggable(draggable);
+    lineOptions.withDraggable(draggable);
   }
 }
