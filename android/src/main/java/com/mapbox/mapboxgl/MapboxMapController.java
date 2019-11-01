@@ -412,7 +412,7 @@ final class MapboxMapController
 
         try {
           DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-          bitmap = getImage(symbol, displayMetrics.density);
+          bitmap = getScaledImage(symbol, displayMetrics.density);
         } catch (UnsupportedOperationException e) {
           Log.e(TAG, "Possible invalid path.");
           e.printStackTrace();
@@ -762,7 +762,7 @@ final class MapboxMapController
    * @param density
    * @return
    */
-  private Bitmap getImage(Symbol symbol, float density) {
+  private Bitmap getScaledImage(Symbol symbol, float density) {
     AssetManager assetManager = registrar.context().getAssets();
     AssetFileDescriptor assetFileDescriptor = null;
 
