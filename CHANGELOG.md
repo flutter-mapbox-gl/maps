@@ -1,3 +1,10 @@
+## v0.0.4, Nov 2, 2019
+* Update SDK to 8.4.0 (Android) and 5.4.0 (iOS)
+* Add support for sideloading offline maps (Android/iOS)
+* Add user tracking mode (iOS)
+* Invert compassView.isHidden logic (iOS) 
+* Specific swift version (iOS)
+
 ## v0.0.3, Mar 30, 2019
 * Camera API (iOS)
 * Line API (Android)
