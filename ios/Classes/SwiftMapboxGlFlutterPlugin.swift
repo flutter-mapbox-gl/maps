@@ -13,8 +13,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
             case "installOfflineMapTiles":
                 guard let arguments = methodCall.arguments as? [String: String] else { return }
                 let tilesdb = arguments["tilesdb"]
-                let assetkey = registrar.lookupKey(forAsset: tilesdb!)
-                installOfflineMapTiles(key: assetkey)
+                installOfflineMapTiles(registrar: registrar, tilesdb: tilesdb!)
                 result(nil)
             default:
                 result(FlutterMethodNotImplemented)
@@ -34,9 +33,9 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     // Copies the "offline" tiles to where Mapbox expects them
-    private static func installOfflineMapTiles(key: String) {
+    private static func installOfflineMapTiles(registrar: FlutterPluginRegistrar, tilesdb: String) {
         var tilesUrl = getTilesUrl()
-        let bundlePath = Bundle.main.path(forResource: key, ofType: nil)
+        let bundlePath = getTilesDbPath(registrar: registrar, tilesdb: tilesdb)
         NSLog("Cached tiles not found, copying from bundle... \(String(describing: bundlePath)) ==> \(tilesUrl)")
         do {
             let parentDir = tilesUrl.deletingLastPathComponent()
@@ -50,6 +49,15 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
             try tilesUrl.setResourceValues(resourceValues)
         } catch let error {
             NSLog("Error copying bundled tiles: \(error)")
+        }
+    }
+    
+    private static func getTilesDbPath(registrar: FlutterPluginRegistrar, tilesdb: String) -> String? {
+        if (tilesdb.starts(with: "/")) {
+            return tilesdb;
+        } else {
+            let key = registrar.lookupKey(forAsset: tilesdb)
+            return Bundle.main.path(forResource: key, ofType: nil)
         }
     }
 }

@@ -6,10 +6,13 @@ import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -30,8 +33,7 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
         switch (methodCall.method) {
             case "installOfflineMapTiles":
                 String tilesDb = methodCall.argument("tilesdb");
-                String assetKey = registrar.lookupKeyForAsset(tilesDb);
-                installOfflineMapTiles(assetKey);
+                installOfflineMapTiles(tilesDb);
                 result.success(null);
                 break;
             default:
@@ -40,14 +42,22 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
         }
     }
 
-    private void installOfflineMapTiles(String assetKey) {
-        final Context context = registrar.activeContext();
-        try {
-            File dest = new File(context.getFilesDir(), DATABASE_NAME);
-            copy(context.getAssets().open(assetKey),
-                    new FileOutputStream(dest));
+    private void installOfflineMapTiles(String tilesDb) {
+        final File dest = new File(registrar.activeContext().getFilesDir(), DATABASE_NAME);
+        try (InputStream input = openTilesDbFile(tilesDb);
+             OutputStream output = new FileOutputStream(dest)) {
+            copy(input, output);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private InputStream openTilesDbFile(String tilesDb) throws IOException {
+        if (tilesDb.startsWith("/")) { // Absolute path.
+            return new FileInputStream(new File(tilesDb));
+        } else {
+            final String assetKey = registrar.lookupKeyForAsset(tilesDb);
+            return registrar.activeContext().getAssets().open(assetKey);
         }
     }
 
