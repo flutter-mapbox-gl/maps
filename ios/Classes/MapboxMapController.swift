@@ -121,6 +121,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     func mapView(_ mapView: MGLMapView, didChange mode: MGLUserTrackingMode, animated: Bool) {
         channel.invokeMethod("map#onCameraTrackingChanged", arguments: ["mode": mode.rawValue])
+        if mode == .none {
+            channel.invokeMethod("map#onCameraTrackingDismissed", arguments: [])
+        }
     }
 
     /*
