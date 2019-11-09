@@ -74,8 +74,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
 
     private func updateMyLocationEnabled() {
-      mapView.showsUserLocation = self.myLocationEnabled
-      mapView.userTrackingMode = .followWithHeading
+        mapView.showsUserLocation = self.myLocationEnabled
+        mapView.userTrackingMode = .followWithHeading
     }
 
     private func getCamera() -> MGLMapCamera? {
@@ -120,9 +120,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         return inside && intersects
     }
 
-    func mapView(_ mapView: MGLMapView, didChange mode:
-    MGLUserTrackingMode, animated: Bool) {
-      channel.invokeMethod("map#onCameraTrackingChanged", arguments: ["mode": mode.rawValue])
+    func mapView(_ mapView: MGLMapView, didChange mode: MGLUserTrackingMode, animated: Bool) {
+        channel.invokeMethod("map#onCameraTrackingChanged", arguments: ["mode": mode.rawValue])
     }
 
     /*
