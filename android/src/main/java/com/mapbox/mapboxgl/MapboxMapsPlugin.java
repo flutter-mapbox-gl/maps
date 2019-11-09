@@ -8,9 +8,10 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-
 import java.util.concurrent.atomic.AtomicInteger;
+
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * Plugin for controlling a set of MapboxMap views to be shown as overlays on top of the Flutter
@@ -35,6 +36,10 @@ public class MapboxMapsPlugin implements Application.ActivityLifecycleCallbacks 
       .platformViewRegistry()
       .registerViewFactory(
         "plugins.flutter.io/mapbox_gl", new MapboxMapFactory(plugin.state, registrar));
+
+    MethodChannel methodChannel =
+            new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_gl");
+    methodChannel.setMethodCallHandler(new GlobalMethodHandler(registrar));
   }
 
   @Override

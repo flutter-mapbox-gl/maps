@@ -159,8 +159,8 @@ class SymbolController implements SymbolOptionsSink {
   }
 
   @Override
-  public void setZIndex(int zIndex) {
-    symbol.setZIndex(zIndex);
+  public void setSymbolSortKey(float symbolSortKey) {
+    symbol.setSymbolSortKey(symbolSortKey);
   }
 
   @Override
