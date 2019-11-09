@@ -75,7 +75,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     private func updateMyLocationEnabled() {
         mapView.showsUserLocation = self.myLocationEnabled
-        mapView.userTrackingMode = .followWithHeading
     }
 
     private func getCamera() -> MGLMapCamera? {
