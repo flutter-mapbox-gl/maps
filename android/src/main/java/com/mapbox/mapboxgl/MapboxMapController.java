@@ -268,6 +268,15 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveStartedListener(this);
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
+
+    mapView.addOnStyleImageMissingListener((id) -> {
+      DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+      final Bitmap bitmap = getScaledImage(id, displayMetrics.density);
+      if (bitmap != null) {
+        mapboxMap.getStyle().addImage(id, bitmap);
+      }
+    });
+
     setStyleString(styleStringInitial);
     // updateMyLocationEnabled();
   }
@@ -408,11 +417,6 @@ final class MapboxMapController
         Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
         final Symbol symbol = symbolBuilder.build();
         final String symbolId = String.valueOf(symbol.getId());
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        final Bitmap bitmap = getScaledImage(symbol, displayMetrics.density);
-        if (bitmap != null) {
-          mapboxMap.getStyle(style -> style.addImage(symbol.getIconImage(), bitmap));
-        }
         symbols.put(symbolId, new SymbolController(symbol, true, this));
         result.success(symbolId);
         break;
@@ -748,16 +752,16 @@ final class MapboxMapController
 
   /**
    * Tries to find highest scale image for display type
-   * @param symbol
+   * @param imageId
    * @param density
    * @return
    */
-  private Bitmap getScaledImage(Symbol symbol, float density) {
+  private Bitmap getScaledImage(String imageId, float density) {
     AssetManager assetManager = registrar.context().getAssets();
     AssetFileDescriptor assetFileDescriptor = null;
 
     // Split image path into parts.
-    List<String> imagePathList = Arrays.asList(symbol.getIconImage().split("/"));
+    List<String> imagePathList = Arrays.asList(imageId.split("/"));
     List<String> assetPathList = new ArrayList<>();
 
     // "On devices with a device pixel ratio of 1.8, the asset .../2.0x/my_icon.png would be chosen.
@@ -767,7 +771,7 @@ final class MapboxMapController
       String assetPath;
       if (i == 1) {
         // If density is 1.0x then simply take the default asset path
-        assetPath = registrar.lookupKeyForAsset(symbol.getIconImage());
+        assetPath = registrar.lookupKeyForAsset(imageId);
       } else {
         // Build a resolution aware asset path as follows:
         // <directory asset>/<ratio>/<image name>
