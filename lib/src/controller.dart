@@ -41,7 +41,7 @@ class MapboxMapController extends ChangeNotifier {
       int id, CameraPosition initialCameraPosition,
       {OnMapClickCallback onMapClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
-      onCameraTrackingChanged}) async {
+      OnCameraTrackingChangedCallback onCameraTrackingChanged}) async {
     assert(id != null);
     final MethodChannel channel =
         MethodChannel('plugins.flutter.io/mapbox_maps_$id');
