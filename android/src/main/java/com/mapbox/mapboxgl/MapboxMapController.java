@@ -132,10 +132,10 @@ final class MapboxMapController
       ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
       Bundle bundle = ai.metaData;
       return bundle.getString("com.mapbox.token");
-    } catch (PackageManager.NameNotFoundException e) {
-      Log.e(TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
-    } catch (NullPointerException e) {
-      Log.e(TAG, "Failed to load meta-data, NullPointer: " + e.getMessage());
+    } catch (Exception e) {
+      Log.e(TAG, "Failed to find an Access Token in the Application meta-data. Maps may not load correctly. " +
+        "Please refer to the installation guide at https://github.com/tobrun/flutter-mapbox-gl#mapbox-access-token " +
+        "for troubleshooting advice." + e.getMessage());
     }
     return null;
   }
