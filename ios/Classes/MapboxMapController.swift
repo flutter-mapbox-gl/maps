@@ -116,7 +116,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
 
     private func updateMyLocationEnabled() {
-        //TODO
+        mapView.showsUserLocation = self.myLocationEnabled
     }
     
     private func getCamera() -> MGLMapCamera? {
@@ -201,6 +201,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         return true
     }
     
+    func mapView(_ mapView: MGLMapView, didChange mode: MGLUserTrackingMode, animated: Bool) {
+        if let channel = channel {
+            channel.invokeMethod("map#onCameraTrackingChanged", arguments: ["mode": mode.rawValue])
+            if mode == .none {
+                channel.invokeMethod("map#onCameraTrackingDismissed", arguments: [])
+            }
+        }
+    }
+
     /*
      *  MapboxMapOptionsSink
      */

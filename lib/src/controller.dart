@@ -7,6 +7,7 @@ part of mapbox_gl;
 typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
 
 typedef void OnCameraTrackingDismissedCallback();
+typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
 /// Controller for a single MapboxMap instance running on the host platform.
 ///
@@ -26,7 +27,9 @@ typedef void OnCameraTrackingDismissedCallback();
 class MapboxMapController extends ChangeNotifier {
   MapboxMapController._(
       this._id, MethodChannel channel, CameraPosition initialCameraPosition,
-      {this.onMapClick, this.onCameraTrackingDismissed})
+      {this.onMapClick,
+      this.onCameraTrackingDismissed,
+      this.onCameraTrackingChanged})
       : assert(_id != null),
         assert(channel != null),
         _channel = channel {
@@ -37,14 +40,16 @@ class MapboxMapController extends ChangeNotifier {
   static Future<MapboxMapController> init(
       int id, CameraPosition initialCameraPosition,
       {OnMapClickCallback onMapClick,
-      OnCameraTrackingDismissedCallback onCameraTrackingDismissed}) async {
+      OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
+      OnCameraTrackingChangedCallback onCameraTrackingChanged}) async {
     assert(id != null);
     final MethodChannel channel =
         MethodChannel('plugins.flutter.io/mapbox_maps_$id');
     await channel.invokeMethod('map#waitForMap');
     return MapboxMapController._(id, channel, initialCameraPosition,
         onMapClick: onMapClick,
-        onCameraTrackingDismissed: onCameraTrackingDismissed);
+        onCameraTrackingDismissed: onCameraTrackingDismissed,
+        onCameraTrackingChanged: onCameraTrackingChanged);
   }
 
   final MethodChannel _channel;
@@ -52,6 +57,7 @@ class MapboxMapController extends ChangeNotifier {
   final OnMapClickCallback onMapClick;
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
+  final OnCameraTrackingChangedCallback onCameraTrackingChanged;
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Symbol> onSymbolTapped = ArgumentCallbacks<Symbol>();
@@ -144,6 +150,12 @@ class MapboxMapController extends ChangeNotifier {
         final double lat = call.arguments['lat'];
         if (onMapClick != null) {
           onMapClick(Point<double>(x, y), LatLng(lat, lng));
+        }
+        break;
+      case 'map#onCameraTrackingChanged':
+        if (onCameraTrackingChanged != null) {
+          final int mode = call.arguments['mode'];
+          onCameraTrackingChanged(MyLocationTrackingMode.values[mode]);
         }
         break;
       case 'map#onCameraTrackingDismissed':
@@ -367,7 +379,7 @@ class MapboxMapController extends ChangeNotifier {
   /// been notified.
   Future<Circle> addCircle(CircleOptions options) async {
     final CircleOptions effectiveOptions =
-    CircleOptions.defaultOptions.copyWith(options);
+        CircleOptions.defaultOptions.copyWith(options);
     final String circleId = await _channel.invokeMethod(
       'circle#add',
       <String, dynamic>{
@@ -398,7 +410,6 @@ class MapboxMapController extends ChangeNotifier {
     circle._options = circle._options.copyWith(changes);
     notifyListeners();
   }
-
 
   /// Removes the specified [circle] from the map. The circle must be a current
   /// member of the [circles] set.

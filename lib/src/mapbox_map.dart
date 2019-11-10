@@ -24,6 +24,7 @@ class MapboxMap extends StatefulWidget {
     this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
     this.onMapClick,
     this.onCameraTrackingDismissed,
+    this.onCameraTrackingChanged,
   }) : assert(initialCameraPosition != null);
 
   final MapCreatedCallback onMapCreated;
@@ -105,6 +106,7 @@ class MapboxMap extends StatefulWidget {
 
   /// Called when the location tracking mode changes, such as when the user moves the map
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
+  final OnCameraTrackingChangedCallback onCameraTrackingChanged;
 
   @override
   State createState() => _MapboxMapState();
@@ -172,7 +174,8 @@ class _MapboxMapState extends State<MapboxMap> {
     final MapboxMapController controller = await MapboxMapController.init(
         id, widget.initialCameraPosition,
         onMapClick: widget.onMapClick,
-        onCameraTrackingDismissed: widget.onCameraTrackingDismissed);
+        onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
+        onCameraTrackingChanged: widget.onCameraTrackingChanged);
     _controller.complete(controller);
     if (widget.onMapCreated != null) {
       widget.onMapCreated(controller);
