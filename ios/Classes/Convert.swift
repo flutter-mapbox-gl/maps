@@ -127,7 +127,6 @@ class Convert {
     
     class func interpretSymbolOptions(options: Any?, delegate: MGLSymbolStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
-        
         if let geometry = options["geometry"] as? [Double] {
             // We cannot set the geometry directy on the annotation so calculate
             // the difference and update the coordinate using the delta.
@@ -142,8 +141,6 @@ class Convert {
         if let draggable = options["draggable"] as? Bool {
             delegate.isDraggable = draggable
         }
-
-        
         if let iconSize = options["iconSize"] as? CGFloat {
             delegate.iconScale = iconSize
         }
@@ -226,7 +223,6 @@ class Convert {
     
     class func interpretCircleOptions(options: Any?, delegate: MGLCircleStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
-        
         if let geometry = options["geometry"] as? [Double] {
             // We cannot set the geometry directy on the annotation so calculate
             // the difference and update the coordinate using the delta.
@@ -238,7 +234,6 @@ class Convert {
         if let draggable = options["draggable"] as? Bool {
             delegate.isDraggable = draggable
         }
-
         if let circleRadius = options["circleRadius"] as? CGFloat {
             delegate.circleRadius = circleRadius
         }
@@ -264,14 +259,12 @@ class Convert {
     
     class func interpretLineOptions(options: Any?, delegate: MGLLineStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
-
 //        if let geometry = options["geometry"] as? [[Double]] {
 //            delegate.setGeometry(geometry: geometry)
 //        }
         if let draggable = options["draggable"] as? Bool {
             delegate.isDraggable = draggable
         }
-        
         if let lineJoin = options["lineJoin"] as? String {
             //TODO: Parse string to enum
             delegate.lineJoin = .round
