@@ -45,7 +45,7 @@ Add these lines to your Info.plist
 | Style | :white_check_mark:   | :white_check_mark: |
 | Camera | :white_check_mark:   | :white_check_mark: |
 | Gesture | :white_check_mark:   | :white_check_mark: |
-| User Location | :white_check_mark:   | |
+| User Location | :white_check_mark: | :white_check_mark: |
 | Symbol | :white_check_mark:   | |
 | Circle | :white_check_mark:   |  |
 | Line | :white_check_mark:   |  |
