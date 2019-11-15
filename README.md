@@ -45,12 +45,34 @@ Add these lines to your Info.plist
 | Style | :white_check_mark:   | :white_check_mark: |
 | Camera | :white_check_mark:   | :white_check_mark: |
 | Gesture | :white_check_mark:   | :white_check_mark: |
-| User Location | :white_check_mark:   | |
+| User Location | :white_check_mark: | :white_check_mark: |
 | Symbol | :white_check_mark:   | |
 | Circle | :white_check_mark:   |  |
 | Line | :white_check_mark:   |  |
 | Fill |   |  |
 
+## Offline Sideloading
+
+Support for offline maps is available by *"side loading"* the required map tiles and including them in your `assets` folder.
+
+* Create your tiles package by following the guide available [here](https://docs.mapbox.com/ios/maps/overview/offline/).
+
+* Place the tiles.db file generated in step one in your assets directory and add a reference to it in your `pubspec.yml` file.
+
+```
+   assets:
+     - assets/cache.db
+```
+
+* Call `installOfflineMapTiles` when your application starts to copy your tiles into the location where Mapbox can access them.  **NOTE:** This method should be called **before** the Map widget is loaded to prevent collisions when copying the files into place.
+ 
+```
+    try {
+      await installOfflineMapTiles(join("assets", "cache.db"));
+    } catch (err) {
+      print(err);
+    }
+```
 
 ## Documentation
 

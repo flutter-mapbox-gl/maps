@@ -15,7 +15,7 @@ A new Flutter plugin.
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.dependency 'Mapbox-iOS-SDK', '~> 4.8.0'
+  s.dependency 'Mapbox-iOS-SDK', '~> 5.4.0'
   s.swift_version = '4.2'
   s.ios.deployment_target = '9.0'
 end

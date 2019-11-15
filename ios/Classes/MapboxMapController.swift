@@ -3,11 +3,12 @@ import UIKit
 import Mapbox
 
 class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink {
-    
+
     private var mapView: MGLMapView
     private var isMapReady = false
     private var mapReadyResult: FlutterResult?
-    
+    private var  channel: FlutterMethodChannel
+
     private var initialTilt: CGFloat?
     private var cameraTargetBounds: MGLCoordinateBounds?
     private var trackCameraPosition = false
@@ -16,18 +17,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func view() -> UIView {
         return mapView
     }
-    
+
     init(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, binaryMessenger messenger: FlutterBinaryMessenger) {
         mapView = MGLMapView(frame: frame)
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
+        channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: messenger)
+
         super.init()
-        
-        let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: messenger)
+
         channel.setMethodCallHandler(onMethodCall)
-        
+
         mapView.delegate = self
-        
+
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
             if let initialCameraPosition = args["initialCameraPosition"] as? [String: Any],
@@ -38,7 +39,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
         }
     }
-    
+
     func onMethodCall(methodCall: FlutterMethodCall, result: @escaping FlutterResult) {
         switch(methodCall.method) {
         case "map#waitForMap":
@@ -71,53 +72,60 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             result(FlutterMethodNotImplemented)
         }
     }
-    
+
     private func updateMyLocationEnabled() {
-        //TODO
+        mapView.showsUserLocation = self.myLocationEnabled
     }
-    
+
     private func getCamera() -> MGLMapCamera? {
         return trackCameraPosition ? mapView.camera : nil
     }
-    
+
     /*
      *  MGLMapViewDelegate
      */
     func mapView(_ mapView: MGLMapView, didFinishLoading style: MGLStyle) {
         isMapReady = true
         updateMyLocationEnabled()
-        
+
         if let initialTilt = initialTilt {
             let camera = mapView.camera
             camera.pitch = initialTilt
             mapView.setCamera(camera, animated: false)
         }
-        
+
         mapReadyResult?(nil)
     }
-    
+
     func mapView(_ mapView: MGLMapView, shouldChangeFrom oldCamera: MGLMapCamera, to newCamera: MGLMapCamera) -> Bool {
         guard let bbox = cameraTargetBounds else { return true }
         // Get the current camera to restore it after.
         let currentCamera = mapView.camera
-        
+
         // From the new camera obtain the center to test if it’s inside the boundaries.
         let newCameraCenter = newCamera.centerCoordinate
-        
+
         // Set the map’s visible bounds to newCamera.
         mapView.camera = newCamera
         let newVisibleCoordinates = mapView.visibleCoordinateBounds
-        
+
         // Revert the camera.
         mapView.camera = currentCamera
-        
+
         // Test if the newCameraCenter and newVisibleCoordinates are inside bbox.
         let inside = MGLCoordinateInCoordinateBounds(newCameraCenter, bbox)
         let intersects = MGLCoordinateInCoordinateBounds(newVisibleCoordinates.ne, bbox) && MGLCoordinateInCoordinateBounds(newVisibleCoordinates.sw, bbox)
-        
+
         return inside && intersects
     }
-    
+
+    func mapView(_ mapView: MGLMapView, didChange mode: MGLUserTrackingMode, animated: Bool) {
+        channel.invokeMethod("map#onCameraTrackingChanged", arguments: ["mode": mode.rawValue])
+        if mode == .none {
+            channel.invokeMethod("map#onCameraTrackingDismissed", arguments: [])
+        }
+    }
+
     /*
      *  MapboxMapOptionsSink
      */
