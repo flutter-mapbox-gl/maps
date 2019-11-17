@@ -273,6 +273,14 @@ class _MapboxMapOptions {
       }
     }
 
+    List<dynamic> pointToArray(Point fieldName) {
+      if (fieldName != null) {
+        return <dynamic>[fieldName.x, fieldName.y];
+      }
+
+      return null;
+    }
+
     addIfNonNull('compassEnabled', compassEnabled);
     addIfNonNull('cameraTargetBounds', cameraTargetBounds?._toJson());
     addIfNonNull('styleString', styleString);
@@ -284,17 +292,14 @@ class _MapboxMapOptions {
     addIfNonNull('trackCameraPosition', trackCameraPosition);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
-    addIfNonNull('logoViewMargins', <dynamic>[logoViewMargins.x, logoViewMargins.y]);
-    addIfNonNull('compassViewMargins', <dynamic>[compassViewMargins.x, compassViewMargins.y]);
-    addIfNonNull('attributionButtonMargins', <dynamic>[attributionButtonMargins.x, attributionButtonMargins.y]);
-
+    addIfNonNull('logoViewMargins', pointToArray(logoViewMargins));
+    addIfNonNull('compassViewMargins', pointToArray(compassViewMargins));
+    addIfNonNull('attributionButtonMargins', pointToArray(attributionButtonMargins));
     return optionsMap;
   }
 
   Map<String, dynamic> updatesMap(_MapboxMapOptions newOptions) {
     final Map<String, dynamic> prevOptionsMap = toMap();
-    return newOptions.toMap()
-      ..removeWhere(
-          (String key, dynamic value) => prevOptionsMap[key] == value);
+    return newOptions.toMap()..removeWhere((String key, dynamic value) => prevOptionsMap[key] == value);
   }
 }
