@@ -75,6 +75,11 @@ class CircleController implements CircleOptionsSink {
     circle.setGeometry(Point.fromLngLat(geometry.getLongitude(), geometry.getLatitude()));
   }
 
+  public LatLng getGeometry() {
+    Point point =  circle.getGeometry();
+    return new LatLng(point.latitude(), point.longitude());
+  }
+
   @Override
   public void setDraggable(boolean draggable) {
     circle.setDraggable(draggable);
