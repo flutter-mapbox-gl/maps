@@ -36,6 +36,15 @@ class Convert {
         if let myLocationTrackingMode = options["myLocationTrackingMode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
             delegate.setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
         }
+        if let logoViewMargins = options["logoViewMargins"] as? [Double] {
+            delegate.setLogoViewMargins(x: logoViewMargins[0], y: logoViewMargins[1])
+        }
+        if let compassViewMargins = options["compassViewMargins"] as? [Double] {
+            delegate.setCompassViewMargins(x: compassViewMargins[0], y: compassViewMargins[1])
+        }
+        if let attributionButtonMargins = options["attributionButtonMargins"] as? [Double] {
+            delegate.setAttributionButtonMargins(x: attributionButtonMargins[0], y: attributionButtonMargins[1])
+        }
     }
     
     class func parseCameraUpdate(cameraUpdate: [Any], mapView: MGLMapView) -> MGLMapCamera? {

@@ -22,6 +22,9 @@ class MapboxMap extends StatefulWidget {
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
+    this.logoViewMargins,
+    this.compassViewMargins,
+    this.attributionButtonMargins,
     this.onMapClick,
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
@@ -90,6 +93,15 @@ class MapboxMap extends StatefulWidget {
 
   /// The mode used to track the user location on the map
   final MyLocationTrackingMode myLocationTrackingMode;
+
+  /// Set the layout margins for the Mapbox Logo
+  final Point logoViewMargins;
+
+  /// Set the layout margins for the Mapbox Compass
+  final Point compassViewMargins;
+
+  /// Set the layout margins for the Mapbox Attribution Buttons
+  final Point attributionButtonMargins;
 
   /// Which gestures should be consumed by the map.
   ///
@@ -200,6 +212,9 @@ class _MapboxMapOptions {
     this.zoomGesturesEnabled,
     this.myLocationEnabled,
     this.myLocationTrackingMode,
+    this.logoViewMargins,
+    this.compassViewMargins,
+    this.attributionButtonMargins,
   });
 
   static _MapboxMapOptions fromWidget(MapboxMap map) {
@@ -215,6 +230,9 @@ class _MapboxMapOptions {
       zoomGesturesEnabled: map.zoomGesturesEnabled,
       myLocationEnabled: map.myLocationEnabled,
       myLocationTrackingMode: map.myLocationTrackingMode,
+      logoViewMargins: map.logoViewMargins,
+      compassViewMargins: map.compassViewMargins,
+      attributionButtonMargins: map.attributionButtonMargins
     );
   }
 
@@ -240,6 +258,12 @@ class _MapboxMapOptions {
 
   final MyLocationTrackingMode myLocationTrackingMode;
 
+  final Point logoViewMargins;
+
+  final Point compassViewMargins;
+
+  final Point attributionButtonMargins;
+
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> optionsMap = <String, dynamic>{};
 
@@ -260,6 +284,10 @@ class _MapboxMapOptions {
     addIfNonNull('trackCameraPosition', trackCameraPosition);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
+    addIfNonNull('logoViewMargins', <dynamic>[logoViewMargins.x, logoViewMargins.y]);
+    addIfNonNull('compassViewMargins', <dynamic>[compassViewMargins.x, compassViewMargins.y]);
+    addIfNonNull('attributionButtonMargins', <dynamic>[attributionButtonMargins.x, attributionButtonMargins.y]);
+
     return optionsMap;
   }
 
