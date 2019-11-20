@@ -4,7 +4,7 @@ import Mapbox
 import MapboxAnnotationExtension
 
 class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink, MGLAnnotationControllerDelegate {
-
+    
     private var channel: FlutterMethodChannel?
 
     private var mapView: MGLMapView
@@ -33,7 +33,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
         channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: messenger)
         channel!.setMethodCallHandler(onMethodCall)
-
+        
         mapView.delegate = self
 
         if let args = args as? [String: Any] {
@@ -237,6 +237,31 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     
     /*
+     *  MGLAnnotationControllerDelegate
+     */
+    func annotationController(_ annotationController: MGLAnnotationController, didSelect styleAnnotation: MGLStyleAnnotation) {
+        guard let channel = channel else {
+            return
+        }
+
+        if let symbol = styleAnnotation as? MGLSymbolStyleAnnotation {
+            channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.identifier)"])
+        } else if let circle = styleAnnotation as? MGLCircleStyleAnnotation {
+            channel.invokeMethod("circle#onTap", arguments: ["circle" : "\(circle.identifier)"])
+        } else if let line = styleAnnotation as? MGLLineStyleAnnotation {
+            channel.invokeMethod("line#onTap", arguments: ["line" : "\(line.identifier)"])
+        }
+    }
+
+    // This is required in order to hide the default Maps SDK pin
+    func mapView(_ mapView: MGLMapView, viewFor annotation: MGLAnnotation) -> MGLAnnotationView? {
+        if annotation is MGLUserLocation {
+            return MGLUserLocationAnnotationView()
+        }
+        return MGLAnnotationView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+    }
+    
+    /*
      *  MGLMapViewDelegate
      */
     func mapView(_ mapView: MGLMapView, didFinishLoading style: MGLStyle) {
@@ -249,6 +274,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             mapView.setCamera(camera, animated: false)
         }
 
+        symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
+        symbolAnnotationController!.annotationsInteractionEnabled = true
+        symbolAnnotationController?.delegate = self
+
+        circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
+        circleAnnotationController!.annotationsInteractionEnabled = true
+        circleAnnotationController?.delegate = self
+        
+        lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
+        lineAnnotationController!.annotationsInteractionEnabled = true
+        lineAnnotationController?.delegate = self
+        
         symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
         symbolAnnotationController!.annotationsInteractionEnabled = true
         symbolAnnotationController?.delegate = self
