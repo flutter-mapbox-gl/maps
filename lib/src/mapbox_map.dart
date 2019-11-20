@@ -20,7 +20,6 @@ class MapboxMap extends StatefulWidget {
     this.zoomGesturesEnabled = true,
     this.tiltGesturesEnabled = true,
     this.trackCameraPosition = false,
-    this.trafficPluginEnabled = false,
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
     this.myLocationRenderMode = MyLocationRenderMode.COMPASS,
@@ -106,8 +105,6 @@ class MapboxMap extends StatefulWidget {
   /// When this set is empty or null, the map will only handle pointer events for gestures that
   /// were not claimed by any other gesture recognizer.
   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
-
-  final bool trafficPluginEnabled;
 
   final OnMapClickCallback onMapClick;
 
@@ -205,7 +202,6 @@ class _MapboxMapOptions {
     this.tiltGesturesEnabled,
     this.trackCameraPosition,
     this.zoomGesturesEnabled,
-    this.trafficPluginEnabled,
     this.myLocationEnabled,
     this.myLocationTrackingMode,
     this.myLocationRenderMode,
@@ -222,7 +218,6 @@ class _MapboxMapOptions {
       tiltGesturesEnabled: map.tiltGesturesEnabled,
       trackCameraPosition: map.trackCameraPosition,
       zoomGesturesEnabled: map.zoomGesturesEnabled,
-      trafficPluginEnabled: map.trafficPluginEnabled,
       myLocationEnabled: map.myLocationEnabled,
       myLocationTrackingMode: map.myLocationTrackingMode,
       myLocationRenderMode: map.myLocationRenderMode,
@@ -246,8 +241,6 @@ class _MapboxMapOptions {
   final bool trackCameraPosition;
 
   final bool zoomGesturesEnabled;
-
-  final bool trafficPluginEnabled;
 
   final bool myLocationEnabled;
 
@@ -273,7 +266,6 @@ class _MapboxMapOptions {
     addIfNonNull('tiltGesturesEnabled', tiltGesturesEnabled);
     addIfNonNull('zoomGesturesEnabled', zoomGesturesEnabled);
     addIfNonNull('trackCameraPosition', trackCameraPosition);
-    addIfNonNull('trafficPluginEnabled', trafficPluginEnabled);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
     addIfNonNull('myLocationRenderMode', myLocationRenderMode?.index);

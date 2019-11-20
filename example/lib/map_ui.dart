@@ -208,7 +208,6 @@ class MapUiBodyState extends State<MapUiBody> {
       scrollGesturesEnabled: _scrollGesturesEnabled,
       tiltGesturesEnabled: _tiltGesturesEnabled,
       zoomGesturesEnabled: _zoomGesturesEnabled,
-      trafficPluginEnabled: true,
       myLocationEnabled: _myLocationEnabled,
       myLocationTrackingMode: _myLocationTrackingMode,
       onMapClick: (point, latLng) async {

@@ -53,7 +53,6 @@ import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
-import com.mapbox.mapboxsdk.plugins.traffic.TrafficPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 
 import java.io.IOException;
@@ -104,8 +103,6 @@ final class MapboxMapController
     private SymbolManager symbolManager;
     private LineManager lineManager;
     private CircleManager circleManager;
-    private TrafficPlugin trafficPlugin;
-    private boolean trafficPluginEnabled = false;
     private boolean trackCameraPosition = false;
     private boolean myLocationEnabled = false;
     private int myLocationTrackingMode = 0;
@@ -305,20 +302,11 @@ final class MapboxMapController
             enableCircleManager(style);
             enableLocationComponent(style);
             //
-            enableTrafficPlugin(style);
-            //
             // needs to be placed after SymbolManager#addClickListener,
             // is fixed with 0.6.0 of annotations plugin
             mapboxMap.addOnMapClickListener(MapboxMapController.this);
         }
     };
-
-    private void enableTrafficPlugin(@NonNull Style style) {
-        if (trafficPlugin == null) {
-            trafficPlugin = new TrafficPlugin(mapView, mapboxMap, style);
-            setTrafficPluginEnabled(this.trafficPluginEnabled);
-        }
-    }
 
     @SuppressWarnings({"MissingPermission"})
     private void enableLocationComponent(@NonNull Style style) {
