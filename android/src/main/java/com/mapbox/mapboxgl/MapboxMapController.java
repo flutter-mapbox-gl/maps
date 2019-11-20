@@ -115,6 +115,7 @@ final class MapboxMapController
   private final Context context;
   private final String styleStringInitial;
   private LocationComponent locationComponent = null;
+  private LocationEngine locationEngine = null;
 
   MapboxMapController(
     int id,
@@ -319,13 +320,15 @@ final class MapboxMapController
   @SuppressWarnings( {"MissingPermission"})
   private void enableLocationComponent(@NonNull Style style) {
     if (hasLocationPermission()) {
+      locationEngine = LocationEngineProvider.getBestLocationEngine(context);
       LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(context)
         .trackingGesturesManagement(true)
         .build();
       locationComponent = mapboxMap.getLocationComponent();
       locationComponent.activateLocationComponent(context, style, locationComponentOptions);
       locationComponent.setLocationComponentEnabled(true);
-      locationComponent.setRenderMode(RenderMode.COMPASS);
+      // locationComponent.setRenderMode(RenderMode.COMPASS); // remove or keep default?
+      locationComponent.setLocationEngine(locationEngine);
       updateMyLocationTrackingMode();
       setMyLocationTrackingMode(this.myLocationTrackingMode);
       updateMyLocationRenderMode();
@@ -800,6 +803,7 @@ final class MapboxMapController
   private void updateMyLocationRenderMode() {
     int[] mapboxRenderModes = new int[] {RenderMode.NORMAL, RenderMode.COMPASS, RenderMode.GPS};
     locationComponent.setRenderMode(mapboxRenderModes[this.myLocationRenderMode]);
+    Log.e(TAG, "Render mode: " + this.myLocationRenderMode);
   }
 
   private boolean hasLocationPermission() {

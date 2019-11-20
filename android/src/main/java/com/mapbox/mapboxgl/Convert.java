@@ -247,6 +247,10 @@ class Convert {
     if (myLocationTrackingMode != null) {
       sink.setMyLocationTrackingMode(toInt(myLocationTrackingMode));
     }
+    final Object myLocationRenderMode = data.get("myLocationRenderMode");
+    if (myLocationRenderMode != null) {
+      sink.setMyLocationRenderMode(toInt(myLocationRenderMode));
+    }
   }
 
   static void interpretSymbolOptions(Object o, SymbolOptionsSink sink) {
