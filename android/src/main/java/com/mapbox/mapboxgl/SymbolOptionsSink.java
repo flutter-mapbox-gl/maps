@@ -63,7 +63,8 @@ interface SymbolOptionsSink {
 
   void setGeometry(LatLng geometry);
 
-  void setZIndex(int index);
+  void setSymbolSortKey(float symbolSortKey);
 
   void setDraggable(boolean draggable);
+
 }
