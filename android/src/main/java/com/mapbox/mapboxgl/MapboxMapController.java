@@ -803,7 +803,6 @@ final class MapboxMapController
   private void updateMyLocationRenderMode() {
     int[] mapboxRenderModes = new int[] {RenderMode.NORMAL, RenderMode.COMPASS, RenderMode.GPS};
     locationComponent.setRenderMode(mapboxRenderModes[this.myLocationRenderMode]);
-    Log.e(TAG, "Render mode: " + this.myLocationRenderMode);
   }
 
   private boolean hasLocationPermission() {
