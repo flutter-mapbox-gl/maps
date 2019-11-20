@@ -116,6 +116,15 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
     );
   }
 
+  void _getLatLng() async {
+    LatLng latLng = await controller.getCircleLatLng(_selectedCircle);
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(latLng.toString()),
+      ),
+    );
+  }
+
   void _changeCircleStrokeOpacity() {
     double current = _selectedCircle.options.circleStrokeOpacity;
     if (current == null) {
@@ -285,6 +294,12 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
                           onPressed: (_selectedCircle == null)
                               ? null
                               : _changeDraggable,
+                        ),
+                        FlatButton(
+                          child: const Text('get current LatLng'),
+                          onPressed: (_selectedCircle == null)
+                              ? null
+                              : _getLatLng,
                         ),
                       ],
                     ),

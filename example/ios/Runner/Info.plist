@@ -47,5 +47,7 @@
 	<string>YOUR_TOKEN_HERE</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string></string>
 </dict>
 </plist>

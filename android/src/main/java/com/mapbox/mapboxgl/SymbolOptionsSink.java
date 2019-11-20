@@ -66,4 +66,5 @@ interface SymbolOptionsSink {
   void setSymbolSortKey(float symbolSortKey);
 
   void setDraggable(boolean draggable);
+
 }
