@@ -43,4 +43,10 @@ class Constants {
         "lowercase": MGLTextTransform.lowercase,
         "uppercase": MGLTextTransform.uppercase
     ]
+    
+    static let lineJoinMapping = [
+        "bevel": MGLLineJoin.bevel,
+        "miter": MGLLineJoin.miter,
+        "round": MGLLineJoin.round
+    ]
 }

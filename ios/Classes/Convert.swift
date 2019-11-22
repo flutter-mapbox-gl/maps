@@ -273,8 +273,12 @@ class Convert {
     class func interpretLineOptions(options: Any?, delegate: MGLLineStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
         
-        if let lineJoin = options["lineJoin"] as? String {
-            //TODO: Parse string to enum
+        if let lineJoinStr = options["lineJoin"] as? String {
+            if let lineJoin = Constants.lineJoinMapping[lineJoinStr] {
+                delegate.lineJoin = lineJoin
+            } else {
+                delegate.lineJoin = MGLLineJoin.miter
+            }
         }
         if let lineOpacity = options["lineOpacity"] as? CGFloat {
             delegate.lineOpacity = lineOpacity
