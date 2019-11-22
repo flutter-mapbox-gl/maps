@@ -16,6 +16,6 @@ class Constants {
         "top-left": MGLIconAnchor.topLeft,
         "top-right": MGLIconAnchor.topRight,
         "bottom-left": MGLIconAnchor.bottomLeft,
-        "right": MGLIconAnchor.bottomRight
+        "bottom-right": MGLIconAnchor.bottomRight
     ]
 }
