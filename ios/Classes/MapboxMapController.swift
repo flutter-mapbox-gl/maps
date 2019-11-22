@@ -84,7 +84,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 // Convert geometry to coordinate and create symbol.
                 let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
                 let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
-                //TODO: Convert options to symbol
+                Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
                 symbolAnnotationController.addStyleAnnotation(symbol)
                 result(symbol.identifier)
             } else {
@@ -97,7 +97,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             for symbol in symbolAnnotationController.styleAnnotations(){
                 if symbol.identifier == symbolIdString {
-                    //TODO: Convert options to symbol
+                    Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol as! MGLSymbolStyleAnnotation)
                     symbolAnnotationController.updateStyleAnnotation(symbol)
                     break;
                 }
