@@ -205,6 +205,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
         if let symbol = styleAnnotation as? MGLSymbolStyleAnnotation {
             channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.identifier)"])
+        } else if let circle = styleAnnotation as? MGLCircleStyleAnnotation {
+            channel.invokeMethod("circle#onTap", arguments: ["circle" : "\(circle.identifier)"])
         }
     }
     
