@@ -120,19 +120,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
-    private func getSymbolInMapView(mapView: MGLMapView, symbolId: String) -> Symbol? {
-        if let annotations = mapView.annotations {
-            for (_, annotation) in annotations.enumerated() {
-                if let symbolAnnotation = annotation as? Symbol {
-                    if symbolAnnotation.id == symbolId {
-                        return symbolAnnotation
-                    }
-                }
-            }
-        }
-        return nil
-    }
-
     private func updateMyLocationEnabled() {
         mapView.showsUserLocation = self.myLocationEnabled
     }
@@ -201,46 +188,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         let intersects = MGLCoordinateInCoordinateBounds(newVisibleCoordinates.ne, bbox) && MGLCoordinateInCoordinateBounds(newVisibleCoordinates.sw, bbox)
         
         return inside && intersects
-    }
-    
-    func mapView(_ mapView: MGLMapView, imageFor annotation: MGLAnnotation) -> MGLAnnotationImage? {
-        // Only for Symbols images should loaded.
-        guard let symbol = annotation as? Symbol,
-            let iconImageFullPath = symbol.iconImage else {
-                return nil
-        }
-        // Reuse existing annotations for better performance.
-        var annotationImage = mapView.dequeueReusableAnnotationImage(withIdentifier: iconImageFullPath)
-        if annotationImage == nil {
-            // Initialize the annotation image (from predefined assets symbol folder).
-            if let range = iconImageFullPath.range(of: "/", options: [.backwards]) {
-                let directory = String(iconImageFullPath[..<range.lowerBound])
-                let assetPath = registrar.lookupKey(forAsset: "\(directory)/")
-                let iconImageName = String(iconImageFullPath[range.upperBound...])
-                let image = UIImage.loadFromFile(imagePath: assetPath, imageName: iconImageName)
-                if let image = image {
-                    annotationImage = MGLAnnotationImage(image: image, reuseIdentifier: iconImageFullPath)
-                }
-            }
-        }
-        return annotationImage
-    }
-    
-    // On tap invoke the symbol#onTap callback.
-    func mapView(_ mapView: MGLMapView, didSelect annotation: MGLAnnotation) {
-        // Only for Symbols images should loaded.
-        guard let symbol = annotation as? Symbol else {
-            return
-        }
-        
-        if let channel = channel {
-            channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
-        }
-    }
-    
-    // Allow callout view to appear when an annotation is tapped.
-    func mapView(_ mapView: MGLMapView, annotationCanShowCallout annotation: MGLAnnotation) -> Bool {
-        return true
     }
     
     func mapView(_ mapView: MGLMapView, didChange mode: MGLUserTrackingMode, animated: Bool) {
