@@ -201,10 +201,9 @@ class Convert {
                 delegate.textTransform = MGLTextTransform.none
             }
         }
-        //TODO: How to parse the offset to CGVector.
-        //        if let textOffset = options["textOffset"] as? String {
-        //            delegate.textOffset = textOffset
-        //        }
+        if let textOffset = options["textOffset"] as? [Double] {
+            delegate.textOffset = CGVector(dx: textOffset[0], dy: textOffset[1])
+        }
         if let textOpacity = options["textOpacity"] as? CGFloat {
             delegate.textOpacity = textOpacity
         }
