@@ -201,6 +201,9 @@ class Convert {
                 delegate.textTransform = MGLTextTransform.none
             }
         }
+        if let textTranslate = options["textTranslate"] as? [Double] {
+            delegate.textTranslation = CGVector(dx: textTranslate[0], dy: textTranslate[1])
+        }
         if let textOffset = options["textOffset"] as? [Double] {
             delegate.textOffset = CGVector(dx: textOffset[0], dy: textOffset[1])
         }
