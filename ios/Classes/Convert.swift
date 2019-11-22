@@ -177,7 +177,7 @@ class Convert {
             if let textJustifaction = Constants.symbolTextJustificationMapping[textJustify] {
                 delegate.textJustification = textJustifaction
             } else {
-                delegate.textJustification = MGLTextJustification.auto
+                delegate.textJustification = MGLTextJustification.center
             }
         }
         if let textRadialOffset = options["textRadialOffset"] as? CGFloat {
