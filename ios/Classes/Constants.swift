@@ -25,4 +25,16 @@ class Constants {
         "left": MGLTextJustification.left,
         "right": MGLTextJustification.right
     ]
+    
+    static let symbolTextAnchorMapping = [
+        "center": MGLTextAnchor.center,
+        "left": MGLTextAnchor.left,
+        "right": MGLTextAnchor.right,
+        "top": MGLTextAnchor.top,
+        "bottom": MGLTextAnchor.bottom,
+        "top-left": MGLTextAnchor.topLeft,
+        "top-right": MGLTextAnchor.topRight,
+        "bottom-left": MGLTextAnchor.bottomLeft,
+        "bottom-right": MGLTextAnchor.bottomRight
+    ]
 }
