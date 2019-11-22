@@ -195,7 +195,11 @@ class Convert {
             delegate.textRotation = textRotate
         }
         if let textTransform = options["textTransform"] as? String {
-            //TODO: Parse textTransform
+            if let textTransformation = Constants.symbolTextTransformationMapping[textTransform] {
+                delegate.textTransform = textTransformation
+            } else {
+                delegate.textTransform = MGLTextTransform.none
+            }
         }
         //TODO: How to parse the offset to CGVector.
         //        if let textOffset = options["textOffset"] as? String {
