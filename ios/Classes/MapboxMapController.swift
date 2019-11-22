@@ -1,8 +1,9 @@
 import Flutter
 import UIKit
 import Mapbox
+import MapboxAnnotationExtension
 
-class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink {
+class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink, MGLAnnotationControllerDelegate {
     
     private var registrar: FlutterPluginRegistrar
     private var channel: FlutterMethodChannel?
@@ -15,6 +16,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var cameraTargetBounds: MGLCoordinateBounds?
     private var trackCameraPosition = false
     private var myLocationEnabled = false
+
+    private var symbolAnnotationController: MGLSymbolAnnotationController?
 
     func view() -> UIView {
         return mapView
@@ -72,29 +75,44 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 mapView.setCamera(camera, animated: true)
             }
         case "symbol#add":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            let symbol = Symbol()
-            Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
-            if CLLocationCoordinate2DIsValid(symbol.geometry) {
-                mapView.addAnnotation(symbol)
-                result(symbol.id)
+            
+            // Parse geometry
+            if let options = arguments["options"] as? [String: Any],
+                let geometry = options["geometry"] as? [Double] {
+                // Convert geometry to coordinate and create symbol.
+                let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+                let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
+                //TODO: Convert options to symbol
+                symbolAnnotationController.addStyleAnnotation(symbol)
+                result(symbol.identifier)
             } else {
                 result(nil)
             }
         case "symbol#update":
-            guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let symbolIdString = arguments["symbol"] as? String else { return }
-            
-            if let symbol = getSymbolInMapView(mapView: mapView, symbolId: symbolIdString) {
-                Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
-            }
-            result(nil)
-        case "symbol#remove":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let symbolIdString = arguments["symbol"] as? String else { return }
 
-            if let symbol = getSymbolInMapView(mapView: mapView, symbolId: symbolIdString) {
-                mapView.removeAnnotation(symbol)
+            for symbol in symbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolIdString {
+                    //TODO: Convert options to symbol
+                    symbolAnnotationController.updateStyleAnnotation(symbol)
+                    break;
+                }
+            }
+            result(nil)
+        case "symbol#remove":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIdString = arguments["symbol"] as? String else { return }
+
+            for symbol in symbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolIdString {
+                    symbolAnnotationController.removeStyleAnnotation(symbol)
+                    break;
+                }
             }
             result(nil)
         default:
@@ -135,7 +153,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             camera.pitch = initialTilt
             mapView.setCamera(camera, animated: false)
         }
-        
+        symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
+        symbolAnnotationController!.annotationsInteractionEnabled = true
+        symbolAnnotationController?.delegate = self
+
         mapReadyResult?(nil)
     }
     
