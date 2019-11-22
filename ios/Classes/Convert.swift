@@ -141,7 +141,11 @@ class Convert {
             delegate.iconOffset = CGVector(dx: iconOffset[0], dy: iconOffset[1])
         }
         if let iconAnchorStr = options["iconAnchor"] as? String {
-            //TODO: mapping
+            if let iconAnchor = Constants.symbolIconAnchorMapping[iconAnchorStr] {
+                delegate.iconAnchor = iconAnchor
+            } else {
+                delegate.iconAnchor = MGLIconAnchor.center
+            }
         }
         if let iconOpacity = options["iconOpacity"] as? CGFloat {
             delegate.iconOpacity = iconOpacity
