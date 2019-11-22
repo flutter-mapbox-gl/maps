@@ -19,6 +19,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     private var symbolAnnotationController: MGLSymbolAnnotationController?
     private var circleAnnotationController: MGLCircleAnnotationController?
+    private var lineAnnotationController: MGLLineAnnotationController?
 
     func view() -> UIView {
         return mapView
@@ -165,6 +166,49 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "line#add":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            // Parse geometry
+            if let options = arguments["options"] as? [String: Any],
+                let geometry = options["geometry"] as? [[Double]] {
+                // Convert geometry to coordinate and create a line.
+                var lineCoordinates: [CLLocationCoordinate2D] = []
+                for coordinate in geometry {
+                    lineCoordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
+                }
+                let line = MGLLineStyleAnnotation(coordinates: lineCoordinates, count: UInt(lineCoordinates.count))
+                //TODO: Map options to a line.
+                lineAnnotationController.addStyleAnnotation(line)
+                result(line.identifier)
+            } else {
+                result(nil)
+            }
+        case "line#update":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineId = arguments["line"] as? String else { return }
+            
+            for line in lineAnnotationController.styleAnnotations() {
+                if line.identifier == lineId {
+                    //TODO: Map options to a line.
+                    lineAnnotationController.updateStyleAnnotation(line)
+                    break;
+                }
+            }
+            result(nil)
+        case "line#remove":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineId = arguments["line"] as? String else { return }
+            
+            for line in lineAnnotationController.styleAnnotations() {
+                if line.identifier == lineId {
+                    lineAnnotationController.removeStyleAnnotation(line)
+                    break;
+                }
+            }
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -237,6 +281,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
         circleAnnotationController!.annotationsInteractionEnabled = true
         circleAnnotationController?.delegate = self
+        
+        lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
+        lineAnnotationController!.annotationsInteractionEnabled = true
+        lineAnnotationController?.delegate = self
 
         mapReadyResult?(nil)
     }
