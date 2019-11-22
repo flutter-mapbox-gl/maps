@@ -147,10 +147,10 @@ class Convert {
             delegate.iconOpacity = iconOpacity
         }
         if let iconColor = options["iconColor"] as? String {
-            //TODO: parse color
+            delegate.iconColor = UIColor(hexString: iconColor) ?? UIColor.black
         }
         if let iconHaloColor = options["iconHaloColor"] as? String {
-            //TODO: parse color
+            delegate.iconHaloColor = UIColor(hexString: iconHaloColor) ?? UIColor.white
         }
         if let iconHaloWidth = options["iconHaloWidth"] as? CGFloat {
             delegate.iconHaloWidth = iconHaloWidth
@@ -191,10 +191,10 @@ class Convert {
             delegate.textOpacity = textOpacity
         }
         if let textColor = options["textColor"] as? String {
-            //TODO: parse color
+            delegate.textColor = UIColor(hexString: textColor) ?? UIColor.black
         }
         if let textHaloColor = options["textHaloColor"] as? String {
-            //TODO: parse color
+            delegate.textHaloColor = UIColor(hexString: textHaloColor) ?? UIColor.white
         }
         if let textHaloWidth = options["textHaloWidth"] as? CGFloat {
             delegate.textHaloWidth = textHaloWidth
