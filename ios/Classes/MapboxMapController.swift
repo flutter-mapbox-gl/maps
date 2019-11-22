@@ -142,6 +142,27 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     
     /*
+     *  MGLAnnotationControllerDelegate
+     */
+    func annotationController(_ annotationController: MGLAnnotationController, didSelect styleAnnotation: MGLStyleAnnotation) {
+        guard let channel = channel else {
+            return
+        }
+        
+        if let symbol = styleAnnotation as? MGLSymbolStyleAnnotation {
+            channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.identifier)"])
+        }
+    }
+    
+    // This is required in order to hide the default Maps SDK pin
+    func mapView(_ mapView: MGLMapView, viewFor annotation: MGLAnnotation) -> MGLAnnotationView? {
+        if annotation is MGLUserLocation {
+            return MGLUserLocationAnnotationView()
+        }
+        return MGLAnnotationView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+    }
+    
+    /*
      *  MGLMapViewDelegate
      */
     func mapView(_ mapView: MGLMapView, didFinishLoading style: MGLStyle) {
