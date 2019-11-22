@@ -181,7 +181,9 @@ class Convert {
                 delegate.textJustification = MGLTextJustification.auto
             }
         }
-        //TODO: textRadialOffset
+        if let textRadialOffset = options["textRadialOffset"] as? CGFloat {
+            delegate.textRadialOffset = textRadialOffset
+        }
         if let textAnchor = options["textAnchor"] as? String {
             //TODO: Parse textAnchor
         }
