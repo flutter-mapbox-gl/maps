@@ -134,7 +134,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 // Convert geometry to coordinate and create circle.
                 let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
                 let circle = MGLCircleStyleAnnotation(center: coordinate)
-                //TODO: Convert options to circle
+                Convert.interpretCircleOptions(options: arguments["options"], delegate: circle)
                 circleAnnotationController.addStyleAnnotation(circle)
                 result(circle.identifier)
             } else {
@@ -147,7 +147,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             
             for circle in circleAnnotationController.styleAnnotations() {
                 if circle.identifier == circleId {
-                    //TODO: Convert options to circle
+                    Convert.interpretCircleOptions(options: arguments["options"], delegate: circle as! MGLCircleStyleAnnotation)
                     circleAnnotationController.updateStyleAnnotation(circle)
                     break;
                 }

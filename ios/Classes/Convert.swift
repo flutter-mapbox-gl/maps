@@ -237,4 +237,10 @@ class Convert {
             delegate.isDraggable = draggable
         }
     }
+    
+    class func interpretCircleOptions(options: Any?, delegate: MGLCircleStyleAnnotation) {
+        guard let options = options as? [String: Any] else { return }
+    
+        //TODO: Implement mapping between options and annotation.
+    }
 }
