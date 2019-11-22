@@ -97,10 +97,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "symbol#update":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let symbolIdString = arguments["symbol"] as? String else { return }
+            guard let symbolId = arguments["symbol"] as? String else { return }
 
             for symbol in symbolAnnotationController.styleAnnotations(){
-                if symbol.identifier == symbolIdString {
+                if symbol.identifier == symbolId {
                     Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol as! MGLSymbolStyleAnnotation)
                     // Load (updated) icon image from asset if an icon name is supplied.
                     if let options = arguments["options"] as? [String: Any],
@@ -115,10 +115,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "symbol#remove":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let symbolIdString = arguments["symbol"] as? String else { return }
+            guard let symbolId = arguments["symbol"] as? String else { return }
 
             for symbol in symbolAnnotationController.styleAnnotations(){
-                if symbol.identifier == symbolIdString {
+                if symbol.identifier == symbolId {
                     symbolAnnotationController.removeStyleAnnotation(symbol)
                     break;
                 }
