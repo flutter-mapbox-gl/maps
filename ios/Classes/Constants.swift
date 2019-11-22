@@ -37,4 +37,10 @@ class Constants {
         "bottom-left": MGLTextAnchor.bottomLeft,
         "bottom-right": MGLTextAnchor.bottomRight
     ]
+    
+    static let symbolTextTransformationMapping = [
+        "none": MGLTextTransform.none,
+        "lowercase": MGLTextTransform.lowercase,
+        "uppercase": MGLTextTransform.uppercase
+    ]
 }
