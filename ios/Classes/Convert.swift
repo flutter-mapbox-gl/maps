@@ -240,7 +240,33 @@ class Convert {
     
     class func interpretCircleOptions(options: Any?, delegate: MGLCircleStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
-    
-        //TODO: Implement mapping between options and annotation.
+        
+        if let circleRadius = options["circleRadius"] as? CGFloat {
+            delegate.circleRadius = circleRadius
+        }
+        if let circleColor = options["circleColor"] as? String {
+            delegate.circleColor = UIColor(hexString: circleColor) ?? UIColor.black
+        }
+        if let circleBlur = options["circleBlur"] as? CGFloat {
+            delegate.circleBlur = circleBlur
+        }
+        if let circleOpacity = options["circleOpacity"] as? CGFloat {
+            delegate.circleOpacity = circleOpacity
+        }
+        if let circleStrokeWidth = options["circleStrokeWidth"] as? CGFloat {
+            delegate.circleStrokeWidth = circleStrokeWidth
+        }
+        if let circleStrokeColor = options["circleStrokeColor"] as? String {
+            delegate.circleStrokeColor = UIColor(hexString: circleStrokeColor) ?? UIColor.black
+        }
+        if let circleStrokeOpacity = options["circleStrokeOpacity"] as? CGFloat {
+            delegate.circleStrokeOpacity = circleStrokeOpacity
+        }
+        if let geometry = options["geometry"] as? [Double] {
+            delegate.center = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+        }
+        if let draggable = options["draggable"] as? Bool {
+            delegate.isDraggable = draggable
+        }
     }
 }
