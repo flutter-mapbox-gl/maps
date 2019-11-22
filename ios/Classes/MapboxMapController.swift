@@ -85,6 +85,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
                 let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
                 Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
+                // Load icon image from asset if an icon name is supplied.
+                if let iconImage = options["iconImage"] as? String {
+                    addIconImageToMap(iconImageName: iconImage)
+                }
                 symbolAnnotationController.addStyleAnnotation(symbol)
                 result(symbol.identifier)
             } else {
@@ -98,6 +102,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             for symbol in symbolAnnotationController.styleAnnotations(){
                 if symbol.identifier == symbolIdString {
                     Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol as! MGLSymbolStyleAnnotation)
+                    // Load (updated) icon image from asset if an icon name is supplied.
+                    if let options = arguments["options"] as? [String: Any],
+                        let iconImage = options["iconImage"] as? String {
+                        addIconImageToMap(iconImageName: iconImage)
+                    }
                     symbolAnnotationController.updateStyleAnnotation(symbol)
                     break;
                 }
@@ -117,6 +126,23 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             result(nil)
         default:
             result(FlutterMethodNotImplemented)
+        }
+    }
+    
+    private func addIconImageToMap(iconImageName: String) {
+        // Check if the image has already been added to the map.
+        if self.mapView.style?.image(forName: iconImageName) == nil {
+            // Build up the full path of the asset.
+            // First find the last '/' ans split the image name in the asset directory and the image file name.
+            if let range = iconImageName.range(of: "/", options: [.backwards]) {
+                let directory = String(iconImageName[..<range.lowerBound])
+                let assetPath = registrar.lookupKey(forAsset: "\(directory)/")
+                let fileName = String(iconImageName[range.upperBound...])
+                // If we can load the image from file then add it to the map.
+                if let imageFromAsset = UIImage.loadFromFile(imagePath: assetPath, imageName: fileName) {
+                    self.mapView.style?.setImage(imageFromAsset, forName: iconImageName)
+                }
+            }
         }
     }
 
