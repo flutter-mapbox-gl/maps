@@ -1,4 +1,5 @@
 import Mapbox
+import MapboxAnnotationExtension
 
 class Convert {
     class func interpretMapboxMapOptions(options: Any?, delegate: MapboxMapOptionsSink) {
@@ -124,85 +125,34 @@ class Convert {
         return MGLAltitudeForZoomLevel(zoom, mapView.camera.pitch, mapView.camera.centerCoordinate.latitude, mapView.frame.size)
     }
 
-    class func interpretSymbolOptions(options: Any?, delegate: SymbolOptionsSink) {
+    class func interpretSymbolOptions(options: Any?, delegate: MGLSymbolStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
         
-        if let iconSize = options["iconSize"] as? Double {
-            delegate.setIconSize(iconSize: iconSize)
-        }
         if let iconImage = options["iconImage"] as? String {
-            delegate.setIconImage(iconImage: iconImage)
+            delegate.iconImageName = iconImage
         }
-        if let iconRotate = options["iconRotate"] as? Double {
-            delegate.setIconRotate(iconRotate: iconRotate)
+        if let iconRotate = options["iconRotate"] as? CGFloat {
+            delegate.iconRotation = iconRotate
         }
-        //TODO: iconOffset
-        if let iconAnchor = options["iconAnchor"] as? String {
-            delegate.setIconAnchor(iconAnchor: iconAnchor)
+        if let iconOffset = options["iconOffset"] as? [Double] {
+            delegate.iconOffset = CGVector(dx: iconOffset[0], dy: iconOffset[1])
         }
-        if let textField = options["textField"] as? String {
-            delegate.setTextField(textField: textField)
-        }
-        if let textSize = options["textSize"] as? Double {
-            delegate.setTextSize(textSize: textSize)
-        }
-        if let textMaxWidth = options["textMaxWidth"] as? Double {
-            delegate.setTextMaxWidth(textMaxWidth: textMaxWidth)
-        }
-        if let textLetterSpacing = options["textLetterSpacing"] as? Double {
-            delegate.setTextLetterSpacing(textLetterSpacing: textLetterSpacing)
-        }
-        if let textJustify = options["textJustify"] as? String {
-            delegate.setTextJustify(textJustify: textJustify)
-        }
-        if let textAnchor = options["textAnchor"] as? String {
-            delegate.setTextAnchor(textAnchor: textAnchor)
-        }
-        if let textRotate = options["textRotate"] as? Double {
-            delegate.setTextRotate(textRotate: textRotate)
-        }
-        if let textTransform = options["textTransform"] as? String {
-            delegate.setTextTransform(textTransform: textTransform)
-        }
-        //TODO: textOffset
-        if let iconOpacity = options["iconOpacity"] as? Double {
-            delegate.setIconOpacity(iconOpacity: iconOpacity)
-        }
-        if let iconColor = options["iconColor"] as? String {
-            delegate.setIconColor(iconColor: iconColor)
-        }
-        if let iconHaloColor = options["iconHaloColor"] as? String {
-            delegate.setIconHaloColor(iconHaloColor: iconHaloColor)
-        }
-        if let iconHaloWidth = options["iconHaloWidth"] as? Double {
-            delegate.setIconHaloWidth(iconHaloWidth: iconHaloWidth)
-        }
-        if let iconHaloBlur = options["iconHaloBlur"] as? Double {
-            delegate.setIconHaloBlur(iconHaloBlur: iconHaloBlur)
-        }
-        if let textOpacity = options["textOpacity"] as? Double {
-            delegate.setTextOpacity(textOpacity: textOpacity)
-        }
-        if let textColor = options["textColor"] as? String {
-            delegate.setTextColor(textColor: textColor)
-        }
-        if let textHaloColor = options["textHaloColor"] as? String {
-            delegate.setTextHaloColor(textHaloColor: textHaloColor)
-        }
-        if let textHaloWidth = options["textHaloWidth"] as? Double {
-            delegate.setTextHaloWidth(textHaloWidth: textHaloWidth)
-        }
-        if let textHaloBlur = options["textHaloBlur"] as? Double {
-            delegate.setTextHaloBlur(textHaloBlur: textHaloBlur)
+        if let iconOpacity = options["iconOpacity"] as? CGFloat {
+            delegate.iconOpacity = iconOpacity
         }
         if let geometry = options["geometry"] as? [Double] {
-            delegate.setGeometry(geometry: geometry)
+            // We cannot set the geometry directy on the annotation so calculate
+            // the difference and update the coordinate using the delta.
+            let currCoord = delegate.feature.coordinate
+            let newCoord = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+            let delta = CGVector(dx: newCoord.longitude - currCoord.longitude, dy: newCoord.latitude - currCoord.latitude)
+            delegate.updateGeometryCoordinates(withDelta: delta)
         }
         if let zIndex = options["zIndex"] as? Int {
-            delegate.setZIndex(zIndex: zIndex)
+            delegate.symbolSortKey = zIndex
         }
         if let draggable = options["draggable"] as? Bool {
-            delegate.setDraggable(draggable: draggable)
+            delegate.isDraggable = draggable
         }
     }
 }
