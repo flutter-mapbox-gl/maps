@@ -18,4 +18,11 @@ class Constants {
         "bottom-left": MGLIconAnchor.bottomLeft,
         "bottom-right": MGLIconAnchor.bottomRight
     ]
+    
+    static let symbolTextJustificationMapping = [
+        "auto": MGLTextJustification.auto,
+        "center": MGLTextJustification.center,
+        "left": MGLTextJustification.left,
+        "right": MGLTextJustification.right
+    ]
 }
