@@ -127,7 +127,6 @@ class Convert {
 
     class func interpretSymbolOptions(options: Any?, delegate: MGLSymbolStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
-        
         if let iconSize = options["iconSize"] as? CGFloat {
             delegate.iconScale = iconSize
         }
@@ -240,7 +239,6 @@ class Convert {
     
     class func interpretCircleOptions(options: Any?, delegate: MGLCircleStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
-        
         if let circleRadius = options["circleRadius"] as? CGFloat {
             delegate.circleRadius = circleRadius
         }
@@ -272,7 +270,6 @@ class Convert {
     
     class func interpretLineOptions(options: Any?, delegate: MGLLineStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
-        
         if let lineJoinStr = options["lineJoin"] as? String {
             if let lineJoin = Constants.lineJoinMapping[lineJoinStr] {
                 delegate.lineJoin = lineJoin
