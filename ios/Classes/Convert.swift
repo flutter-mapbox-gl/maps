@@ -175,7 +175,11 @@ class Convert {
             delegate.textLetterSpacing = textLetterSpacing
         }
         if let textJustify = options["textJustify"] as? String {
-            //TODO: Parse textJustify
+            if let textJustifaction = Constants.symbolTextJustificationMapping[textJustify] {
+                delegate.textJustification = textJustifaction
+            } else {
+                delegate.textJustification = MGLTextJustification.auto
+            }
         }
         //TODO: textRadialOffset
         if let textAnchor = options["textAnchor"] as? String {
