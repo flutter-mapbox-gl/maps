@@ -269,4 +269,10 @@ class Convert {
             delegate.isDraggable = draggable
         }
     }
+    
+    class func interpretLineOptions(options: Any?, delegate: MGLLineStyleAnnotation) {
+        guard let options = options as? [String: Any] else { return }
+        
+        //TODO: implement line options.
+    }
 }

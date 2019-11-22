@@ -178,7 +178,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                     lineCoordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
                 }
                 let line = MGLLineStyleAnnotation(coordinates: lineCoordinates, count: UInt(lineCoordinates.count))
-                //TODO: Map options to a line.
+                Convert.interpretLineOptions(options: arguments["options"], delegate: line)
                 lineAnnotationController.addStyleAnnotation(line)
                 result(line.identifier)
             } else {
@@ -191,7 +191,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             
             for line in lineAnnotationController.styleAnnotations() {
                 if line.identifier == lineId {
-                    //TODO: Map options to a line.
+                    Convert.interpretLineOptions(options: arguments["options"], delegate: line as! MGLLineStyleAnnotation)
                     lineAnnotationController.updateStyleAnnotation(line)
                     break;
                 }
