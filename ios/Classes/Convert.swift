@@ -184,8 +184,12 @@ class Convert {
         if let textRadialOffset = options["textRadialOffset"] as? CGFloat {
             delegate.textRadialOffset = textRadialOffset
         }
-        if let textAnchor = options["textAnchor"] as? String {
-            //TODO: Parse textAnchor
+        if let textAnchorStr = options["textAnchor"] as? String {
+            if let textAnchor = Constants.symbolTextAnchorMapping[textAnchorStr] {
+                delegate.textAnchor = textAnchor
+            } else {
+                delegate.textAnchor = MGLTextAnchor.center
+            }
         }
         if let textRotate = options["textRotate"] as? CGFloat {
             delegate.textRotation = textRotate
