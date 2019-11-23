@@ -307,6 +307,8 @@ final class MapboxMapController
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
+
+      methodChannel.invokeMethod("map#onStyleLoaded", null);
     }
   };
 

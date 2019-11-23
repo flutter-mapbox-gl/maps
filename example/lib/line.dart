@@ -118,6 +118,20 @@ class LineBodyState extends State<LineBody> {
     );
   }
 
+  void onStyleLoadedCallback() {
+    controller.addLine(
+      LineOptions(
+        geometry: [
+          LatLng(37.4220, -122.0841),
+          LatLng(37.4240, -122.0941)
+        ],
+        lineColor: "#ff0000",
+        lineWidth: 14.0,
+        lineOpacity: 0.5,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -130,6 +144,7 @@ class LineBodyState extends State<LineBody> {
             height: 200.0,
             child: MapboxMap(
               onMapCreated: _onMapCreated,
+              onStyleLoadedCallback: onStyleLoadedCallback,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),
                 zoom: 11.0,

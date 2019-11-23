@@ -6,6 +6,8 @@ part of mapbox_gl;
 
 typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
 
+typedef void OnStyleLoadedCallback();
+
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
@@ -27,7 +29,8 @@ typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 class MapboxMapController extends ChangeNotifier {
   MapboxMapController._(
       this._id, MethodChannel channel, CameraPosition initialCameraPosition,
-      {this.onMapClick,
+      {this.onStyleLoadedCallback,
+      this.onMapClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged})
       : assert(_id != null),
@@ -39,7 +42,8 @@ class MapboxMapController extends ChangeNotifier {
 
   static Future<MapboxMapController> init(
       int id, CameraPosition initialCameraPosition,
-      {OnMapClickCallback onMapClick,
+      {OnStyleLoadedCallback onStyleLoadedCallback,
+      OnMapClickCallback onMapClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged}) async {
     assert(id != null);
@@ -47,12 +51,15 @@ class MapboxMapController extends ChangeNotifier {
         MethodChannel('plugins.flutter.io/mapbox_maps_$id');
     await channel.invokeMethod('map#waitForMap');
     return MapboxMapController._(id, channel, initialCameraPosition,
+        onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged);
   }
 
   final MethodChannel _channel;
+
+  final OnStyleLoadedCallback onStyleLoadedCallback;
 
   final OnMapClickCallback onMapClick;
 
@@ -142,6 +149,11 @@ class MapboxMapController extends ChangeNotifier {
       case 'camera#onIdle':
         _isCameraMoving = false;
         notifyListeners();
+        break;
+      case 'map#onStyleLoaded':
+        if (onStyleLoadedCallback != null) {
+          onStyleLoadedCallback();
+        }
         break;
       case 'map#onMapClick':
         final double x = call.arguments['x'];
