@@ -316,6 +316,7 @@ final class MapboxMapController
       locationComponent.activateLocationComponent(context, style, locationComponentOptions);
       locationComponent.setLocationComponentEnabled(true);
       locationComponent.setRenderMode(RenderMode.COMPASS);
+      locationComponent.setMaxAnimationFps(30);
       updateMyLocationTrackingMode();
       setMyLocationTrackingMode(this.myLocationTrackingMode);
       locationComponent.addOnCameraTrackingChangedListener(this);
