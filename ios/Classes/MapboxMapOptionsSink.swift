@@ -13,4 +13,7 @@ protocol MapboxMapOptionsSink {
     func setZoomGesturesEnabled(zoomGesturesEnabled: Bool)
     func setMyLocationEnabled(myLocationEnabled: Bool)
     func setMyLocationTrackingMode(myLocationTrackingMode: MGLUserTrackingMode)
+    func setLogoViewMargins(x: Double, y: Double)
+    func setCompassViewMargins(x: Double, y: Double)
+    func setAttributionButtonMargins(x: Double, y: Double)
 }

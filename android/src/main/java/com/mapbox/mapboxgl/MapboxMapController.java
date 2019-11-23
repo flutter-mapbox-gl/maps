@@ -738,6 +738,21 @@ final class MapboxMapController
     }
   }
 
+  @Override
+  public void setLogoViewMargins(int x, int y) {
+    mapboxMap.getUiSettings().setLogoMargins(x, 0, 0, y);
+  }
+
+  @Override
+  public void setCompassViewMargins(int x, int y) {
+    mapboxMap.getUiSettings().setCompassMargins(0, y, x, 0);
+  }
+
+  @Override
+  public void setAttributionButtonMargins(int x, int y) {
+    mapboxMap.getUiSettings().setAttributionMargins(0, 0, x, y);
+  }
+
   private void updateMyLocationEnabled() {
     //TODO: call location initialization if changed to true and not initialized yet.;
     //Show/Hide use location as needed

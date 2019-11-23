@@ -32,4 +32,10 @@ interface MapboxMapOptionsSink {
   void setMyLocationEnabled(boolean myLocationEnabled);
 
   void setMyLocationTrackingMode(int myLocationTrackingMode);
+
+  void setLogoViewMargins(int x, int y);
+
+  void setCompassViewMargins(int x, int y);
+
+  void setAttributionButtonMargins(int x, int y);
 }
