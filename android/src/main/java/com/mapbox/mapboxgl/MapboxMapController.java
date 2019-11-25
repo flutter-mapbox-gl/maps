@@ -369,6 +369,12 @@ final class MapboxMapController
         result.success(Convert.toJson(getCameraPosition()));
         break;
       }
+      case "map#updateMyLocationTrackingMode": {
+        int myLocationTrackingMode = call.argument("mode");
+        setMyLocationTrackingMode(myLocationTrackingMode);
+        result.success(null);
+        break;
+      }
       case "camera#move": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
         if (cameraUpdate != null) {
