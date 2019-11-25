@@ -540,6 +540,7 @@ final class MapboxMapController
 
   @Override
   public void onCameraTrackingDismissed() {
+    this.myLocationTrackingMode = 0;
     methodChannel.invokeMethod("map#onCameraTrackingDismissed", new HashMap<>());
   }
 
