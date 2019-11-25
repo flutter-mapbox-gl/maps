@@ -23,6 +23,9 @@ class MapboxMap extends StatefulWidget {
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
     this.myLocationRenderMode = MyLocationRenderMode.COMPASS,
+    this.logoViewMargins,
+    this.compassViewMargins,
+    this.attributionButtonMargins,
     this.onMapClick,
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
@@ -94,6 +97,15 @@ class MapboxMap extends StatefulWidget {
 
   /// The mode to render the user location symbol
   final MyLocationRenderMode myLocationRenderMode;
+
+  /// Set the layout margins for the Mapbox Logo
+  final Point logoViewMargins;
+
+  /// Set the layout margins for the Mapbox Compass
+  final Point compassViewMargins;
+
+  /// Set the layout margins for the Mapbox Attribution Buttons
+  final Point attributionButtonMargins;
 
   /// Which gestures should be consumed by the map.
   ///
@@ -205,6 +217,9 @@ class _MapboxMapOptions {
     this.myLocationEnabled,
     this.myLocationTrackingMode,
     this.myLocationRenderMode,
+    this.logoViewMargins,
+    this.compassViewMargins,
+    this.attributionButtonMargins,
   });
 
   static _MapboxMapOptions fromWidget(MapboxMap map) {
@@ -221,6 +236,9 @@ class _MapboxMapOptions {
       myLocationEnabled: map.myLocationEnabled,
       myLocationTrackingMode: map.myLocationTrackingMode,
       myLocationRenderMode: map.myLocationRenderMode,
+      logoViewMargins: map.logoViewMargins,
+      compassViewMargins: map.compassViewMargins,
+      attributionButtonMargins: map.attributionButtonMargins
     );
   }
 
@@ -248,6 +266,12 @@ class _MapboxMapOptions {
 
   final MyLocationRenderMode myLocationRenderMode;
 
+  final Point logoViewMargins;
+
+  final Point compassViewMargins;
+
+  final Point attributionButtonMargins;
+
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> optionsMap = <String, dynamic>{};
 
@@ -255,6 +279,14 @@ class _MapboxMapOptions {
       if (value != null) {
         optionsMap[fieldName] = value;
       }
+    }
+
+    List<dynamic> pointToArray(Point fieldName) {
+      if (fieldName != null) {
+        return <dynamic>[fieldName.x, fieldName.y];
+      }
+
+      return null;
     }
 
     addIfNonNull('compassEnabled', compassEnabled);
@@ -269,13 +301,14 @@ class _MapboxMapOptions {
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
     addIfNonNull('myLocationRenderMode', myLocationRenderMode?.index);
+    addIfNonNull('logoViewMargins', pointToArray(logoViewMargins));
+    addIfNonNull('compassViewMargins', pointToArray(compassViewMargins));
+    addIfNonNull('attributionButtonMargins', pointToArray(attributionButtonMargins));
     return optionsMap;
   }
 
   Map<String, dynamic> updatesMap(_MapboxMapOptions newOptions) {
     final Map<String, dynamic> prevOptionsMap = toMap();
-    return newOptions.toMap()
-      ..removeWhere(
-          (String key, dynamic value) => prevOptionsMap[key] == value);
+    return newOptions.toMap()..removeWhere((String key, dynamic value) => prevOptionsMap[key] == value);
   }
 }

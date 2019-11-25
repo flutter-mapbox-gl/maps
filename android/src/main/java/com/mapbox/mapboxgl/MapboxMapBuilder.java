@@ -111,5 +111,33 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   public void setMyLocationRenderMode(int myLocationRenderMode) {
     this.myLocationRenderMode = myLocationRenderMode;
   }
+  
+  public void setLogoViewMargins(int x, int y) {
+        options.logoMargins(new int[] {
+            (int) x, //left
+            (int) 0, //top
+            (int) 0, //right
+            (int) y, //bottom
+    });
+  }
 
+  @Override
+  public void setCompassViewMargins(int x, int y) {
+    options.compassMargins(new int[] {
+            (int) 0, //left
+            (int) y, //top
+            (int) x, //right
+            (int) 0, //bottom
+    });
+  }
+
+  @Override
+  public void setAttributionButtonMargins(int x, int y) {
+    options.attributionMargins(new int[] {
+            (int) x, //left
+            (int) 0, //top
+            (int) 0, //right
+            (int) y, //bottom
+    });
+  }
 }

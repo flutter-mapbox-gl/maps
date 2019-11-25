@@ -251,6 +251,21 @@ class Convert {
     if (myLocationRenderMode != null) {
       sink.setMyLocationRenderMode(toInt(myLocationRenderMode));
     }
+    final Object logoViewMargins = data.get("logoViewMargins");
+    if(logoViewMargins != null){
+      final List logoViewMarginsData = toList(logoViewMargins);
+      sink.setLogoViewMargins(toInt(logoViewMarginsData.get(0)), toInt(logoViewMarginsData.get(1)));
+    }
+    final Object compassViewMargins = data.get("compassViewMargins");
+    if(compassViewMargins != null){
+      final List compassViewMarginsData = toList(compassViewMargins);
+      sink.setCompassViewMargins(toInt(compassViewMarginsData.get(0)), toInt(compassViewMarginsData.get(1)));
+    }
+    final Object attributionButtonMargins = data.get("attributionButtonMargins");
+    if(attributionButtonMargins != null){
+      final List attributionButtonMarginsData = toList(attributionButtonMargins);
+      sink.setAttributionButtonMargins(toInt(attributionButtonMarginsData.get(0)), toInt(attributionButtonMarginsData.get(1)));
+    }
   }
 
   static void interpretSymbolOptions(Object o, SymbolOptionsSink sink) {
