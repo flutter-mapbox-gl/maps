@@ -59,6 +59,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
+        case "map#updateMyLocationTrackingMode":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            if let myLocationTrackingMode = arguments["mode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
+                setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
+            }
+            result(nil)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
