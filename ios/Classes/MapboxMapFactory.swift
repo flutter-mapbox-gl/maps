@@ -2,10 +2,10 @@ import Flutter
 
 class MapboxMapFactory: NSObject, FlutterPlatformViewFactory {
     
-    var messenger: FlutterBinaryMessenger
+    var registrar: FlutterPluginRegistrar
     
-    init(withMessenger messenger: FlutterBinaryMessenger) {
-        self.messenger = messenger
+    init(withRegistrar registrar: FlutterPluginRegistrar) {
+        self.registrar = registrar
         super.init()
     }
     
@@ -14,6 +14,6 @@ class MapboxMapFactory: NSObject, FlutterPlatformViewFactory {
     }
     
     func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
-        return MapboxMapController(withFrame: frame, viewIdentifier: viewId, arguments: args, binaryMessenger: messenger)
+        return MapboxMapController(withFrame: frame, viewIdentifier: viewId, arguments: args, registrar: registrar)
     }
 }

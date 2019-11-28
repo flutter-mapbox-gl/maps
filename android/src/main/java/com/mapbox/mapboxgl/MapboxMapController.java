@@ -10,9 +10,14 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
@@ -47,11 +52,9 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.platform.PlatformView;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.CREATED;
@@ -131,11 +134,15 @@ final class MapboxMapController
     try {
       ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
       Bundle bundle = ai.metaData;
-      return bundle.getString("com.mapbox.token");
-    } catch (PackageManager.NameNotFoundException e) {
-      Log.e(TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
-    } catch (NullPointerException e) {
-      Log.e(TAG, "Failed to load meta-data, NullPointer: " + e.getMessage());
+      String token = bundle.getString("com.mapbox.token");
+      if (token == null || token.isEmpty()) {
+        throw new NullPointerException();
+      }
+      return token;
+    } catch (Exception e) {
+      Log.e(TAG, "Failed to find an Access Token in the Application meta-data. Maps may not load correctly. " +
+        "Please refer to the installation guide at https://github.com/tobrun/flutter-mapbox-gl#mapbox-access-token " +
+        "for troubleshooting advice." + e.getMessage());
     }
     return null;
   }
@@ -265,6 +272,15 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveStartedListener(this);
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
+
+    mapView.addOnStyleImageMissingListener((id) -> {
+      DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+      final Bitmap bitmap = getScaledImage(id, displayMetrics.density);
+      if (bitmap != null) {
+        mapboxMap.getStyle().addImage(id, bitmap);
+      }
+    });
+
     setStyleString(styleStringInitial);
     // updateMyLocationEnabled();
   }
@@ -304,6 +320,7 @@ final class MapboxMapController
       locationComponent.activateLocationComponent(context, style, locationComponentOptions);
       locationComponent.setLocationComponentEnabled(true);
       locationComponent.setRenderMode(RenderMode.COMPASS);
+      locationComponent.setMaxAnimationFps(30);
       updateMyLocationTrackingMode();
       setMyLocationTrackingMode(this.myLocationTrackingMode);
       locationComponent.addOnCameraTrackingChangedListener(this);
@@ -468,6 +485,16 @@ final class MapboxMapController
         Convert.interpretCircleOptions(call.argument("options"), circle);
         circle.update(circleManager);
         result.success(null);
+        break;
+      }
+      case "circle#getGeometry": {
+        final String circleId = call.argument("circle");
+        final CircleController circle = circle(circleId);
+        final LatLng circleLatLng = circle.getGeometry();
+        Map<String, Double> hashMapLatLng = new HashMap<>();
+        hashMapLatLng.put("latitude", circleLatLng.getLatitude());
+        hashMapLatLng.put("longitude", circleLatLng.getLongitude());
+        result.success(hashMapLatLng);
         break;
       }
       default:
@@ -716,6 +743,21 @@ final class MapboxMapController
     }
   }
 
+  @Override
+  public void setLogoViewMargins(int x, int y) {
+    mapboxMap.getUiSettings().setLogoMargins(x, 0, 0, y);
+  }
+
+  @Override
+  public void setCompassViewMargins(int x, int y) {
+    mapboxMap.getUiSettings().setCompassMargins(0, y, x, 0);
+  }
+
+  @Override
+  public void setAttributionButtonMargins(int x, int y) {
+    mapboxMap.getUiSettings().setAttributionMargins(0, 0, x, y);
+  }
+
   private void updateMyLocationEnabled() {
     //TODO: call location initialization if changed to true and not initialized yet.;
     //Show/Hide use location as needed
@@ -741,4 +783,60 @@ final class MapboxMapController
       permission, android.os.Process.myPid(), android.os.Process.myUid());
   }
 
+  /**
+   * Tries to find highest scale image for display type
+   * @param imageId
+   * @param density
+   * @return
+   */
+  private Bitmap getScaledImage(String imageId, float density) {
+    AssetManager assetManager = registrar.context().getAssets();
+    AssetFileDescriptor assetFileDescriptor = null;
+
+    // Split image path into parts.
+    List<String> imagePathList = Arrays.asList(imageId.split("/"));
+    List<String> assetPathList = new ArrayList<>();
+
+    // "On devices with a device pixel ratio of 1.8, the asset .../2.0x/my_icon.png would be chosen.
+    // For a device pixel ratio of 2.7, the asset .../3.0x/my_icon.png would be chosen."
+    // Source: https://flutter.dev/docs/development/ui/assets-and-images#resolution-aware
+    for (int i = (int) Math.ceil(density); i > 0; i--) {
+      String assetPath;
+      if (i == 1) {
+        // If density is 1.0x then simply take the default asset path
+        assetPath = registrar.lookupKeyForAsset(imageId);
+      } else {
+        // Build a resolution aware asset path as follows:
+        // <directory asset>/<ratio>/<image name>
+        // where ratio is 1.0x, 2.0x or 3.0x.
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int j = 0; j < imagePathList.size() - 1; j++) {
+          stringBuilder.append(imagePathList.get(j));
+          stringBuilder.append("/");
+        }
+        stringBuilder.append(((float) i) + "x");
+        stringBuilder.append("/");
+        stringBuilder.append(imagePathList.get(imagePathList.size()-1));
+        assetPath = registrar.lookupKeyForAsset(stringBuilder.toString());
+      }
+      // Build up a list of resolution aware asset paths.
+      assetPathList.add(assetPath);
+    }
+
+    // Iterate over asset paths and get the highest scaled asset (as a bitmap).
+    Bitmap bitmap = null;
+    for (String assetPath : assetPathList) {
+      try {
+        // Read path (throws exception if doesn't exist).
+        assetFileDescriptor = assetManager.openFd(assetPath);
+        InputStream assetStream = assetFileDescriptor.createInputStream();
+        bitmap = BitmapFactory.decodeStream(assetStream);
+        assetFileDescriptor.close(); // Close for memory
+        break; // If exists, break
+      } catch (IOException e) {
+        // Skip
+      }
+    }
+    return bitmap;
+  }
 }

@@ -6,8 +6,6 @@ package com.mapbox.mapboxgl;
 
 import android.graphics.Point;
 
-import android.util.Log;
-
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -15,7 +13,6 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.log.Logger;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.geojson.LineString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -249,6 +246,21 @@ class Convert {
     final Object myLocationTrackingMode = data.get("myLocationTrackingMode");
     if (myLocationTrackingMode != null) {
       sink.setMyLocationTrackingMode(toInt(myLocationTrackingMode));
+    }
+    final Object logoViewMargins = data.get("logoViewMargins");
+    if(logoViewMargins != null){
+      final List logoViewMarginsData = toList(logoViewMargins);
+      sink.setLogoViewMargins(toInt(logoViewMarginsData.get(0)), toInt(logoViewMarginsData.get(1)));
+    }
+    final Object compassViewMargins = data.get("compassViewMargins");
+    if(compassViewMargins != null){
+      final List compassViewMarginsData = toList(compassViewMargins);
+      sink.setCompassViewMargins(toInt(compassViewMarginsData.get(0)), toInt(compassViewMarginsData.get(1)));
+    }
+    final Object attributionButtonMargins = data.get("attributionButtonMargins");
+    if(attributionButtonMargins != null){
+      final List attributionButtonMarginsData = toList(attributionButtonMargins);
+      sink.setAttributionButtonMargins(toInt(attributionButtonMarginsData.get(0)), toInt(attributionButtonMarginsData.get(1)));
     }
   }
 

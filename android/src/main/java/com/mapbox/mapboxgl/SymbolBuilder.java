@@ -15,6 +15,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 class SymbolBuilder implements SymbolOptionsSink {
   private final SymbolManager symbolManager;
   private final SymbolOptions symbolOptions;
+  private static boolean customImage;
 
   SymbolBuilder(SymbolManager symbolManager) {
     this.symbolManager = symbolManager;
@@ -158,5 +159,9 @@ class SymbolBuilder implements SymbolOptionsSink {
   @Override
   public void setDraggable(boolean draggable) {
     symbolOptions.withDraggable(draggable);
+  }
+
+  public boolean getCustomImage() { 
+    return this.customImage;
   }
 }
