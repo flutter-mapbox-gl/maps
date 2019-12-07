@@ -369,6 +369,12 @@ final class MapboxMapController
         result.success(Convert.toJson(getCameraPosition()));
         break;
       }
+      case "map#updateMyLocationTrackingMode": {
+        int myLocationTrackingMode = call.argument("mode");
+        setMyLocationTrackingMode(myLocationTrackingMode);
+        result.success(null);
+        break;
+      }
       case "camera#move": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
         if (cameraUpdate != null) {
@@ -534,6 +540,7 @@ final class MapboxMapController
 
   @Override
   public void onCameraTrackingDismissed() {
+    this.myLocationTrackingMode = 0;
     methodChannel.invokeMethod("map#onCameraTrackingDismissed", new HashMap<>());
   }
 

@@ -206,6 +206,18 @@ class MapboxMapController extends ChangeNotifier {
     });
   }
 
+  /// Updates user location tracking mode.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> updateMyLocationTrackingMode(
+      MyLocationTrackingMode myLocationTrackingMode) async {
+    await _channel.invokeMethod(
+        'map#updateMyLocationTrackingMode', <String, dynamic>{
+      'mode': myLocationTrackingMode.index,
+    });
+  }
+
   /// Adds a symbol to the map, configured using the specified custom [options].
   ///
   /// Change listeners are notified once the symbol has been added on the
