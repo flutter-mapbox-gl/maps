@@ -314,7 +314,9 @@ final class MapboxMapController
       enableLineManager(style);
       enableSymbolManager(style);
       enableCircleManager(style);
-      enableLocationComponent(style);
+      if (myLocationEnabled) {
+        enableLocationComponent(style);
+      }
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
