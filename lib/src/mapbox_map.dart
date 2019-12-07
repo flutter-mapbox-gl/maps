@@ -10,6 +10,7 @@ class MapboxMap extends StatefulWidget {
   const MapboxMap({
     @required this.initialCameraPosition,
     this.onMapCreated,
+    this.onStyleLoadedCallback,
     this.gestureRecognizers,
     this.compassEnabled = true,
     this.cameraTargetBounds = CameraTargetBounds.unbounded,
@@ -31,6 +32,7 @@ class MapboxMap extends StatefulWidget {
   }) : assert(initialCameraPosition != null);
 
   final MapCreatedCallback onMapCreated;
+  final OnStyleLoadedCallback onStyleLoadedCallback;
 
   /// The initial position of the map's camera.
   final CameraPosition initialCameraPosition;
@@ -185,6 +187,7 @@ class _MapboxMapState extends State<MapboxMap> {
   Future<void> onPlatformViewCreated(int id) async {
     final MapboxMapController controller = await MapboxMapController.init(
         id, widget.initialCameraPosition,
+        onStyleLoadedCallback: widget.onStyleLoadedCallback,
         onMapClick: widget.onMapClick,
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged);

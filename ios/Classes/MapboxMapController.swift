@@ -143,6 +143,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         
         mapReadyResult?(nil)
+        channel.invokeMethod("map#onStyleLoaded", arguments: nil)
     }
     
     func mapView(_ mapView: MGLMapView, shouldChangeFrom oldCamera: MGLMapCamera, to newCamera: MGLMapCamera) -> Bool {
