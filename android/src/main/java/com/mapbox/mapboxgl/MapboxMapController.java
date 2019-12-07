@@ -16,12 +16,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineCallback;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineResult;
+import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
@@ -30,6 +38,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
@@ -98,6 +107,7 @@ final class MapboxMapController
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
   private int myLocationTrackingMode = 0;
+  private int myLocationRenderMode = 0;
   private boolean disposed = false;
   private final float density;
   private MethodChannel.Result mapReadyResult;
@@ -105,6 +115,7 @@ final class MapboxMapController
   private final Context context;
   private final String styleStringInitial;
   private LocationComponent locationComponent = null;
+  private LocationEngine locationEngine = null;
 
   MapboxMapController(
     int id,
@@ -315,16 +326,20 @@ final class MapboxMapController
   @SuppressWarnings( {"MissingPermission"})
   private void enableLocationComponent(@NonNull Style style) {
     if (hasLocationPermission()) {
+      locationEngine = LocationEngineProvider.getBestLocationEngine(context);
       LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(context)
         .trackingGesturesManagement(true)
         .build();
       locationComponent = mapboxMap.getLocationComponent();
       locationComponent.activateLocationComponent(context, style, locationComponentOptions);
       locationComponent.setLocationComponentEnabled(true);
-      locationComponent.setRenderMode(RenderMode.COMPASS);
+      // locationComponent.setRenderMode(RenderMode.COMPASS); // remove or keep default?
+      locationComponent.setLocationEngine(locationEngine);
       locationComponent.setMaxAnimationFps(30);
       updateMyLocationTrackingMode();
       setMyLocationTrackingMode(this.myLocationTrackingMode);
+      updateMyLocationRenderMode();
+      setMyLocationRenderMode(this.myLocationRenderMode);
       locationComponent.addOnCameraTrackingChangedListener(this);
     } else {
       Log.e(TAG, "missing location permissions");
@@ -503,6 +518,32 @@ final class MapboxMapController
         hashMapLatLng.put("latitude", circleLatLng.getLatitude());
         hashMapLatLng.put("longitude", circleLatLng.getLongitude());
         result.success(hashMapLatLng);
+        break;
+      }
+      case "locationComponent#getLastLocation": {
+        Log.e(TAG, "location component: getLastLocation");
+        if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
+          Map<String, Object> reply = new HashMap<>();
+          locationEngine.getLastLocation(new LocationEngineCallback<LocationEngineResult>() {
+            @Override
+            public void onSuccess(LocationEngineResult locationEngineResult) {
+              Location lastLocation = locationEngineResult.getLastLocation();
+              if (lastLocation != null) {
+                reply.put("latitude", lastLocation.getLatitude());
+                reply.put("longitude", lastLocation.getLongitude());
+                reply.put("altitude", lastLocation.getAltitude());
+                result.success(reply);
+              } else {
+                result.error("", "", null); // ???
+              }
+            }
+
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+              result.error("", "", null); // ???
+            }
+          });
+        }
         break;
       }
       default:
@@ -753,6 +794,16 @@ final class MapboxMapController
   }
 
   @Override
+  public void setMyLocationRenderMode(int myLocationRenderMode) {
+    if (this.myLocationRenderMode == myLocationRenderMode) {
+      return;
+    }
+    this.myLocationRenderMode = myLocationRenderMode;
+    if (mapboxMap != null && locationComponent != null) {
+      updateMyLocationRenderMode();
+    }
+  }
+
   public void setLogoViewMargins(int x, int y) {
     mapboxMap.getUiSettings().setLogoMargins(x, 0, 0, y);
   }
@@ -775,6 +826,11 @@ final class MapboxMapController
   private void updateMyLocationTrackingMode() {
     int[] mapboxTrackingModes = new int[] {CameraMode.NONE, CameraMode.TRACKING, CameraMode.TRACKING_COMPASS, CameraMode.TRACKING_GPS};
     locationComponent.setCameraMode(mapboxTrackingModes[this.myLocationTrackingMode]);
+  }
+
+  private void updateMyLocationRenderMode() {
+    int[] mapboxRenderModes = new int[] {RenderMode.NORMAL, RenderMode.COMPASS, RenderMode.GPS};
+    locationComponent.setRenderMode(mapboxRenderModes[this.myLocationRenderMode]);
   }
 
   private boolean hasLocationPermission() {

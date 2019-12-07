@@ -527,4 +527,24 @@ class MapboxMapController extends ChangeNotifier {
       return new Future.error(e);
     }
   }
+
+  /// Get last my location
+  ///
+  /// Return last latlng, nullable
+  
+  Future<LatLng> requestMyLocationLatLng() async {
+    try {
+      final Map<Object, Object> reply = await _channel.invokeMethod('locationComponent#getLastLocation', null);
+      double latitude = 0.0, longitude = 0.0;
+      if (reply.containsKey("latitude") && reply["latitude"] != null) {
+        latitude = double.parse(reply["latitude"].toString());
+      }
+      if (reply.containsKey("longitude") && reply["longitude"] != null) {
+        longitude = double.parse(reply["longitude"].toString());
+      }
+      return LatLng(latitude, longitude);
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
 }

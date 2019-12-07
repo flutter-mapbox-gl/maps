@@ -23,6 +23,7 @@ class MapboxMap extends StatefulWidget {
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
+    this.myLocationRenderMode = MyLocationRenderMode.COMPASS,
     this.logoViewMargins,
     this.compassViewMargins,
     this.attributionButtonMargins,
@@ -95,6 +96,9 @@ class MapboxMap extends StatefulWidget {
 
   /// The mode used to track the user location on the map
   final MyLocationTrackingMode myLocationTrackingMode;
+
+  /// The mode to render the user location symbol
+  final MyLocationRenderMode myLocationRenderMode;
 
   /// Set the layout margins for the Mapbox Logo
   final Point logoViewMargins;
@@ -215,6 +219,7 @@ class _MapboxMapOptions {
     this.zoomGesturesEnabled,
     this.myLocationEnabled,
     this.myLocationTrackingMode,
+    this.myLocationRenderMode,
     this.logoViewMargins,
     this.compassViewMargins,
     this.attributionButtonMargins,
@@ -233,6 +238,7 @@ class _MapboxMapOptions {
       zoomGesturesEnabled: map.zoomGesturesEnabled,
       myLocationEnabled: map.myLocationEnabled,
       myLocationTrackingMode: map.myLocationTrackingMode,
+      myLocationRenderMode: map.myLocationRenderMode,
       logoViewMargins: map.logoViewMargins,
       compassViewMargins: map.compassViewMargins,
       attributionButtonMargins: map.attributionButtonMargins
@@ -260,6 +266,8 @@ class _MapboxMapOptions {
   final bool myLocationEnabled;
 
   final MyLocationTrackingMode myLocationTrackingMode;
+
+  final MyLocationRenderMode myLocationRenderMode;
 
   final Point logoViewMargins;
 
@@ -295,6 +303,7 @@ class _MapboxMapOptions {
     addIfNonNull('trackCameraPosition', trackCameraPosition);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
+    addIfNonNull('myLocationRenderMode', myLocationRenderMode?.index);
     addIfNonNull('logoViewMargins', pointToArray(logoViewMargins));
     addIfNonNull('compassViewMargins', pointToArray(compassViewMargins));
     addIfNonNull('attributionButtonMargins', pointToArray(attributionButtonMargins));
