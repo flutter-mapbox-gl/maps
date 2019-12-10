@@ -59,6 +59,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
+        case "map#invalidateAmbientCache":
+            MGLOfflineStorage.shared.invalidateAmbientCache{
+                (error) in
+                if let error = error {
+                    result(error)
+                } else{
+                    result(nil)
+                }
+            }
         case "map#updateMyLocationTrackingMode":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             if let myLocationTrackingMode = arguments["mode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {

@@ -441,10 +441,12 @@ class MapboxMapController extends ChangeNotifier {
   Future<LatLng> getCircleLatLng(Circle circle) async {
     assert(circle != null);
     assert(_circles[circle._id] == circle);
-    Map mapLatLng = await _channel.invokeMethod('circle#getGeometry', <String, dynamic>{
+    Map mapLatLng =
+        await _channel.invokeMethod('circle#getGeometry', <String, dynamic>{
       'circle': circle._id,
     });
-    LatLng circleLatLng = new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
+    LatLng circleLatLng =
+        new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
     notifyListeners();
     return circleLatLng;
   }
@@ -524,6 +526,16 @@ class MapboxMapController extends ChangeNotifier {
       );
       return reply['features'];
     } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+
+  Future invalidateAmbientCache() async {
+    try {
+      await _channel.invokeMethod('map#invalidateAmbientCache');
+      return null;
+      } on PlatformException catch (e) {
       return new Future.error(e);
     }
   }
