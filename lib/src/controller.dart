@@ -229,6 +229,16 @@ class MapboxMapController extends ChangeNotifier {
       'mode': myLocationTrackingMode.index,
     });
   }
+  
+  /// Enables or disables the collection of anonymized telemetry data.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> setTelemetryEnabled(bool enabled) async {
+    await _channel.invokeMethod('map#setTelemetryEnabled', <String, dynamic>{
+      'enabled': enabled,
+    });
+  }
 
   /// Adds a symbol to the map, configured using the specified custom [options].
   ///
