@@ -74,8 +74,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
             }
             result(nil)
-		case "map#setTelemetryEnabled":
-			result(nil)
+        case "map#setTelemetryEnabled":
+            result(nil)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
