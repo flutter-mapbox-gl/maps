@@ -117,6 +117,7 @@ final class MapboxMapController
   private final String styleStringInitial;
   private LocationComponent locationComponent = null;
   private LocationEngine locationEngine = null;
+  private LocalizationPlugin localizationPlugin;
 
   MapboxMapController(
     int id,
@@ -321,6 +322,8 @@ final class MapboxMapController
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
+	  
+	  LocalizationPlugin localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
     }
@@ -393,6 +396,27 @@ final class MapboxMapController
         int myLocationTrackingMode = call.argument("mode");
         setMyLocationTrackingMode(myLocationTrackingMode);
         result.success(null);
+        break;
+      }
+	  case "map#matchMapLanguageWithDeviceDefault": {
+        try {
+		    localizationPlugin.matchMapLanguageWithDeviceDefault();
+			result.success(null);
+		} catch (RuntimeException exception) {
+		    Log.d(TAG, exception.toString());
+			result.error("MAPBOX LOCALIZATION PLUGIN ERROR", exception.toString(), null);
+		}
+        break;
+      }
+	  case "map#setMapLanguage": {
+		final String language = call.argument("language");
+        try {
+		    localizationPlugin.setMapLanguage(language);
+			result.success(null);
+		} catch (RuntimeException exception) {
+		    Log.d(TAG, exception.toString());
+			result.error("MAPBOX LOCALIZATION PLUGIN ERROR", exception.toString(), null);
+		}
         break;
       }
       case "camera#move": {
