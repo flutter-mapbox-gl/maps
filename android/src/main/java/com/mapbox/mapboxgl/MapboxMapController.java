@@ -74,6 +74,8 @@ import static com.mapbox.mapboxgl.MapboxMapsPlugin.RESUMED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STARTED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STOPPED;
 
+import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
+
 /**
  * Controller of a single MapboxMaps MapView instance.
  */
@@ -323,7 +325,7 @@ final class MapboxMapController
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
 	  
-	  LocalizationPlugin localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
+	  localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
     }

@@ -244,7 +244,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   Future<void> setMapLanguage(String language) async {
-    await _channel.invokeMethod('map#matchMapLanguageWithDeviceDefault', <String, dynamic>{
+    await _channel.invokeMethod('map#setMapLanguage', <String, dynamic>{
       'language': language,
     });
   }
