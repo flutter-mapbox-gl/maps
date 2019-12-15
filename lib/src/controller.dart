@@ -202,18 +202,23 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes after the change has been started on the
   /// platform side.
-  Future<void> animateCamera(CameraUpdate cameraUpdate) async {
-    await _channel.invokeMethod('camera#animate', <String, dynamic>{
+  /// It returns true if the camera was successfully moved and false if the movement was canceled.
+  /// Note: this currently always returns immediately with a value of null on iOS
+  Future<bool> animateCamera(CameraUpdate cameraUpdate) async {
+    return await _channel.invokeMethod('camera#animate', <String, dynamic>{
       'cameraUpdate': cameraUpdate._toJson(),
     });
   }
 
-  /// Changes the map camera position.
+  /// Instantaneously re-position the camera.
+  /// Note: moveCamera() quickly moves the camera, which can be visually jarring for a user. Strongly consider using the animateCamera() methods instead because it's less abrupt.
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
-  Future<void> moveCamera(CameraUpdate cameraUpdate) async {
-    await _channel.invokeMethod('camera#move', <String, dynamic>{
+  /// It returns true if the camera was successfully moved and false if the movement was canceled.
+  /// Note: this currently always returns immediately with a value of null on iOS
+  Future<bool> moveCamera(CameraUpdate cameraUpdate) async {
+    return await _channel.invokeMethod('camera#move', <String, dynamic>{
       'cameraUpdate': cameraUpdate._toJson(),
     });
   }
