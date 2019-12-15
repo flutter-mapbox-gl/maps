@@ -230,6 +230,15 @@ class MapboxMapController extends ChangeNotifier {
     });
   }
   
+
+  /// Enables or disables the collection of anonymized telemetry data.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> setTelemetryEnabled(bool enabled) async {
+    await _channel.invokeMethod('map#setTelemetryEnabled', <String, dynamic>{
+      'enabled': enabled,
+
   /// Updates the language of the map labels to match the device's language.
   ///
   /// The returned [Future] completes after the change has been made on the

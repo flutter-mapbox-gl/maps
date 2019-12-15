@@ -469,6 +469,12 @@ final class MapboxMapController
         result.success(reply);
         break;
       }
+	  case "map#setTelemetryEnabled": {
+        final boolean enabled = call.argument("enabled");
+        Mapbox.getTelemetry().setUserTelemetryRequestState(enabled);
+        result.success(null);
+        break;
+	  }
       case "map#invalidateAmbientCache": {
         OfflineManager fileSource = OfflineManager.getInstance(context);
 
