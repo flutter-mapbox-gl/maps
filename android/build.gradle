@@ -39,7 +39,6 @@ android {
     dependencies {
         implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:8.4.0"
         implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v8:0.7.0"
-        implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-localization-v8:0.11.0'		
     }
     compileOptions {
         sourceCompatibility 1.8
