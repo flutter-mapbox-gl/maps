@@ -36,6 +36,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.geometry.VisibleRegion;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -45,6 +46,7 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
+import com.mapbox.mapboxsdk.maps.Projection;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Annotation;
@@ -393,6 +395,17 @@ final class MapboxMapController
         int myLocationTrackingMode = call.argument("mode");
         setMyLocationTrackingMode(myLocationTrackingMode);
         result.success(null);
+        break;
+      }
+      case "map#getVisibleRegion": {
+        Map<String, Object> reply = new HashMap<>();
+        VisibleRegion visibleRegion = mapboxMap.getProjection().getVisibleRegion();
+        reply.put("latitude1", visibleRegion.farLeft.getLatitude());
+        reply.put("longitude1", visibleRegion.farLeft.getLongitude());
+        reply.put("latitude2", visibleRegion.nearRight.getLatitude());
+        reply.put("longitude2", visibleRegion.nearRight.getLongitude());
+
+        result.success(reply);
         break;
       }
       case "camera#move": {

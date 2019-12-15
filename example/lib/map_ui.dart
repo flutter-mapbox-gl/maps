@@ -194,6 +194,18 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  Widget _visibleRegionGetter(){
+    return FlatButton(
+      child: Text('get currently visible region'),
+      onPressed: () {
+        setState(() async {
+          var result = await mapController.getVisibleRegion();
+          Scaffold.of(context).showSnackBar(SnackBar(content: Text("Top left: Lat:${result[0].latitude} Lng: ${result[0].longitude} Bottom right: Lat:${result[1].latitude} Lng: ${result[1].longitude}"),));
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final MapboxMap mapboxMap = MapboxMap(
@@ -260,6 +272,7 @@ class MapUiBodyState extends State<MapUiBody> {
               _tiltToggler(),
               _zoomToggler(),
               _myLocationToggler(),
+              _visibleRegionGetter(),
             ],
           ),
         ),
