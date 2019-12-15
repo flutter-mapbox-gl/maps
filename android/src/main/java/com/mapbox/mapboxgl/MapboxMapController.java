@@ -412,18 +412,48 @@ final class MapboxMapController
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
         if (cameraUpdate != null) {
           // camera transformation not handled yet
-          moveCamera(cameraUpdate);
+          mapboxMap.moveCamera(cameraUpdate, new OnCameraMoveFinishedListener(){
+            @Override
+            public void onFinish() {
+              super.onFinish();
+              result.success(true);
+            }
+
+            @Override
+            public void onCancel() {
+              super.onCancel();
+              result.success(false);
+            }
+          });
+
+         // moveCamera(cameraUpdate);
+        }else {
+          result.success(false);
         }
-        result.success(null);
         break;
       }
       case "camera#animate": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
         if (cameraUpdate != null) {
           // camera transformation not handled yet
-          animateCamera(cameraUpdate);
+          mapboxMap.animateCamera(cameraUpdate, new OnCameraMoveFinishedListener(){
+            @Override
+            public void onFinish() {
+              super.onFinish();
+              result.success(true);
+            }
+
+            @Override
+            public void onCancel() {
+              super.onCancel();
+              result.success(false);
+            }
+          });
+
+          // animateCamera(cameraUpdate);
+        }else {
+          result.success(false);
         }
-        result.success(null);
         break;
       }
       case "map#queryRenderedFeatures": {
@@ -935,5 +965,18 @@ final class MapboxMapController
       }
     }
     return bitmap;
+  }
+
+  /**
+   * Simple Listener to listen for the status of camera movements.
+   */
+  public class OnCameraMoveFinishedListener implements MapboxMap.CancelableCallback{
+    @Override
+    public void onFinish() {
+    }
+
+    @Override
+    public void onCancel() {
+    }
   }
 }
