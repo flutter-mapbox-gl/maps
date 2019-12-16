@@ -230,7 +230,6 @@ class MapboxMapController extends ChangeNotifier {
     });
   }
   
-
   /// Enables or disables the collection of anonymized telemetry data.
   ///
   /// The returned [Future] completes after the change has been made on the
@@ -238,23 +237,6 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> setTelemetryEnabled(bool enabled) async {
     await _channel.invokeMethod('map#setTelemetryEnabled', <String, dynamic>{
       'enabled': enabled,
-
-  /// Updates the language of the map labels to match the device's language.
-  ///
-  /// The returned [Future] completes after the change has been made on the
-  /// platform side.
-  Future<void> matchMapLanguageWithDeviceDefault() async {
-    await _channel.invokeMethod('map#matchMapLanguageWithDeviceDefault');
-  }  
-  
-  /// Updates the language of the map labels to match the specified language.
-  /// Supported language strings are available here: https://github.com/mapbox/mapbox-plugins-android/blob/e29c18d25098eb023a831796ff807e30d8207c36/plugin-localization/src/main/java/com/mapbox/mapboxsdk/plugins/localization/MapLocale.java#L39-L87
-  ///
-  /// The returned [Future] completes after the change has been made on the
-  /// platform side.
-  Future<void> setMapLanguage(String language) async {
-    await _channel.invokeMethod('map#setMapLanguage', <String, dynamic>{
-      'language': language,
     });
   }
 
