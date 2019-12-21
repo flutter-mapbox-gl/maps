@@ -59,6 +59,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
+        case "map#invalidateAmbientCache":
+            MGLOfflineStorage.shared.invalidateAmbientCache{
+                (error) in
+                if let error = error {
+                    result(error)
+                } else{
+                    result(nil)
+                }
+            }
+        case "map#updateMyLocationTrackingMode":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            if let myLocationTrackingMode = arguments["mode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
+                setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
+            }
+            result(nil)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
@@ -137,6 +152,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         
         mapReadyResult?(nil)
+        if let channel = channel {
+            channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+        }
     }
     
     func mapView(_ mapView: MGLMapView, shouldChangeFrom oldCamera: MGLMapCamera, to newCamera: MGLMapCamera) -> Bool {
