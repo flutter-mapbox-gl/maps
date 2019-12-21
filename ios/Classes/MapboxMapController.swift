@@ -32,6 +32,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
         mapView.delegate = self
         
+        let singleTap = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(sender:)))
+        for recognizer in mapView.gestureRecognizers! where recognizer is UITapGestureRecognizer {
+            singleTap.require(toFail: recognizer)
+        }
+        mapView.addGestureRecognizer(singleTap)
+        
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
             if let initialCameraPosition = args["initialCameraPosition"] as? [String: Any],
@@ -136,6 +142,23 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     private func getCamera() -> MGLMapCamera? {
         return trackCameraPosition ? mapView.camera : nil
+        
+    }
+    
+    /*
+    *  UITapGestureRecognizer
+    *  On tap invoke the map#onMapClick callback.
+    */
+    @objc @IBAction func handleMapTap(sender: UITapGestureRecognizer) {
+        // Get the CGPoint where the user tapped.
+        let point = sender.location(in: mapView)
+        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+        channel?.invokeMethod("map#onMapClick", arguments: [
+                      "x": point.x,
+                      "y": point.y,
+                      "lng": coordinate.longitude,
+                      "lat": coordinate.latitude,
+                  ])
     }
     
     /*
@@ -204,13 +227,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     // On tap invoke the symbol#onTap callback.
     func mapView(_ mapView: MGLMapView, didSelect annotation: MGLAnnotation) {
-        // Only for Symbols images should loaded.
-        guard let symbol = annotation as? Symbol else {
-            return
-        }
         
-        if let channel = channel {
-            channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
+       if let symbol = annotation as? Symbol {
+            channel?.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
+        
         }
     }
     
@@ -227,6 +247,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
         }
     }
+    
 
     /*
      *  MapboxMapOptionsSink
