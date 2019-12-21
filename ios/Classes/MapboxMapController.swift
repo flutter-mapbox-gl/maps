@@ -37,6 +37,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
         mapView.delegate = self
         
+        let singleTap = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(sender:)))
+        for recognizer in mapView.gestureRecognizers! where recognizer is UITapGestureRecognizer {
+            singleTap.require(toFail: recognizer)
+        }
+        mapView.addGestureRecognizer(singleTap)
+        
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
             if let initialCameraPosition = args["initialCameraPosition"] as? [String: Any],
@@ -64,6 +70,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
+        case "map#invalidateAmbientCache":
+            MGLOfflineStorage.shared.invalidateAmbientCache{
+                (error) in
+                if let error = error {
+                    result(error)
+                } else{
+                    result(nil)
+                }
+            }
+        case "map#updateMyLocationTrackingMode":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            if let myLocationTrackingMode = arguments["mode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
+                setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
+            }
+            result(nil)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
@@ -237,6 +258,23 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     private func getCamera() -> MGLMapCamera? {
         return trackCameraPosition ? mapView.camera : nil
+        
+    }
+    
+    /*
+    *  UITapGestureRecognizer
+    *  On tap invoke the map#onMapClick callback.
+    */
+    @objc @IBAction func handleMapTap(sender: UITapGestureRecognizer) {
+        // Get the CGPoint where the user tapped.
+        let point = sender.location(in: mapView)
+        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+        channel?.invokeMethod("map#onMapClick", arguments: [
+                      "x": point.x,
+                      "y": point.y,
+                      "lng": coordinate.longitude,
+                      "lat": coordinate.latitude,
+                  ])
     }
     
     /*
@@ -289,6 +327,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         lineAnnotationController?.delegate = self
 
         mapReadyResult?(nil)
+        if let channel = channel {
+            channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+        }
     }
     
     func mapView(_ mapView: MGLMapView, shouldChangeFrom oldCamera: MGLMapCamera, to newCamera: MGLMapCamera) -> Bool {
@@ -313,6 +354,43 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         return inside && intersects
     }
     
+    func mapView(_ mapView: MGLMapView, imageFor annotation: MGLAnnotation) -> MGLAnnotationImage? {
+        // Only for Symbols images should loaded.
+        guard let symbol = annotation as? Symbol,
+            let iconImageFullPath = symbol.iconImage else {
+                return nil
+        }
+        // Reuse existing annotations for better performance.
+        var annotationImage = mapView.dequeueReusableAnnotationImage(withIdentifier: iconImageFullPath)
+        if annotationImage == nil {
+            // Initialize the annotation image (from predefined assets symbol folder).
+            if let range = iconImageFullPath.range(of: "/", options: [.backwards]) {
+                let directory = String(iconImageFullPath[..<range.lowerBound])
+                let assetPath = registrar.lookupKey(forAsset: "\(directory)/")
+                let iconImageName = String(iconImageFullPath[range.upperBound...])
+                let image = UIImage.loadFromFile(imagePath: assetPath, imageName: iconImageName)
+                if let image = image {
+                    annotationImage = MGLAnnotationImage(image: image, reuseIdentifier: iconImageFullPath)
+                }
+            }
+        }
+        return annotationImage
+    }
+    
+    // On tap invoke the symbol#onTap callback.
+    func mapView(_ mapView: MGLMapView, didSelect annotation: MGLAnnotation) {
+        
+       if let symbol = annotation as? Symbol {
+            channel?.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
+        
+        }
+    }
+    
+    // Allow callout view to appear when an annotation is tapped.
+    func mapView(_ mapView: MGLMapView, annotationCanShowCallout annotation: MGLAnnotation) -> Bool {
+        return true
+    }
+   
     func mapView(_ mapView: MGLMapView, didChange mode: MGLUserTrackingMode, animated: Bool) {
         if let channel = channel {
             channel.invokeMethod("map#onCameraTrackingChanged", arguments: ["mode": mode.rawValue])
@@ -321,6 +399,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
         }
     }
+    
 
     /*
      *  MapboxMapOptionsSink
@@ -371,5 +450,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     func setMyLocationTrackingMode(myLocationTrackingMode: MGLUserTrackingMode) {
         mapView.userTrackingMode = myLocationTrackingMode
+    }
+    func setLogoViewMargins(x: Double, y: Double) {
+        mapView.logoViewMargins = CGPoint(x: x, y: y)
+    }
+    func setCompassViewMargins(x: Double, y: Double) {
+        mapView.compassViewMargins = CGPoint(x: x, y: y)
+    }
+    func setAttributionButtonMargins(x: Double, y: Double) {
+        mapView.attributionButtonMargins = CGPoint(x: x, y: y)
     }
 }

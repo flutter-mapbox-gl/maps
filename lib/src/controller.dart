@@ -6,6 +6,8 @@ part of mapbox_gl;
 
 typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
 
+typedef void OnStyleLoadedCallback();
+
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
@@ -27,7 +29,8 @@ typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 class MapboxMapController extends ChangeNotifier {
   MapboxMapController._(
       this._id, MethodChannel channel, CameraPosition initialCameraPosition,
-      {this.onMapClick,
+      {this.onStyleLoadedCallback,
+      this.onMapClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged})
       : assert(_id != null),
@@ -39,7 +42,8 @@ class MapboxMapController extends ChangeNotifier {
 
   static Future<MapboxMapController> init(
       int id, CameraPosition initialCameraPosition,
-      {OnMapClickCallback onMapClick,
+      {OnStyleLoadedCallback onStyleLoadedCallback,
+      OnMapClickCallback onMapClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged}) async {
     assert(id != null);
@@ -47,12 +51,15 @@ class MapboxMapController extends ChangeNotifier {
         MethodChannel('plugins.flutter.io/mapbox_maps_$id');
     await channel.invokeMethod('map#waitForMap');
     return MapboxMapController._(id, channel, initialCameraPosition,
+        onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged);
   }
 
   final MethodChannel _channel;
+
+  final OnStyleLoadedCallback onStyleLoadedCallback;
 
   final OnMapClickCallback onMapClick;
 
@@ -143,6 +150,11 @@ class MapboxMapController extends ChangeNotifier {
         _isCameraMoving = false;
         notifyListeners();
         break;
+      case 'map#onStyleLoaded':
+        if (onStyleLoadedCallback != null) {
+          onStyleLoadedCallback();
+        }
+        break;
       case 'map#onMapClick':
         final double x = call.arguments['x'];
         final double y = call.arguments['y'];
@@ -203,6 +215,18 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> moveCamera(CameraUpdate cameraUpdate) async {
     await _channel.invokeMethod('camera#move', <String, dynamic>{
       'cameraUpdate': cameraUpdate._toJson(),
+    });
+  }
+
+  /// Updates user location tracking mode.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> updateMyLocationTrackingMode(
+      MyLocationTrackingMode myLocationTrackingMode) async {
+    await _channel.invokeMethod(
+        'map#updateMyLocationTrackingMode', <String, dynamic>{
+      'mode': myLocationTrackingMode.index,
     });
   }
 
@@ -417,10 +441,12 @@ class MapboxMapController extends ChangeNotifier {
   Future<LatLng> getCircleLatLng(Circle circle) async {
     assert(circle != null);
     assert(_circles[circle._id] == circle);
-    Map mapLatLng = await _channel.invokeMethod('circle#getGeometry', <String, dynamic>{
+    Map mapLatLng =
+        await _channel.invokeMethod('circle#getGeometry', <String, dynamic>{
       'circle': circle._id,
     });
-    LatLng circleLatLng = new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
+    LatLng circleLatLng =
+        new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
     notifyListeners();
     return circleLatLng;
   }
@@ -499,6 +525,36 @@ class MapboxMapController extends ChangeNotifier {
         },
       );
       return reply['features'];
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+
+  Future invalidateAmbientCache() async {
+    try {
+      await _channel.invokeMethod('map#invalidateAmbientCache');
+      return null;
+      } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  /// Get last my location
+  ///
+  /// Return last latlng, nullable
+  
+  Future<LatLng> requestMyLocationLatLng() async {
+    try {
+      final Map<Object, Object> reply = await _channel.invokeMethod('locationComponent#getLastLocation', null);
+      double latitude = 0.0, longitude = 0.0;
+      if (reply.containsKey("latitude") && reply["latitude"] != null) {
+        latitude = double.parse(reply["latitude"].toString());
+      }
+      if (reply.containsKey("longitude") && reply["longitude"] != null) {
+        longitude = double.parse(reply["longitude"].toString());
+      }
+      return LatLng(latitude, longitude);
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
