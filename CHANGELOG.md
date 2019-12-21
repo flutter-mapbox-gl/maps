@@ -1,3 +1,15 @@
+## 0.0.5, December 21, 2019
+* iOS support for annotation extensions (circle, symbol, line)
+* Update SDK to 8.5.0 (Android) and 5.5.0 (iOS)
+* Integrate style loaded callback api
+* Add Map click event (iOS)
+* Cache management API (Android/iOS)
+* Various fixes to showing user location and configurations (Android/iOS)
+* Last location API (Android)
+* Throttle max FPS of user location component (Android)
+* Fix for handling permission handling of the test application (Android)
+* Support for loading symbol images from assets (iOS/Android) 
+
 ## v0.0.4, Nov 2, 2019
 * Update SDK to 8.4.0 (Android) and 5.4.0 (iOS)
 * Add support for sideloading offline maps (Android/iOS)
