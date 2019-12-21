@@ -838,8 +838,11 @@ final class MapboxMapController
   }
 
   private void updateMyLocationEnabled() {
-    //TODO: call location initialization if changed to true and not initialized yet.;
-    //Show/Hide use location as needed
+    if(this.locationComponent == null && myLocationEnabled == true){
+      enableLocationComponent(mapboxMap.getStyle());
+    }
+
+    locationComponent.setLocationComponentEnabled(myLocationEnabled);
   }
 
   private void updateMyLocationTrackingMode() {
