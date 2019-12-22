@@ -282,6 +282,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func setLogoViewMargins(x: Double, y: Double) {
         mapView.logoViewMargins = CGPoint(x: x, y: y)
     }
+    func setCompassViewPosition(position: MGLOrnamentPosition) {
+        mapView.compassViewPosition = position
+    }
     func setCompassViewMargins(x: Double, y: Double) {
         mapView.compassViewMargins = CGPoint(x: x, y: y)
     }
