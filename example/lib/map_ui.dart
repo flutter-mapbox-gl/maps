@@ -48,6 +48,7 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _tiltGesturesEnabled = true;
   bool _zoomGesturesEnabled = true;
   bool _myLocationEnabled = true;
+  bool _telemetryEnabled = true;
   MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
 
   @override
@@ -194,6 +195,18 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  Widget _telemetryToggler() {
+    return FlatButton(
+      child: Text('${_telemetryEnabled ? 'disable' : 'enable'} telemetry'),
+      onPressed: () {
+        setState(() {
+          _telemetryEnabled = !_telemetryEnabled;
+        });
+        mapController?.setTelemetryEnabled(_telemetryEnabled);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final MapboxMap mapboxMap = MapboxMap(
@@ -260,6 +273,7 @@ class MapUiBodyState extends State<MapUiBody> {
               _tiltToggler(),
               _zoomToggler(),
               _myLocationToggler(),
+              _telemetryToggler(),
             ],
           ),
         ),
