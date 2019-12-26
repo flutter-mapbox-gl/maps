@@ -75,7 +75,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
             result(nil)
         case "map#setTelemetryEnabled":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            let telemetryEnabled = arguments["enabled"] as? Bool
+            UserDefaults.standard.set(telemetryEnabled, forKey: "MGLMapboxMetricsEnabled")
             result(nil)
+        case "map#getTelemetryEnabled":
+            let telemetryEnabled = UserDefaults.standard.bool(forKey: "MGLMapboxMetricsEnabled")
+            result(telemetryEnabled)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
@@ -154,7 +160,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         
         mapReadyResult?(nil)
-        channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+        if let channel = channel {
+            channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+        }
     }
     
     func mapView(_ mapView: MGLMapView, shouldChangeFrom oldCamera: MGLMapCamera, to newCamera: MGLMapCamera) -> Bool {
