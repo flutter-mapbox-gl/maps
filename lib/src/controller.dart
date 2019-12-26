@@ -208,6 +208,13 @@ class MapboxMapController extends ChangeNotifier {
     });
   }
 
+  ///
+  Future<void> updateLineManager(LineManagerOptions lineManagerOptions) async {
+    await _channel.invokeMethod('lineManager#set', <String, dynamic>{
+      'options': lineManagerOptions._toJson(),
+    });
+  }
+
   /// Changes the map camera position.
   ///
   /// The returned [Future] completes after the change has been made on the

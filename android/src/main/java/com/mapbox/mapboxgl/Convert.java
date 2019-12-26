@@ -114,6 +114,16 @@ class Convert {
     return ((Number) o).floatValue();
   }
 
+  private static Float[] toFloatArray(Object o) {
+    double[] objectArray = (double[]) o;
+    Float[] floatArray = new Float[objectArray.length];
+    for (int i = 0 ; i < objectArray.length; i++)
+    {
+      floatArray[i] = (float) objectArray[i];
+    }
+    return floatArray;
+  }
+
   private static Float toFloatWrapper(Object o) {
     return (o == null) ? null : toFloat(o);
   }
@@ -417,6 +427,34 @@ class Convert {
     final Object draggable = data.get("draggable");
     if (draggable != null) {
       sink.setDraggable(toBoolean(draggable));
+    }
+  }
+
+  static void interpretLineManagerOptions(Object o, LineManagerOptionsSink sink) {
+    final Map<?, ?> data = toMap(o);
+    final Object lineCap = data.get("lineCap");
+    if (lineCap != null) {
+      sink.setLineCap(toString(lineCap));
+    }
+    final Object lineMiterLimit = data.get("lineMiterLimit");
+    if (lineMiterLimit != null) {
+      sink.setLineMiterLimit(toFloat(lineMiterLimit));
+    }
+    final Object lineRoundLimit = data.get("lineRoundLimit");
+    if (lineRoundLimit != null) {
+      sink.setLineRoundLimit(toFloat(lineRoundLimit));
+    }
+    final Object lineTranslate = data.get("lineTranslate");
+    if (lineTranslate != null) {
+      sink.setLineTranslate(toFloatArray(lineTranslate));
+    }
+    final Object lineTranslateAnchor = data.get("lineTranslateAnchor");
+    if (lineTranslateAnchor != null) {
+      sink.setLineTranslateAnchor(toString(lineTranslateAnchor));
+    }
+    final Object lineDashArray = data.get("lineDashArray");
+    if (lineDashArray != null) {
+      sink.setLineDashArray(toFloatArray(lineDashArray));
     }
   }
 

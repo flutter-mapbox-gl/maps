@@ -12,9 +12,5 @@ dependencies:
     sdk: flutter
 flutter:
   plugin:
-    platforms:
-      android:
-        package: com.mapbox.mapboxgl
-        pluginClass: MapboxMapsPlugin
-      ios:
-        pluginClass: MapboxMapsPlugin
+    androidPackage: com.mapbox.mapboxgl
+    pluginClass: MapboxMapsPlugin

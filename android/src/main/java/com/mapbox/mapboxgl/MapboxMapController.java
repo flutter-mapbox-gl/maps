@@ -99,6 +99,7 @@ final class MapboxMapController
   private final PluginRegistry.Registrar registrar;
   private final MapView mapView;
   private MapboxMap mapboxMap;
+  private Style mapStyle;
   private final Map<String, SymbolController> symbols;
   private final Map<String, LineController> lines;
   private final Map<String, CircleController> circles;
@@ -312,9 +313,12 @@ final class MapboxMapController
   Style.OnStyleLoaded onStyleLoadedCallback = new Style.OnStyleLoaded() {
     @Override
     public void onStyleLoaded(@NonNull Style style) {
+      MapboxMapController.this.mapStyle = style;
+
       enableLineManager(style);
       enableSymbolManager(style);
       enableCircleManager(style);
+
       if (myLocationEnabled) {
         enableLocationComponent(style);
       }
@@ -479,6 +483,17 @@ final class MapboxMapController
         final SymbolController symbol = symbol(symbolId);
         Convert.interpretSymbolOptions(call.argument("options"), symbol);
         symbol.update(symbolManager);
+        result.success(null);
+        break;
+      }
+      case "lineManager#set": {
+        final LineManagerBuilder lineManagerBuilder = new LineManagerBuilder(mapView, mapboxMap, mapStyle);
+        Convert.interpretLineManagerOptions(call.argument("options"), lineManagerBuilder);
+        final LineManager lineManager = lineManagerBuilder.build();
+        if (this.lineManager != null) {
+          this.lineManager.onDestroy();
+        }
+        this.lineManager = lineManager;
         result.success(null);
         break;
       }

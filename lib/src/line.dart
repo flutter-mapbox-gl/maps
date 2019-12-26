@@ -102,3 +102,47 @@ class LineOptions {
     return json;
   }
 }
+
+/// Configuration options for [LineManager] instances.
+///
+/// When used to change configuration, null values will be interpreted as
+/// "do not change this configuration option".
+class LineManagerOptions {
+  /// Creates a set of line manager configuration options.
+  ///
+  /// By default, every non-specified field is null, meaning no desire to change
+  /// line defaults or current configuration.
+  const LineManagerOptions({
+    this.lineCap,
+    this.lineMiterLimit,
+    this.lineRoundLimit,
+    this.lineTranslate,
+    this.lineTranslateAnchor,
+    this.lineDashArray,
+  });
+
+  final String lineCap;
+  final double lineMiterLimit;
+  final double lineRoundLimit;
+  final Float64List lineTranslate;
+  final String lineTranslateAnchor;
+  final Float64List lineDashArray;
+
+  dynamic _toJson() {
+    final Map<String, dynamic> json = <String, dynamic>{};
+
+    void addIfPresent(String fieldName, dynamic value) {
+      if (value != null) {
+        json[fieldName] = value;
+      }
+    }
+
+    addIfPresent('lineCap', lineCap);
+    addIfPresent('lineMiterLimit', lineMiterLimit);
+    addIfPresent('lineRoundLimit', lineRoundLimit);
+    addIfPresent('lineTranslate', lineTranslate);
+    addIfPresent('lineTranslateAnchor', lineTranslateAnchor);
+    addIfPresent('lineDashArray', lineDashArray);
+    return json;
+  }
+}
