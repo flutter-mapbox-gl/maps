@@ -240,6 +240,14 @@ class MapboxMapController extends ChangeNotifier {
     });
   }
 
+  /// Retrieves whether collection of anonymized telemetry data is enabled.
+  ///
+  /// The returned [Future] completes after the query has been made on the
+  /// platform side.
+  Future<bool> getTelemetryEnabled() async {
+    return await _channel.invokeMethod('map#getTelemetryEnabled');
+  }
+
   /// Adds a symbol to the map, configured using the specified custom [options].
   ///
   /// Change listeners are notified once the symbol has been added on the
