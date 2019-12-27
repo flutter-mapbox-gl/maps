@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
@@ -94,7 +96,7 @@ class MapUiBodyState extends State<MapUiBody> {
           _compassEnabled = !_compassEnabled;
         });
       },
-    ); 
+    );
   }
 
   Widget _latLngBoundsToggler() {
@@ -290,6 +292,10 @@ class MapUiBodyState extends State<MapUiBody> {
     mapController = controller;
     mapController.addListener(_onMapChanged);
     _extractMapInfo();
-    setState(() {});
+
+    mapController.getTelemetryEnabled().then((isEnabled) =>
+        setState(() {
+          _telemetryEnabled = isEnabled;
+        }));
   }
 }
