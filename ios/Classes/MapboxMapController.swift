@@ -75,8 +75,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
             result(nil)
         case "map#matchMapLanguageWithDeviceDefault":
+            if let style = mapView.style {
+                style.localizeLabels(into: nil)
+            }
             result(nil)
         case "map#setMapLanguage":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            if let localIdentifier = arguments["language"] as? String, let style = mapView.style {
+                let locale = Locale(identifier: localIdentifier)
+                style.localizeLabels(into: locale)
+            }
             result(nil)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
@@ -156,7 +164,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         
         mapReadyResult?(nil)
-        channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+        if let channel = channel {
+            channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+        }
     }
     
     func mapView(_ mapView: MGLMapView, shouldChangeFrom oldCamera: MGLMapCamera, to newCamera: MGLMapCamera) -> Bool {
