@@ -565,27 +565,24 @@ class MapboxMapController extends ChangeNotifier {
     }
   }
 
-  ///This method can be used to get the geographic coordinates of the points currently displayed in the very top left and bottom right corner.
-  ///Returns a two element List where the first element is the LatLng visible in the top left corner and the second element
-  ///is the LatLng visible in the bottom right corner of the map.
-  ///This method is currently only implemented on Android
-  Future<List<LatLng>> getVisibleRegion() async{
+  ///This method returns the boundaries of the region currently displayed in the map.
+  Future<LatLngBounds> getVisibleRegion() async{
     try {
       final Map<Object, Object> reply = await _channel.invokeMethod('map#getVisibleRegion', null);
-      double latitude1 = 0.0, longitude1 = 0.0, latitude2 = 0.0, longitude2 = 0.0;
-      if (reply.containsKey("latitude1") && reply["latitude1"] != null) {
-        latitude1 = double.parse(reply["latitude1"].toString());
+      double latitudeSW = 0.0, longitudeSW = 0.0, latitudeNE = 0.0, longitudeNE = 0.0;
+      if (reply.containsKey("latitudeSW") && reply["latitudeSW"] != null) {
+        latitudeSW = double.parse(reply["latitudeSW"].toString());
       }
-      if (reply.containsKey("longitude1") && reply["longitude1"] != null) {
-        longitude1 = double.parse(reply["longitude1"].toString());
+      if (reply.containsKey("longitudeSW") && reply["longitudeSW"] != null) {
+        longitudeSW = double.parse(reply["longitudeSW"].toString());
       }
-      if (reply.containsKey("latitude2") && reply["latitude2"] != null) {
-        latitude2 = double.parse(reply["latitude2"].toString());
+      if (reply.containsKey("latitudeNE") && reply["latitudeNE"] != null) {
+        latitudeNE = double.parse(reply["latitudeNE"].toString());
       }
-      if (reply.containsKey("longitude2") && reply["longitude2"] != null) {
-        longitude2 = double.parse(reply["longitude2"].toString());
+      if (reply.containsKey("longitudeNE") && reply["longitudeNE"] != null) {
+        longitudeNE = double.parse(reply["longitudeNE"].toString());
       }
-      return [LatLng(latitude1, longitude1), LatLng(latitude2, longitude2)];
+      return LatLngBounds(southwest: LatLng(latitudeSW, longitudeSW), northeast: LatLng(latitudeNE, longitudeNE));
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
