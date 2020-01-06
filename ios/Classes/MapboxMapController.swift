@@ -415,7 +415,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
     
-    func mapViewDidBecomeIdle(_ mapView: MGLMapView) {
+    func mapView(_ mapView: MGLMapView, regionDidChangeAnimated animated: Bool) {
         if let channel = channel {
             channel.invokeMethod("camera#onIdle", arguments: []);
         }
