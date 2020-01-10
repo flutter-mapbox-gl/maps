@@ -30,6 +30,7 @@ import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineResult;
+import com.mapbox.android.telemetry.TelemetryEnabler;
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
@@ -485,6 +486,17 @@ final class MapboxMapController
         }
         reply.put("features", featuresJson);
         result.success(reply);
+        break;
+      }
+	  case "map#setTelemetryEnabled": {
+        final boolean enabled = call.argument("enabled");
+        Mapbox.getTelemetry().setUserTelemetryRequestState(enabled);
+        result.success(null);
+        break;
+	  }
+      case "map#getTelemetryEnabled": {
+        final TelemetryEnabler.State telemetryState = TelemetryEnabler.retrieveTelemetryStateFromPreferences();
+        result.success(telemetryState == TelemetryEnabler.State.ENABLED);
         break;
       }
       case "map#invalidateAmbientCache": {
