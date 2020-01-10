@@ -85,6 +85,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
             }
             result(nil)
+        case "map#matchMapLanguageWithDeviceDefault":
+            if let style = mapView.style {
+                style.localizeLabels(into: nil)
+            }
+            result(nil)
+        case "map#setMapLanguage":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            if let localIdentifier = arguments["language"] as? String, let style = mapView.style {
+                let locale = Locale(identifier: localIdentifier)
+                style.localizeLabels(into: locale)
+            }
+            result(nil)
         case "map#setTelemetryEnabled":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             let telemetryEnabled = arguments["enabled"] as? Bool
