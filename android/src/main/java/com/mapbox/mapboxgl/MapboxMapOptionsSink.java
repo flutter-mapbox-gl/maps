@@ -37,6 +37,8 @@ interface MapboxMapOptionsSink {
 
   void setLogoViewMargins(int x, int y);
 
+  void setCompassGravity(int gravity);
+
   void setCompassViewMargins(int x, int y);
 
   void setAttributionButtonMargins(int x, int y);

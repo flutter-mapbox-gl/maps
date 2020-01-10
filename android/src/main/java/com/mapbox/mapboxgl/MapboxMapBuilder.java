@@ -6,6 +6,7 @@ package com.mapbox.mapboxgl;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.Gravity;
 
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -122,13 +123,42 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   }
 
   @Override
+  public void setCompassGravity(int gravity) {
+    switch(gravity){
+      case 0:
+        options.compassGravity(Gravity.TOP | Gravity.START);
+        break;
+      default:
+      case 1:
+        options.compassGravity(Gravity.TOP | Gravity.END);
+        break;
+      case 2:
+        options.compassGravity(Gravity.BOTTOM | Gravity.START);
+        break;
+      case 3:
+        options.compassGravity(Gravity.BOTTOM | Gravity.END);
+        break;
+    }
+  }
+
+  @Override
   public void setCompassViewMargins(int x, int y) {
-    options.compassMargins(new int[] {
-            (int) 0, //left
-            (int) y, //top
-            (int) x, //right
-            (int) 0, //bottom
-    });
+    switch(options.getCompassGravity())
+    {
+      case Gravity.TOP | Gravity.START:
+        options.compassMargins(new int[] {(int) x, (int) y, 0, 0});
+        break;
+      default:
+      case Gravity.TOP | Gravity.END:
+        options.compassMargins(new int[] {0, (int) y, (int) x, 0});
+        break;
+      case Gravity.BOTTOM | Gravity.START:
+        options.compassMargins(new int[] {(int) x, 0, 0, (int) y});
+        break;
+      case Gravity.BOTTOM | Gravity.END:
+        options.compassMargins(new int[] {0, 0, (int) x, (int) y});
+        break;
+    }
   }
 
   @Override

@@ -264,6 +264,8 @@
 				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/Mapbox.framework.dSYM",
 				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/F6FDF133-0198-394E-9C8F-5043F94B4790.bcsymbolmap",
 				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/B4615DAE-86F8-35AB-B4D1-B1F1420E374A.bcsymbolmap",
+				"${BUILT_PRODUCTS_DIR}/MapboxAnnotationExtension/MapboxAnnotationExtension.framework",
+				"${BUILT_PRODUCTS_DIR}/location/location.framework",
 				"${BUILT_PRODUCTS_DIR}/mapbox_gl/mapbox_gl.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -273,6 +275,8 @@
 				"${DWARF_DSYM_FOLDER_PATH}/Mapbox.framework.dSYM",
 				"${BUILT_PRODUCTS_DIR}/F6FDF133-0198-394E-9C8F-5043F94B4790.bcsymbolmap",
 				"${BUILT_PRODUCTS_DIR}/B4615DAE-86F8-35AB-B4D1-B1F1420E374A.bcsymbolmap",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MapboxAnnotationExtension.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/location.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/mapbox_gl.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

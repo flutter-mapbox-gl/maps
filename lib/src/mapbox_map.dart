@@ -25,6 +25,7 @@ class MapboxMap extends StatefulWidget {
     this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
     this.myLocationRenderMode = MyLocationRenderMode.COMPASS,
     this.logoViewMargins,
+    this.compassViewPosition,
     this.compassViewMargins,
     this.attributionButtonMargins,
     this.onMapClick,
@@ -102,6 +103,9 @@ class MapboxMap extends StatefulWidget {
 
   /// Set the layout margins for the Mapbox Logo
   final Point logoViewMargins;
+
+  /// Set the position for the Mapbox Compass
+  final CompassViewPosition compassViewPosition;
 
   /// Set the layout margins for the Mapbox Compass
   final Point compassViewMargins;
@@ -221,6 +225,7 @@ class _MapboxMapOptions {
     this.myLocationTrackingMode,
     this.myLocationRenderMode,
     this.logoViewMargins,
+    this.compassViewPosition,
     this.compassViewMargins,
     this.attributionButtonMargins,
   });
@@ -240,6 +245,7 @@ class _MapboxMapOptions {
       myLocationTrackingMode: map.myLocationTrackingMode,
       myLocationRenderMode: map.myLocationRenderMode,
       logoViewMargins: map.logoViewMargins,
+      compassViewPosition: map.compassViewPosition,
       compassViewMargins: map.compassViewMargins,
       attributionButtonMargins: map.attributionButtonMargins
     );
@@ -270,6 +276,8 @@ class _MapboxMapOptions {
   final MyLocationRenderMode myLocationRenderMode;
 
   final Point logoViewMargins;
+
+  final CompassViewPosition compassViewPosition;
 
   final Point compassViewMargins;
 
@@ -305,6 +313,7 @@ class _MapboxMapOptions {
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
     addIfNonNull('myLocationRenderMode', myLocationRenderMode?.index);
     addIfNonNull('logoViewMargins', pointToArray(logoViewMargins));
+    addIfNonNull('compassViewPosition', compassViewPosition?.index);
     addIfNonNull('compassViewMargins', pointToArray(compassViewMargins));
     addIfNonNull('attributionButtonMargins', pointToArray(attributionButtonMargins));
     return optionsMap;

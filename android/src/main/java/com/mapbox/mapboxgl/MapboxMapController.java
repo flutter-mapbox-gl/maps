@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -37,6 +38,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.geometry.VisibleRegion;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -46,6 +48,7 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
+import com.mapbox.mapboxsdk.maps.Projection;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Annotation;
@@ -396,22 +399,63 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "map#getVisibleRegion": {
+        Map<String, Object> reply = new HashMap<>();
+        VisibleRegion visibleRegion = mapboxMap.getProjection().getVisibleRegion();
+        reply.put("latitudeSW", visibleRegion.nearLeft.getLatitude());
+        reply.put("longitudeSW", visibleRegion.nearLeft.getLongitude());
+        reply.put("latitudeNE", visibleRegion.farRight.getLatitude());
+        reply.put("longitudeNE", visibleRegion.farRight.getLongitude());
+
+        result.success(reply);
+        break;
+      }
       case "camera#move": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
         if (cameraUpdate != null) {
           // camera transformation not handled yet
-          moveCamera(cameraUpdate);
+          mapboxMap.moveCamera(cameraUpdate, new OnCameraMoveFinishedListener(){
+            @Override
+            public void onFinish() {
+              super.onFinish();
+              result.success(true);
+            }
+
+            @Override
+            public void onCancel() {
+              super.onCancel();
+              result.success(false);
+            }
+          });
+
+         // moveCamera(cameraUpdate);
+        }else {
+          result.success(false);
         }
-        result.success(null);
         break;
       }
       case "camera#animate": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
         if (cameraUpdate != null) {
           // camera transformation not handled yet
-          animateCamera(cameraUpdate);
+          mapboxMap.animateCamera(cameraUpdate, new OnCameraMoveFinishedListener(){
+            @Override
+            public void onFinish() {
+              super.onFinish();
+              result.success(true);
+            }
+
+            @Override
+            public void onCancel() {
+              super.onCancel();
+              result.success(false);
+            }
+          });
+
+          // animateCamera(cameraUpdate);
+        }else {
+          result.success(false);
         }
-        result.success(null);
         break;
       }
       case "map#queryRenderedFeatures": {
@@ -840,8 +884,42 @@ final class MapboxMapController
   }
 
   @Override
+  public void setCompassGravity(int gravity) {
+    switch(gravity) {
+      case 0:
+        mapboxMap.getUiSettings().setCompassGravity(Gravity.TOP | Gravity.START);
+        break;
+      default:
+      case 1:
+        mapboxMap.getUiSettings().setCompassGravity(Gravity.TOP | Gravity.END);
+        break;
+      case 2:
+        mapboxMap.getUiSettings().setCompassGravity(Gravity.BOTTOM | Gravity.START);
+        break;
+      case 3:
+        mapboxMap.getUiSettings().setCompassGravity(Gravity.BOTTOM | Gravity.END);
+        break;
+    }
+  }
+
+  @Override
   public void setCompassViewMargins(int x, int y) {
-    mapboxMap.getUiSettings().setCompassMargins(0, y, x, 0);
+    switch(mapboxMap.getUiSettings().getCompassGravity())
+    {
+      case Gravity.TOP | Gravity.START:
+        mapboxMap.getUiSettings().setCompassMargins(x, y, 0, 0);
+        break;
+      default:
+      case Gravity.TOP | Gravity.END:
+        mapboxMap.getUiSettings().setCompassMargins(0, y, x, 0);
+        break;
+      case Gravity.BOTTOM | Gravity.START:
+        mapboxMap.getUiSettings().setCompassMargins(x, 0, 0, y);
+        break;
+      case Gravity.BOTTOM | Gravity.END:
+        mapboxMap.getUiSettings().setCompassMargins(0, 0, x, y);
+        break;
+    }
   }
 
   @Override
@@ -850,8 +928,11 @@ final class MapboxMapController
   }
 
   private void updateMyLocationEnabled() {
-    //TODO: call location initialization if changed to true and not initialized yet.;
-    //Show/Hide use location as needed
+    if(this.locationComponent == null && myLocationEnabled == true){
+      enableLocationComponent(mapboxMap.getStyle());
+    }
+
+    locationComponent.setLocationComponentEnabled(myLocationEnabled);
   }
 
   private void updateMyLocationTrackingMode() {
@@ -934,5 +1015,18 @@ final class MapboxMapController
       }
     }
     return bitmap;
+  }
+
+  /**
+   * Simple Listener to listen for the status of camera movements.
+   */
+  public class OnCameraMoveFinishedListener implements MapboxMap.CancelableCallback{
+    @Override
+    public void onFinish() {
+    }
+
+    @Override
+    public void onCancel() {
+    }
   }
 }
