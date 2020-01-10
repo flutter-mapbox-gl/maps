@@ -202,18 +202,23 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes after the change has been started on the
   /// platform side.
-  Future<void> animateCamera(CameraUpdate cameraUpdate) async {
-    await _channel.invokeMethod('camera#animate', <String, dynamic>{
+  /// It returns true if the camera was successfully moved and false if the movement was canceled.
+  /// Note: this currently always returns immediately with a value of null on iOS
+  Future<bool> animateCamera(CameraUpdate cameraUpdate) async {
+    return await _channel.invokeMethod('camera#animate', <String, dynamic>{
       'cameraUpdate': cameraUpdate._toJson(),
     });
   }
 
-  /// Changes the map camera position.
+  /// Instantaneously re-position the camera.
+  /// Note: moveCamera() quickly moves the camera, which can be visually jarring for a user. Strongly consider using the animateCamera() methods instead because it's less abrupt.
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
-  Future<void> moveCamera(CameraUpdate cameraUpdate) async {
-    await _channel.invokeMethod('camera#move', <String, dynamic>{
+  /// It returns true if the camera was successfully moved and false if the movement was canceled.
+  /// Note: this currently always returns immediately with a value of null on iOS
+  Future<bool> moveCamera(CameraUpdate cameraUpdate) async {
+    return await _channel.invokeMethod('camera#move', <String, dynamic>{
       'cameraUpdate': cameraUpdate._toJson(),
     });
   }
@@ -555,6 +560,29 @@ class MapboxMapController extends ChangeNotifier {
         longitude = double.parse(reply["longitude"].toString());
       }
       return LatLng(latitude, longitude);
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  ///This method returns the boundaries of the region currently displayed in the map.
+  Future<LatLngBounds> getVisibleRegion() async{
+    try {
+      final Map<Object, Object> reply = await _channel.invokeMethod('map#getVisibleRegion', null);
+      double latitudeSW = 0.0, longitudeSW = 0.0, latitudeNE = 0.0, longitudeNE = 0.0;
+      if (reply.containsKey("latitudeSW") && reply["latitudeSW"] != null) {
+        latitudeSW = double.parse(reply["latitudeSW"].toString());
+      }
+      if (reply.containsKey("longitudeSW") && reply["longitudeSW"] != null) {
+        longitudeSW = double.parse(reply["longitudeSW"].toString());
+      }
+      if (reply.containsKey("latitudeNE") && reply["latitudeNE"] != null) {
+        latitudeNE = double.parse(reply["latitudeNE"].toString());
+      }
+      if (reply.containsKey("longitudeNE") && reply["longitudeNE"] != null) {
+        longitudeNE = double.parse(reply["longitudeNE"].toString());
+      }
+      return LatLngBounds(southwest: LatLng(latitudeSW, longitudeSW), northeast: LatLng(latitudeNE, longitudeNE));
     } on PlatformException catch (e) {
       return new Future.error(e);
     }

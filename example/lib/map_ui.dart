@@ -93,7 +93,7 @@ class MapUiBodyState extends State<MapUiBody> {
           _compassEnabled = !_compassEnabled;
         });
       },
-    ); 
+    );
   }
 
   Widget _latLngBoundsToggler() {
@@ -194,6 +194,16 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  Widget _visibleRegionGetter(){
+    return FlatButton(
+      child: Text('get currently visible region'),
+      onPressed: () async{
+        var result = await mapController.getVisibleRegion();
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text("SW: ${result.southwest.toString()} NE: ${result.northeast.toString()}"),));
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final MapboxMap mapboxMap = MapboxMap(
@@ -260,6 +270,7 @@ class MapUiBodyState extends State<MapUiBody> {
               _tiltToggler(),
               _zoomToggler(),
               _myLocationToggler(),
+              _visibleRegionGetter(),
             ],
           ),
         ),
