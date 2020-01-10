@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
@@ -48,6 +50,7 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _tiltGesturesEnabled = true;
   bool _zoomGesturesEnabled = true;
   bool _myLocationEnabled = true;
+  bool _telemetryEnabled = true;
   MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
 
   @override
@@ -93,7 +96,7 @@ class MapUiBodyState extends State<MapUiBody> {
           _compassEnabled = !_compassEnabled;
         });
       },
-    ); 
+    );
   }
 
   Widget _latLngBoundsToggler() {
@@ -194,6 +197,28 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  Widget _telemetryToggler() {
+    return FlatButton(
+      child: Text('${_telemetryEnabled ? 'disable' : 'enable'} telemetry'),
+      onPressed: () {
+        setState(() {
+          _telemetryEnabled = !_telemetryEnabled;
+        });
+        mapController?.setTelemetryEnabled(_telemetryEnabled);
+      },
+    );
+  }
+
+  Widget _visibleRegionGetter(){
+    return FlatButton(
+      child: Text('get currently visible region'),
+      onPressed: () async{
+        var result = await mapController.getVisibleRegion();
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text("SW: ${result.southwest.toString()} NE: ${result.northeast.toString()}"),));
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final MapboxMap mapboxMap = MapboxMap(
@@ -260,6 +285,8 @@ class MapUiBodyState extends State<MapUiBody> {
               _tiltToggler(),
               _zoomToggler(),
               _myLocationToggler(),
+              _telemetryToggler(),
+              _visibleRegionGetter(),
             ],
           ),
         ),
@@ -276,6 +303,10 @@ class MapUiBodyState extends State<MapUiBody> {
     mapController = controller;
     mapController.addListener(_onMapChanged);
     _extractMapInfo();
-    setState(() {});
+
+    mapController.getTelemetryEnabled().then((isEnabled) =>
+        setState(() {
+          _telemetryEnabled = isEnabled;
+        }));
   }
 }

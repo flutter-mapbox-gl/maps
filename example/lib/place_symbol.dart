@@ -104,7 +104,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     );
   }
 
-  void _changeAnchor() {
+  void _changeIconOffset() {
     Offset currentAnchor = _selectedSymbol.options.iconOffset;
     if (currentAnchor == null) {
       // default value
@@ -112,6 +112,18 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     }
     final Offset newAnchor = Offset(1.0 - currentAnchor.dy, currentAnchor.dx);
     _updateSelectedSymbol(SymbolOptions(iconOffset: newAnchor));
+  }
+
+  Future<void> _changeIconAnchor() async {
+    String current = _selectedSymbol.options.iconAnchor;
+    if (current == null || current == 'center') {
+      current = 'bottom';
+    } else {
+      current = 'center';
+    }
+    _updateSelectedSymbol(
+      SymbolOptions(iconAnchor: current),
+    );
   }
 
   Future<void> _toggleDraggable() async {
@@ -225,9 +237,15 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                               (_selectedSymbol == null) ? null : _changeAlpha,
                         ),
                         FlatButton(
-                          child: const Text('change anchor'),
+                          child: const Text('change icon offset'),
                           onPressed:
-                              (_selectedSymbol == null) ? null : _changeAnchor,
+                              (_selectedSymbol == null) ? null : _changeIconOffset,
+                        ),
+                        FlatButton(
+                          child: const Text('change icon anchor'),
+                          onPressed: (_selectedSymbol == null)
+                              ? null
+                              : _changeIconAnchor,
                         ),
                         FlatButton(
                           child: const Text('toggle draggable'),
