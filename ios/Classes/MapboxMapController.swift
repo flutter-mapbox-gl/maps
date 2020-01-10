@@ -400,7 +400,27 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
     
-
+    func mapView(_ mapView: MGLMapView, regionWillChangeAnimated animated: Bool) {
+        if let channel = channel {
+            channel.invokeMethod("camera#onMoveStarted", arguments: []);
+        }
+    }
+    
+    func mapViewRegionIsChanging(_ mapView: MGLMapView) {
+        if !trackCameraPosition { return };
+        if let channel = channel {
+            channel.invokeMethod("camera#onMove", arguments: [
+                "position": getCamera()?.toDict(mapView: mapView)
+            ]);
+        }
+    }
+    
+    func mapView(_ mapView: MGLMapView, regionDidChangeAnimated animated: Bool) {
+        if let channel = channel {
+            channel.invokeMethod("camera#onIdle", arguments: []);
+        }
+    }
+    
     /*
      *  MapboxMapOptionsSink
      */
