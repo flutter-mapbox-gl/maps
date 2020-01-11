@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   build:
+    name: "Lint analysis and build example APK"
 
     runs-on: ubuntu-latest
 
@@ -16,10 +17,9 @@ jobs:
       with:
         java-version: '12.x'
     - uses: subosito/flutter-action@v1
-      #with:
-        #flutter-version: '1.9.1+hotfix.6'
     - run: flutter pub get
     - name: Lint analysis
       run: flutter analyze
     - name: Build example APK
       run: cd example && flutter build apk
+      # We might want to add a flutter test step in the future, when there actually are tests for this plugin
