@@ -106,7 +106,7 @@ class MapboxMapController extends ChangeNotifier {
   CameraPosition get cameraPosition => _cameraPosition;
   CameraPosition _cameraPosition;
 
-  final int _id;
+  final int _id; //ignore: unused_field
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
