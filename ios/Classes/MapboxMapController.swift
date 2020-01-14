@@ -105,6 +105,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "map#getTelemetryEnabled":
             let telemetryEnabled = UserDefaults.standard.bool(forKey: "MGLMapboxMetricsEnabled")
             result(telemetryEnabled)
+        case "map#getVisibleRegion":
+            var reply = [String: NSObject]()
+            let visibleRegion = mapView.visibleCoordinateBounds
+            reply["latitudeSW"] = visibleRegion.sw.latitude as NSObject
+            reply["longitudeSW"] = visibleRegion.sw.longitude as NSObject
+            reply["latitudeNE"] = visibleRegion.ne.latitude as NSObject
+            reply["longitudeNE"] = visibleRegion.ne.longitude as NSObject
+            result(reply)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
