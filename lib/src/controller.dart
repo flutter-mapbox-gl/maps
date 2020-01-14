@@ -606,20 +606,16 @@ class MapboxMapController extends ChangeNotifier {
   Future<LatLngBounds> getVisibleRegion() async{
     try {
       final Map<Object, Object> reply = await _channel.invokeMethod('map#getVisibleRegion', null);
-      double latitudeSW = 0.0, longitudeSW = 0.0, latitudeNE = 0.0, longitudeNE = 0.0;
-      if (reply.containsKey("latitudeSW") && reply["latitudeSW"] != null) {
-        latitudeSW = double.parse(reply["latitudeSW"].toString());
+      LatLng southwest, northeast;
+      if (reply.containsKey("sw")) {
+        List<dynamic> coordinates = reply["sw"];
+        southwest = LatLng(coordinates[0], coordinates[1]);
       }
-      if (reply.containsKey("longitudeSW") && reply["longitudeSW"] != null) {
-        longitudeSW = double.parse(reply["longitudeSW"].toString());
+      if (reply.containsKey("ne")) {
+        List<dynamic> coordinates = reply["ne"];
+        northeast = LatLng(coordinates[0], coordinates[1]);
       }
-      if (reply.containsKey("latitudeNE") && reply["latitudeNE"] != null) {
-        latitudeNE = double.parse(reply["latitudeNE"].toString());
-      }
-      if (reply.containsKey("longitudeNE") && reply["longitudeNE"] != null) {
-        longitudeNE = double.parse(reply["longitudeNE"].toString());
-      }
-      return LatLngBounds(southwest: LatLng(latitudeSW, longitudeSW), northeast: LatLng(latitudeNE, longitudeNE));
+      return LatLngBounds(southwest: southwest, northeast: northeast);
     } on PlatformException catch (e) {
       return new Future.error(e);
     }

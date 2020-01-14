@@ -428,11 +428,8 @@ final class MapboxMapController
       case "map#getVisibleRegion": {
         Map<String, Object> reply = new HashMap<>();
         VisibleRegion visibleRegion = mapboxMap.getProjection().getVisibleRegion();
-        reply.put("latitudeSW", visibleRegion.nearLeft.getLatitude());
-        reply.put("longitudeSW", visibleRegion.nearLeft.getLongitude());
-        reply.put("latitudeNE", visibleRegion.farRight.getLatitude());
-        reply.put("longitudeNE", visibleRegion.farRight.getLongitude());
-
+        reply.put("sw", Arrays.asList(visibleRegion.nearLeft.getLatitude(), visibleRegion.nearLeft.getLongitude()));
+        reply.put("ne", Arrays.asList(visibleRegion.farRight.getLatitude(), visibleRegion.farRight.getLongitude()));
         result.success(reply);
         break;
       }

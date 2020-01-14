@@ -108,10 +108,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "map#getVisibleRegion":
             var reply = [String: NSObject]()
             let visibleRegion = mapView.visibleCoordinateBounds
-            reply["latitudeSW"] = visibleRegion.sw.latitude as NSObject
-            reply["longitudeSW"] = visibleRegion.sw.longitude as NSObject
-            reply["latitudeNE"] = visibleRegion.ne.latitude as NSObject
-            reply["longitudeNE"] = visibleRegion.ne.longitude as NSObject
+            reply["sw"] = [visibleRegion.sw.latitude, visibleRegion.sw.longitude] as NSObject
+            reply["ne"] = [visibleRegion.ne.latitude, visibleRegion.ne.longitude] as NSObject
             result(reply)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
