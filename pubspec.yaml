@@ -4,8 +4,6 @@ version: 0.0.5
 author: Mapbox <tobrun@mapbox.com>
 homepage: https://github.com/tobrun/flutter-mapbox-gl
 
-environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -18,3 +16,8 @@ flutter:
         pluginClass: MapboxMapsPlugin
       ios:
         pluginClass: MapboxMapsPlugin
+        
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+  # Flutter versions prior to 1.10 did not support the flutter.plugin.platforms map.
+  flutter: ">=1.10.0 <2.0.0"
