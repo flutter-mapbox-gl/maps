@@ -10,6 +10,12 @@ embedded interactive and customizable vector maps inside a Flutter widget by emb
 ## Install
 This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to integrate a package into your flutter application.
 
+## :new: :new: Who's using this SDK :new: :new:
+
+We're compiling a list of apps using this SDK. If you want to be listed here, please open a PR and add yourself below (or open a ticket and we'll add you).
+
+- You?
+
 ### Running example app
 
 - Install [Flutter](https://flutter.io/get-started/) and validate its installation with `flutter doctor`
