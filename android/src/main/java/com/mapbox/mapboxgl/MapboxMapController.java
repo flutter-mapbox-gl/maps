@@ -105,6 +105,7 @@ final class MapboxMapController
   private final Map<String, CircleController> circles;
   private SymbolManager symbolManager;
   private LineManager lineManager;
+  private Map<String, LineManager> customLineManagers;
   private CircleManager circleManager;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
@@ -136,6 +137,7 @@ final class MapboxMapController
     this.symbols = new HashMap<>();
     this.lines = new HashMap<>();
     this.circles = new HashMap<>();
+    this.customLineManagers = new HashMap<>();
     this.density = context.getResources().getDisplayMetrics().density;
     methodChannel =
       new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_maps_" + id);
@@ -244,7 +246,7 @@ final class MapboxMapController
   private void removeLine(String lineId) {
     final LineController lineController = lines.remove(lineId);
     if (lineController != null) {
-      lineController.remove(lineManager);
+      lineController.remove();
     }
   }
 
@@ -486,23 +488,30 @@ final class MapboxMapController
         result.success(null);
         break;
       }
-      case "lineManager#set": {
+      case "lineManager#add": {
         final LineManagerBuilder lineManagerBuilder = new LineManagerBuilder(mapView, mapboxMap, mapStyle);
         Convert.interpretLineManagerOptions(call.argument("options"), lineManagerBuilder);
         final LineManager lineManager = lineManagerBuilder.build();
-        if (this.lineManager != null) {
-          this.lineManager.onDestroy();
-        }
-        this.lineManager = lineManager;
-        result.success(null);
+        lineManager.addClickListener(MapboxMapController.this::onAnnotationClick);
+        final String uuid = UUID.randomUUID().toString();
+        customLineManagers.put(uuid, lineManager);
+        result.success(uuid);
         break;
       }
       case "line#add": {
-        final LineBuilder lineBuilder = newLineBuilder();
+        final LineBuilder lineBuilder;
+        final LineManager lineManager;
+        if (call.hasArgument("lineManagerId")) {
+          lineManager = customLineManagers.get(call.argument("lineManagerId"));
+          lineBuilder = new LineBuilder(lineManager);
+        } else {
+          lineBuilder = newLineBuilder();
+          lineManager = this.lineManager;
+        }
         Convert.interpretLineOptions(call.argument("options"), lineBuilder);
         final Line line = lineBuilder.build();
         final String lineId = String.valueOf(line.getId());
-        lines.put(lineId, new LineController(line, true, this));
+        lines.put(lineId, new LineController(lineManager, line, true, this));
         result.success(lineId);
         break;
       }
@@ -516,7 +525,7 @@ final class MapboxMapController
         final String lineId = call.argument("line");
         final LineController line = line(lineId);
         Convert.interpretLineOptions(call.argument("options"), line);
-        line.update(lineManager);
+        line.update();
         result.success(null);
         break;
       }

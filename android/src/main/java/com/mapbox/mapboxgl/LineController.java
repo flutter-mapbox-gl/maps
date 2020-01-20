@@ -21,11 +21,13 @@ import com.mapbox.mapboxsdk.utils.ColorUtils;
  * Controller of a single Line on the map.
  */
 class LineController implements LineOptionsSink {
+  private final LineManager lineManager;
   private final Line line;
   private final OnLineTappedListener onTappedListener;
   private boolean consumeTapEvents;
 
-  LineController(Line line, boolean consumeTapEvents, OnLineTappedListener onTappedListener) {
+  LineController(LineManager lineManager, Line line, boolean consumeTapEvents, OnLineTappedListener onTappedListener) {
+    this.lineManager = lineManager;
     this.line = line;
     this.consumeTapEvents = consumeTapEvents;
     this.onTappedListener = onTappedListener;
@@ -38,7 +40,7 @@ class LineController implements LineOptionsSink {
     return consumeTapEvents;
   }
 
-  void remove(LineManager lineManager) {
+  void remove() {
     lineManager.delete(line);
   }
 
@@ -92,7 +94,7 @@ class LineController implements LineOptionsSink {
     line.setDraggable(draggable);
   }
 
-  public void update(LineManager lineManager) {
+  public void update() {
     lineManager.update(line);
   }
 }

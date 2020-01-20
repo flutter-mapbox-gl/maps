@@ -208,9 +208,8 @@ class MapboxMapController extends ChangeNotifier {
     });
   }
 
-  ///
-  Future<void> updateLineManager(LineManagerOptions lineManagerOptions) async {
-    await _channel.invokeMethod('lineManager#set', <String, dynamic>{
+  Future<String> updateLineManager(LineManagerOptions lineManagerOptions) async {
+    return _channel.invokeMethod('lineManager#add', <String, dynamic>{
       'options': lineManagerOptions._toJson(),
     });
   }
@@ -231,8 +230,8 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> updateMyLocationTrackingMode(
       MyLocationTrackingMode myLocationTrackingMode) async {
-    await _channel.invokeMethod(
-        'map#updateMyLocationTrackingMode', <String, dynamic>{
+    await _channel
+        .invokeMethod('map#updateMyLocationTrackingMode', <String, dynamic>{
       'mode': myLocationTrackingMode.index,
     });
   }
@@ -326,14 +325,19 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes with the added line once listeners have
   /// been notified.
-  Future<Line> addLine(LineOptions options) async {
+  Future<Line> addLine(LineOptions options, {String lineManagerId}) async {
     final LineOptions effectiveOptions =
         LineOptions.defaultOptions.copyWith(options);
     final String lineId = await _channel.invokeMethod(
       'line#add',
-      <String, dynamic>{
-        'options': effectiveOptions._toJson(),
-      },
+      lineManagerId == null
+          ? <String, dynamic>{
+              'options': effectiveOptions._toJson(),
+            }
+          : <String, dynamic>{
+              'lineManagerId': lineManagerId,
+              'options': effectiveOptions._toJson(),
+            },
     );
     final Line line = Line(lineId, effectiveOptions);
     _lines[lineId] = line;
@@ -537,12 +541,11 @@ class MapboxMapController extends ChangeNotifier {
     }
   }
 
-
   Future invalidateAmbientCache() async {
     try {
       await _channel.invokeMethod('map#invalidateAmbientCache');
       return null;
-      } on PlatformException catch (e) {
+    } on PlatformException catch (e) {
       return new Future.error(e);
     }
   }
@@ -550,10 +553,11 @@ class MapboxMapController extends ChangeNotifier {
   /// Get last my location
   ///
   /// Return last latlng, nullable
-  
+
   Future<LatLng> requestMyLocationLatLng() async {
     try {
-      final Map<Object, Object> reply = await _channel.invokeMethod('locationComponent#getLastLocation', null);
+      final Map<Object, Object> reply = await _channel.invokeMethod(
+          'locationComponent#getLastLocation', null);
       double latitude = 0.0, longitude = 0.0;
       if (reply.containsKey("latitude") && reply["latitude"] != null) {
         latitude = double.parse(reply["latitude"].toString());
