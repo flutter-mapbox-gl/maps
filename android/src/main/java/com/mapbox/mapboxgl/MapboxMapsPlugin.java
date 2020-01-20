@@ -27,7 +27,7 @@ public class MapboxMapsPlugin implements Application.ActivityLifecycleCallbacks 
   static final int STOPPED = 5;
   static final int DESTROYED = 6;
   private final AtomicInteger state = new AtomicInteger(0);
-  private final int registrarActivityHashCode;
+  private Integer registrarActivityHashCode = null;
 
   public static void registerWith(Registrar registrar) {
     final MapboxMapsPlugin plugin = new MapboxMapsPlugin(registrar);
@@ -44,6 +44,9 @@ public class MapboxMapsPlugin implements Application.ActivityLifecycleCallbacks 
 
   @Override
   public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+    if(registrarActivityHashCode == null) {
+      registrarActivityHashCode = activity.hashCode();
+    }
     if (activity.hashCode() != registrarActivityHashCode) {
       return;
     }
@@ -95,6 +98,8 @@ public class MapboxMapsPlugin implements Application.ActivityLifecycleCallbacks 
   }
 
   private MapboxMapsPlugin(Registrar registrar) {
-    this.registrarActivityHashCode = registrar.activity().hashCode();
+    if(registrar.activity() != null) {
+      this.registrarActivityHashCode = registrar.activity().hashCode();
+    }
   }
 }
