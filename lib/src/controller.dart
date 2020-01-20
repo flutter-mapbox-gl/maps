@@ -279,7 +279,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes with the added symbol once listeners have
   /// been notified.
-  Future<Symbol> addSymbol(SymbolOptions options) async {
+  Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
     final SymbolOptions effectiveOptions =
         SymbolOptions.defaultOptions.copyWith(options);
     final String symbolId = await _channel.invokeMethod(
@@ -288,7 +288,7 @@ class MapboxMapController extends ChangeNotifier {
         'options': effectiveOptions._toJson(),
       },
     );
-    final Symbol symbol = Symbol(symbolId, effectiveOptions);
+    final Symbol symbol = Symbol(symbolId, effectiveOptions, data);
     _symbols[symbolId] = symbol;
     notifyListeners();
     return symbol;
@@ -361,7 +361,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes with the added line once listeners have
   /// been notified.
-  Future<Line> addLine(LineOptions options) async {
+  Future<Line> addLine(LineOptions options, [Map data]) async {
     final LineOptions effectiveOptions =
         LineOptions.defaultOptions.copyWith(options);
     final String lineId = await _channel.invokeMethod(
@@ -370,7 +370,7 @@ class MapboxMapController extends ChangeNotifier {
         'options': effectiveOptions._toJson(),
       },
     );
-    final Line line = Line(lineId, effectiveOptions);
+    final Line line = Line(lineId, effectiveOptions, data);
     _lines[lineId] = line;
     notifyListeners();
     return line;
@@ -443,7 +443,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes with the added circle once listeners have
   /// been notified.
-  Future<Circle> addCircle(CircleOptions options) async {
+  Future<Circle> addCircle(CircleOptions options, [Map data]) async {
     final CircleOptions effectiveOptions =
         CircleOptions.defaultOptions.copyWith(options);
     final String circleId = await _channel.invokeMethod(
@@ -452,7 +452,7 @@ class MapboxMapController extends ChangeNotifier {
         'options': effectiveOptions._toJson(),
       },
     );
-    final Circle circle = Circle(circleId, effectiveOptions);
+    final Circle circle = Circle(circleId, effectiveOptions, data);
     _circles[circleId] = circle;
     notifyListeners();
     return circle;

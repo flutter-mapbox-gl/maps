@@ -8,7 +8,7 @@ part of mapbox_gl;
 
 class Symbol {
   @visibleForTesting
-  Symbol(this._id, this._options);
+  Symbol(this._id, this._options, [this._data]);
 
   /// A unique identifier for this symbol.
   ///
@@ -19,6 +19,8 @@ class Symbol {
 
   SymbolOptions _options;
 
+  final Map _data;
+  Map get data => _data;
   /// The symbol configuration options most recently applied programmatically
   /// via the map controller.
   ///
