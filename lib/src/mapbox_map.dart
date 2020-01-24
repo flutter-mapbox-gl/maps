@@ -29,6 +29,7 @@ class MapboxMap extends StatefulWidget {
     this.compassViewMargins,
     this.attributionButtonMargins,
     this.onMapClick,
+    this.onMapLongClick,
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
   }) : assert(initialCameraPosition != null);
@@ -125,6 +126,7 @@ class MapboxMap extends StatefulWidget {
   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
 
   final OnMapClickCallback onMapClick;
+  final OnMapClickCallback onMapLongClick;
 
   /// Called when the location tracking mode changes, such as when the user moves the map
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
@@ -197,6 +199,7 @@ class _MapboxMapState extends State<MapboxMap> {
         id, widget.initialCameraPosition,
         onStyleLoadedCallback: widget.onStyleLoadedCallback,
         onMapClick: widget.onMapClick,
+        onMapLongClick: widget.onMapLongClick,
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged);
     _controller.complete(controller);

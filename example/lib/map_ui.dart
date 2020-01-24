@@ -235,7 +235,14 @@ class MapUiBodyState extends State<MapUiBody> {
       myLocationTrackingMode: _myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
       onMapClick: (point, latLng) async {
-        print("${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
+        print("Map click: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
+        List features = await mapController.queryRenderedFeatures(point, [],null);
+        if (features.length>0) {
+          print(features[0]);
+        }
+      },
+      onMapLongClick: (point, latLng) async {
+        print("Map long press: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
         List features = await mapController.queryRenderedFeatures(point, [],null);
         if (features.length>0) {
           print(features[0]);
