@@ -90,6 +90,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 style.localizeLabels(into: nil)
             }
             result(nil)
+        case "map#updateContentInsets":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+
+            if let bounds = arguments["bounds"] as? [String: Any],
+                let top = bounds["top"] as? CGFloat,
+                let left = bounds["left"]  as? CGFloat,
+                let bottom = bounds["bottom"] as? CGFloat,
+                let right = bounds["right"] as? CGFloat,
+                let animated = arguments["animated"] as? Bool {
+                mapView.setContentInset(UIEdgeInsets(top: top, left: left, bottom: bottom, right: right), animated: animated) {
+                    result(nil)
+                }
+            } else {
+                result(nil)
+            }
         case "map#setMapLanguage":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             if let localIdentifier = arguments["language"] as? String, let style = mapView.style {
