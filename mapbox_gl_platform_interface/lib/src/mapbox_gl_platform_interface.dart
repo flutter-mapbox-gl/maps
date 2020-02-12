@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_getters_setters
+
 part of mapbox_gl_platform_interface;
 
 abstract class MapboxGlPlatform {
