@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of mapbox_gl;
+part of mapbox_gl_platform_interface;
 
 /// Callback function taking a single argument.
 typedef void ArgumentCallback<T>(T argument);

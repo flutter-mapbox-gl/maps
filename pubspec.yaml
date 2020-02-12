@@ -8,6 +8,8 @@ homepage: https://github.com/tobrun/flutter-mapbox-gl
 dependencies:
   flutter:
     sdk: flutter
+  mapbox_gl_platform_interface:
+    path: ./mapbox_gl_platform_interface
 flutter:
   plugin:
     platforms:
