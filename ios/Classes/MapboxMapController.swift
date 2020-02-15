@@ -325,7 +325,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     // This is required in order to hide the default Maps SDK pin
     func mapView(_ mapView: MGLMapView, viewFor annotation: MGLAnnotation) -> MGLAnnotationView? {
         if annotation is MGLUserLocation {
-            return MGLUserLocationAnnotationView()
+            return nil
         }
         return MGLAnnotationView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
     }
