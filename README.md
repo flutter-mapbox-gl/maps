@@ -25,6 +25,7 @@ We're compiling a list of apps using this SDK. If you want to be listed here, pl
 #### Mapbox Access Token
 
 This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
+> **Even if you do not use Mapbox vector tiles but vector tiles from a different source (like self-hosted tiles) with this plugin, you will need to specify any non-empty string as Access Token as explained below!**
 
 ##### Android
 Add Mapbox read token value in the application manifest ```android/app/src/main/AndroidManifest.xml:```
