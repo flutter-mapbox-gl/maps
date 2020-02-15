@@ -4,8 +4,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:mapbox_gl_example/full_map.dart';
 
 import 'animate_camera.dart';
+import 'full_map.dart';
 import 'line.dart';
 import 'map_ui.dart';
 import 'move_camera.dart';
@@ -16,6 +18,7 @@ import 'scrolling_map.dart';
 
 final List<Page> _allPages = <Page>[
   MapUiPage(),
+  FullMapPage(),
   AnimateCameraPage(),
   MoveCameraPage(),
   PlaceSymbolPage(),
