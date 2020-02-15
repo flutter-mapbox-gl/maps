@@ -11,6 +11,8 @@ typedef void OnStyleLoadedCallback();
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
+typedef void OnMapIdleCallback();
+
 /// Controller for a single MapboxMap instance running on the host platform.
 ///
 /// Change listeners are notified upon changes to any of
@@ -32,7 +34,8 @@ class MapboxMapController extends ChangeNotifier {
       {this.onStyleLoadedCallback,
       this.onMapClick,
       this.onCameraTrackingDismissed,
-      this.onCameraTrackingChanged})
+      this.onCameraTrackingChanged,
+      this.onMapIdle})
       : assert(_id != null),
         assert(channel != null),
         _channel = channel {
@@ -45,7 +48,8 @@ class MapboxMapController extends ChangeNotifier {
       {OnStyleLoadedCallback onStyleLoadedCallback,
       OnMapClickCallback onMapClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
-      OnCameraTrackingChangedCallback onCameraTrackingChanged}) async {
+      OnCameraTrackingChangedCallback onCameraTrackingChanged,
+      OnMapIdleCallback onMapIdle}) async {
     assert(id != null);
     final MethodChannel channel =
         MethodChannel('plugins.flutter.io/mapbox_maps_$id');
@@ -54,7 +58,8 @@ class MapboxMapController extends ChangeNotifier {
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
-        onCameraTrackingChanged: onCameraTrackingChanged);
+        onCameraTrackingChanged: onCameraTrackingChanged,
+        onMapIdle: onMapIdle);
   }
 
   final MethodChannel _channel;
@@ -65,6 +70,8 @@ class MapboxMapController extends ChangeNotifier {
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
+
+  final OnMapIdleCallback onMapIdle;
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Symbol> onSymbolTapped = ArgumentCallbacks<Symbol>();
@@ -173,6 +180,11 @@ class MapboxMapController extends ChangeNotifier {
       case 'map#onCameraTrackingDismissed':
         if (onCameraTrackingDismissed != null) {
           onCameraTrackingDismissed();
+        }
+        break;
+      case 'map#onIdle':
+        if (onMapIdle != null) {
+          onMapIdle();
         }
         break;
       default:
