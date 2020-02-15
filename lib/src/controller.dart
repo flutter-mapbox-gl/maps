@@ -255,6 +255,30 @@ class MapboxMapController extends ChangeNotifier {
     await _channel.invokeMethod('map#matchMapLanguageWithDeviceDefault');
   }  
   
+  /// Updates the distance from the edges of the map view’s frame to the edges
+  /// of the map view’s logical viewport, optionally animating the change.
+  ///
+  /// When the value of this property is equal to `EdgeInsets.zero`, viewport
+  /// properties such as centerCoordinate assume a viewport that matches the map
+  /// view’s frame. Otherwise, those properties are inset, excluding part of the
+  /// frame from the viewport. For instance, if the only the top edge is inset,
+  /// the map center is effectively shifted downward.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> updateContentInsets(EdgeInsets insets,
+      [bool animated = false]) async {
+    await _channel.invokeMethod('map#updateContentInsets', <String, dynamic>{
+      'bounds': <String, double>{
+        'top': insets.top,
+        'left': insets.left,
+        'bottom': insets.bottom,
+        'right': insets.right,
+      },
+      'animated': animated,
+    });
+  }
+
   /// Updates the language of the map labels to match the specified language.
   /// Supported language strings are available here: https://github.com/mapbox/mapbox-plugins-android/blob/e29c18d25098eb023a831796ff807e30d8207c36/plugin-localization/src/main/java/com/mapbox/mapboxsdk/plugins/localization/MapLocale.java#L39-L87
   ///
