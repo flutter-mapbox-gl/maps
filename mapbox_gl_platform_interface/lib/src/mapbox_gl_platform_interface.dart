@@ -63,7 +63,7 @@ abstract class MapboxGlPlatform {
 
   Future<CameraPosition> updateMapOptions(
       Map<String, dynamic> optionsUpdate) async {
-    throw UnimplementedError('initPlatform() has not been implemented.');
+    throw UnimplementedError('updateMapOptions() has not been implemented.');
   }
 
   Future<bool> animateCamera(CameraUpdate cameraUpdate) async {

@@ -27,21 +27,46 @@ We're compiling a list of apps using this SDK. If you want to be listed here, pl
 This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
 
 ##### Android
+
 Add Mapbox read token value in the application manifest ```android/app/src/main/AndroidManifest.xml:```
 
-```<manifest ...
+```xml
+<manifest ...
   <application ...
     <meta-data android:name="com.mapbox.token" android:value="YOUR_TOKEN_HERE" />
 ```
 
-#### iOS
+##### iOS
+
 Add these lines to your Info.plist
 
-```plist
+```xml
 <key>io.flutter.embedded_views_preview</key>
 <true/>
 <key>MGLMapboxAccessToken</key>
 <string>YOUR_TOKEN_HERE</string>
+```
+
+##### Web
+
+Add mapbox-gl.js library in the `<head>` of your html page:
+
+```html
+<head>
+  ...
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.js'></script>
+</head>
+```
+
+Add your `accessToken` in a script tag at the end of your body:
+
+```html
+<body>
+  ...
+  <script>
+    mapboxgl.accessToken = 'YOUR_TOKEN_HERE';
+  </script>
+</body>
 ```
 
 ## Supported API

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
@@ -26,12 +27,13 @@ final List<Page> _allPages = <Page>[
 
 class MapsDemo extends StatelessWidget {
   void _pushPage(BuildContext context, Page page) async {
-    final location = Location();
-    final hasPermissions = await location.hasPermission();
-    if (!hasPermissions) {
-      await location.requestPermission();
+    if (!kIsWeb) {
+      final location = Location();
+      final hasPermissions = await location.hasPermission();
+      if (!hasPermissions) {
+        await location.requestPermission();
+      }
     }
-
     Navigator.of(context).push(MaterialPageRoute<void>(
         builder: (_) => Scaffold(
               appBar: AppBar(title: Text(page.title)),

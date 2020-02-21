@@ -13,10 +13,36 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_web_plugins:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
+  js:
+    dependency: transitive
+    description:
+      name: js
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.1+1"
+  mapbox_gl_dart:
+    dependency: transitive
+    description:
+      name: mapbox_gl_dart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.1"
   mapbox_gl_platform_interface:
     dependency: "direct main"
     description:
       path: mapbox_gl_platform_interface
+      relative: true
+    source: path
+    version: "0.1.0"
+  mapbox_gl_web:
+    dependency: "direct main"
+    description:
+      path: mapbox_gl_web
       relative: true
     source: path
     version: "0.1.0"
@@ -47,5 +73,5 @@ packages:
     source: hosted
     version: "2.0.8"
 sdks:
-  dart: ">=2.2.2 <3.0.0"
-  flutter: ">=1.10.0 <2.0.0"
+  dart: ">=2.7.0-dev <3.0.0"
+  flutter: ">=1.12.13+hotfix.4 <2.0.0"
