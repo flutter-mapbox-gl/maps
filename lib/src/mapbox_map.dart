@@ -29,6 +29,7 @@ class MapboxMap extends StatefulWidget {
     this.compassViewMargins,
     this.attributionButtonMargins,
     this.onMapClick,
+    this.onUserLocationUpdated,
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
     this.onMapIdle,
@@ -127,6 +128,10 @@ class MapboxMap extends StatefulWidget {
 
   final OnMapClickCallback onMapClick;
 
+  /// While the `myLocationEnabled` property is set to `true`, this method is
+  /// called whenever a new location update is received by the map view.
+  final OnUserLocationUpdated onUserLocationUpdated;
+
   /// Called when the location tracking mode changes, such as when the user moves the map
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
@@ -206,6 +211,7 @@ class _MapboxMapState extends State<MapboxMap> {
         id, widget.initialCameraPosition,
         onStyleLoadedCallback: widget.onStyleLoadedCallback,
         onMapClick: widget.onMapClick,
+        onUserLocationUpdated: widget.onUserLocationUpdated,
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged,
         onMapIdle: widget.onMapIdle);

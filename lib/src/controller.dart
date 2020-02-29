@@ -8,6 +8,8 @@ typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
 
 typedef void OnStyleLoadedCallback();
 
+typedef void OnUserLocationUpdated(UserLocation location);
+
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
@@ -35,7 +37,8 @@ class MapboxMapController extends ChangeNotifier {
       this.onMapClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged,
-      this.onMapIdle})
+      this.onMapIdle,
+      this.onUserLocationUpdated})
       : assert(_id != null),
         assert(channel != null),
         _channel = channel {
@@ -47,6 +50,7 @@ class MapboxMapController extends ChangeNotifier {
       int id, CameraPosition initialCameraPosition,
       {OnStyleLoadedCallback onStyleLoadedCallback,
       OnMapClickCallback onMapClick,
+      OnUserLocationUpdated onUserLocationUpdated,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
       OnMapIdleCallback onMapIdle}) async {
@@ -57,6 +61,7 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxMapController._(id, channel, initialCameraPosition,
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
+        onUserLocationUpdated: onUserLocationUpdated,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
         onMapIdle: onMapIdle);
@@ -67,6 +72,8 @@ class MapboxMapController extends ChangeNotifier {
   final OnStyleLoadedCallback onStyleLoadedCallback;
 
   final OnMapClickCallback onMapClick;
+
+  final OnUserLocationUpdated onUserLocationUpdated;
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
@@ -175,6 +182,20 @@ class MapboxMapController extends ChangeNotifier {
         if (onCameraTrackingChanged != null) {
           final int mode = call.arguments['mode'];
           onCameraTrackingChanged(MyLocationTrackingMode.values[mode]);
+        }
+        break;
+      case 'map#onUserLocationUpdated':
+        final dynamic userLocation = call.arguments['userLocation'];
+        if (onUserLocationUpdated != null) {
+          onUserLocationUpdated(UserLocation(
+              position: LatLng(userLocation['position'][0], userLocation['position'][1]),
+              altitude: userLocation['altitude'],
+              bearing: userLocation['bearing'],
+              speed: userLocation['speed'],
+              horizontalAccuracy: userLocation['horizontalAccuracy'],
+              verticalAccuracy: userLocation['verticalAccuracy'],
+              timestamp: DateTime.fromMillisecondsSinceEpoch(userLocation['timestamp'])
+          ));
         }
         break;
       case 'map#onCameraTrackingDismissed':
