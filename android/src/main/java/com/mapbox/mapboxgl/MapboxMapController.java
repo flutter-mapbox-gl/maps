@@ -497,7 +497,7 @@ final class MapboxMapController
 
         String filter = (String) call.argument("filter");
 
-        Expression filterExpression = filter == null ? null : new Expression(filter);
+        Expression filterExpression = filter == null ? null : Expression.raw(filter);
         if (call.hasArgument("x")) {
           Double x = call.argument("x");
           Double y = call.argument("y");

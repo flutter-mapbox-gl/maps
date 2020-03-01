@@ -93,7 +93,7 @@ class MapUiBodyState extends State<MapUiBody> {
       onPressed: () {
         setState(() {
           if (_featureQueryFilter == null) {
-            _featureQueryFilter = "type == 'zoo'";
+            _featureQueryFilter = "[\"==\", [\"get\", \"type\"] , \"zoo\"]";
           } else {
             _featureQueryFilter = null;
           }
