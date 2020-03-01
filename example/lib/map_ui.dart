@@ -52,7 +52,7 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _myLocationEnabled = true;
   bool _telemetryEnabled = true;
   MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
-  String _featureQueryFilter = null;
+  List<Object> _featureQueryFilter = null;
 
   @override
   void initState() {
@@ -95,7 +95,7 @@ class MapUiBodyState extends State<MapUiBody> {
       onPressed: () {
         setState(() {
           if (_featureQueryFilter == null) {
-            _featureQueryFilter = "[\"==\", [\"get\", \"type\"] , \"zoo\"]";
+            _featureQueryFilter = ["==", ["get", "type"] , "zoo"];
           } else {
             _featureQueryFilter = null;
           }
