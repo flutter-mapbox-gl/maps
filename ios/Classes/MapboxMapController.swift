@@ -102,7 +102,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             let layerIds = arguments["layerIds"] as? Set<String>
             var filterExpression: NSPredicate?
             if let filter = arguments["filter"] as? String {
-                filterExpression = NSPredicate(format: filter)
+                let data = Data(filter.utf8)
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [Any] {
+                        filterExpression = NSPredicate(mglJSONObject: json)
+                    }
+                } catch let error as NSError {
+                    print("Failed to convert filter string to expression: \(error.localizedDescription)")
+                }
             }
             var reply = [String: NSObject]()
             var features:[MGLFeature] = []
