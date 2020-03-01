@@ -26,6 +26,8 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -495,9 +497,9 @@ final class MapboxMapController
 
         String[] layerIds = ((List<String>) call.argument("layerIds")).toArray(new String[0]);
 
-        String filter = (String) call.argument("filter");
-
-        Expression filterExpression = filter == null ? null : Expression.raw(filter);
+        List<Object> filter = call.argument("filter");
+        JsonArray jsonArray = filter == null ? null : new Gson().toJsonTree(filter).getAsJsonArray();
+        Expression filterExpression = jsonArray == null ? null : Expression.Converter.convert(jsonArray);
         if (call.hasArgument("x")) {
           Double x = call.argument("x");
           Double y = call.argument("y");
