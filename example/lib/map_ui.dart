@@ -50,7 +50,7 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _myLocationEnabled = true;
   bool _telemetryEnabled = true;
   MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
-  List<Object> _featureQueryFilter = null;
+  List<Object> _featureQueryFilter;
 
   @override
   void initState() {
@@ -252,7 +252,7 @@ class MapUiBodyState extends State<MapUiBody> {
       myLocationRenderMode: MyLocationRenderMode.GPS,
       onMapClick: (point, latLng) async {
         print("${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
-        print("Filter ${_featureQueryFilter}");
+        print("Filter $_featureQueryFilter");
         List features = await mapController.queryRenderedFeatures(point, [], _featureQueryFilter);
         if (features.length>0) {
           print(features[0]);
