@@ -92,6 +92,7 @@ class MapboxMapController extends MapboxGlPlatform
     if (cameraOptions != null) {
       _map.jumpTo(cameraOptions);
     }
+    return true;
   }
 
   @override
@@ -103,14 +104,16 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future<void> matchMapLanguageWithDeviceDefault() async {
-    // TODO: implement method
-    print('TODO: matchMapLanguageWithDeviceDefault');
+    setMapLanguage(ui.window.locale.languageCode);
   }
 
   @override
   Future<void> setMapLanguage(String language) async {
-    // TODO: implement method
-    print('TODO: setMapLanguage $language');
+    _map.setLayoutProperty(
+      'country-label',
+      'text-field',
+      ['get', 'name_' + language],
+    );
   }
 
   @override
