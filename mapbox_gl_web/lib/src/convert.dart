@@ -276,9 +276,81 @@ class Convert {
     return feature.copyWith(properties: properties, geometry: geometry);
   }
 
-  static void interpretCircleOptions(
-      Map<String, dynamic> options, MapboxMapOptionsSink sink) {}
+  static Feature interpretLineOptions(LineOptions options, Feature feature) {
+    var properties = feature.properties;
+    var geometry = feature.geometry;
+    if (options.lineJoin != null) {
+      properties['lineJoin'] = options.lineJoin;
+    }
+    if (options.lineOpacity != null) {
+      properties['lineOpacity'] = options.lineOpacity;
+    }
+    if (options.lineColor != null) {
+      properties['lineColor'] = options.lineColor;
+    }
+    if (options.lineWidth != null) {
+      properties['lineWidth'] = options.lineWidth;
+    }
+    if (options.lineGapWidth != null) {
+      properties['lineGapWidth'] = options.lineGapWidth;
+    }
+    if (options.lineOffset != null) {
+      properties['lineOffset'] = options.lineOffset;
+    }
+    if (options.lineBlur != null) {
+      properties['lineBlur'] = options.lineBlur;
+    }
+    if (options.linePattern != null) {
+      properties['linePattern'] = options.linePattern;
+    }
+    if (options.geometry != null) {
+      geometry = Geometry(
+        type: geometry.type,
+        coordinates: options.geometry
+            .map((latLng) => [latLng.longitude, latLng.latitude])
+            .toList(),
+      );
+    }
+    if (options.draggable != null) {
+      properties['draggable'] = options.draggable;
+    }
+    return feature.copyWith(properties: properties, geometry: geometry);
+  }
 
-  static void interpretLineOptions(
-      Map<String, dynamic> options, MapboxMapOptionsSink sink) {}
+  static Feature interpretCircleOptions(
+      CircleOptions options, Feature feature) {
+    var properties = feature.properties;
+    var geometry = feature.geometry;
+    if (options.circleRadius != null) {
+      properties['circleRadius'] = options.circleRadius;
+    }
+    if (options.circleColor != null) {
+      properties['circleColor'] = options.circleColor;
+    }
+    if (options.circleBlur != null) {
+      properties['circleBlur'] = options.circleBlur;
+    }
+    if (options.circleOpacity != null) {
+      properties['circleOpacity'] = options.circleOpacity;
+    }
+    if (options.circleStrokeWidth != null) {
+      properties['circleStrokeWidth'] = options.circleStrokeWidth;
+    }
+    if (options.circleStrokeColor != null) {
+      properties['circleStrokeColor'] = options.circleStrokeColor;
+    }
+    if (options.circleStrokeOpacity != null) {
+      properties['circleStrokeOpacity'] = options.circleStrokeOpacity;
+    }
+    if (options.geometry != null) {
+      geometry = Geometry(
+        type: geometry.type,
+        coordinates: [options.geometry.longitude, options.geometry.latitude],
+      );
+    }
+    if (options.draggable != null) {
+      properties['draggable'] = options.draggable;
+    }
+    return feature.copyWith(properties: properties, geometry: geometry);
+  }
 }

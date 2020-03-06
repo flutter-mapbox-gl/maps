@@ -9,6 +9,8 @@ class MapboxMapController extends MapboxGlPlatform
   MapboxMap _map;
 
   SymbolManager symbolManager;
+  LineManager lineManager;
+  CircleManager circleManager;
 
   bool _trackCameraPosition = false;
 
@@ -138,10 +140,8 @@ class MapboxMapController extends MapboxGlPlatform
         type: 'Point',
         coordinates: [options.geometry.longitude, options.geometry.latitude],
       ),
-      properties: {
-        'iconImage': options.iconImage,
-      },
     ));
+    symbolManager.update(symbolId, options);
     return Symbol(symbolId, options, data);
   }
 
@@ -157,44 +157,54 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future<Line> addLine(LineOptions options, [Map data]) async {
-    // TODO: implement method
-    print('TODO: addLine $options $data');
+    String lineId = lineManager.add(Feature(
+      geometry: Geometry(
+        type: 'LineString',
+        coordinates: options.geometry
+            .map((latLng) => [latLng.longitude, latLng.latitude])
+            .toList(),
+      ),
+    ));
+    lineManager.update(lineId, options);
+    return Line(lineId, options, data);
   }
 
   @override
   Future<void> updateLine(Line line, LineOptions changes) async {
-    // TODO: implement method
-    print('TODO: updateLine $line $changes');
+    lineManager.update(line.id, changes);
   }
 
   @override
   Future<void> removeLine(String lineId) async {
-    // TODO: implement method
-    print('TODO: removeLine $lineId');
+    lineManager.remove(lineId);
   }
 
   @override
   Future<Circle> addCircle(CircleOptions options, [Map data]) async {
-    // TODO: implement method
-    print('TODO: addCircle $options $data');
+    String circleId = circleManager.add(Feature(
+      geometry: Geometry(
+        type: 'Point',
+        coordinates: [options.geometry.longitude, options.geometry.latitude],
+      ),
+    ));
+    circleManager.update(circleId, options);
+    return Circle(circleId, options, data);
   }
 
   @override
   Future<void> updateCircle(Circle circle, CircleOptions changes) async {
-    // TODO: implement method
-    print('TODO: updateCircle $circle $changes');
+    circleManager.update(circle.id, changes);
   }
 
   @override
   Future<LatLng> getCircleLatLng(Circle circle) async {
-    // TODO: implement method
-    print('TODO: getCircleLatLng $circle');
+    var coordinates = circleManager.getFeature(circle.id).geometry.coordinates;
+    return LatLng(coordinates[1], coordinates[0]);
   }
 
   @override
   Future<void> removeCircle(String circleId) async {
-    // TODO: implement method
-    print('TODO: removeCircle $circleId');
+    circleManager.remove(circleId);
   }
 
   @override
@@ -247,6 +257,8 @@ class MapboxMapController extends MapboxGlPlatform
 
   void _onStyleLoaded(_) {
     symbolManager = SymbolManager(map: _map, onTap: onSymbolTappedPlatform);
+    lineManager = LineManager(map: _map, onTap: onLineTappedPlatform);
+    circleManager = CircleManager(map: _map, onTap: onCircleTappedPlatform);
   }
 
   /*

@@ -7,7 +7,6 @@
 part of mapbox_gl_platform_interface;
 
 class Line {
-  @visibleForTesting
   Line(this._id, this.options, [this._data]);
 
   /// A unique identifier for this line.

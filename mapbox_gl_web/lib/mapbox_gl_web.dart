@@ -20,4 +20,7 @@ part 'src/convert.dart';
 part 'src/mapbox_map_plugin.dart';
 part 'src/options_sink.dart';
 part 'src/symbol_manager.dart';
+part 'src/feature_manager/feature_manager.dart';
+part 'src/feature_manager/line_manager.dart';
+part 'src/feature_manager/circle_manager.dart';
 part 'src/mapbox_map_controller.dart';
