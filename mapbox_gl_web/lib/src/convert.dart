@@ -185,8 +185,96 @@ class Convert {
     }
   }
 
-  static void interpretSymbolOptions(
-      Map<String, dynamic> options, MapboxMapOptionsSink sink) {}
+  static Feature interpretSymbolOptions(
+      SymbolOptions options, Feature feature) {
+    var properties = feature.properties;
+    var geometry = feature.geometry;
+    if (options.iconSize != null) {
+      properties['iconSize'] = options.iconSize;
+    }
+    if (options.iconImage != null) {
+      properties['iconImage'] = options.iconImage;
+    }
+    if (options.iconRotate != null) {
+      properties['iconRotate'] = options.iconRotate;
+    }
+    if (options.iconOffset != null) {
+      properties['iconOffset'] = [options.iconOffset.dx, options.iconOffset.dy];
+    }
+    if (options.iconAnchor != null) {
+      properties['iconAnchor'] = options.iconAnchor;
+    }
+    if (options.textField != null) {
+      properties['textField'] = options.textField;
+    }
+    if (options.textSize != null) {
+      properties['textSize'] = options.textSize;
+    }
+    if (options.textMaxWidth != null) {
+      properties['textMaxWidth'] = options.textMaxWidth;
+    }
+    if (options.textLetterSpacing != null) {
+      properties['textLetterSpacing'] = options.textLetterSpacing;
+    }
+    if (options.textJustify != null) {
+      properties['textJustify'] = options.textJustify;
+    }
+    if (options.textAnchor != null) {
+      properties['textAnchor'] = options.textAnchor;
+    }
+    if (options.textRotate != null) {
+      properties['textRotate'] = options.textRotate;
+    }
+    if (options.textTransform != null) {
+      properties['textTransform'] = options.textTransform;
+    }
+    if (options.textOffset != null) {
+      properties['textOffset'] = [options.textOffset.dx, options.textOffset.dy];
+    }
+    if (options.iconOpacity != null) {
+      properties['iconOpacity'] = options.iconOpacity;
+    }
+    if (options.iconColor != null) {
+      properties['iconColor'] = options.iconColor;
+    }
+    if (options.iconHaloColor != null) {
+      properties['iconHaloColor'] = options.iconHaloColor;
+    }
+    if (options.iconHaloWidth != null) {
+      properties['iconHaloWidth'] = options.iconHaloWidth;
+    }
+    if (options.iconHaloBlur != null) {
+      properties['iconHaloBlur'] = options.iconHaloBlur;
+    }
+    if (options.textOpacity != null) {
+      properties['textOpacity'] = options.textOpacity;
+    }
+    if (options.textColor != null) {
+      properties['textColor'] = options.textColor;
+    }
+    if (options.textHaloColor != null) {
+      properties['textHaloColor'] = options.textHaloColor;
+    }
+    if (options.textHaloWidth != null) {
+      properties['textHaloWidth'] = options.textHaloWidth;
+    }
+    if (options.textHaloBlur != null) {
+      properties['textHaloBlur'] = options.textHaloBlur;
+    }
+    if (options.geometry != null) {
+      geometry = Geometry(
+        type: geometry.type,
+        coordinates: [options.geometry.longitude, options.geometry.latitude],
+      );
+    }
+    if (options.zIndex != null) {
+      properties['symbolSortKey'] = options.zIndex;
+    }
+    if (options.draggable != null) {
+      properties['draggable'] = options.draggable;
+    }
+    return feature.copyWith(properties: properties, geometry: geometry);
+  }
 
   static void interpretCircleOptions(
       Map<String, dynamic> options, MapboxMapOptionsSink sink) {}

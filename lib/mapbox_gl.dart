@@ -5,7 +5,7 @@
 library mapbox_gl;
 
 import 'dart:async';
-import 'dart:html';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';

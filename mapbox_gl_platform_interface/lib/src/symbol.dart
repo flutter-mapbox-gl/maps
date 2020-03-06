@@ -7,7 +7,6 @@
 part of mapbox_gl_platform_interface;
 
 class Symbol {
-  @visibleForTesting
   Symbol(this._id, this.options, [this._data]);
 
   /// A unique identifier for this symbol.

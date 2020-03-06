@@ -8,6 +8,8 @@ class MapboxMapController extends MapboxGlPlatform
   Map<String, dynamic> _creationParams;
   MapboxMap _map;
 
+  SymbolManager symbolManager;
+
   bool _trackCameraPosition = false;
 
   @override
@@ -47,6 +49,7 @@ class MapboxMapController extends MapboxGlPlatform
           pitch: camera['tilt'],
         ),
       );
+      _map.on('load', _onStyleLoaded);
     }
     Convert.interpretMapboxMapOptions(_creationParams['options'], this);
   }
@@ -130,20 +133,26 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
-    // TODO: implement method
-    print('TODO: addSymbol $options $data');
+    String symbolId = symbolManager.add(Feature(
+      geometry: Geometry(
+        type: 'Point',
+        coordinates: [options.geometry.longitude, options.geometry.latitude],
+      ),
+      properties: {
+        'iconImage': options.iconImage,
+      },
+    ));
+    return Symbol(symbolId, options, data);
   }
 
   @override
   Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
-    // TODO: implement method
-    print('TODO: updateSymbol $symbol $changes');
+    symbolManager.update(symbol.id, changes);
   }
 
   @override
   Future<void> removeSymbol(String symbolId) async {
-    // TODO: implement method
-    print('TODO: removeSymbol $symbolId');
+    symbolManager.remove(symbolId);
   }
 
   @override
@@ -234,6 +243,10 @@ class MapboxMapController extends MapboxGlPlatform
       );
     }
     return null;
+  }
+
+  void _onStyleLoaded(_) {
+    symbolManager = SymbolManager(map: _map, onTap: onSymbolTappedPlatform);
   }
 
   /*
