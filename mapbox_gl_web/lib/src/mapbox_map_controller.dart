@@ -275,16 +275,36 @@ class MapboxMapController extends MapboxGlPlatform
     lineManager = LineManager(map: _map, onTap: onLineTappedPlatform);
     circleManager = CircleManager(map: _map, onTap: onCircleTappedPlatform);
     onMapStyleLoadedPlatform(null);
-    _initMapClickHandler();
+    _map.on('click', _onMapClick);
+    _map.on('movestart', _onCameraMoveStarted);
+    _map.on('move', _onCameraMove);
+    _map.on('moveend', _onCameraIdle);
   }
 
-  void _initMapClickHandler() {
-    _map.on('click', (e) {
-      onMapClickPlatform({
-        'point': Point<double>(e.point.x, e.point.y),
-        'latLng': LatLng(e.lngLat.lat, e.lngLat.lng),
-      });
+  void _onMapClick(e) {
+    onMapClickPlatform({
+      'point': Point<double>(e.point.x, e.point.y),
+      'latLng': LatLng(e.lngLat.lat, e.lngLat.lng),
     });
+  }
+
+  void _onCameraMoveStarted(_) {
+    onCameraMoveStartedPlatform(null);
+  }
+
+  void _onCameraMove(_) {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+    onCameraMovePlatform(camera);
+  }
+
+  void _onCameraIdle(_) {
+    onCameraIdlePlatform(null);
   }
 
   /*
