@@ -210,15 +210,30 @@ class MapboxMapController extends MapboxGlPlatform
   @override
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, String filter) async {
-    // TODO: implement method
-    print('TODO: queryRenderedFeatures $point $layerIds $filter');
+    Map<String, dynamic> options = {};
+    if (layerIds.length > 0) {
+      options['layers'] = layerIds;
+    }
+    if (filter != null) {
+      options['filter'] = filter;
+    }
+    return _map.queryRenderedFeatures([point, point], options);
   }
 
   @override
   Future<List> queryRenderedFeaturesInRect(
       Rect rect, List<String> layerIds, String filter) async {
-    // TODO: implement method
-    print('TODO: queryRenderedFeaturesInRect $rect $layerIds $filter');
+    Map<String, dynamic> options = {};
+    if (layerIds.length > 0) {
+      options['layers'] = layerIds;
+    }
+    if (filter != null) {
+      options['filter'] = filter;
+    }
+    return _map.queryRenderedFeatures([
+      Point(rect.left, rect.bottom),
+      Point(rect.right, rect.top),
+    ], options);
   }
 
   @override
@@ -260,6 +275,16 @@ class MapboxMapController extends MapboxGlPlatform
     lineManager = LineManager(map: _map, onTap: onLineTappedPlatform);
     circleManager = CircleManager(map: _map, onTap: onCircleTappedPlatform);
     onMapStyleLoadedPlatform(null);
+    _initMapClickHandler();
+  }
+
+  void _initMapClickHandler() {
+    _map.on('click', (e) {
+      onMapClickPlatform({
+        'point': Point<double>(e.point.x, e.point.y),
+        'latLng': LatLng(e.lngLat.lat, e.lngLat.lng),
+      });
+    });
   }
 
   /*
