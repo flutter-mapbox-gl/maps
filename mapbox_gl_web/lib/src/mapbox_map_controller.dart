@@ -259,6 +259,7 @@ class MapboxMapController extends MapboxGlPlatform
     symbolManager = SymbolManager(map: _map, onTap: onSymbolTappedPlatform);
     lineManager = LineManager(map: _map, onTap: onLineTappedPlatform);
     circleManager = CircleManager(map: _map, onTap: onCircleTappedPlatform);
+    onMapStyleLoadedPlatform(null);
   }
 
   /*
