@@ -58,6 +58,9 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       case 'map#onCameraTrackingDismissed':
         onCameraTrackingDismissedPlatform(null);
         break;
+      case 'map#onIdle':
+        onMapIdlePlatform(null);
+        break;
       default:
         throw MissingPluginException();
     }
@@ -135,6 +138,19 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> matchMapLanguageWithDeviceDefault() async {
     await _channel.invokeMethod('map#matchMapLanguageWithDeviceDefault');
+  }
+
+  @override
+  Future<void> updateContentInsets(EdgeInsets insets, bool animated) async {
+    await _channel.invokeMethod('map#updateContentInsets', <String, dynamic>{
+      'bounds': <String, double>{
+        'top': insets.top,
+        'left': insets.left,
+        'bottom': insets.bottom,
+        'right': insets.right,
+      },
+      'animated': animated,
+    });
   }
 
   @override

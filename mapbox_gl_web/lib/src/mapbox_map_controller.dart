@@ -335,11 +335,9 @@ class MapboxMapController extends MapboxGlPlatform
       _myLastLocation = LatLng(e.coords.latitude, e.coords.longitude);
     });
     _geolocateControl.on('trackuserlocationstart', (_) {
-      print('trackuserlocationstart');
       _onCameraTrackingChanged(true);
     });
     _geolocateControl.on('trackuserlocationend', (_) {
-      print('trackuserlocationend');
       _onCameraTrackingChanged(false);
       _onCameraTrackingDismissed();
     });
@@ -436,13 +434,11 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   void setCompassEnabled(bool compassEnabled) {
-    print('TODO: setCompassEnabled $compassEnabled');
     _updateNavigationControl(compassEnabled: compassEnabled);
   }
 
   @override
   void setCompassGravity(int gravity) {
-    print('TODO: setCompassGravity $gravity');
     _updateNavigationControl(position: CompassViewPosition.values[gravity]);
   }
 

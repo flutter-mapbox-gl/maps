@@ -39,6 +39,8 @@ abstract class MapboxGlPlatform {
   final ArgumentCallbacks<void> onCameraTrackingDismissedPlatform =
       ArgumentCallbacks<void>();
 
+  final ArgumentCallbacks<void> onMapIdlePlatform = ArgumentCallbacks<void>();
+
   /// The default instance of [MapboxGlPlatform] to use.
   ///
   /// Defaults to [MethodChannelMapboxGl].
@@ -83,6 +85,10 @@ abstract class MapboxGlPlatform {
   Future<void> matchMapLanguageWithDeviceDefault() async {
     throw UnimplementedError(
         'matchMapLanguageWithDeviceDefault() has not been implemented.');
+  }
+
+  Future<void> updateContentInsets(EdgeInsets insets, bool animated) async {
+    throw UnimplementedError('updateContentInsets() has not been implemented.');
   }
 
   Future<void> setMapLanguage(String language) async {

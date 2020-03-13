@@ -11,6 +11,8 @@ typedef void OnStyleLoadedCallback();
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
+typedef void OnMapIdleCallback();
+
 /// Controller for a single MapboxMap instance running on the host platform.
 ///
 /// Change listeners are notified upon changes to any of
@@ -31,7 +33,8 @@ class MapboxMapController extends ChangeNotifier {
       {this.onStyleLoadedCallback,
       this.onMapClick,
       this.onCameraTrackingDismissed,
-      this.onCameraTrackingChanged})
+      this.onCameraTrackingChanged,
+      this.onMapIdle})
       : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
 
@@ -101,6 +104,12 @@ class MapboxMapController extends ChangeNotifier {
         onCameraTrackingDismissed();
       }
     });
+
+    MapboxGlPlatform.instance.onMapIdlePlatform.add((_) {
+      if (onMapIdle != null) {
+        onMapIdle();
+      }
+    });
   }
 
   static Future<MapboxMapController> init(
@@ -108,14 +117,16 @@ class MapboxMapController extends ChangeNotifier {
       {OnStyleLoadedCallback onStyleLoadedCallback,
       OnMapClickCallback onMapClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
-      OnCameraTrackingChangedCallback onCameraTrackingChanged}) async {
+      OnCameraTrackingChangedCallback onCameraTrackingChanged,
+      OnMapIdleCallback onMapIdle}) async {
     assert(id != null);
     await MapboxGlPlatform.instance.initPlatform(id);
     return MapboxMapController._(id, initialCameraPosition,
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
-        onCameraTrackingChanged: onCameraTrackingChanged);
+        onCameraTrackingChanged: onCameraTrackingChanged,
+        onMapIdle: onMapIdle);
   }
 
   final OnStyleLoadedCallback onStyleLoadedCallback;
@@ -124,6 +135,8 @@ class MapboxMapController extends ChangeNotifier {
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
+
+  final OnMapIdleCallback onMapIdle;
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Symbol> onSymbolTapped = ArgumentCallbacks<Symbol>();
@@ -226,6 +239,22 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> matchMapLanguageWithDeviceDefault() async {
     return MapboxGlPlatform.instance.matchMapLanguageWithDeviceDefault();
+  }
+
+  /// Updates the distance from the edges of the map view’s frame to the edges
+  /// of the map view’s logical viewport, optionally animating the change.
+  ///
+  /// When the value of this property is equal to `EdgeInsets.zero`, viewport
+  /// properties such as centerCoordinate assume a viewport that matches the map
+  /// view’s frame. Otherwise, those properties are inset, excluding part of the
+  /// frame from the viewport. For instance, if the only the top edge is inset,
+  /// the map center is effectively shifted downward.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> updateContentInsets(EdgeInsets insets,
+      [bool animated = false]) async {
+    return MapboxGlPlatform.instance.updateContentInsets(insets, animated);
   }
 
   /// Updates the language of the map labels to match the specified language.
