@@ -71,16 +71,16 @@ Add your `accessToken` in a script tag at the end of your body:
 
 ## Supported API
 
-| Feature | Android | iOS |
-| ------ | ------ | ----- |
-| Style | :white_check_mark:   | :white_check_mark: |
-| Camera | :white_check_mark:   | :white_check_mark: |
-| Gesture | :white_check_mark:   | :white_check_mark: |
-| User Location | :white_check_mark: | :white_check_mark: |
-| Symbol | :white_check_mark:   | :white_check_mark: |
-| Circle | :white_check_mark:   | :white_check_mark: |
-| Line | :white_check_mark:   | :white_check_mark: |
-| Fill |   |  |
+| Feature | Android | iOS | Web |
+| ------ | ------ | ----- | ----- |
+| Style | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Camera | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Gesture | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| User Location | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| Symbol | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Circle | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Line | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Fill |   |  |  |
 
 ## Offline Sideloading
 
