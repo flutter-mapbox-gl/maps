@@ -16,6 +16,9 @@ class MapboxMapController extends MapboxGlPlatform
   GeolocateControl _geolocateControl;
   LatLng _myLastLocation;
 
+  String _navigationControlPosition;
+  NavigationControl _navigationControl;
+
   @override
   Widget buildView(
       Map<String, dynamic> creationParams,
@@ -350,13 +353,65 @@ class MapboxMapController extends MapboxGlPlatform
     }
   }
 
+  void _updateNavigationControl({
+    bool compassEnabled,
+    CompassViewPosition position,
+  }) {
+    bool prevShowCompass;
+    if (_navigationControl != null) {
+      prevShowCompass = _navigationControl.options.showCompass;
+    }
+    String prevPosition = _navigationControlPosition;
+
+    String positionString;
+    switch (position) {
+      case CompassViewPosition.TopRight:
+        positionString = 'top-right';
+        break;
+      case CompassViewPosition.TopLeft:
+        positionString = 'top-left';
+        break;
+      case CompassViewPosition.BottomRight:
+        positionString = 'bottom-right';
+        break;
+      case CompassViewPosition.BottomLeft:
+        positionString = 'bottom-left';
+        break;
+      default:
+        positionString = null;
+    }
+
+    bool newShowComapss = compassEnabled ?? prevShowCompass ?? false;
+    String newPosition = positionString ?? prevPosition ?? null;
+
+    _removeNavigationControl();
+    _navigationControl = NavigationControl(NavigationControlOptions(
+      showCompass: newShowComapss,
+      showZoom: false,
+      visualizePitch: false,
+    ));
+
+    if (newPosition == null) {
+      _map.addControl(_navigationControl);
+    } else {
+      _map.addControl(_navigationControl, newPosition);
+      _navigationControlPosition = newPosition;
+    }
+  }
+
+  void _removeNavigationControl() {
+    if (_navigationControl != null) {
+      _map.removeControl(_navigationControl);
+      _navigationControl = null;
+    }
+  }
+
   /*
    *  MapboxMapOptionsSink
    */
   @override
   void setAttributionButtonMargins(int x, int y) {
-    // TODO: AttributionControl not implemented
-    // https://github.com/andrea689/mapbox-gl-dart/issues/2
+    print('setAttributionButtonMargins not available in web');
   }
 
   @override
@@ -381,30 +436,24 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   void setCompassEnabled(bool compassEnabled) {
-    // TODO: NavigationControl not implemented
-    // https://github.com/andrea689/mapbox-gl-dart/issues/1
     print('TODO: setCompassEnabled $compassEnabled');
+    _updateNavigationControl(compassEnabled: compassEnabled);
   }
 
   @override
   void setCompassGravity(int gravity) {
-    // TODO: NavigationControl not implemented
-    // https://github.com/andrea689/mapbox-gl-dart/issues/1
     print('TODO: setCompassGravity $gravity');
+    _updateNavigationControl(position: CompassViewPosition.values[gravity]);
   }
 
   @override
   void setCompassViewMargins(int x, int y) {
-    // TODO: NavigationControl not implemented
-    // https://github.com/andrea689/mapbox-gl-dart/issues/1
-    print('TODO: setCompassViewMargins $x $y');
+    print('setCompassViewMargins not available in web');
   }
 
   @override
   void setLogoViewMargins(int x, int y) {
-    // TODO: LogoControl not implemented
-    // https://github.com/andrea689/mapbox-gl-dart/issues/3
-    print('TODO: setLogoViewMargins $x $y');
+    print('setLogoViewMargins not available in web');
   }
 
   @override
