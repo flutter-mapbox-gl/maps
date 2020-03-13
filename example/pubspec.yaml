@@ -13,7 +13,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   location: ^2.5.3
-
+  http: ^0.12.0+4
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -44,7 +45,7 @@ flutter:
     - assets/symbols/custom-icon.png
     - assets/symbols/2.0x/custom-icon.png
     - assets/symbols/3.0x/custom-icon.png
-
+    - assets/symbols/satellite.png
   # For details regarding adding assets from package dependencies, see
   # https://flutter.io/assets-and-images/#from-packages
 
