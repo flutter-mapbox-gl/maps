@@ -13,6 +13,8 @@ class MapboxMapController extends MapboxGlPlatform
   CircleManager circleManager;
 
   bool _trackCameraPosition = false;
+  GeolocateControl _geolocateControl;
+  LatLng _myLastLocation;
 
   @override
   Widget buildView(
@@ -103,8 +105,7 @@ class MapboxMapController extends MapboxGlPlatform
   @override
   Future<void> updateMyLocationTrackingMode(
       MyLocationTrackingMode myLocationTrackingMode) async {
-    // TODO: implement method
-    print('TODO: updateMyLocationTrackingMode $myLocationTrackingMode');
+    setMyLocationTrackingMode(myLocationTrackingMode.index);
   }
 
   @override
@@ -238,14 +239,12 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future invalidateAmbientCache() async {
-    // TODO: implement method
-    print('TODO: invalidateAmbientCache');
+    print('Offline storage not available in web');
   }
 
   @override
   Future<LatLng> requestMyLocationLatLng() async {
-    // TODO: implement method
-    print('TODO: requestMyLocationLatLng');
+    return _myLastLocation;
   }
 
   @override
@@ -305,6 +304,50 @@ class MapboxMapController extends MapboxGlPlatform
 
   void _onCameraIdle(_) {
     onCameraIdlePlatform(null);
+  }
+
+  void _onCameraTrackingChanged(bool isTracking) {
+    if (isTracking) {
+      onCameraTrackingChangedPlatform(MyLocationTrackingMode.Tracking);
+    } else {
+      onCameraTrackingChangedPlatform(MyLocationTrackingMode.None);
+    }
+  }
+
+  void _onCameraTrackingDismissed() {
+    onCameraTrackingDismissedPlatform(null);
+  }
+
+  void _addGeolocateControl({bool trackUserLocation}) {
+    _removeGeolocateControl();
+    _geolocateControl = GeolocateControl(
+      GeolocateControlOptions(
+        positionOptions: PositionOptions(enableHighAccuracy: true),
+        trackUserLocation: trackUserLocation ?? false,
+        showAccuracyCircle: true,
+        showUserLocation: true,
+      ),
+    );
+    _geolocateControl.on('geolocate', (e) {
+      _myLastLocation = LatLng(e.coords.latitude, e.coords.longitude);
+    });
+    _geolocateControl.on('trackuserlocationstart', (_) {
+      print('trackuserlocationstart');
+      _onCameraTrackingChanged(true);
+    });
+    _geolocateControl.on('trackuserlocationend', (_) {
+      print('trackuserlocationend');
+      _onCameraTrackingChanged(false);
+      _onCameraTrackingDismissed();
+    });
+    _map.addControl(_geolocateControl, 'bottom-right');
+  }
+
+  void _removeGeolocateControl() {
+    if (_geolocateControl != null) {
+      _map.removeControl(_geolocateControl);
+      _geolocateControl = null;
+    }
   }
 
   /*
@@ -373,20 +416,26 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   void setMyLocationEnabled(bool myLocationEnabled) {
-    // TODO: implement setMyLocationEnabled
-    print('TODO: setMyLocationEnabled $myLocationEnabled');
+    if (myLocationEnabled) {
+      _addGeolocateControl(trackUserLocation: false);
+    } else {
+      _removeGeolocateControl();
+    }
   }
 
   @override
   void setMyLocationRenderMode(int myLocationRenderMode) {
-    // TODO: implement setMyLocationRenderMode
-    print('TODO: setMyLocationRenderMode $myLocationRenderMode');
+    print('myLocationRenderMode not available in web');
   }
 
   @override
   void setMyLocationTrackingMode(int myLocationTrackingMode) {
-    // TODO: implement setMyLocationTrackingMode
-    print('TODO: setMyLocationTrackingMode $myLocationTrackingMode');
+    if (myLocationTrackingMode == 0) {
+      _addGeolocateControl(trackUserLocation: false);
+    } else {
+      print('Only one tracking mode available in web');
+      _addGeolocateControl(trackUserLocation: true);
+    }
   }
 
   @override
