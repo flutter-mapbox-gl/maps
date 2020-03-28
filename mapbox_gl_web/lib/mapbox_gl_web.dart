@@ -2,7 +2,7 @@ library mapbox_gl_web;
 
 import 'dart:async';
 // FIXED HERE: https://github.com/dart-lang/linter/pull/1985
-// ignore: avoid_web_libraries_in_flutter
+// ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'dart:js';
 import 'dart:ui' as ui;

@@ -3,7 +3,7 @@ part of mapbox_gl_web;
 class MapboxMapController extends MapboxGlPlatform
     implements MapboxMapOptionsSink {
   final List<DivElement> _mapElements = [];
-  final List<Function> _callbacks = [];
+  final Set<Function> _callbacks = Set();
 
   Map<String, dynamic> _creationParams;
   MapboxMap _map;
@@ -34,7 +34,7 @@ class MapboxMapController extends MapboxGlPlatform
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory('plugins.flutter.io/mapbox_gl',
         (int viewId) {
-      _callbacks[viewId](viewId);
+      _callbacks.elementAt(viewId)(viewId);
       final mapElement = DivElement();
       _mapElements.add(mapElement);
       return mapElement;
