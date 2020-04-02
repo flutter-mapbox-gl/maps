@@ -95,8 +95,8 @@ abstract class FeatureManager<T> {
   }
 
   void _updateSource() {
-    var featureSource = map.getSource(sourceId);
-    featureSource.setData(
-        FeatureCollection(features: _features.values.toList()).jsObject);
+    GeoJsonSource featureSource = map.getSource(sourceId);
+    featureSource
+        .setData(FeatureCollection(features: _features.values.toList()));
   }
 }
