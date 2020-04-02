@@ -31,7 +31,7 @@ class MapsDemo extends StatelessWidget {
   void _pushPage(BuildContext context, Page page) async {
     final location = Location();
     final hasPermissions = await location.hasPermission();
-    if (!hasPermissions) {
+    if (hasPermissions != PermissionStatus.GRANTED) {
       await location.requestPermission();
     }
 
