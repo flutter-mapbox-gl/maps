@@ -33,7 +33,7 @@ class MapsDemo extends StatelessWidget {
     if (!kIsWeb) {
       final location = Location();
       final hasPermissions = await location.hasPermission();
-      if (!hasPermissions) {
+      if (hasPermissions != PermissionStatus.GRANTED) {
         await location.requestPermission();
       }
     }
