@@ -16,7 +16,7 @@ import 'place_circle.dart';
 import 'place_symbol.dart';
 import 'scrolling_map.dart';
 
-final List<Page> _allPages = <Page>[
+final List<ExamplePage> _allPages = <ExamplePage>[
   MapUiPage(),
   FullMapPage(),
   AnimateCameraPage(),
@@ -28,7 +28,7 @@ final List<Page> _allPages = <Page>[
 ];
 
 class MapsDemo extends StatelessWidget {
-  void _pushPage(BuildContext context, Page page) async {
+  void _pushPage(BuildContext context, ExamplePage page) async {
     final location = Location();
     final hasPermissions = await location.hasPermission();
     if (hasPermissions != PermissionStatus.GRANTED) {

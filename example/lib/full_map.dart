@@ -3,7 +3,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class FullMapPage extends Page {
+class FullMapPage extends ExamplePage {
   FullMapPage()
       : super(const Icon(Icons.map), 'Full screen map');
 

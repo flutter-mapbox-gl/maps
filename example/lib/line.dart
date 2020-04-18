@@ -9,7 +9,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class LinePage extends Page {
+class LinePage extends ExamplePage {
   LinePage() : super(const Icon(Icons.share), 'Line');
 
   @override
