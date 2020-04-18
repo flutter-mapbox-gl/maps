@@ -10,7 +10,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class PlaceSymbolPage extends Page {
+class PlaceSymbolPage extends ExamplePage {
   PlaceSymbolPage() : super(const Icon(Icons.place), 'Place symbol');
 
   @override

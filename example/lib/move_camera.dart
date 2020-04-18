@@ -7,7 +7,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class MoveCameraPage extends Page {
+class MoveCameraPage extends ExamplePage {
   MoveCameraPage() : super(const Icon(Icons.map), 'Camera control');
 
   @override
