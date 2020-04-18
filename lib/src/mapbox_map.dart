@@ -35,6 +35,9 @@ class MapboxMap extends StatefulWidget {
   }) : assert(initialCameraPosition != null);
 
   final MapCreatedCallback onMapCreated;
+  
+  /// Called when the map style has been successfully loaded and the annotation managers have been enabled.
+  /// Please note: you should only add annotations (e.g. symbols or circles) after this callback has been called.
   final OnStyleLoadedCallback onStyleLoadedCallback;
 
   /// The initial position of the map's camera.
