@@ -459,24 +459,28 @@ final class MapboxMapController
       }
       case "camera#animate": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
-        if (cameraUpdate != null) {
+        final Integer duration = call.argument("duration");
+
+        final OnCameraMoveFinishedListener onCameraMoveFinishedListener = new OnCameraMoveFinishedListener(){
+          @Override
+          public void onFinish() {
+            super.onFinish();
+            result.success(true);
+          }
+
+          @Override
+          public void onCancel() {
+            super.onCancel();
+            result.success(false);
+          }
+        };
+        if (cameraUpdate != null && duration != null) {
           // camera transformation not handled yet
-          mapboxMap.animateCamera(cameraUpdate, new OnCameraMoveFinishedListener(){
-            @Override
-            public void onFinish() {
-              super.onFinish();
-              result.success(true);
-            }
-
-            @Override
-            public void onCancel() {
-              super.onCancel();
-              result.success(false);
-            }
-          });
-
-          // animateCamera(cameraUpdate);
-        }else {
+          mapboxMap.animateCamera(cameraUpdate, duration, onCameraMoveFinishedListener);
+        } else if (cameraUpdate != null) {
+          // camera transformation not handled yet
+          mapboxMap.animateCamera(cameraUpdate, onCameraMoveFinishedListener);
+        } else {
           result.success(false);
         }
         break;

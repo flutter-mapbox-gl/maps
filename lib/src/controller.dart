@@ -216,9 +216,11 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   /// It returns true if the camera was successfully moved and false if the movement was canceled.
   /// Note: this currently always returns immediately with a value of null on iOS
-  Future<bool> animateCamera(CameraUpdate cameraUpdate) async {
+  Future<bool> animateCamera(CameraUpdate cameraUpdate,
+      {Duration duration}) async {
     return await _channel.invokeMethod('camera#animate', <String, dynamic>{
       'cameraUpdate': cameraUpdate._toJson(),
+      'duration': duration != null ? duration.inMilliseconds : null
     });
   }
 
@@ -241,20 +243,20 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> updateMyLocationTrackingMode(
       MyLocationTrackingMode myLocationTrackingMode) async {
-    await _channel.invokeMethod(
-        'map#updateMyLocationTrackingMode', <String, dynamic>{
+    await _channel
+        .invokeMethod('map#updateMyLocationTrackingMode', <String, dynamic>{
       'mode': myLocationTrackingMode.index,
     });
   }
-  
+
   /// Updates the language of the map labels to match the device's language.
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   Future<void> matchMapLanguageWithDeviceDefault() async {
     await _channel.invokeMethod('map#matchMapLanguageWithDeviceDefault');
-  }  
-  
+  }
+
   /// Updates the distance from the edges of the map view’s frame to the edges
   /// of the map view’s logical viewport, optionally animating the change.
   ///
@@ -289,7 +291,7 @@ class MapboxMapController extends ChangeNotifier {
       'language': language,
     });
   }
-  
+
   /// Enables or disables the collection of anonymized telemetry data.
   ///
   /// The returned [Future] completes after the change has been made on the
@@ -608,12 +610,11 @@ class MapboxMapController extends ChangeNotifier {
     }
   }
 
-
   Future invalidateAmbientCache() async {
     try {
       await _channel.invokeMethod('map#invalidateAmbientCache');
       return null;
-      } on PlatformException catch (e) {
+    } on PlatformException catch (e) {
       return new Future.error(e);
     }
   }
@@ -621,10 +622,11 @@ class MapboxMapController extends ChangeNotifier {
   /// Get last my location
   ///
   /// Return last latlng, nullable
-  
+
   Future<LatLng> requestMyLocationLatLng() async {
     try {
-      final Map<Object, Object> reply = await _channel.invokeMethod('locationComponent#getLastLocation', null);
+      final Map<Object, Object> reply = await _channel.invokeMethod(
+          'locationComponent#getLastLocation', null);
       double latitude = 0.0, longitude = 0.0;
       if (reply.containsKey("latitude") && reply["latitude"] != null) {
         latitude = double.parse(reply["latitude"].toString());
@@ -639,9 +641,10 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   ///This method returns the boundaries of the region currently displayed in the map.
-  Future<LatLngBounds> getVisibleRegion() async{
+  Future<LatLngBounds> getVisibleRegion() async {
     try {
-      final Map<Object, Object> reply = await _channel.invokeMethod('map#getVisibleRegion', null);
+      final Map<Object, Object> reply =
+          await _channel.invokeMethod('map#getVisibleRegion', null);
       LatLng southwest, northeast;
       if (reply.containsKey("sw")) {
         List<dynamic> coordinates = reply["sw"];
