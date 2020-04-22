@@ -17,3 +17,9 @@ Future<void> installOfflineMapTiles(String tilesDb) async {
     },
   );
 }
+
+Future<dynamic> downloadOfflineRegion(DownloadRegionArgs args) =>
+    _globalChannel.invokeMethod(
+      'downloadOfflineRegion',
+      json.encode(args._toJson()),
+    );
