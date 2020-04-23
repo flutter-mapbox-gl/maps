@@ -1,18 +1,18 @@
 package com.mapbox.mapboxgl;
 
-import android.content.Context;
 import android.util.Log;
+
+import com.google.gson.Gson;
+import com.mapbox.mapboxgl.models.DownloadRegionArgs;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -35,6 +35,13 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 String tilesDb = methodCall.argument("tilesdb");
                 installOfflineMapTiles(tilesDb);
                 result.success(null);
+                break;
+            case "downloadOfflineRegion":
+                //Get download region arguments from caller
+                Gson gson = new Gson();
+                DownloadRegionArgs args = gson.fromJson(methodCall.arguments.toString(), DownloadRegionArgs.class);
+                //Start downloading
+                OfflineManagerUtils.downloadRegion(args, result, registrar);
                 break;
             default:
                 result.notImplemented();
