@@ -8,7 +8,6 @@ import com.mapbox.mapboxgl.models.DownloadRegionArgs;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.offline.OfflineRegion;
-import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineRegionError;
 import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
@@ -128,6 +127,45 @@ abstract class OfflineManagerUtils {
                     }
                 }
                 result.success(new Gson().toJson(regionsArgs));
+            }
+
+            @Override
+            public void onError(String error) {
+                result.error("RegionListError", error, null);
+            }
+        });
+    }
+
+    static void deleteRegion(MethodChannel.Result result, Context context, int id) {
+        //Initialize Mapbox
+        MapBoxUtils.getMapbox(context);
+        // Set up the OfflineManager
+        OfflineManager offlineManager = OfflineManager.getInstance(context);
+        Gson gson = new Gson();
+        offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
+            @Override
+            public void onList(OfflineRegion[] offlineRegions) {
+                for (OfflineRegion offlineRegion : offlineRegions) {
+                    String json = new String(offlineRegion.getMetadata());
+                    Map<String, Object> map = new HashMap<>();
+                    map = gson.fromJson(json, map.getClass());
+                    if (!map.containsKey("id")) continue;
+                    int regionId = ((Double) map.get("id")).intValue();
+                    if (regionId != id) continue;
+
+                    offlineRegion.delete(new OfflineRegion.OfflineRegionDeleteCallback() {
+                        @Override
+                        public void onDelete() {
+                            result.success(null);
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            result.error("DeleteRegionError", error, null);
+                        }
+                    });
+                    return;
+                }
             }
 
             @Override
