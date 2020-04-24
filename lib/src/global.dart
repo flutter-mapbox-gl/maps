@@ -23,3 +23,42 @@ Future<dynamic> downloadOfflineRegion(DownloadRegionArgs args) =>
       'downloadOfflineRegion',
       json.encode(args._toJson()),
     );
+
+void downloadOfflineRegionStream(
+  DownloadRegionArgs args,
+  Function(DownloadRegionStatus event) onEvent,
+) async {
+  downloadOfflineRegion(args);
+  String channelName = 'downloadOfflineRegion_${args.id}';
+  EventChannel(channelName).receiveBroadcastStream().handleError((error) {
+    if (error is PlatformException) {
+      onEvent(Error(error));
+      return Error(error);
+    }
+    var unknownError = Error(
+      PlatformException(
+        code: 'UnknowException',
+        message:
+            'This error is unhandled by plugin. Please contact us if needed.',
+        details: error,
+      ),
+    );
+    onEvent(unknownError);
+    return unknownError;
+  }).listen((data) {
+    final Map<String, dynamic> jsonData = json.decode(data);
+    DownloadRegionStatus status;
+    switch (jsonData['status']) {
+      case 'start':
+        status = InProgress(0.0);
+        break;
+      case 'progress':
+        status = InProgress(jsonData['progress'] ?? 0.0);
+        break;
+      case 'success':
+        status = Success();
+        break;
+    }
+    onEvent(status ?? (throw 'Invalid event status ${jsonData['status']}'));
+  });
+}

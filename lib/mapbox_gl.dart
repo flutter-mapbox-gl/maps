@@ -26,3 +26,4 @@ part 'src/circle.dart';
 part 'src/ui.dart';
 part 'src/global.dart';
 part 'src/download_region_args.dart';
+part 'src/download_region_status.dart';

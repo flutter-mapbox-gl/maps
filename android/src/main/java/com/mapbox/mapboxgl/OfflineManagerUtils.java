@@ -18,22 +18,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 
-interface OfflineManagerStatusHandler {
-    void onError(OfflineRegionError error);
-
-    void onError(String error);
-
-    void onSuccess();
-
-    void onProgressUpdate();
-}
-
 abstract class OfflineManagerUtils {
     private static final String TAG = "OfflineManagerUtils";
 
     static void downloadRegion(DownloadRegionArgs args, MethodChannel.Result result, PluginRegistry.Registrar registrar) {
         //Initialize Mapbox
         MapBoxUtils.getMapbox(registrar.context());
+        //Prepare channel
+        String channelName = "downloadOfflineRegion_" + args.getId();
+        OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(registrar.messenger(), channelName);
         // Set up the OfflineManager
         OfflineManager offlineManager = OfflineManager.getInstance(registrar.context());
         // Define the offline region
@@ -51,6 +44,7 @@ abstract class OfflineManagerUtils {
                 _offlineRegion = offlineRegion;
                 //Start downloading region
                 _offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
+                channelHandler.onStart();
                 //Observe downloading state
                 OfflineRegion.OfflineRegionObserver observer = new OfflineRegion.OfflineRegionObserver() {
                     @Override
@@ -65,9 +59,11 @@ abstract class OfflineManagerUtils {
                             //This can be called multiple times, and result can be called only once, so there is need to prevent it
                             if (isComplete.get()) return;
                             isComplete.set(true);
+                            channelHandler.onSuccess();
                             result.success(null);
                         } else {
                             Log.i(TAG, "Region download progress = " + progress);
+                            channelHandler.onProgress(progress);
                         }
                     }
 
@@ -78,6 +74,8 @@ abstract class OfflineManagerUtils {
                         //Reset downloading state
                         _offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
                         isComplete.set(true);
+                        //TODO: error body etc
+                        channelHandler.onError("Downloading error", error.getMessage(), error.getReason());
                         result.error("Downloading error", error.getMessage(), error.getReason());
                     }
 
@@ -87,6 +85,7 @@ abstract class OfflineManagerUtils {
                         //Reset downloading state
                         _offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
                         isComplete.set(true);
+                        channelHandler.onError("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
                         result.error("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
                     }
                 };
@@ -102,6 +101,7 @@ abstract class OfflineManagerUtils {
                 Log.e(TAG, "Error: " + error);
                 //Reset downloading state
                 _offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
+                channelHandler.onError("mapboxInvalidRegionDefinition", error, null);
                 result.error("mapboxInvalidRegionDefinition", error, null);
             }
         });
@@ -124,7 +124,6 @@ abstract class OfflineManagerUtils {
     private static OfflineTilePyramidRegionDefinition generateRegionDefinition(DownloadRegionArgs args, Context context) {
         // Create a bounding box for the offline region
         LatLngBounds latLngBounds = args.getBounds();
-        Log.i(TAG, "Bound = " + latLngBounds);
         return new OfflineTilePyramidRegionDefinition(
                 args.getMapStyleUrl(),
                 latLngBounds,
