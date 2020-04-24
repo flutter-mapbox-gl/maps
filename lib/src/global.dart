@@ -18,6 +18,12 @@ Future<void> installOfflineMapTiles(String tilesDb) async {
   );
 }
 
+Future<List<DownloadRegionArgs>> downloadListOfRegions() async {
+  String regionsJson = await _globalChannel.invokeMethod('downloadListOfRegions');
+  Iterable regions = json.decode(regionsJson);
+  return regions.map((region) => DownloadRegionArgs.fromJson(region)).toList();
+}
+
 Future<dynamic> downloadOfflineRegion(DownloadRegionArgs args) =>
     _globalChannel.invokeMethod(
       'downloadOfflineRegion',

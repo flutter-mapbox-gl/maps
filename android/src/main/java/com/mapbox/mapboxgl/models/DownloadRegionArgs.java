@@ -1,11 +1,19 @@
 package com.mapbox.mapboxgl.models;
 
-import androidx.annotation.NonNull;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +30,15 @@ public class DownloadRegionArgs {
     private double minZoom;
     @SerializedName("maxZoom")
     private double maxZoom;
+
+    public DownloadRegionArgs(int id, List<List<Double>> bounds, Map<String, Object> metadata, String mapStyleUrl, double minZoom, double maxZoom) {
+        this.id = id;
+        this.bounds = bounds;
+        this.metadata = metadata;
+        this.mapStyleUrl = mapStyleUrl;
+        this.minZoom = minZoom;
+        this.maxZoom = maxZoom;
+    }
 
     public int getId() {
         return id;
@@ -48,6 +65,34 @@ public class DownloadRegionArgs {
 
     public double getMaxZoom() {
         return maxZoom;
+    }
+
+    @Nullable
+    public static DownloadRegionArgs fromOfflineRegion(OfflineTilePyramidRegionDefinition region, byte[] metadata) {
+        Gson gson = new Gson();
+        String json = new String(metadata);
+        Map<String, Object> map = new HashMap<>();
+        map = gson.fromJson(json, map.getClass());
+        if (!map.containsKey("id")) return null;
+        int id = ((Double) map.get("id")).intValue();
+        map.remove("id");
+        return new DownloadRegionArgs(
+                id,
+                getBoundsAsList(region.getBounds()),
+                map,
+                region.getStyleURL(),
+                region.getMinZoom(),
+                region.getMaxZoom()
+        );
+    }
+
+    private static List<List<Double>> getBoundsAsList(LatLngBounds bounds) {
+        List<List<Double>> boundsList = new ArrayList<>();
+        List<Double> northeast = Arrays.asList(bounds.getLatNorth(), bounds.getLonEast());
+        List<Double> southwest = Arrays.asList(bounds.getLatSouth(), bounds.getLonWest());
+        boundsList.add(southwest);
+        boundsList.add(northeast);
+        return boundsList;
     }
 
     @NonNull

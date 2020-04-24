@@ -46,4 +46,8 @@ class DownloadRegionArgs {
     data['maxZoom'] = maxZoom;
     return data;
   }
+
+  @override
+  String toString() =>
+      "$runtimeType, id = $id, bounds = $bounds, metadata = $metadata, mapStyleUrl = $mapStyleUrl, minZoom = $minZoom, maxZoom = $maxZoom";
 }

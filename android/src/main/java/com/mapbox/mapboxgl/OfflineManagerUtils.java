@@ -3,15 +3,19 @@ package com.mapbox.mapboxgl;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.mapbox.mapboxgl.models.DownloadRegionArgs;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.offline.OfflineRegion;
+import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineRegionError;
 import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -107,6 +111,32 @@ abstract class OfflineManagerUtils {
         });
     }
 
+    static void regionsList(MethodChannel.Result result, Context context) {
+        //Initialize Mapbox
+        MapBoxUtils.getMapbox(context);
+        // Set up the OfflineManager
+        OfflineManager offlineManager = OfflineManager.getInstance(context);
+        offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
+            @Override
+            public void onList(OfflineRegion[] offlineRegions) {
+                List<DownloadRegionArgs> regionsArgs = new ArrayList<>();
+                for (OfflineRegion offlineRegion : offlineRegions) {
+                    OfflineTilePyramidRegionDefinition definition = (OfflineTilePyramidRegionDefinition) offlineRegion.getDefinition();
+                    DownloadRegionArgs regionArgs = DownloadRegionArgs.fromOfflineRegion(definition, offlineRegion.getMetadata());
+                    if (regionArgs != null) {
+                        regionsArgs.add(regionArgs);
+                    }
+                }
+                result.success(new Gson().toJson(regionsArgs));
+            }
+
+            @Override
+            public void onError(String error) {
+                result.error("RegionListError", error, null);
+            }
+        });
+    }
+
     private static double calculateDownloadingProgress(long requiredResourceCount, long completedResourceCount) {
         return requiredResourceCount >= 0
                 ? (100.0 * completedResourceCount / requiredResourceCount) :
@@ -118,7 +148,7 @@ abstract class OfflineManagerUtils {
         Map<String, Object> metadata = new HashMap<>(args.getMetadata());
         //Add id to metadata
         metadata.put("id", args.getId());
-        return metadata.toString().getBytes();
+        return new Gson().toJson(metadata).getBytes();
     }
 
     private static OfflineTilePyramidRegionDefinition generateRegionDefinition(DownloadRegionArgs args, Context context) {
