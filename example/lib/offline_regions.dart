@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+import 'offline_region_map.dart';
 import 'page.dart';
 
 final LatLngBounds hawaii = LatLngBounds(
@@ -135,7 +136,7 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
             children: <Widget>[
               IconButton(
                 icon: Icon(Icons.map),
-                onPressed: _goToMap(_items[index]),
+                onPressed: () => _goToMap(_items[index]),
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
@@ -237,6 +238,10 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
   }
 
   _goToMap(OfflineRegionListItem item) {
-    //TODO
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => OfflineRegionMap(item),
+      ),
+    );
   }
 }
