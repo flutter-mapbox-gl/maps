@@ -145,6 +145,7 @@ abstract class OfflineManagerUtils {
         offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
             @Override
             public void onList(OfflineRegion[] offlineRegions) {
+                boolean deleted = false;
                 for (OfflineRegion offlineRegion : offlineRegions) {
                     String json = new String(offlineRegion.getMetadata());
                     Map<String, Object> map = new HashMap<>();
@@ -152,7 +153,7 @@ abstract class OfflineManagerUtils {
                     if (!map.containsKey("id")) continue;
                     int regionId = ((Double) map.get("id")).intValue();
                     if (regionId != id) continue;
-
+                    deleted = true;
                     offlineRegion.delete(new OfflineRegion.OfflineRegionDeleteCallback() {
                         @Override
                         public void onDelete() {
@@ -165,6 +166,9 @@ abstract class OfflineManagerUtils {
                         }
                     });
                     return;
+                }
+                if (!deleted) {
+                    result.error("DeleteRegionError", "There is no region with given id to delete.", null);
                 }
             }
 
@@ -183,7 +187,12 @@ abstract class OfflineManagerUtils {
 
     private static byte[] prepareMetadata(DownloadRegionArgs args) {
         //Make copy of received metadata
-        Map<String, Object> metadata = new HashMap<>(args.getMetadata());
+        Map<String, Object> metadata;
+        if (args.getMetadata() == null) {
+            metadata = new HashMap<>();
+        } else {
+            metadata = new HashMap<>(args.getMetadata());
+        }
         //Add id to metadata
         metadata.put("id", args.getId());
         return new Gson().toJson(metadata).getBytes();

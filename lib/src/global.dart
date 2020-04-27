@@ -24,18 +24,18 @@ Future<List<DownloadRegionArgs>> downloadListOfRegions() async {
   return regions.map((region) => DownloadRegionArgs.fromJson(region)).toList();
 }
 
-Future<dynamic> downloadOfflineRegion(DownloadRegionArgs args) =>
-    _globalChannel.invokeMethod(
-      'downloadOfflineRegion',
-      json.encode(args._toJson()),
-    );
-
 Future<dynamic> deleteOfflineRegion(int id) =>
     _globalChannel.invokeMethod(
       'deleteOfflineRegion',
       <String, dynamic>{
         'id': id,
       },
+    );
+
+Future<dynamic> downloadOfflineRegion(DownloadRegionArgs args) =>
+    _globalChannel.invokeMethod(
+      'downloadOfflineRegion',
+      json.encode(args._toJson()),
     );
 
 void downloadOfflineRegionStream(
