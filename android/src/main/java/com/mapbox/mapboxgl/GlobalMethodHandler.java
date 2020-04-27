@@ -3,7 +3,7 @@ package com.mapbox.mapboxgl;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.mapbox.mapboxgl.models.DownloadRegionArgs;
+import com.mapbox.mapboxgl.models.OfflineRegionData;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -39,7 +39,7 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
             case "downloadOfflineRegion":
                 //Get download region arguments from caller
                 Gson gson = new Gson();
-                DownloadRegionArgs args = gson.fromJson(methodCall.arguments.toString(), DownloadRegionArgs.class);
+                OfflineRegionData args = gson.fromJson(methodCall.arguments.toString(), OfflineRegionData.class);
                 //Start downloading
                 OfflineManagerUtils.downloadRegion(args, result, registrar);
                 break;

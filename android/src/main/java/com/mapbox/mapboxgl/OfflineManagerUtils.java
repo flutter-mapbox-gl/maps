@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.mapbox.mapboxgl.models.DownloadRegionArgs;
+import com.mapbox.mapboxgl.models.OfflineRegionData;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.offline.OfflineRegion;
@@ -24,18 +24,18 @@ import io.flutter.plugin.common.PluginRegistry;
 abstract class OfflineManagerUtils {
     private static final String TAG = "OfflineManagerUtils";
 
-    static void downloadRegion(DownloadRegionArgs args, MethodChannel.Result result, PluginRegistry.Registrar registrar) {
+    static void downloadRegion(OfflineRegionData offlineRegionData, MethodChannel.Result result, PluginRegistry.Registrar registrar) {
         //Initialize Mapbox
         MapBoxUtils.getMapbox(registrar.context());
         //Prepare channel
-        String channelName = "downloadOfflineRegion_" + args.getId();
+        String channelName = "downloadOfflineRegion_" + offlineRegionData.getId();
         OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(registrar.messenger(), channelName);
         // Set up the OfflineManager
         OfflineManager offlineManager = OfflineManager.getInstance(registrar.context());
         // Define the offline region
-        OfflineTilePyramidRegionDefinition definition = generateRegionDefinition(args, registrar.context());
+        OfflineTilePyramidRegionDefinition definition = generateRegionDefinition(offlineRegionData, registrar.context());
         //Prepare metadata
-        byte[] metadata = prepareMetadata(args);
+        byte[] metadata = prepareMetadata(offlineRegionData);
         //Tracker of result
         AtomicBoolean isComplete = new AtomicBoolean(false);
         //Download region
@@ -118,10 +118,10 @@ abstract class OfflineManagerUtils {
         offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
             @Override
             public void onList(OfflineRegion[] offlineRegions) {
-                List<DownloadRegionArgs> regionsArgs = new ArrayList<>();
+                List<OfflineRegionData> regionsArgs = new ArrayList<>();
                 for (OfflineRegion offlineRegion : offlineRegions) {
                     OfflineTilePyramidRegionDefinition definition = (OfflineTilePyramidRegionDefinition) offlineRegion.getDefinition();
-                    DownloadRegionArgs regionArgs = DownloadRegionArgs.fromOfflineRegion(definition, offlineRegion.getMetadata());
+                    OfflineRegionData regionArgs = OfflineRegionData.fromOfflineRegion(definition, offlineRegion.getMetadata());
                     if (regionArgs != null) {
                         regionsArgs.add(regionArgs);
                     }
@@ -185,7 +185,7 @@ abstract class OfflineManagerUtils {
                 0.0;
     }
 
-    private static byte[] prepareMetadata(DownloadRegionArgs args) {
+    private static byte[] prepareMetadata(OfflineRegionData args) {
         //Make copy of received metadata
         Map<String, Object> metadata;
         if (args.getMetadata() == null) {
@@ -198,7 +198,7 @@ abstract class OfflineManagerUtils {
         return new Gson().toJson(metadata).getBytes();
     }
 
-    private static OfflineTilePyramidRegionDefinition generateRegionDefinition(DownloadRegionArgs args, Context context) {
+    private static OfflineTilePyramidRegionDefinition generateRegionDefinition(OfflineRegionData args, Context context) {
         // Create a bounding box for the offline region
         LatLngBounds latLngBounds = args.getBounds();
         return new OfflineTilePyramidRegionDefinition(

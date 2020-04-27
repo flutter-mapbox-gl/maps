@@ -18,10 +18,10 @@ Future<void> installOfflineMapTiles(String tilesDb) async {
   );
 }
 
-Future<List<DownloadRegionArgs>> downloadListOfRegions() async {
+Future<List<OfflineRegion>> downloadListOfRegions() async {
   String regionsJson = await _globalChannel.invokeMethod('downloadListOfRegions');
   Iterable regions = json.decode(regionsJson);
-  return regions.map((region) => DownloadRegionArgs.fromJson(region)).toList();
+  return regions.map((region) => OfflineRegion.fromJson(region)).toList();
 }
 
 Future<dynamic> deleteOfflineRegion(int id) =>
@@ -32,18 +32,18 @@ Future<dynamic> deleteOfflineRegion(int id) =>
       },
     );
 
-Future<dynamic> downloadOfflineRegion(DownloadRegionArgs args) =>
+Future<dynamic> downloadOfflineRegion(OfflineRegion region) =>
     _globalChannel.invokeMethod(
       'downloadOfflineRegion',
-      json.encode(args._toJson()),
+      json.encode(region._toJson()),
     );
 
 void downloadOfflineRegionStream(
-  DownloadRegionArgs args,
+  OfflineRegion region,
   Function(DownloadRegionStatus event) onEvent,
 ) async {
-  downloadOfflineRegion(args);
-  String channelName = 'downloadOfflineRegion_${args.id}';
+  downloadOfflineRegion(region);
+  String channelName = 'downloadOfflineRegion_${region.id}';
   EventChannel(channelName).receiveBroadcastStream().handleError((error) {
     if (error is PlatformException) {
       onEvent(Error(error));

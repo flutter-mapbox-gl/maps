@@ -18,7 +18,7 @@ final LatLngBounds auckland = LatLngBounds(
   northeast: const LatLng(-36.82838, 174.79745),
 );
 
-final DownloadRegionArgs hawaiiRegion = DownloadRegionArgs(
+final OfflineRegion hawaiiRegion = OfflineRegion(
   id: 0,
   bounds: hawaii,
   metadata: null,
@@ -27,7 +27,7 @@ final DownloadRegionArgs hawaiiRegion = DownloadRegionArgs(
   mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
 );
 
-final DownloadRegionArgs santiagoRegion = DownloadRegionArgs(
+final OfflineRegion santiagoRegion = OfflineRegion(
   id: 1,
   bounds: santiago,
   metadata: null,
@@ -36,7 +36,7 @@ final DownloadRegionArgs santiagoRegion = DownloadRegionArgs(
   mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
 );
 
-final DownloadRegionArgs aucklandRegion = DownloadRegionArgs(
+final OfflineRegion aucklandRegion = OfflineRegion(
   id: 2,
   bounds: auckland,
   metadata: null,
@@ -47,14 +47,14 @@ final DownloadRegionArgs aucklandRegion = DownloadRegionArgs(
 
 class OfflineRegionListItem {
   OfflineRegionListItem({
-    @required this.args,
+    @required this.offlineRegion,
     @required this.isDownloaded,
     @required this.isDownloading,
     @required this.name,
     @required this.estimatedTiles,
   });
 
-  final DownloadRegionArgs args;
+  final OfflineRegion offlineRegion;
   final bool isDownloaded;
   final bool isDownloading;
   final String name;
@@ -65,7 +65,7 @@ class OfflineRegionListItem {
     bool isDownloading,
   }) =>
       OfflineRegionListItem(
-        args: args,
+        offlineRegion: offlineRegion,
         name: name,
         estimatedTiles: estimatedTiles,
         isDownloaded: isDownloaded ?? this.isDownloaded,
@@ -75,21 +75,21 @@ class OfflineRegionListItem {
 
 final List<OfflineRegionListItem> allRegions = [
   OfflineRegionListItem(
-    args: hawaiiRegion,
+    offlineRegion: hawaiiRegion,
     isDownloaded: false,
     isDownloading: false,
     name: 'Hawaii',
     estimatedTiles: 61,
   ),
   OfflineRegionListItem(
-    args: santiagoRegion,
+    offlineRegion: santiagoRegion,
     isDownloaded: false,
     isDownloading: false,
     name: 'Santiago',
     estimatedTiles: 3580,
   ),
   OfflineRegionListItem(
-    args: aucklandRegion,
+    offlineRegion: aucklandRegion,
     isDownloaded: false,
     isDownloading: false,
     name: 'Auckland',
@@ -185,7 +185,7 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
         (await downloadListOfRegions()).map((region) => region.id).toList();
     List<OfflineRegionListItem> regions = [];
     for (var region in allRegions) {
-      if (storedRegionsIds.contains(region.args.id)) {
+      if (storedRegionsIds.contains(region.offlineRegion.id)) {
         regions.add(region.copyWith(isDownloaded: true));
       } else {
         regions.add(region);
@@ -204,7 +204,7 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
       _items.insert(index, item.copyWith(isDownloading: true));
     });
 
-    await downloadOfflineRegion(item.args);
+    await downloadOfflineRegion(item.offlineRegion);
 
     setState(() {
       _items.removeAt(index);
@@ -223,7 +223,7 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
       _items.insert(index, item.copyWith(isDownloading: true));
     });
 
-    await deleteOfflineRegion(item.args.id);
+    await deleteOfflineRegion(item.offlineRegion.id);
 
     setState(() {
       _items.removeAt(index);
