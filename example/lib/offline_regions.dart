@@ -116,7 +116,6 @@ class OfflineRegionBody extends StatefulWidget {
 
 class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
   List<OfflineRegionListItem> _items = List();
-  bool _isDownloadingList = true;
 
   @override
   void initState() {
@@ -195,7 +194,6 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
     setState(() {
       _items.clear();
       _items.addAll(regions);
-      _isDownloadingList = false;
     });
   }
 
