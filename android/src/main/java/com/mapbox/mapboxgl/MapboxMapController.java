@@ -328,7 +328,7 @@ final class MapboxMapController
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
-	  
+
 	  localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
@@ -748,7 +748,7 @@ final class MapboxMapController
 
   @Override
   public void dispose() {
-    if (disposed) {
+    if (disposed || registrar.activity() == null) {
       return;
     }
     disposed = true;
