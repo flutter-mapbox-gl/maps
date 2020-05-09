@@ -659,4 +659,54 @@ class MapboxMapController extends ChangeNotifier {
       return new Future.error(e);
     }
   }
+
+  /// Adds an image to the style currently displayed in the map, so that it can later be referred to by the provided name.
+  /// 
+  /// This e.g. allows you to refer to the added image in the [Symbol.iconImage] when adding Symbols later on.
+  /// Returns after the image has successfully been added to the style.
+  /// Note: This can only be called after OnStyleLoadedCallback has been invoked and any added images will have to be re-added if a new style is loaded.
+  /// 
+  /// Example: Adding an asset image and using it in a new symbol:
+  /// ```dart
+  /// Future<void> addImageFromAsset() async{
+  ///   final ByteData bytes = await rootBundle.load("assets/someAssetImage.jpg");
+  ///   final Uint8List list = bytes.buffer.asUint8List();
+  ///   await controller.addImage("assetImage", list);
+  ///   controller.addSymbol(
+  ///    SymbolOptions(
+  ///     geometry: LatLng(0,0),
+  ///     iconImage: "assetImage",
+  ///    ),
+  ///   );
+  /// }
+  /// ```
+  /// 
+  /// Example: Adding a network image (with the http package) and using it in a new symbol:
+  /// ```dart
+  /// Future<void> addImageFromUrl() async{
+  ///  var response = await get("https://example.com/image.png");
+  ///  await controller.addImage("testImage",  response.bodyBytes);
+  ///  controller.addSymbol(
+  ///   SymbolOptions(
+  ///     geometry: LatLng(0,0),
+  ///     iconImage: "testImage",
+  ///   ),
+  ///  );
+  /// }
+  /// ```
+  Future<void> addImage(String name, Uint8List bytes) {
+    try {
+      return _channel.invokeMethod('style#addImage', <String, Object>{
+        "name": name,
+        "bytes": bytes,
+        "length": bytes.length
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  
+
+ 
 }
