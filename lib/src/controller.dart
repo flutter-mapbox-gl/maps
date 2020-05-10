@@ -663,7 +663,7 @@ class MapboxMapController extends ChangeNotifier {
   /// Adds an image to the style currently displayed in the map, so that it can later be referred to by the provided name.
   /// 
   /// This allows you to add an image to the currently displayed style once, and from there on refer to it e.g. in the [Symbol.iconImage] anytime you add a [Symbol] later on.
-  /// Set [sdf] to true if the image you add is a SDF image.
+  /// Set [sdf] to true if the image you add is an SDF image.
   /// Returns after the image has successfully been added to the style.
   /// Note: This can only be called after OnStyleLoadedCallback has been invoked and any added images will have to be re-added if a new style is loaded.
   /// 
