@@ -4,8 +4,11 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
@@ -40,10 +43,28 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     controller.onSymbolTapped.add(_onSymbolTapped);
   }
 
+  void _onStyleLoaded() {
+    addImageFromAsset("assetImage", "assets/symbols/custom-icon.png");
+    addImageFromUrl("networkImage", "https://via.placeholder.com/50");
+  }
+
   @override
   void dispose() {
     controller?.onSymbolTapped?.remove(_onSymbolTapped);
     super.dispose();
+  }
+
+  /// Adds an asset image to the currently displayed style
+  Future<void> addImageFromAsset(String name, String assetName) async {
+    final ByteData bytes = await rootBundle.load(assetName);
+    final Uint8List list = bytes.buffer.asUint8List();
+    return controller.addImage(name, list);
+  }
+
+  /// Adds a network image to the currently displayed style
+  Future<void> addImageFromUrl(String name, String url) async {
+    var response = await get(url);
+    return controller.addImage(name, response.bodyBytes);
   }
 
   void _onSymbolTapped(Symbol symbol) {
@@ -185,6 +206,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -197,6 +219,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
             height: 200.0,
             child: MapboxMap(
               onMapCreated: _onMapCreated,
+              onStyleLoadedCallback: _onStyleLoaded,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),
                 zoom: 11.0,
@@ -228,6 +251,18 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           child: const Text('remove'),
                           onPressed: (_selectedSymbol == null) ? null : _remove,
                         ),
+                        FlatButton(
+                          child: const Text('add (asset image)'),
+                          onPressed: () => (_symbolCount == 12)
+                              ? null
+                              : _add(
+                                  "assetImage"), //assetImage added to the style in _onStyleLoaded
+                        ),
+                        FlatButton(
+                          child: const Text('add (network image)'),
+                          onPressed: () =>
+                              (_symbolCount == 12) ? null : _add("networkImage"), //networkImage added to the style in _onStyleLoaded
+                        ),
                       ],
                     ),
                     Column(
@@ -239,8 +274,9 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                         ),
                         FlatButton(
                           child: const Text('change icon offset'),
-                          onPressed:
-                              (_selectedSymbol == null) ? null : _changeIconOffset,
+                          onPressed: (_selectedSymbol == null)
+                              ? null
+                              : _changeIconOffset,
                         ),
                         FlatButton(
                           child: const Text('change icon anchor'),
