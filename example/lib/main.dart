@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:mapbox_gl_example/layer.dart';
 
 import 'animate_camera.dart';
 import 'line.dart';
@@ -20,6 +21,7 @@ final List<Page> _allPages = <Page>[
   MoveCameraPage(),
   PlaceSymbolPage(),
   LinePage(),
+  LayerPage(),
   PlaceCirclePage(),
   ScrollingMapPage(),
 ];

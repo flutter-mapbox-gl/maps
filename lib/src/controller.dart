@@ -218,6 +218,21 @@ class MapboxMapController extends ChangeNotifier {
     });
   }
 
+  Future<void> addSource(String sourceId, String geojson) async {
+    await _channel.invokeMethod('source#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'geojson': geojson,
+    });
+  }
+
+  Future<void> addLineLayer(String sourceId, String layerId, Map<String, String> properties) async {
+    await _channel.invokeMethod('lineLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'properties': properties
+    });
+  }
+
   /// Updates user location tracking mode.
   ///
   /// The returned [Future] completes after the change has been made on the

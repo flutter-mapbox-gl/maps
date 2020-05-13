@@ -30,6 +30,7 @@ import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
@@ -57,6 +58,13 @@ import com.mapbox.mapboxsdk.plugins.annotation.Line;
 import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.PropertyValue;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
@@ -349,6 +357,35 @@ final class MapboxMapController
     }
   }
 
+  private void addSource(String sourceName, String geojson) {
+    FeatureCollection featureCollection = FeatureCollection.fromJson(geojson);
+    GeoJsonSource geoJsonSource = new GeoJsonSource(sourceName, featureCollection);
+
+    mapStyle.addSource(geoJsonSource);
+  }
+
+  private void addSymbolLayer(String layerName,
+                              String sourceName,
+                              PropertyValue[] properties,
+                              Expression filter) {
+    SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
+
+    symbolLayer.setProperties(properties);
+
+    mapStyle.addLayer(symbolLayer);
+  }
+
+  private void addLineLayer(String layerName,
+                            String sourceName,
+                            PropertyValue[] properties,
+                            Expression filter) {
+    LineLayer lineLayer = new LineLayer(layerName, sourceName);
+
+    lineLayer.setProperties(properties);
+
+    mapStyle.addLayer(lineLayer);
+  }
+
   private void enableSymbolManager(@NonNull Style style) {
     if (symbolManager == null) {
       symbolManager = new SymbolManager(mapView, mapboxMap, style);
@@ -537,6 +574,26 @@ final class MapboxMapController
         hashMapLatLng.put("latitude", circleLatLng.getLatitude());
         hashMapLatLng.put("longitude", circleLatLng.getLongitude());
         result.success(hashMapLatLng);
+        break;
+      }
+      case "source#add": {
+        final String sourceId = call.argument("sourceId");
+        final String geojson = call.argument("geojson");
+        addSource(sourceId, geojson);
+        break;
+      }
+      case "symbolLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final PropertyValue[] properties = Convert.interpretSymbolLayerProperties(call.argument("properties"));
+        addSymbolLayer(layerId, sourceId, properties, null);
+        break;
+      }
+      case "lineLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final PropertyValue[] properties = Convert.interpretLineLayerProperties(call.argument("properties"));
+        addLineLayer(layerId, sourceId, properties, null);
         break;
       }
       case "locationComponent#getLastLocation": {
