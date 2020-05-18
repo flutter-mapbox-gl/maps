@@ -330,6 +330,27 @@ class MapboxMapController extends ChangeNotifier {
     return symbol;
   }
 
+
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options) async {
+    final List<SymbolOptions> effectiveOptions = options.map(
+          (o) => SymbolOptions.defaultOptions.copyWith(o)
+    ).toList();
+
+    final List<dynamic> symbolIds = await _channel.invokeMethod(
+      'symbol#add_many',
+      <String, dynamic>{
+        'options': effectiveOptions.map((o) => o._toJson()).toList(),
+      },
+    );
+    final List<Symbol> symbols = symbolIds.asMap().map(
+        (i, id) => MapEntry(i, Symbol(id, effectiveOptions.elementAt(i)))
+    ).values.toList();
+
+    symbols.forEach((s) => _symbols[s.id] = s);
+    notifyListeners();
+    return symbols;
+  }
+
   /// Updates the specified [symbol] with the given [changes]. The symbol must
   /// be a current member of the [symbols] set.
   ///
@@ -372,6 +393,16 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> removeSymbols(Iterable<Symbol> symbols) async {
+	  assert(symbols.length > 0);
+	  symbols.forEach((s) {
+	  	assert(_symbols[s._id] == s);
+	  });
+	  
+	  await _removeSymbols(symbols.map((s) => s._id).toList());
+	  notifyListeners();
+  }
+
   /// Removes all [symbols] from the map.
   ///
   /// Change listeners are notified once all symbols have been removed on the
@@ -395,6 +426,13 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> _removeSymbol(String id) async {
     await MapboxGlPlatform.getInstance(_id).removeSymbol(id);
     _symbols.remove(id);
+  }
+  
+  Future<void> _removeSymbols(List<String> ids) async {
+	  await _channel.invokeMethod('symbol#remove_many', <String, dynamic>{
+		  'symbols': ids,
+	  });
+	  _symbols.removeWhere((k, s) => ids.contains(k));
   }
 
   /// Adds a line to the map, configured using the specified custom [options].

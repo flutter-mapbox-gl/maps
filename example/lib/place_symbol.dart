@@ -103,11 +103,45 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     });
   }
 
+  Future<void> _addMany() async {
+  	final bounds = await controller.getVisibleRegion();
+  	//Select random amount between 2 and 5
+    final int amountOfSymbolsToAdd = (Iterable<int>.generate(5).where((i) => i > 1).toList()..shuffle()).first;
+    final List<SymbolOptions> symbolOptionsList = [];
+    final int delimiter = 10;
+    final List<int> steps = Iterable<int>.generate(delimiter - 1).where((i) => i > 0).toList();
+    for(int i = 1; i <= amountOfSymbolsToAdd; i++) {
+        if (_symbolCount + i > 12) break;
+        symbolOptionsList.add(
+	        SymbolOptions(
+		        geometry: LatLng(
+			        bounds.southwest.latitude + ((steps..shuffle()).first) * (bounds.northeast.latitude - bounds.southwest.latitude) / delimiter,
+			        bounds.southwest.longitude + ((steps..shuffle()).first) * (bounds.northeast.longitude - bounds.southwest.longitude) / delimiter,
+		        ),
+		        iconImage: 'airport-15',
+            )
+        );
+    }
+    
+    if(symbolOptionsList.isNotEmpty) controller.addSymbols(symbolOptionsList);
+    setState(() {
+      _symbolCount += symbolOptionsList.length;
+    });
+  }
+
   void _remove() {
     controller.removeSymbol(_selectedSymbol);
     setState(() {
       _selectedSymbol = null;
       _symbolCount -= 1;
+    });
+  }
+
+  void _removeAll() {
+    controller.removeSymbols(controller.symbols);
+    setState(() {
+      _selectedSymbol = null;
+      _symbolCount = 0;
     });
   }
 
@@ -258,6 +292,11 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                               (_symbolCount == 12) ? null : _add("airport-15"),
                         ),
                         FlatButton(
+                          child: const Text('add_many'),
+                          onPressed: () =>
+                          (_symbolCount == 12) ? null : _addMany(),
+                        ),
+                        FlatButton(
                           child: const Text('add (custom icon)'),
                           onPressed: () => (_symbolCount == 12)
                               ? null
@@ -270,6 +309,10 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                         FlatButton(
                           child:  Text('${_iconAllowOverlap ? 'disable' : 'enable'} icon overlap'),
                           onPressed: _changeIconOverlap,
+                        ),
+                        FlatButton(
+                          child: const Text('remove all'),
+                          onPressed: (_symbolCount == 0) ? null : _removeAll,
                         ),
                         FlatButton(
                           child: const Text('add (asset image)'),
