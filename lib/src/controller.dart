@@ -11,6 +11,8 @@ typedef void OnStyleLoadedCallback();
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
+typedef void OnCameraIdleCallback();
+
 typedef void OnMapIdleCallback();
 
 /// Controller for a single MapboxMap instance running on the host platform.
@@ -35,6 +37,7 @@ class MapboxMapController extends ChangeNotifier {
       this.onMapClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged,
+      this.onCameraIdle,
       this.onMapIdle})
       : assert(_id != null),
         assert(channel != null),
@@ -49,6 +52,7 @@ class MapboxMapController extends ChangeNotifier {
       OnMapClickCallback onMapClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
+      OnCameraIdleCallback onCameraIdle,
       OnMapIdleCallback onMapIdle}) async {
     assert(id != null);
     final MethodChannel channel =
@@ -59,6 +63,7 @@ class MapboxMapController extends ChangeNotifier {
         onMapClick: onMapClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
+        onCameraIdle: onCameraIdle,
         onMapIdle: onMapIdle);
   }
 
@@ -70,6 +75,8 @@ class MapboxMapController extends ChangeNotifier {
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
+
+  final OnCameraIdleCallback onCameraIdle;
 
   final OnMapIdleCallback onMapIdle;
 
@@ -155,6 +162,9 @@ class MapboxMapController extends ChangeNotifier {
         break;
       case 'camera#onIdle':
         _isCameraMoving = false;
+        if (onCameraIdle != null) {
+          onCameraIdle();
+        }
         notifyListeners();
         break;
       case 'map#onStyleLoaded':
