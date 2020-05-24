@@ -354,7 +354,7 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Retrieves the current position of the symbol.
   /// This may be different from the value of `symbol.options.geometry` if the symbol is draggable.
-  /// In that case this method provides the symbol's actual position, and `symbol.options.geometry` its initial position.
+  /// In that case this method provides the symbol's actual position, and `symbol.options.geometry` the last programmatically set position.
   Future<LatLng> getSymbolLatLng(Symbol symbol) async {
     assert(symbol != null);
     assert(_symbols[symbol._id] == symbol);
@@ -451,17 +451,19 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Retrieves the current position of the line.
   /// This may be different from the value of `line.options.geometry` if the line is draggable.
-  /// In that case this method provides the line's actual position, and `line.options.geometry` its initial position.
+  /// In that case this method provides the line's actual position, and `line.options.geometry` the last programmatically set position.
   Future<List<LatLng>> getLineLatLngs(Line line) async {
     assert(line != null);
     assert(_lines[line._id] == line);
-    Map mapLatLng =
+    List latLngList =
         await _channel.invokeMethod('line#getGeometry', <String, dynamic>{
       'line': line._id,
     });
-    LatLng lineLatLng =
-        new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
-    return lineLatLng;
+    List<LatLng> resultList = [];
+    for (var latLng in latLngList) {
+      resultList.add(LatLng(latLng['latitude'], latLng['longitude']));
+    }
+    return resultList;
   }
 
   /// Removes the specified [line] from the map. The line must be a current
@@ -548,7 +550,7 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Retrieves the current position of the circle.
   /// This may be different from the value of `circle.options.geometry` if the circle is draggable.
-  /// In that case this method provides the circle's actual position, and `circle.options.geometry` its initial position.
+  /// In that case this method provides the circle's actual position, and `circle.options.geometry` the last programmatically set position.
   Future<LatLng> getCircleLatLng(Circle circle) async {
     assert(circle != null);
     assert(_circles[circle._id] == circle);

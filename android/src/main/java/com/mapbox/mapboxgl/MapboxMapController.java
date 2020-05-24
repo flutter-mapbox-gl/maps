@@ -603,11 +603,15 @@ final class MapboxMapController
       case "line#getGeometry": {
         final String lineId = call.argument("line");
         final LineController line = line(lineId);
-        final LatLng lineLatLng = line.getGeometry();
-        Map<String, Double> hashMapLatLng = new HashMap<>();
-        hashMapLatLng.put("latitude", lineLatLng.getLatitude());
-        hashMapLatLng.put("longitude", lineLatLng.getLongitude());
-        result.success(hashMapLatLng);
+        final List<LatLng> lineLatLngs = line.getGeometry();
+        final List<Object> resultList = new ArrayList<>();
+        for (LatLng latLng: lineLatLngs){
+          Map<String, Double> hashMapLatLng = new HashMap<>();
+          hashMapLatLng.put("latitude", latLng.getLatitude());
+          hashMapLatLng.put("longitude", latLng.getLongitude());
+          resultList.add(hashMapLatLng);
+        }
+        result.success(resultList);
         break;
       }
       case "circle#add": {
