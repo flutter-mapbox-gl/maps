@@ -262,6 +262,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                         FlatButton(
                           child:  Text('${_iconAllowOverlap ? 'disable' : 'enable'} icon overlap'),
                           onPressed: _changeIconOverlap,
+                        ),
+                        FlatButton(
                           child: const Text('add (asset image)'),
                           onPressed: () => (_symbolCount == 12)
                               ? null
