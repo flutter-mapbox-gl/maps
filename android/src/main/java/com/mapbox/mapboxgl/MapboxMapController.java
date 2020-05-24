@@ -564,6 +564,16 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "symbol#getGeometry": {
+        final String symbolId = call.argument("symbol");
+        final SymbolController symbol = symbol(symbolId);
+        final LatLng symbolLatLng = symbol.getGeometry();
+        Map<String, Double> hashMapLatLng = new HashMap<>();
+        hashMapLatLng.put("latitude", symbolLatLng.getLatitude());
+        hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
+        result.success(hashMapLatLng);
+        break;
+      }
       case "line#add": {
         final LineBuilder lineBuilder = newLineBuilder();
         Convert.interpretLineOptions(call.argument("options"), lineBuilder);
@@ -585,6 +595,16 @@ final class MapboxMapController
         Convert.interpretLineOptions(call.argument("options"), line);
         line.update(lineManager);
         result.success(null);
+        break;
+      }
+      case "line#getGeometry": {
+        final String lineId = call.argument("line");
+        final LineController line = line(lineId);
+        final LatLng lineLatLng = line.getGeometry();
+        Map<String, Double> hashMapLatLng = new HashMap<>();
+        hashMapLatLng.put("latitude", lineLatLng.getLatitude());
+        hashMapLatLng.put("longitude", lineLatLng.getLongitude());
+        result.success(hashMapLatLng);
         break;
       }
       case "circle#add": {

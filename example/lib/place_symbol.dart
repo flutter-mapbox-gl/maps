@@ -185,6 +185,15 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     );
   }
 
+   void _getLatLng() async {
+    LatLng latLng = await controller.getSymbolLatLng(_selectedSymbol);
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(latLng.toString()),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -275,6 +284,12 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           child: const Text('change zIndex'),
                           onPressed:
                               (_selectedSymbol == null) ? null : _changeZIndex,
+                        ),
+                        FlatButton(
+                          child: const Text('get current LatLng'),
+                          onPressed: (_selectedSymbol == null)
+                              ? null
+                              : _getLatLng,
                         ),
                       ],
                     ),
