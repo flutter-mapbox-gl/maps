@@ -12,7 +12,7 @@ final LatLngBounds sydneyBounds = LatLngBounds(
   northeast: const LatLng(-33.571835, 151.325952),
 );
 
-class MapUiPage extends Page {
+class MapUiPage extends ExamplePage {
   MapUiPage() : super(const Icon(Icons.map), 'User interface');
 
   @override

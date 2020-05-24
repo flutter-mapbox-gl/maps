@@ -31,9 +31,13 @@ class MapboxMap extends StatefulWidget {
     this.onMapClick,
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
+    this.onMapIdle,
   }) : assert(initialCameraPosition != null);
 
   final MapCreatedCallback onMapCreated;
+  
+  /// Called when the map style has been successfully loaded and the annotation managers have been enabled.
+  /// Please note: you should only add annotations (e.g. symbols or circles) after this callback has been called.
   final OnStyleLoadedCallback onStyleLoadedCallback;
 
   /// The initial position of the map's camera.
@@ -130,6 +134,14 @@ class MapboxMap extends StatefulWidget {
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
 
+  /// Called when map view is entering an idle state, and no more drawing will
+  /// be necessary until new data is loaded or there is some interaction with
+  /// the map.
+  /// * No camera transitions are in progress
+  /// * All currently requested tiles have loaded
+  /// * All fade/transition animations have completed
+  final OnMapIdleCallback onMapIdle;
+
   @override
   State createState() => _MapboxMapState();
 }
@@ -198,7 +210,8 @@ class _MapboxMapState extends State<MapboxMap> {
         onStyleLoadedCallback: widget.onStyleLoadedCallback,
         onMapClick: widget.onMapClick,
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
-        onCameraTrackingChanged: widget.onCameraTrackingChanged);
+        onCameraTrackingChanged: widget.onCameraTrackingChanged,
+        onMapIdle: widget.onMapIdle);
     _controller.complete(controller);
     if (widget.onMapCreated != null) {
       widget.onMapCreated(controller);

@@ -124,6 +124,7 @@ final class MapboxMapController
   private LocationComponent locationComponent = null;
   private LocationEngine locationEngine = null;
   private LocalizationPlugin localizationPlugin;
+  private Style style;
 
   MapboxMapController(
     int id,
@@ -319,6 +320,7 @@ final class MapboxMapController
   Style.OnStyleLoaded onStyleLoadedCallback = new Style.OnStyleLoaded() {
     @Override
     public void onStyleLoaded(@NonNull Style style) {
+      MapboxMapController.this.style = style;
       enableLineManager(style);
       enableSymbolManager(style);
       enableCircleManager(style);
@@ -461,24 +463,28 @@ final class MapboxMapController
       }
       case "camera#animate": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
-        if (cameraUpdate != null) {
+        final Integer duration = call.argument("duration");
+
+        final OnCameraMoveFinishedListener onCameraMoveFinishedListener = new OnCameraMoveFinishedListener(){
+          @Override
+          public void onFinish() {
+            super.onFinish();
+            result.success(true);
+          }
+
+          @Override
+          public void onCancel() {
+            super.onCancel();
+            result.success(false);
+          }
+        };
+        if (cameraUpdate != null && duration != null) {
           // camera transformation not handled yet
-          mapboxMap.animateCamera(cameraUpdate, new OnCameraMoveFinishedListener(){
-            @Override
-            public void onFinish() {
-              super.onFinish();
-              result.success(true);
-            }
-
-            @Override
-            public void onCancel() {
-              super.onCancel();
-              result.success(false);
-            }
-          });
-
-          // animateCamera(cameraUpdate);
-        }else {
+          mapboxMap.animateCamera(cameraUpdate, duration, onCameraMoveFinishedListener);
+        } else if (cameraUpdate != null) {
+          // camera transformation not handled yet
+          mapboxMap.animateCamera(cameraUpdate, onCameraMoveFinishedListener);
+        } else {
           result.success(false);
         }
         break;
@@ -668,6 +674,14 @@ final class MapboxMapController
             }
           });
         }
+        break;
+      }
+      case "style#addImage":{
+        if(style==null){
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+        style.addImage(call.argument("name"), BitmapFactory.decodeByteArray(call.argument("bytes"),0,call.argument("length")), call.argument("sdf"));
+        result.success(null);
         break;
       }
       default:
