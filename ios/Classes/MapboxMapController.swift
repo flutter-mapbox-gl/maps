@@ -90,6 +90,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 style.localizeLabels(into: nil)
             }
             result(nil)
+        case "map#updateContentInsets":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+
+            if let bounds = arguments["bounds"] as? [String: Any],
+                let top = bounds["top"] as? CGFloat,
+                let left = bounds["left"]  as? CGFloat,
+                let bottom = bounds["bottom"] as? CGFloat,
+                let right = bounds["right"] as? CGFloat,
+                let animated = arguments["animated"] as? Bool {
+                mapView.setContentInset(UIEdgeInsets(top: top, left: left, bottom: bottom, right: right), animated: animated) {
+                    result(nil)
+                }
+            } else {
+                result(nil)
+            }
         case "map#setMapLanguage":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             if let localIdentifier = arguments["language"] as? String, let style = mapView.style {
@@ -105,18 +120,31 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "map#getTelemetryEnabled":
             let telemetryEnabled = UserDefaults.standard.bool(forKey: "MGLMapboxMetricsEnabled")
             result(telemetryEnabled)
+        case "map#getVisibleRegion":
+            var reply = [String: NSObject]()
+            let visibleRegion = mapView.visibleCoordinateBounds
+            reply["sw"] = [visibleRegion.sw.latitude, visibleRegion.sw.longitude] as NSObject
+            reply["ne"] = [visibleRegion.ne.latitude, visibleRegion.ne.longitude] as NSObject
+            result(reply)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
             if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
                 mapView.setCamera(camera, animated: false)
             }
+            result(nil)
         case "camera#animate":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
             if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
+                if let duration = arguments["duration"] as? TimeInterval {
+                    mapView.setCamera(camera, withDuration: TimeInterval(duration / 1000), 
+                        animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut))
+                    result(nil)
+                }
                 mapView.setCamera(camera, animated: true)
             }
+            result(nil)
         case "symbol#add":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
@@ -250,6 +278,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "style#addImage":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let name = arguments["name"] as? String else { return }
+            //guard let length = arguments["length"] as? NSNumber else { return }
+            guard let bytes = arguments["bytes"] as? FlutterStandardTypedData else { return }
+            guard let data = bytes.data as? Data else{ return }
+            guard let image = UIImage(data: data) else { return }
+            
+            self.mapView.style?.setImage(image, forName: name)
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -317,7 +355,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     // This is required in order to hide the default Maps SDK pin
     func mapView(_ mapView: MGLMapView, viewFor annotation: MGLAnnotation) -> MGLAnnotationView? {
         if annotation is MGLUserLocation {
-            return MGLUserLocationAnnotationView()
+            return nil
         }
         return MGLAnnotationView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
     }
@@ -334,6 +372,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             camera.pitch = initialTilt
             mapView.setCamera(camera, animated: false)
         }
+
+        lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
+        lineAnnotationController!.annotationsInteractionEnabled = true
+        lineAnnotationController?.delegate = self
+
         symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
         symbolAnnotationController!.annotationsInteractionEnabled = true
         symbolAnnotationController?.delegate = self
@@ -341,10 +384,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
         circleAnnotationController!.annotationsInteractionEnabled = true
         circleAnnotationController?.delegate = self
-        
-        lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
-        lineAnnotationController!.annotationsInteractionEnabled = true
-        lineAnnotationController?.delegate = self
 
         mapReadyResult?(nil)
         if let channel = channel {
@@ -418,6 +457,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             if mode == .none {
                 channel.invokeMethod("map#onCameraTrackingDismissed", arguments: [])
             }
+        }
+    }
+    
+    func mapViewDidBecomeIdle(_ mapView: MGLMapView) {
+        if let channel = channel {
+            channel.invokeMethod("map#onIdle", arguments: []);
         }
     }
     

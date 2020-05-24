@@ -10,7 +10,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class ScrollingMapPage extends Page {
+class ScrollingMapPage extends ExamplePage {
   ScrollingMapPage() : super(const Icon(Icons.map), 'Scrolling map');
 
   @override

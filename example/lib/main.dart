@@ -4,8 +4,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:mapbox_gl_example/full_map.dart';
 
 import 'animate_camera.dart';
+import 'full_map.dart';
 import 'line.dart';
 import 'map_ui.dart';
 import 'move_camera.dart';
@@ -14,8 +16,9 @@ import 'place_circle.dart';
 import 'place_symbol.dart';
 import 'scrolling_map.dart';
 
-final List<Page> _allPages = <Page>[
+final List<ExamplePage> _allPages = <ExamplePage>[
   MapUiPage(),
+  FullMapPage(),
   AnimateCameraPage(),
   MoveCameraPage(),
   PlaceSymbolPage(),
@@ -25,10 +28,10 @@ final List<Page> _allPages = <Page>[
 ];
 
 class MapsDemo extends StatelessWidget {
-  void _pushPage(BuildContext context, Page page) async {
+  void _pushPage(BuildContext context, ExamplePage page) async {
     final location = Location();
     final hasPermissions = await location.hasPermission();
-    if (!hasPermissions) {
+    if (hasPermissions != PermissionStatus.GRANTED) {
       await location.requestPermission();
     }
 

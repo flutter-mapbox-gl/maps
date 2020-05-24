@@ -10,6 +10,12 @@ embedded interactive and customizable vector maps inside a Flutter widget by emb
 ## Install
 This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to integrate a package into your flutter application.
 
+## :new: :new: Who's using this SDK :new: :new:
+
+We're compiling a list of apps using this SDK. If you want to be listed here, please open a PR and add yourself below (or open a ticket and we'll add you).
+
+- You?
+
 ### Running example app
 
 - Install [Flutter](https://flutter.io/get-started/) and validate its installation with `flutter doctor`
@@ -19,6 +25,7 @@ This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), foll
 #### Mapbox Access Token
 
 This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
+> **Even if you do not use Mapbox vector tiles but vector tiles from a different source (like self-hosted tiles) with this plugin, you will need to specify any non-empty string as Access Token as explained below!**
 
 ##### Android
 Add Mapbox read token value in the application manifest ```android/app/src/main/AndroidManifest.xml:```

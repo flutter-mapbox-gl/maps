@@ -7,7 +7,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class AnimateCameraPage extends Page {
+class AnimateCameraPage extends ExamplePage {
   AnimateCameraPage()
       : super(const Icon(Icons.map), 'Camera control, animated');
 

@@ -11,6 +11,8 @@ typedef void OnStyleLoadedCallback();
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
+typedef void OnMapIdleCallback();
+
 /// Controller for a single MapboxMap instance running on the host platform.
 ///
 /// Change listeners are notified upon changes to any of
@@ -32,7 +34,8 @@ class MapboxMapController extends ChangeNotifier {
       {this.onStyleLoadedCallback,
       this.onMapClick,
       this.onCameraTrackingDismissed,
-      this.onCameraTrackingChanged})
+      this.onCameraTrackingChanged,
+      this.onMapIdle})
       : assert(_id != null),
         assert(channel != null),
         _channel = channel {
@@ -45,7 +48,8 @@ class MapboxMapController extends ChangeNotifier {
       {OnStyleLoadedCallback onStyleLoadedCallback,
       OnMapClickCallback onMapClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
-      OnCameraTrackingChangedCallback onCameraTrackingChanged}) async {
+      OnCameraTrackingChangedCallback onCameraTrackingChanged,
+      OnMapIdleCallback onMapIdle}) async {
     assert(id != null);
     final MethodChannel channel =
         MethodChannel('plugins.flutter.io/mapbox_maps_$id');
@@ -54,7 +58,8 @@ class MapboxMapController extends ChangeNotifier {
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
-        onCameraTrackingChanged: onCameraTrackingChanged);
+        onCameraTrackingChanged: onCameraTrackingChanged,
+        onMapIdle: onMapIdle);
   }
 
   final MethodChannel _channel;
@@ -65,6 +70,8 @@ class MapboxMapController extends ChangeNotifier {
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
+
+  final OnMapIdleCallback onMapIdle;
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Symbol> onSymbolTapped = ArgumentCallbacks<Symbol>();
@@ -175,6 +182,11 @@ class MapboxMapController extends ChangeNotifier {
           onCameraTrackingDismissed();
         }
         break;
+      case 'map#onIdle':
+        if (onMapIdle != null) {
+          onMapIdle();
+        }
+        break;
       default:
         throw MissingPluginException();
     }
@@ -204,9 +216,11 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   /// It returns true if the camera was successfully moved and false if the movement was canceled.
   /// Note: this currently always returns immediately with a value of null on iOS
-  Future<bool> animateCamera(CameraUpdate cameraUpdate) async {
+  Future<bool> animateCamera(CameraUpdate cameraUpdate,
+      {Duration duration}) async {
     return await _channel.invokeMethod('camera#animate', <String, dynamic>{
       'cameraUpdate': cameraUpdate._toJson(),
+      'duration': duration != null ? duration.inMilliseconds : null
     });
   }
 
@@ -229,20 +243,44 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> updateMyLocationTrackingMode(
       MyLocationTrackingMode myLocationTrackingMode) async {
-    await _channel.invokeMethod(
-        'map#updateMyLocationTrackingMode', <String, dynamic>{
+    await _channel
+        .invokeMethod('map#updateMyLocationTrackingMode', <String, dynamic>{
       'mode': myLocationTrackingMode.index,
     });
   }
-  
+
   /// Updates the language of the map labels to match the device's language.
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   Future<void> matchMapLanguageWithDeviceDefault() async {
     await _channel.invokeMethod('map#matchMapLanguageWithDeviceDefault');
-  }  
-  
+  }
+
+  /// Updates the distance from the edges of the map view’s frame to the edges
+  /// of the map view’s logical viewport, optionally animating the change.
+  ///
+  /// When the value of this property is equal to `EdgeInsets.zero`, viewport
+  /// properties such as centerCoordinate assume a viewport that matches the map
+  /// view’s frame. Otherwise, those properties are inset, excluding part of the
+  /// frame from the viewport. For instance, if the only the top edge is inset,
+  /// the map center is effectively shifted downward.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> updateContentInsets(EdgeInsets insets,
+      [bool animated = false]) async {
+    await _channel.invokeMethod('map#updateContentInsets', <String, dynamic>{
+      'bounds': <String, double>{
+        'top': insets.top,
+        'left': insets.left,
+        'bottom': insets.bottom,
+        'right': insets.right,
+      },
+      'animated': animated,
+    });
+  }
+
   /// Updates the language of the map labels to match the specified language.
   /// Supported language strings are available here: https://github.com/mapbox/mapbox-plugins-android/blob/e29c18d25098eb023a831796ff807e30d8207c36/plugin-localization/src/main/java/com/mapbox/mapboxsdk/plugins/localization/MapLocale.java#L39-L87
   ///
@@ -253,7 +291,7 @@ class MapboxMapController extends ChangeNotifier {
       'language': language,
     });
   }
-  
+
   /// Enables or disables the collection of anonymized telemetry data.
   ///
   /// The returned [Future] completes after the change has been made on the
@@ -279,7 +317,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes with the added symbol once listeners have
   /// been notified.
-  Future<Symbol> addSymbol(SymbolOptions options) async {
+  Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
     final SymbolOptions effectiveOptions =
         SymbolOptions.defaultOptions.copyWith(options);
     final String symbolId = await _channel.invokeMethod(
@@ -288,7 +326,7 @@ class MapboxMapController extends ChangeNotifier {
         'options': effectiveOptions._toJson(),
       },
     );
-    final Symbol symbol = Symbol(symbolId, effectiveOptions);
+    final Symbol symbol = Symbol(symbolId, effectiveOptions, data);
     _symbols[symbolId] = symbol;
     notifyListeners();
     return symbol;
@@ -377,7 +415,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes with the added line once listeners have
   /// been notified.
-  Future<Line> addLine(LineOptions options) async {
+  Future<Line> addLine(LineOptions options, [Map data]) async {
     final LineOptions effectiveOptions =
         LineOptions.defaultOptions.copyWith(options);
     final String lineId = await _channel.invokeMethod(
@@ -386,7 +424,7 @@ class MapboxMapController extends ChangeNotifier {
         'options': effectiveOptions._toJson(),
       },
     );
-    final Line line = Line(lineId, effectiveOptions);
+    final Line line = Line(lineId, effectiveOptions, data);
     _lines[lineId] = line;
     notifyListeners();
     return line;
@@ -474,7 +512,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes with the added circle once listeners have
   /// been notified.
-  Future<Circle> addCircle(CircleOptions options) async {
+  Future<Circle> addCircle(CircleOptions options, [Map data]) async {
     final CircleOptions effectiveOptions =
         CircleOptions.defaultOptions.copyWith(options);
     final String circleId = await _channel.invokeMethod(
@@ -483,7 +521,7 @@ class MapboxMapController extends ChangeNotifier {
         'options': effectiveOptions._toJson(),
       },
     );
-    final Circle circle = Circle(circleId, effectiveOptions);
+    final Circle circle = Circle(circleId, effectiveOptions, data);
     _circles[circleId] = circle;
     notifyListeners();
     return circle;
@@ -603,12 +641,11 @@ class MapboxMapController extends ChangeNotifier {
     }
   }
 
-
   Future invalidateAmbientCache() async {
     try {
       await _channel.invokeMethod('map#invalidateAmbientCache');
       return null;
-      } on PlatformException catch (e) {
+    } on PlatformException catch (e) {
       return new Future.error(e);
     }
   }
@@ -616,10 +653,11 @@ class MapboxMapController extends ChangeNotifier {
   /// Get last my location
   ///
   /// Return last latlng, nullable
-  
+
   Future<LatLng> requestMyLocationLatLng() async {
     try {
-      final Map<Object, Object> reply = await _channel.invokeMethod('locationComponent#getLastLocation', null);
+      final Map<Object, Object> reply = await _channel.invokeMethod(
+          'locationComponent#getLastLocation', null);
       double latitude = 0.0, longitude = 0.0;
       if (reply.containsKey("latitude") && reply["latitude"] != null) {
         latitude = double.parse(reply["latitude"].toString());
@@ -634,25 +672,74 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   ///This method returns the boundaries of the region currently displayed in the map.
-  Future<LatLngBounds> getVisibleRegion() async{
+  Future<LatLngBounds> getVisibleRegion() async {
     try {
-      final Map<Object, Object> reply = await _channel.invokeMethod('map#getVisibleRegion', null);
-      double latitudeSW = 0.0, longitudeSW = 0.0, latitudeNE = 0.0, longitudeNE = 0.0;
-      if (reply.containsKey("latitudeSW") && reply["latitudeSW"] != null) {
-        latitudeSW = double.parse(reply["latitudeSW"].toString());
+      final Map<Object, Object> reply =
+          await _channel.invokeMethod('map#getVisibleRegion', null);
+      LatLng southwest, northeast;
+      if (reply.containsKey("sw")) {
+        List<dynamic> coordinates = reply["sw"];
+        southwest = LatLng(coordinates[0], coordinates[1]);
       }
-      if (reply.containsKey("longitudeSW") && reply["longitudeSW"] != null) {
-        longitudeSW = double.parse(reply["longitudeSW"].toString());
+      if (reply.containsKey("ne")) {
+        List<dynamic> coordinates = reply["ne"];
+        northeast = LatLng(coordinates[0], coordinates[1]);
       }
-      if (reply.containsKey("latitudeNE") && reply["latitudeNE"] != null) {
-        latitudeNE = double.parse(reply["latitudeNE"].toString());
-      }
-      if (reply.containsKey("longitudeNE") && reply["longitudeNE"] != null) {
-        longitudeNE = double.parse(reply["longitudeNE"].toString());
-      }
-      return LatLngBounds(southwest: LatLng(latitudeSW, longitudeSW), northeast: LatLng(latitudeNE, longitudeNE));
+      return LatLngBounds(southwest: southwest, northeast: northeast);
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
   }
+
+  /// Adds an image to the style currently displayed in the map, so that it can later be referred to by the provided name.
+  /// 
+  /// This allows you to add an image to the currently displayed style once, and from there on refer to it e.g. in the [Symbol.iconImage] anytime you add a [Symbol] later on.
+  /// Set [sdf] to true if the image you add is an SDF image.
+  /// Returns after the image has successfully been added to the style.
+  /// Note: This can only be called after OnStyleLoadedCallback has been invoked and any added images will have to be re-added if a new style is loaded.
+  /// 
+  /// Example: Adding an asset image and using it in a new symbol:
+  /// ```dart
+  /// Future<void> addImageFromAsset() async{
+  ///   final ByteData bytes = await rootBundle.load("assets/someAssetImage.jpg");
+  ///   final Uint8List list = bytes.buffer.asUint8List();
+  ///   await controller.addImage("assetImage", list);
+  ///   controller.addSymbol(
+  ///    SymbolOptions(
+  ///     geometry: LatLng(0,0),
+  ///     iconImage: "assetImage",
+  ///    ),
+  ///   );
+  /// }
+  /// ```
+  /// 
+  /// Example: Adding a network image (with the http package) and using it in a new symbol:
+  /// ```dart
+  /// Future<void> addImageFromUrl() async{
+  ///  var response = await get("https://example.com/image.png");
+  ///  await controller.addImage("testImage",  response.bodyBytes);
+  ///  controller.addSymbol(
+  ///   SymbolOptions(
+  ///     geometry: LatLng(0,0),
+  ///     iconImage: "testImage",
+  ///   ),
+  ///  );
+  /// }
+  /// ```
+  Future<void> addImage(String name, Uint8List bytes, [bool sdf = false]) {
+    try {
+      return _channel.invokeMethod('style#addImage', <String, Object>{
+        "name": name,
+        "bytes": bytes,
+        "length": bytes.length,
+        "sdf": sdf
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  
+
+ 
 }
