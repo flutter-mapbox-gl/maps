@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl_example/full_map.dart';
+import 'package:mapbox_gl_example/offline_manager.dart';
 
 import 'animate_camera.dart';
 import 'full_map.dart';
@@ -25,6 +26,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   LinePage(),
   PlaceCirclePage(),
   ScrollingMapPage(),
+  OfflineManagerPage(),
 ];
 
 class MapsDemo extends StatelessWidget {
