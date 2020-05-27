@@ -44,7 +44,7 @@ Add these lines to your Info.plist
 <key>MGLMapboxAccessToken</key>
 <string>YOUR_TOKEN_HERE</string>
 ```
-You should also add the following key to your Info.plist to explain to your users why you need to access their location:
+If you access your users' location, you should also add the following key to your Info.plist to explain why you need access to their location data:
 ```
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>[Your explanation here]</string>
