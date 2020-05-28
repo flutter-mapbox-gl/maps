@@ -32,12 +32,13 @@ import java.util.ArrayList;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
-import timber.log.Timber;
+
 
 
 public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
     public static final String JSON_CHARSET = "UTF-8";
     public static final String JSON_FIELD_REGION_NAME = "FIELD_REGION_NAME";
+    public static final String TAG = "MapboxOfflineManager";
     private final String CHANNEL_1_ID = "ch1";
     Context context;
     MapboxMap map;
@@ -104,22 +105,21 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
                     String json = jsonObject.toString();
                     metadata = json.getBytes(JSON_CHARSET);
                 } catch (Exception exception) {
-                    Timber.e("Failed to encode metadata: %s", exception.getMessage());
-                    Log.d("TAGGER","Failed to encode metadata: "+ exception.getMessage());
+
+                    Log.d(TAG,"Failed to encode metadata: "+ exception.getMessage());
                     metadata = null;
                 }
                 // Create the offline region and launch the download
                 offlineManager.createOfflineRegion(definition, metadata, new OfflineManager.CreateOfflineRegionCallback() {
                     @Override
                     public void onCreate(OfflineRegion _offlineRegion) {
-                        Timber.d( "Offline region created: %s" , regionName);
-                        Log.d( "TAGGER","Offline region created: " + regionName);
+                        Log.d( TAG,"Offline region created: " + regionName);
                         offlineRegion = _offlineRegion;
                         launchDownload(regionName);
                     }
                     @Override
                     public void onError(String error) {
-                        Timber.e( "Error: %s" , error);
+                        Log.e( TAG, "Error: "+ error);
                     }
                 });
             }
@@ -151,7 +151,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
                 downloadNotification.setProgress(100, (int)percentage, false);
                 notificationManager.notify(1, downloadNotification.build());
 
-                Log.d("TAGGER","percentage: "+percentage);
+                Log.d(TAG,"percentage: "+percentage);
                 if (status.isComplete()) {
                     // Download complete//
                     downloadNotification.setContentTitle(regName+" Downloaded")
@@ -162,25 +162,22 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
                 }
 
                 // Log what is being currently downloaded
-                Timber.d("%s/%s resources; %s bytes downloaded.",
-                        String.valueOf(status.getCompletedResourceCount()),
-                        String.valueOf(status.getRequiredResourceCount()),
+                Log.d(TAG,"%s/%s resources; %s bytes downloaded. "+
+                        String.valueOf(status.getCompletedResourceCount())+" "+
+                        String.valueOf(status.getRequiredResourceCount())+" "+
                         String.valueOf(status.getCompletedResourceSize()));
             }
 
             @Override
             public void onError(OfflineRegionError error) {
-                Timber.e("onError reason: %s", error.getReason());
-                Timber.e("onError message: %s", error.getMessage());
-                Log.d("TAGGER","error: "+error.getMessage());
-                Log.d("TAGGER","error: "+error.getReason());
+                Log.d(TAG,"error: "+error.getMessage());
+                Log.d(TAG,"error: "+error.getReason());
 
             }
 
             @Override
             public void mapboxTileCountLimitExceeded(long limit) {
-                Timber.e("Mapbox tile count limit exceeded: %s", limit);
-                Log.d("TAGGER","tile count limit exceeded: "+limit);
+                Log.d(TAG,"tile count limit exceeded: "+limit);
                 downloadNotification.setContentTitle("Tile count limit exceeded")
                         .setProgress(0, 0, false)
                         .setOngoing(false);
@@ -233,7 +230,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
             JSONObject jsonObject = new JSONObject(json);
             regionName = jsonObject.getString(JSON_FIELD_REGION_NAME);
         } catch (Exception exception) {
-            Timber.e("Failed to decode metadata: %s", exception.getMessage());
+            Log.e(TAG,"Failed to decode metadata: "+ exception.getMessage());
             regionName = "";
         }
         return regionName;
@@ -251,7 +248,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
                 offlineRegions[regionSelected].delete(new OfflineRegion.OfflineRegionDeleteCallback() {
                     @Override
                     public void onDelete() {
-                        Log.d("TAGGER",regionSelected+" deleted");
+                        Log.d(TAG,regionSelected+" deleted");
                     }
 
                     @Override
@@ -306,7 +303,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         switch (call.method) {
             case "offline#downloadOnClick":
-                Log.d("TAGGER","DOWNLOAD OFFLINE "+call.argument("downloadName"));
+                Log.d(TAG,"DOWNLOAD OFFLINE "+call.argument("downloadName"));
                 String regionName = call.argument("downloadName");
                 if(regionName.length()==0){
                     regionName = map.getProjection().getVisibleRegion().latLngBounds.toString();
