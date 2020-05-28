@@ -38,11 +38,9 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
   }
 
   Future<dynamic> _handleMethodOffline(MethodCall call) async {
-//    print(call.method);
     switch (call.method) {
       case "retrieveDownloadedTileNames":
         var names = call.arguments;
-        print("NAMES " + names.toString());
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -58,7 +56,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
-//    print("on map create " + _sourcePosition.latitude.toString());
+
   }
 
   CameraPosition _initCameraPosition() {
@@ -73,7 +71,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
   void dispose() {
     super.dispose();
     mapController.dispose();
-    print("TAGGER DISPOSED");
+
   }
   @override
   Widget build(BuildContext context) {
@@ -150,7 +148,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
                             onPressed: () {
                               // retrieve list of names
                               offlineMC.invokeMethod("offline#getDownloadedTiles");
-                              print("icon menu pressed");
+
 
                             },
                           ),
@@ -269,7 +267,7 @@ class _AlertDialogWidgetState extends State<AlertDialogWidget> {
     Widget deleteButton = FlatButton(
       child: Text("Delete"),
       onPressed: () {
-        print(_index);
+
         final Map<String, int> args = <String, int>{
           "indexToDelete": int.parse(_index)
         };
