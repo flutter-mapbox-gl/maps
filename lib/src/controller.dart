@@ -5,6 +5,7 @@
 part of mapbox_gl;
 
 typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
+typedef void OnMapLongClickCallback(Point<double> point, LatLng coordinates);
 
 typedef void OnStyleLoadedCallback();
 
@@ -35,6 +36,7 @@ class MapboxMapController extends ChangeNotifier {
       this._id, MethodChannel channel, CameraPosition initialCameraPosition,
       {this.onStyleLoadedCallback,
       this.onMapClick,
+      this.onMapLongClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged,
       this.onCameraIdle,
@@ -50,6 +52,7 @@ class MapboxMapController extends ChangeNotifier {
       int id, CameraPosition initialCameraPosition,
       {OnStyleLoadedCallback onStyleLoadedCallback,
       OnMapClickCallback onMapClick,
+      OnMapLongClickCallback onMapLongClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
       OnCameraIdleCallback onCameraIdle,
@@ -61,6 +64,7 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxMapController._(id, channel, initialCameraPosition,
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
+        onMapLongClick: onMapLongClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
         onCameraIdle: onCameraIdle,
@@ -72,6 +76,7 @@ class MapboxMapController extends ChangeNotifier {
   final OnStyleLoadedCallback onStyleLoadedCallback;
 
   final OnMapClickCallback onMapClick;
+  final OnMapLongClickCallback onMapLongClick;
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
@@ -179,6 +184,15 @@ class MapboxMapController extends ChangeNotifier {
         final double lat = call.arguments['lat'];
         if (onMapClick != null) {
           onMapClick(Point<double>(x, y), LatLng(lat, lng));
+        }
+        break;
+      case 'map#onMapLongClick':
+        final double x = call.arguments['x'];
+        final double y = call.arguments['y'];
+        final double lng = call.arguments['lng'];
+        final double lat = call.arguments['lat'];
+        if (onMapLongClick != null) {
+          onMapLongClick(Point<double>(x, y), LatLng(lat, lng));
         }
         break;
       case 'map#onCameraTrackingChanged':

@@ -90,6 +90,7 @@ final class MapboxMapController
   MapboxMap.OnCameraMoveStartedListener,
   OnAnnotationClickListener,
   MapboxMap.OnMapClickListener,
+  MapboxMap.OnMapLongClickListener,
   MapboxMapOptionsSink,
   MethodChannel.MethodCallHandler,
   com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
@@ -330,6 +331,7 @@ final class MapboxMapController
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
+      mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
 	  
 	  localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
@@ -753,6 +755,18 @@ final class MapboxMapController
     arguments.put("lng", point.getLongitude());
     arguments.put("lat", point.getLatitude());
     methodChannel.invokeMethod("map#onMapClick", arguments);
+    return true;
+  }
+
+  @Override
+  public boolean onMapLongClick(@NonNull LatLng point) {
+    PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
+    final Map<String, Object> arguments = new HashMap<>(5);
+    arguments.put("x", pointf.x);
+    arguments.put("y", pointf.y);
+    arguments.put("lng", point.getLongitude());
+    arguments.put("lat", point.getLatitude());
+    methodChannel.invokeMethod("map#onMapLongClick", arguments);
     return true;
   }
 
