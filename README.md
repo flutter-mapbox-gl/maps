@@ -38,13 +38,18 @@ Add Mapbox read token value in the application manifest ```android/app/src/main/
 #### iOS
 Add these lines to your Info.plist
 
-```plist
+```
 <key>io.flutter.embedded_views_preview</key>
 <true/>
 <key>MGLMapboxAccessToken</key>
 <string>YOUR_TOKEN_HERE</string>
 ```
-
+If you access your users' location, you should also add the following key to your Info.plist to explain why you need access to their location data:
+```
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>[Your explanation here]</string>
+```
+Mapbox [recommends](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location) the explanation "Shows your location on the map and helps improve the map".
 ## Supported API
 
 | Feature | Android | iOS |
