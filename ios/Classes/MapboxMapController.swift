@@ -43,6 +43,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         mapView.addGestureRecognizer(singleTap)
         
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleMapLongPress(sender:)))
+        for recognizer in mapView.gestureRecognizers! where recognizer is UILongPressGestureRecognizer {
+            longPress.require(toFail: recognizer)
+        }
+        mapView.addGestureRecognizer(longPress)
+        
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
             if let initialCameraPosition = args["initialCameraPosition"] as? [String: Any],
@@ -334,6 +340,28 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                       "lat": coordinate.latitude,
                   ])
     }
+    
+    /*
+    *  UILongPressGestureRecognizer
+    *  After a long press invoke the map#onMapLongClick callback.
+    */
+    @objc @IBAction func handleMapLongPress(sender: UILongPressGestureRecognizer) {
+        //Only fire at the end of the long press
+        if (sender.state == .ended) {
+          // Get the CGPoint where the user tapped.
+            let point = sender.location(in: mapView)
+            let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+            channel?.invokeMethod("map#onMapLongClick", arguments: [
+                          "x": point.x,
+                          "y": point.y,
+                          "lng": coordinate.longitude,
+                          "lat": coordinate.latitude,
+                      ])
+        }
+        
+    }
+    
+    
     
     /*
      *  MGLAnnotationControllerDelegate
