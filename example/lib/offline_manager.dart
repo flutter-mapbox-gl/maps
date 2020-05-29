@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'page.dart';
-
 
 class OfflineManagerPage extends ExamplePage {
   OfflineManagerPage() : super(const Icon(Icons.portable_wifi_off), 'Offline Manager');
@@ -31,7 +28,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
 
   @override
   void initState() {
-
+    super.initState();
     offlineMC = const MethodChannel('plugins.flutter.io/offline_map');
     offlineMC.setMethodCallHandler(_handleMethodOffline);
 
@@ -67,7 +64,6 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
   }
 
   @protected
-  @mustCallSuper
   void dispose() {
     super.dispose();
     mapController.dispose();
@@ -228,8 +224,8 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
 
 // *** Alert Dialog Box ***//
 class AlertDialogWidget extends StatefulWidget {
-  List<dynamic> downloadedTiles;
-  MethodChannel mapBoxglMC;
+  final List<dynamic> downloadedTiles;
+  final MethodChannel mapBoxglMC;
   AlertDialogWidget(this.downloadedTiles, this.mapBoxglMC, {Key key}) : super(key: key);
 
   @override
