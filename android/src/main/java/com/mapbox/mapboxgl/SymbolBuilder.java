@@ -26,6 +26,10 @@ class SymbolBuilder implements SymbolOptionsSink {
     return symbolManager.create(symbolOptions);
   }
 
+  public SymbolOptions getSymbolOptions(){
+    return this.symbolOptions;
+  }
+
   @Override
   public void setIconSize(float iconSize) {
     symbolOptions.withIconSize(iconSize);

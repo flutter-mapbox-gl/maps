@@ -34,8 +34,8 @@ class SymbolController implements SymbolOptionsSink {
     return consumeTapEvents;
   }
 
-  void commitToBatchRemoveCommand(BatchSymbolsRemoveCommand batchSymbolsRemoveCommand) {
-    batchSymbolsRemoveCommand.add(symbol);
+  public Symbol getSymbol(){
+    return this.symbol;
   }
 
   void remove(SymbolManager symbolManager) {

@@ -60,6 +60,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.Line;
 import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.geojson.Feature;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -565,23 +566,29 @@ final class MapboxMapController
         result.success(symbolId);
         break;
       }
-      case "symbol#add_many": {
-        List<String> newSymbolIds = null;
-        final List<Object> options = call.argument("options");
-        if (options != null) {
-          final BatchSymbolsCreateCommand batchSymbolsCreateCommand = new BatchSymbolsCreateCommand();
-          SymbolOptionsProvider symbolOptionsProvider;
-          for (Object o : options) {
-            symbolOptionsProvider = new SymbolOptionsProvider();
-            Convert.interpretSymbolOptions(o, symbolOptionsProvider);
-            symbolOptionsProvider.commitToBatchCreateCommand(batchSymbolsCreateCommand);
+      case "symbol#addAll": {
+          List<String> newSymbolIds = new ArrayList<String>();
+          final List<Object> options = call.argument("options");
+          List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
+          if (options != null) {
+              SymbolBuilder symbolBuilder;
+              for (Object o : options) {
+                  symbolBuilder = newSymbolBuilder();
+                  Convert.interpretSymbolOptions(o, symbolBuilder);
+                  symbolOptionsList.add(symbolBuilder.getSymbolOptions());
+              }
+              if (!symbolOptionsList.isEmpty()) {
+                  List<Symbol> newSymbols = symbolManager.create(symbolOptionsList);
+                  String symbolId;
+                  for (Symbol symbol : newSymbols) {
+                      symbolId = String.valueOf(symbol.getId());
+                      newSymbolIds.add(symbolId);
+                      symbols.put(symbolId, new SymbolController(symbol, true, this));
+                  }
+              }
           }
-          Map<String, SymbolController> newSymbolControllers = batchSymbolsCreateCommand.create(symbolManager, this);
-          symbols.putAll(newSymbolControllers);
-          newSymbolIds = new ArrayList<>(newSymbolControllers.keySet());
-        }
-        result.success(newSymbolIds);
-        break;
+          result.success(newSymbolIds);
+          break;
       }
       case "symbol#remove": {
         final String symbolId = call.argument("symbol");
@@ -589,18 +596,20 @@ final class MapboxMapController
         result.success(null);
         break;
       }
-      case "symbol#remove_many": {
+      case "symbol#removeAll": {
         final ArrayList<String> symbolIds = call.argument("symbols");
-        final BatchSymbolsRemoveCommand batchSymbolsRemoveCommand = new BatchSymbolsRemoveCommand();
         SymbolController symbolController;
 
+        List<Symbol> symbolList = new ArrayList<Symbol>();
         for(String symbolId : symbolIds){
             symbolController = symbols.remove(symbolId);
             if (symbolController != null) {
-              symbolController.commitToBatchRemoveCommand(batchSymbolsRemoveCommand);
+              symbolList.add(symbolController.getSymbol());
             }
         }
-        batchSymbolsRemoveCommand.delete(symbolManager);
+        if(!symbolList.isEmpty()) {
+          symbolManager.delete(symbolList);
+        }
         result.success(null);
         break;
       }

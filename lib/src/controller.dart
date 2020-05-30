@@ -337,7 +337,7 @@ class MapboxMapController extends ChangeNotifier {
     ).toList();
 
     final List<dynamic> symbolIds = await _channel.invokeMethod(
-      'symbol#add_many',
+      'symbol#addAll',
       <String, dynamic>{
         'options': effectiveOptions.map((o) => o._toJson()).toList(),
       },
@@ -429,7 +429,7 @@ class MapboxMapController extends ChangeNotifier {
   }
   
   Future<void> _removeSymbols(List<String> ids) async {
-	  await _channel.invokeMethod('symbol#remove_many', <String, dynamic>{
+	  await _channel.invokeMethod('symbol#removeAll', <String, dynamic>{
 		  'symbols': ids,
 	  });
 	  _symbols.removeWhere((k, s) => ids.contains(k));

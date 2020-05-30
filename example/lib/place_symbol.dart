@@ -89,44 +89,40 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _add(String iconImage) {
-    controller.addSymbol(
-      SymbolOptions(
-        geometry: LatLng(
-          center.latitude + sin(_symbolCount * pi / 6.0) / 20.0,
-          center.longitude + cos(_symbolCount * pi / 6.0) / 20.0,
-        ),
-        iconImage: iconImage,
-      ),
-    );
+    controller.addSymbol(_getSymbolOptions(iconImage, _symbolCount));
     setState(() {
       _symbolCount += 1;
     });
   }
 
-  Future<void> _addMany() async {
-  	final bounds = await controller.getVisibleRegion();
-  	//Select random amount between 2 and 5
-    final int amountOfSymbolsToAdd = (Iterable<int>.generate(5).where((i) => i > 1).toList()..shuffle()).first;
-    final List<SymbolOptions> symbolOptionsList = [];
-    final int delimiter = 10;
-    final List<int> steps = Iterable<int>.generate(delimiter - 1).where((i) => i > 0).toList();
-    for(int i = 1; i <= amountOfSymbolsToAdd; i++) {
-        if (_symbolCount + i > 12) break;
-        symbolOptionsList.add(
-	        SymbolOptions(
-		        geometry: LatLng(
-			        bounds.southwest.latitude + ((steps..shuffle()).first) * (bounds.northeast.latitude - bounds.southwest.latitude) / delimiter,
-			        bounds.southwest.longitude + ((steps..shuffle()).first) * (bounds.northeast.longitude - bounds.southwest.longitude) / delimiter,
-		        ),
-		        iconImage: 'airport-15',
-            )
-        );
+  SymbolOptions _getSymbolOptions(String iconImage, int symbolCount){
+    return SymbolOptions(
+      geometry: LatLng(
+        center.latitude + sin(symbolCount * pi / 6.0) / 20.0,
+        center.longitude + cos(symbolCount * pi / 6.0) / 20.0,
+      ),
+      iconImage: iconImage,
+    );
+  }
+
+  Future<void> _addAll(String iconImage) async {
+    int symbolsToAddAmount = 12 - _symbolCount;
+    if (symbolsToAddAmount > 0) {
+      final List<SymbolOptions> symbolOptionsList = Iterable<SymbolOptions>.generate(
+        symbolsToAddAmount,
+        (i) => _getSymbolOptions(
+          iconImage,
+          _symbolCount + i
+        )
+      ).toList();
+      controller.addSymbols(
+          symbolOptionsList
+      );
+  
+      setState(() {
+        _symbolCount += symbolOptionsList.length;
+      });
     }
-    
-    if(symbolOptionsList.isNotEmpty) controller.addSymbols(symbolOptionsList);
-    setState(() {
-      _symbolCount += symbolOptionsList.length;
-    });
   }
 
   void _remove() {
@@ -292,9 +288,9 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                               (_symbolCount == 12) ? null : _add("airport-15"),
                         ),
                         FlatButton(
-                          child: const Text('add_many'),
+                          child: const Text('add all'),
                           onPressed: () =>
-                          (_symbolCount == 12) ? null : _addMany(),
+                            (_symbolCount == 12) ? null : _addAll("airport-15"),
                         ),
                         FlatButton(
                           child: const Text('add (custom icon)'),
