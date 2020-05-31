@@ -1,3 +1,14 @@
+## 0.0.6, May 31, 2019
+* Update mapbox depdendency to 9.2.0 (android) and 5.6.0 (iOS)
+* Long press handlers for both iOS as Android
+* Change default location tracking to none
+* OnCameraIdle listener support 
+* Add image to style 
+* Add animation duration to animateCamera
+* Content insets
+* Visible region support on iOS
+* Numerous bug fixes 
+
 ## 0.0.5, December 21, 2019
 * iOS support for annotation extensions (circle, symbol, line)
 * Update SDK to 8.5.0 (Android) and 5.5.0 (iOS)
