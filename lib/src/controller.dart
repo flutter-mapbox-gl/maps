@@ -331,19 +331,26 @@ class MapboxMapController extends ChangeNotifier {
   }
 
 
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options) async {
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
     final List<SymbolOptions> effectiveOptions = options.map(
           (o) => SymbolOptions.defaultOptions.copyWith(o)
     ).toList();
 
     final List<dynamic> symbolIds = await _channel.invokeMethod(
-      'symbol#addAll',
+      'symbol#add',
       <String, dynamic>{
         'options': effectiveOptions.map((o) => o._toJson()).toList(),
       },
     );
     final List<Symbol> symbols = symbolIds.asMap().map(
-        (i, id) => MapEntry(i, Symbol(id, effectiveOptions.elementAt(i)))
+        (i, id) => MapEntry(
+            i,
+            Symbol(
+                id,
+                effectiveOptions.elementAt(i),
+                data != null && data.length > i ? data.elementAt(i) : null
+            )
+        )
     ).values.toList();
 
     symbols.forEach((s) => _symbols[s.id] = s);

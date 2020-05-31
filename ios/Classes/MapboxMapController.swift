@@ -154,18 +154,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "symbol#add":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            
-
-            if let options = arguments["options"] as? [String: Any],
-                let symbol = getSymbolForOptions(options: options) {
-                    symbolAnnotationController.addStyleAnnotation(symbol)
-                    result(symbol.identifier)
-            } else {
-                result(nil)
-            }
-        case "symbol#addAll":
-            guard let symbolAnnotationController = symbolAnnotationController else { return }
-            guard let arguments = methodCall.arguments as? [String: Any] else { return }
 
             if let options = arguments["options"] as? [[String: Any]] {
                 var symbols: [MGLSymbolStyleAnnotation] = [];
@@ -201,18 +189,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
             result(nil)
         case "symbol#remove":
-            guard let symbolAnnotationController = symbolAnnotationController else { return }
-            guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let symbolId = arguments["symbol"] as? String else { return }
-
-            for symbol in symbolAnnotationController.styleAnnotations(){
-                if symbol.identifier == symbolId {
-                    symbolAnnotationController.removeStyleAnnotation(symbol)
-                    break;
-                }
-            }
-            result(nil)
-        case "symbol#removeAll":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let symbolIds = arguments["symbols"] as? [String] else { return }

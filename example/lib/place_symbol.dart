@@ -89,10 +89,19 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _add(String iconImage) {
-    controller.addSymbol(_getSymbolOptions(iconImage, _symbolCount));
-    setState(() {
-      _symbolCount += 1;
-    });
+    List<int> availableNumbers = Iterable<int>.generate(12).toList();
+    controller.symbols.forEach(
+            (s) => availableNumbers.removeWhere((i) => i == s.data['count'])
+    );
+    if (availableNumbers.isNotEmpty) {
+      controller.addSymbol(
+        _getSymbolOptions(iconImage, availableNumbers.first),
+        {'count': availableNumbers.first}
+      );
+      setState(() {
+        _symbolCount += 1;
+      });
+    }
   }
 
   SymbolOptions _getSymbolOptions(String iconImage, int symbolCount){
@@ -106,17 +115,18 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   Future<void> _addAll(String iconImage) async {
-    int symbolsToAddAmount = 12 - _symbolCount;
-    if (symbolsToAddAmount > 0) {
-      final List<SymbolOptions> symbolOptionsList = Iterable<SymbolOptions>.generate(
-        symbolsToAddAmount,
-        (i) => _getSymbolOptions(
-          iconImage,
-          _symbolCount + i
-        )
+    List<int> symbolsToAddNumbers = Iterable<int>.generate(12).toList();
+    controller.symbols.forEach(
+        (s) => symbolsToAddNumbers.removeWhere((i) => i == s.data['count'])
+    );
+    
+    if (symbolsToAddNumbers.isNotEmpty) {
+      final List<SymbolOptions> symbolOptionsList = symbolsToAddNumbers.map(
+        (i) => _getSymbolOptions(iconImage, i)
       ).toList();
       controller.addSymbols(
-          symbolOptionsList
+        symbolOptionsList,
+          symbolsToAddNumbers.map((i) => {'count': i}).toList()
       );
   
       setState(() {

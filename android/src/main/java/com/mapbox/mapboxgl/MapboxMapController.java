@@ -228,14 +228,7 @@ final class MapboxMapController
   }
 
   private SymbolBuilder newSymbolBuilder() {
-    return new SymbolBuilder(symbolManager);
-  }
-
-  private void removeSymbol(String symbolId) {
-    final SymbolController symbolController = symbols.remove(symbolId);
-    if (symbolController != null) {
-      symbolController.remove(symbolManager);
-    }
+    return new SymbolBuilder();
   }
 
   private SymbolController symbol(String symbolId) {
@@ -558,15 +551,6 @@ final class MapboxMapController
         break;
       }
       case "symbol#add": {
-        final SymbolBuilder symbolBuilder = newSymbolBuilder();
-        Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
-        final Symbol symbol = symbolBuilder.build();
-        final String symbolId = String.valueOf(symbol.getId());
-        symbols.put(symbolId, new SymbolController(symbol, true, this));
-        result.success(symbolId);
-        break;
-      }
-      case "symbol#addAll": {
           List<String> newSymbolIds = new ArrayList<String>();
           final List<Object> options = call.argument("options");
           List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
@@ -591,12 +575,6 @@ final class MapboxMapController
           break;
       }
       case "symbol#remove": {
-        final String symbolId = call.argument("symbol");
-        removeSymbol(symbolId);
-        result.success(null);
-        break;
-      }
-      case "symbol#removeAll": {
         final ArrayList<String> symbolIds = call.argument("symbols");
         SymbolController symbolController;
 
