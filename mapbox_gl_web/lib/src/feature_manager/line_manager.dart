@@ -48,5 +48,6 @@ class LineManager extends FeatureManager<LineOptions> {
   @override
   void onDrag(String featureId, LatLng latLng) {
     // TODO: implement onDrag
+    print('onDrag is not already implemented');
   }
 }
