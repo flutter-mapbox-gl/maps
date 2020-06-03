@@ -24,12 +24,21 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                         result(nil)
                         return
                     }
-                print("This far")
+                OfflineManagerUtils.downloadRegion(
+                    regionData: offlineData,
+                    result: result,
+                    registrar: registrar
+                )
             case "downloadListOfRegions":
                 // Note: this does not download anything from internet, it only fetches data drom database
                 OfflineManagerUtils.regionsList(result: result)
             case "deleteOfflineRegion":
-                print("<DEBUG> Deleting list of regions")
+                guard let args = methodCall.arguments as? [String: Any],
+                    let id = args["id"] as? Int else {
+                        result(nil)
+                        return
+                }
+                OfflineManagerUtils.deleteRegion(result: result, id: id)
             default:
                 result(FlutterMethodNotImplemented)
             }

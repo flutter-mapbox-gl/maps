@@ -14,8 +14,8 @@ class OfflineRegion {
   final LatLngBounds bounds;
   final Map<String, dynamic> metadata;
   final String mapStyleUrl;
-  final double minZoom;
-  final double maxZoom;
+  final num minZoom;
+  final num maxZoom;
 
   factory OfflineRegion.fromJson(Map<String, dynamic> json) {
     if (json == null) {

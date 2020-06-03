@@ -77,7 +77,6 @@ abstract class OfflineManagerUtils {
                         //Reset downloading state
                         _offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
                         isComplete.set(true);
-                        //TODO: error body etc
                         channelHandler.onError("Downloading error", error.getMessage(), error.getReason());
                         result.error("Downloading error", error.getMessage(), error.getReason());
                     }
@@ -90,6 +89,8 @@ abstract class OfflineManagerUtils {
                         isComplete.set(true);
                         channelHandler.onError("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
                         result.error("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
+                        //Mapbox even after crash and not downloading fully region still keeps part of it in database, so we have to remove it
+                        deleteRegion(null, registrar.context(), offlineRegionData.getId());
                     }
                 };
                 _offlineRegion.setObserver(observer);
@@ -145,7 +146,6 @@ abstract class OfflineManagerUtils {
         offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
             @Override
             public void onList(OfflineRegion[] offlineRegions) {
-                boolean deleted = false;
                 for (OfflineRegion offlineRegion : offlineRegions) {
                     String json = new String(offlineRegion.getMetadata());
                     Map<String, Object> map = new HashMap<>();
@@ -153,34 +153,36 @@ abstract class OfflineManagerUtils {
                     if (!map.containsKey("id")) continue;
                     int regionId = ((Double) map.get("id")).intValue();
                     if (regionId != id) continue;
-                    deleted = true;
+
                     offlineRegion.delete(new OfflineRegion.OfflineRegionDeleteCallback() {
                         @Override
                         public void onDelete() {
+                            if (result == null) return;
                             result.success(null);
                         }
 
                         @Override
                         public void onError(String error) {
+                            if (result == null) return;
                             result.error("DeleteRegionError", error, null);
                         }
                     });
                     return;
                 }
-                if (!deleted) {
-                    result.error("DeleteRegionError", "There is no region with given id to delete.", null);
-                }
+                if (result == null) return;
+                result.error("DeleteRegionError", "There is no region with given id to delete.", null);
             }
 
             @Override
             public void onError(String error) {
+                if (result == null) return;
                 result.error("RegionListError", error, null);
             }
         });
     }
 
     private static double calculateDownloadingProgress(long requiredResourceCount, long completedResourceCount) {
-        return requiredResourceCount >= 0
+        return requiredResourceCount > 0
                 ? (100.0 * completedResourceCount / requiredResourceCount) :
                 0.0;
     }

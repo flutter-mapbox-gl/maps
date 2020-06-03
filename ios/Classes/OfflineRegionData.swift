@@ -32,7 +32,7 @@ class OfflineRegionData {
         )
     }
     
-    public static func fromJsonString(_ jsonString: String) -> OfflineRegionData? {
+    static func fromJsonString(_ jsonString: String) -> OfflineRegionData? {
         guard let jsonData = jsonString.data(using: .utf8),
             let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []),
             let jsonDict = jsonObject as? [String: Any],
@@ -53,7 +53,31 @@ class OfflineRegionData {
         )
     }
     
-    public static func fromOfflineRegion(_ region: MGLTilePyramidOfflineRegion, metadata: Data) -> OfflineRegionData? {
+    func toJsonString() -> String {
+        let formatString = #"{"id":%d,"bounds":%@,"metadata":%@,"mapStyleUrl":"%@","minZoom":%f,"maxZoom":%f}"#
+        let boundsJsonData = (try? JSONSerialization.data(withJSONObject: bounds)) ?? Data()
+        let boundJsonString = String(data: boundsJsonData, encoding: .utf8) ?? "[]"
+        var metadataJsonString = "null"
+        if let metadata = metadata {
+            let metadataJsonData = (try? JSONSerialization.data(withJSONObject: metadata)) ?? Data()
+            metadataJsonString = String(data: metadataJsonData, encoding: .utf8) ?? "null"
+        }
+        let jsonString = String(format: formatString, id, boundJsonString, metadataJsonString, mapStyleUrl.path, minZoom, maxZoom)
+        return jsonString
+    }
+    
+    func toJsonDict() -> [String: Any] {
+        return [
+            "id": id,
+            "bounds": bounds,
+            "metadata": metadata as Any,
+            "mapStyleUrl": mapStyleUrl.path,
+            "minZoom": Double(minZoom),
+            "maxZoom": Double(maxZoom)
+        ]
+    }
+    
+    static func fromOfflineRegion(_ region: MGLTilePyramidOfflineRegion, metadata: Data) -> OfflineRegionData? {
         guard let dataObject = try? JSONSerialization.jsonObject(with: metadata, options: []),
             var dict = dataObject as? [String: Any],
             dict.keys.contains("id"),

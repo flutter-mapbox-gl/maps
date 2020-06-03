@@ -203,7 +203,20 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
       _items.insert(index, item.copyWith(isDownloading: true));
     });
 
-    await downloadOfflineRegion(item.offlineRegion);
+    try {
+      await downloadOfflineRegion(item.offlineRegion);
+    } on Exception catch (e) {
+      setState(() {
+        _items.removeAt(index);
+        _items.insert(
+            index,
+            item.copyWith(
+              isDownloading: false,
+              isDownloaded: false,
+            ));
+      });
+      return;
+    }
 
     setState(() {
       _items.removeAt(index);
