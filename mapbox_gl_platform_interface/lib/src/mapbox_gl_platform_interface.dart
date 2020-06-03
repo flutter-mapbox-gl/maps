@@ -172,7 +172,7 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('getVisibleRegion() has not been implemented.');
   }
 
-  Future<LatLngBounds> addImage(String name, Uint8List bytes,
+  Future<void> addImage(String name, Uint8List bytes,
       [bool sdf = false]) async {
     throw UnimplementedError('addImage() has not been implemented.');
   }

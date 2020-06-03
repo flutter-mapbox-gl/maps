@@ -356,10 +356,10 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     }
   }
 
-  Future<LatLngBounds> addImage(String name, Uint8List bytes,
+  Future<void> addImage(String name, Uint8List bytes,
       [bool sdf = false]) async {
     try {
-      return _channel.invokeMethod('style#addImage', <String, Object>{
+      return await _channel.invokeMethod('style#addImage', <String, Object>{
         "name": name,
         "bytes": bytes,
         "length": bytes.length,
