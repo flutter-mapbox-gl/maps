@@ -89,6 +89,8 @@ abstract class OfflineManagerUtils {
                         isComplete.set(true);
                         channelHandler.onError("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
                         result.error("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
+                        //Mapbox even after crash and not downloading fully region still keeps part of it in database, so we have to remove it
+                        deleteRegion(null, registrar.context(), offlineRegionData.getId());
                     }
                 };
                 _offlineRegion.setObserver(observer);
@@ -155,21 +157,25 @@ abstract class OfflineManagerUtils {
                     offlineRegion.delete(new OfflineRegion.OfflineRegionDeleteCallback() {
                         @Override
                         public void onDelete() {
+                            if (result == null) return;
                             result.success(null);
                         }
 
                         @Override
                         public void onError(String error) {
+                            if (result == null) return;
                             result.error("DeleteRegionError", error, null);
                         }
                     });
                     return;
                 }
+                if (result == null) return;
                 result.error("DeleteRegionError", "There is no region with given id to delete.", null);
             }
 
             @Override
             public void onError(String error) {
+                if (result == null) return;
                 result.error("RegionListError", error, null);
             }
         });
