@@ -43,6 +43,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         mapView.addGestureRecognizer(singleTap)
         
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleMapLongPress(sender:)))
+        for recognizer in mapView.gestureRecognizers! where recognizer is UILongPressGestureRecognizer {
+            longPress.require(toFail: recognizer)
+        }
+        mapView.addGestureRecognizer(longPress)
+        
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
             if let initialCameraPosition = args["initialCameraPosition"] as? [String: Any],
@@ -137,6 +143,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
             if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
+                if let duration = arguments["duration"] as? TimeInterval {
+                    mapView.setCamera(camera, withDuration: TimeInterval(duration / 1000), 
+                        animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut))
+                    result(nil)
+                }
                 mapView.setCamera(camera, animated: true)
             }
             result(nil)
@@ -273,6 +284,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "style#addImage":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let name = arguments["name"] as? String else { return }
+            //guard let length = arguments["length"] as? NSNumber else { return }
+            guard let bytes = arguments["bytes"] as? FlutterStandardTypedData else { return }
+            guard let data = bytes.data as? Data else{ return }
+            guard let image = UIImage(data: data) else { return }
+            
+            self.mapView.style?.setImage(image, forName: name)
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -319,6 +340,28 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                       "lat": coordinate.latitude,
                   ])
     }
+    
+    /*
+    *  UILongPressGestureRecognizer
+    *  After a long press invoke the map#onMapLongClick callback.
+    */
+    @objc @IBAction func handleMapLongPress(sender: UILongPressGestureRecognizer) {
+        //Only fire at the end of the long press
+        if (sender.state == .ended) {
+          // Get the CGPoint where the user tapped.
+            let point = sender.location(in: mapView)
+            let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+            channel?.invokeMethod("map#onMapLongClick", arguments: [
+                          "x": point.x,
+                          "y": point.y,
+                          "lng": coordinate.longitude,
+                          "lat": coordinate.latitude,
+                      ])
+        }
+        
+    }
+    
+    
     
     /*
      *  MGLAnnotationControllerDelegate

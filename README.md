@@ -8,6 +8,7 @@ embedded interactive and customizable vector maps inside a Flutter widget by emb
 ![screenshot.png](screenshot.png)
 
 ## Install
+
 This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to integrate a package into your flutter application.
 
 ## :new: :new: Who's using this SDK :new: :new:
@@ -48,6 +49,13 @@ Add these lines to your Info.plist
 <string>YOUR_TOKEN_HERE</string>
 ```
 
+If you access your users' location, you should also add the following key to your Info.plist to explain why you need access to their location data:
+
+```xml
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>[Your explanation here]</string>
+```
+
 ##### Web
 
 Add mapbox-gl.js library in the `<head>` of your html page:
@@ -69,6 +77,8 @@ Add your `accessToken` in a script tag at the end of your body:
   </script>
 </body>
 ```
+
+Mapbox [recommends](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location) the explanation "Shows your location on the map and helps improve the map".
 
 ## Supported API
 

@@ -259,6 +259,11 @@ class MapboxMapController extends MapboxGlPlatform
     );
   }
 
+  Future<LatLngBounds> addImage(String name, Uint8List bytes,
+      [bool sdf = false]) async {
+    //TODO: add addImage web implementation
+  }
+
   CameraPosition _getCameraPosition() {
     if (_trackCameraPosition) {
       final center = _map.getCenter();
@@ -278,6 +283,8 @@ class MapboxMapController extends MapboxGlPlatform
     circleManager = CircleManager(map: _map, onTap: onCircleTappedPlatform);
     onMapStyleLoadedPlatform(null);
     _map.on('click', _onMapClick);
+    // long click not available in web, so it is mapped to double click
+    _map.on('dblclick', _onMapLongClick);
     _map.on('movestart', _onCameraMoveStarted);
     _map.on('move', _onCameraMove);
     _map.on('moveend', _onCameraIdle);
@@ -285,6 +292,13 @@ class MapboxMapController extends MapboxGlPlatform
 
   void _onMapClick(e) {
     onMapClickPlatform({
+      'point': Point<double>(e.point.x, e.point.y),
+      'latLng': LatLng(e.lngLat.lat, e.lngLat.lng),
+    });
+  }
+
+  void _onMapLongClick(e) {
+    onMapLongClickPlatform({
       'point': Point<double>(e.point.x, e.point.y),
       'latLng': LatLng(e.lngLat.lat, e.lngLat.lng),
     });

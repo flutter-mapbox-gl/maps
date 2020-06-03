@@ -51,6 +51,15 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         onMapClickPlatform(
             {'point': Point<double>(x, y), 'latLng': LatLng(lat, lng)});
         break;
+      case 'map#onMapLongClick':
+        final double x = call.arguments['x'];
+        final double y = call.arguments['y'];
+        final double lng = call.arguments['lng'];
+        final double lat = call.arguments['lat'];
+        onMapLongClickPlatform(
+            {'point': Point<double>(x, y), 'latLng': LatLng(lat, lng)});
+
+        break;
       case 'map#onCameraTrackingChanged':
         final int mode = call.arguments['mode'];
         onCameraTrackingChangedPlatform(MyLocationTrackingMode.values[mode]);
@@ -342,6 +351,20 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         northeast = LatLng(coordinates[0], coordinates[1]);
       }
       return LatLngBounds(southwest: southwest, northeast: northeast);
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  Future<LatLngBounds> addImage(String name, Uint8List bytes,
+      [bool sdf = false]) async {
+    try {
+      return _channel.invokeMethod('style#addImage', <String, Object>{
+        "name": name,
+        "bytes": bytes,
+        "length": bytes.length,
+        "sdf": sdf
+      });
     } on PlatformException catch (e) {
       return new Future.error(e);
     }

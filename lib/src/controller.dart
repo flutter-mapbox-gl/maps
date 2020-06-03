@@ -5,11 +5,14 @@
 part of mapbox_gl;
 
 typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
+typedef void OnMapLongClickCallback(Point<double> point, LatLng coordinates);
 
 typedef void OnStyleLoadedCallback();
 
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
+
+typedef void OnCameraIdleCallback();
 
 typedef void OnMapIdleCallback();
 
@@ -32,8 +35,10 @@ class MapboxMapController extends ChangeNotifier {
   MapboxMapController._(this._id, CameraPosition initialCameraPosition,
       {this.onStyleLoadedCallback,
       this.onMapClick,
+      this.onMapLongClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged,
+      this.onCameraIdle,
       this.onMapIdle})
       : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
@@ -93,6 +98,12 @@ class MapboxMapController extends ChangeNotifier {
       }
     });
 
+    MapboxGlPlatform.instance.onMapLongClickPlatform.add((dict) {
+      if (onMapLongClick != null) {
+        onMapLongClick(dict['point'], dict['latLng']);
+      }
+    });
+
     MapboxGlPlatform.instance.onCameraTrackingChangedPlatform.add((mode) {
       if (onCameraTrackingChanged != null) {
         onCameraTrackingChanged(mode);
@@ -116,25 +127,32 @@ class MapboxMapController extends ChangeNotifier {
       int id, CameraPosition initialCameraPosition,
       {OnStyleLoadedCallback onStyleLoadedCallback,
       OnMapClickCallback onMapClick,
+      OnMapLongClickCallback onMapLongClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
+      OnCameraIdleCallback onCameraIdle,
       OnMapIdleCallback onMapIdle}) async {
     assert(id != null);
     await MapboxGlPlatform.instance.initPlatform(id);
     return MapboxMapController._(id, initialCameraPosition,
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
+        onMapLongClick: onMapLongClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
+        onCameraIdle: onCameraIdle,
         onMapIdle: onMapIdle);
   }
 
   final OnStyleLoadedCallback onStyleLoadedCallback;
 
   final OnMapClickCallback onMapClick;
+  final OnMapLongClickCallback onMapLongClick;
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
+
+  final OnCameraIdleCallback onCameraIdle;
 
   final OnMapIdleCallback onMapIdle;
 
@@ -534,5 +552,44 @@ class MapboxMapController extends ChangeNotifier {
   /// This method returns the boundaries of the region currently displayed in the map.
   Future<LatLngBounds> getVisibleRegion() async {
     return MapboxGlPlatform.instance.getVisibleRegion();
+  }
+
+  /// Adds an image to the style currently displayed in the map, so that it can later be referred to by the provided name.
+  ///
+  /// This allows you to add an image to the currently displayed style once, and from there on refer to it e.g. in the [Symbol.iconImage] anytime you add a [Symbol] later on.
+  /// Set [sdf] to true if the image you add is an SDF image.
+  /// Returns after the image has successfully been added to the style.
+  /// Note: This can only be called after OnStyleLoadedCallback has been invoked and any added images will have to be re-added if a new style is loaded.
+  ///
+  /// Example: Adding an asset image and using it in a new symbol:
+  /// ```dart
+  /// Future<void> addImageFromAsset() async{
+  ///   final ByteData bytes = await rootBundle.load("assets/someAssetImage.jpg");
+  ///   final Uint8List list = bytes.buffer.asUint8List();
+  ///   await controller.addImage("assetImage", list);
+  ///   controller.addSymbol(
+  ///    SymbolOptions(
+  ///     geometry: LatLng(0,0),
+  ///     iconImage: "assetImage",
+  ///    ),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// Example: Adding a network image (with the http package) and using it in a new symbol:
+  /// ```dart
+  /// Future<void> addImageFromUrl() async{
+  ///  var response = await get("https://example.com/image.png");
+  ///  await controller.addImage("testImage",  response.bodyBytes);
+  ///  controller.addSymbol(
+  ///   SymbolOptions(
+  ///     geometry: LatLng(0,0),
+  ///     iconImage: "testImage",
+  ///   ),
+  ///  );
+  /// }
+  /// ```
+  Future<void> addImage(String name, Uint8List bytes, [bool sdf = false]) {
+    return MapboxGlPlatform.instance.addImage(name, bytes, sdf);
   }
 }

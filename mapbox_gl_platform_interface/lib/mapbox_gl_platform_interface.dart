@@ -1,6 +1,7 @@
 library mapbox_gl_platform_interface;
 
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

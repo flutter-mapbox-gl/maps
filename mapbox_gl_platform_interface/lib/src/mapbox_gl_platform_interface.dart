@@ -32,6 +32,9 @@ abstract class MapboxGlPlatform {
   final ArgumentCallbacks<Map<String, dynamic>> onMapClickPlatform =
       ArgumentCallbacks<Map<String, dynamic>>();
 
+  final ArgumentCallbacks<Map<String, dynamic>> onMapLongClickPlatform =
+      ArgumentCallbacks<Map<String, dynamic>>();
+
   final ArgumentCallbacks<MyLocationTrackingMode>
       onCameraTrackingChangedPlatform =
       ArgumentCallbacks<MyLocationTrackingMode>();
@@ -167,5 +170,10 @@ abstract class MapboxGlPlatform {
 
   Future<LatLngBounds> getVisibleRegion() async {
     throw UnimplementedError('getVisibleRegion() has not been implemented.');
+  }
+
+  Future<LatLngBounds> addImage(String name, Uint8List bytes,
+      [bool sdf = false]) async {
+    throw UnimplementedError('addImage() has not been implemented.');
   }
 }

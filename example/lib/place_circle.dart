@@ -10,7 +10,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class PlaceCirclePage extends Page {
+class PlaceCirclePage extends ExamplePage {
   PlaceCirclePage() : super(const Icon(Icons.check_circle), 'Place circle');
 
   @override
