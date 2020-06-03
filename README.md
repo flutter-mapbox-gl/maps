@@ -56,6 +56,8 @@ If you access your users' location, you should also add the following key to you
 <string>[Your explanation here]</string>
 ```
 
+Mapbox [recommends](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location) the explanation "Shows your location on the map and helps improve the map".
+
 ##### Web
 
 Add mapbox-gl.js library in the `<head>` of your html page:
@@ -77,8 +79,6 @@ Add your `accessToken` in a script tag at the end of your body:
   </script>
 </body>
 ```
-
-Mapbox [recommends](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location) the explanation "Shows your location on the map and helps improve the map".
 
 ## Supported API
 
