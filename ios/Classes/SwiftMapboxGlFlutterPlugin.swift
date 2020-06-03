@@ -5,6 +5,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = MapboxMapFactory(withRegistrar: registrar)
         registrar.register(instance, withId: "plugins.flutter.io/mapbox_gl")
+        
 
         let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_gl", binaryMessenger: registrar.messenger())
 
@@ -15,6 +16,20 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                 let tilesdb = arguments["tilesdb"]
                 installOfflineMapTiles(registrar: registrar, tilesdb: tilesdb!)
                 result(nil)
+            case "downloadOfflineRegion":
+                guard let args = methodCall.arguments as? String,
+                    let offlineData = OfflineRegionData.fromJsonString(args)
+                    else {
+                        // some error here
+                        result(nil)
+                        return
+                    }
+                print("This far")
+            case "downloadListOfRegions":
+                // Note: this does not download anything from internet, it only fetches data drom database
+                OfflineManagerUtils.regionsList(result: result)
+            case "deleteOfflineRegion":
+                print("<DEBUG> Deleting list of regions")
             default:
                 result(FlutterMethodNotImplemented)
             }
