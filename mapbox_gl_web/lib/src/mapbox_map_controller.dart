@@ -259,9 +259,20 @@ class MapboxMapController extends MapboxGlPlatform
     );
   }
 
-  Future<LatLngBounds> addImage(String name, Uint8List bytes,
+  Future<void> addImage(String name, Uint8List bytes,
       [bool sdf = false]) async {
-    //TODO: add addImage web implementation
+    final photo = decodeImage(bytes);
+    if (!_map.hasImage(name)) {
+      _map.addImage(
+        name,
+        {
+          'width': photo.width,
+          'height': photo.height,
+          'data': photo.getBytes(),
+        },
+        {'sdf': sdf},
+      );
+    }
   }
 
   CameraPosition _getCameraPosition() {
