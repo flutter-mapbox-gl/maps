@@ -77,7 +77,6 @@ abstract class OfflineManagerUtils {
                         //Reset downloading state
                         _offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
                         isComplete.set(true);
-                        //TODO: error body etc
                         channelHandler.onError("Downloading error", error.getMessage(), error.getReason());
                         result.error("Downloading error", error.getMessage(), error.getReason());
                     }
@@ -145,7 +144,6 @@ abstract class OfflineManagerUtils {
         offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
             @Override
             public void onList(OfflineRegion[] offlineRegions) {
-                boolean deleted = false;
                 for (OfflineRegion offlineRegion : offlineRegions) {
                     String json = new String(offlineRegion.getMetadata());
                     Map<String, Object> map = new HashMap<>();
@@ -153,7 +151,7 @@ abstract class OfflineManagerUtils {
                     if (!map.containsKey("id")) continue;
                     int regionId = ((Double) map.get("id")).intValue();
                     if (regionId != id) continue;
-                    deleted = true;
+
                     offlineRegion.delete(new OfflineRegion.OfflineRegionDeleteCallback() {
                         @Override
                         public void onDelete() {
@@ -167,9 +165,7 @@ abstract class OfflineManagerUtils {
                     });
                     return;
                 }
-                if (!deleted) {
-                    result.error("DeleteRegionError", "There is no region with given id to delete.", null);
-                }
+                result.error("DeleteRegionError", "There is no region with given id to delete.", null);
             }
 
             @Override
