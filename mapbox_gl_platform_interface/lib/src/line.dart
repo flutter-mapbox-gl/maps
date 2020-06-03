@@ -4,11 +4,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of mapbox_gl;
+part of mapbox_gl_platform_interface;
 
 class Line {
-  @visibleForTesting
-  Line(this._id, this._options, [this._data]);
+  Line(this._id, this.options, [this._data]);
 
   /// A unique identifier for this line.
   ///
@@ -18,17 +17,15 @@ class Line {
   String get id => _id;
 
   final Map _data;
-    
-  Map get data => _data;
 
-  LineOptions _options;
+  Map get data => _data;
 
   /// The line configuration options most recently applied programmatically
   /// via the map controller.
   ///
   /// The returned value does not reflect any changes made to the line through
   /// touch events. Add listeners to the owning map controller to track those.
-  LineOptions get options => _options;
+  LineOptions options;
 }
 
 /// Configuration options for [Line] instances.
@@ -84,7 +81,7 @@ class LineOptions {
     );
   }
 
-  dynamic _toJson() {
+  dynamic toJson() {
     final Map<String, dynamic> json = <String, dynamic>{};
 
     void addIfPresent(String fieldName, dynamic value) {
@@ -101,7 +98,8 @@ class LineOptions {
     addIfPresent('lineOffset', lineOffset);
     addIfPresent('lineBlur', lineBlur);
     addIfPresent('linePattern', linePattern);
-    addIfPresent('geometry', geometry?.map((LatLng latLng) => latLng._toJson())?.toList());
+    addIfPresent('geometry',
+        geometry?.map((LatLng latLng) => latLng.toJson())?.toList());
     addIfPresent('draggable', draggable);
     return json;
   }

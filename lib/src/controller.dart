@@ -32,8 +32,7 @@ typedef void OnMapIdleCallback();
 /// Line tap events can be received by adding callbacks to [onLineTapped].
 /// Circle tap events can be received by adding callbacks to [onCircleTapped].
 class MapboxMapController extends ChangeNotifier {
-  MapboxMapController._(
-      this._id, MethodChannel channel, CameraPosition initialCameraPosition,
+  MapboxMapController._(this._id, CameraPosition initialCameraPosition,
       {this.onStyleLoadedCallback,
       this.onMapClick,
       this.onMapLongClick,
@@ -41,11 +40,87 @@ class MapboxMapController extends ChangeNotifier {
       this.onCameraTrackingChanged,
       this.onCameraIdle,
       this.onMapIdle})
-      : assert(_id != null),
-        assert(channel != null),
-        _channel = channel {
+      : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
-    _channel.setMethodCallHandler(_handleMethodCall);
+
+    MapboxGlPlatform.instance.onInfoWindowTappedPlatform.add((symbolId) {
+      final Symbol symbol = _symbols[symbolId];
+      if (symbol != null) {
+        onInfoWindowTapped(symbol);
+      }
+    });
+
+    MapboxGlPlatform.instance.onSymbolTappedPlatform.add((symbolId) {
+      final Symbol symbol = _symbols[symbolId];
+      if (symbol != null) {
+        onSymbolTapped(symbol);
+      }
+    });
+
+    MapboxGlPlatform.instance.onLineTappedPlatform.add((lineId) {
+      final Line line = _lines[lineId];
+      if (line != null) {
+        onLineTapped(line);
+      }
+    });
+
+    MapboxGlPlatform.instance.onCircleTappedPlatform.add((circleId) {
+      final Circle circle = _circles[circleId];
+      if (circle != null) {
+        onCircleTapped(circle);
+      }
+    });
+
+    MapboxGlPlatform.instance.onCameraMoveStartedPlatform.add((_) {
+      _isCameraMoving = true;
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.instance.onCameraMovePlatform.add((cameraPosition) {
+      _cameraPosition = cameraPosition;
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.instance.onCameraIdlePlatform.add((_) {
+      _isCameraMoving = false;
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.instance.onMapStyleLoadedPlatform.add((_) {
+      if (onStyleLoadedCallback != null) {
+        onStyleLoadedCallback();
+      }
+    });
+
+    MapboxGlPlatform.instance.onMapClickPlatform.add((dict) {
+      if (onMapClick != null) {
+        onMapClick(dict['point'], dict['latLng']);
+      }
+    });
+
+    MapboxGlPlatform.instance.onMapLongClickPlatform.add((dict) {
+      if (onMapLongClick != null) {
+        onMapLongClick(dict['point'], dict['latLng']);
+      }
+    });
+
+    MapboxGlPlatform.instance.onCameraTrackingChangedPlatform.add((mode) {
+      if (onCameraTrackingChanged != null) {
+        onCameraTrackingChanged(mode);
+      }
+    });
+
+    MapboxGlPlatform.instance.onCameraTrackingDismissedPlatform.add((_) {
+      if (onCameraTrackingDismissed != null) {
+        onCameraTrackingDismissed();
+      }
+    });
+
+    MapboxGlPlatform.instance.onMapIdlePlatform.add((_) {
+      if (onMapIdle != null) {
+        onMapIdle();
+      }
+    });
   }
 
   static Future<MapboxMapController> init(
@@ -58,10 +133,8 @@ class MapboxMapController extends ChangeNotifier {
       OnCameraIdleCallback onCameraIdle,
       OnMapIdleCallback onMapIdle}) async {
     assert(id != null);
-    final MethodChannel channel =
-        MethodChannel('plugins.flutter.io/mapbox_maps_$id');
-    await channel.invokeMethod('map#waitForMap');
-    return MapboxMapController._(id, channel, initialCameraPosition,
+    await MapboxGlPlatform.instance.initPlatform(id);
+    return MapboxMapController._(id, initialCameraPosition,
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
         onMapLongClick: onMapLongClick,
@@ -70,8 +143,6 @@ class MapboxMapController extends ChangeNotifier {
         onCameraIdle: onCameraIdle,
         onMapIdle: onMapIdle);
   }
-
-  final MethodChannel _channel;
 
   final OnStyleLoadedCallback onStyleLoadedCallback;
 
@@ -127,93 +198,12 @@ class MapboxMapController extends ChangeNotifier {
 
   final int _id; //ignore: unused_field
 
-  Future<dynamic> _handleMethodCall(MethodCall call) async {
-    switch (call.method) {
-      case 'infoWindow#onTap':
-        final String symbolId = call.arguments['symbol'];
-        final Symbol symbol = _symbols[symbolId];
-        if (symbol != null) {
-          onInfoWindowTapped(symbol);
-        }
-        break;
-      case 'symbol#onTap':
-        final String symbolId = call.arguments['symbol'];
-        final Symbol symbol = _symbols[symbolId];
-        if (symbol != null) {
-          onSymbolTapped(symbol);
-        }
-        break;
-      case 'line#onTap':
-        final String lineId = call.arguments['line'];
-        final Line line = _lines[lineId];
-        if (line != null) {
-          onLineTapped(line);
-        }
-        break;
-      case 'circle#onTap':
-        final String circleId = call.arguments['circle'];
-        final Circle circle = _circles[circleId];
-        if (circle != null) {
-          onCircleTapped(circle);
-        }
-        break;
-      case 'camera#onMoveStarted':
-        _isCameraMoving = true;
-        notifyListeners();
-        break;
-      case 'camera#onMove':
-        _cameraPosition = CameraPosition.fromMap(call.arguments['position']);
-        notifyListeners();
-        break;
-      case 'camera#onIdle':
-        _isCameraMoving = false;
-        if (onCameraIdle != null) {
-          onCameraIdle();
-        }
-        notifyListeners();
-        break;
-      case 'map#onStyleLoaded':
-        if (onStyleLoadedCallback != null) {
-          onStyleLoadedCallback();
-        }
-        break;
-      case 'map#onMapClick':
-        final double x = call.arguments['x'];
-        final double y = call.arguments['y'];
-        final double lng = call.arguments['lng'];
-        final double lat = call.arguments['lat'];
-        if (onMapClick != null) {
-          onMapClick(Point<double>(x, y), LatLng(lat, lng));
-        }
-        break;
-      case 'map#onMapLongClick':
-        final double x = call.arguments['x'];
-        final double y = call.arguments['y'];
-        final double lng = call.arguments['lng'];
-        final double lat = call.arguments['lat'];
-        if (onMapLongClick != null) {
-          onMapLongClick(Point<double>(x, y), LatLng(lat, lng));
-        }
-        break;
-      case 'map#onCameraTrackingChanged':
-        if (onCameraTrackingChanged != null) {
-          final int mode = call.arguments['mode'];
-          onCameraTrackingChanged(MyLocationTrackingMode.values[mode]);
-        }
-        break;
-      case 'map#onCameraTrackingDismissed':
-        if (onCameraTrackingDismissed != null) {
-          onCameraTrackingDismissed();
-        }
-        break;
-      case 'map#onIdle':
-        if (onMapIdle != null) {
-          onMapIdle();
-        }
-        break;
-      default:
-        throw MissingPluginException();
-    }
+  Widget buildView(
+      Map<String, dynamic> creationParams,
+      Function onPlatformViewCreated,
+      Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers) {
+    return MapboxGlPlatform.instance
+        .buildView(creationParams, onPlatformViewCreated, gestureRecognizers);
   }
 
   /// Updates configuration options of the map user interface.
@@ -224,13 +214,8 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after listeners have been notified.
   Future<void> _updateMapOptions(Map<String, dynamic> optionsUpdate) async {
     assert(optionsUpdate != null);
-    final dynamic json = await _channel.invokeMethod(
-      'map#update',
-      <String, dynamic>{
-        'options': optionsUpdate,
-      },
-    );
-    _cameraPosition = CameraPosition.fromMap(json);
+    _cameraPosition =
+        await MapboxGlPlatform.instance.updateMapOptions(optionsUpdate);
     notifyListeners();
   }
 
@@ -240,12 +225,9 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   /// It returns true if the camera was successfully moved and false if the movement was canceled.
   /// Note: this currently always returns immediately with a value of null on iOS
-  Future<bool> animateCamera(CameraUpdate cameraUpdate,
-      {Duration duration}) async {
-    return await _channel.invokeMethod('camera#animate', <String, dynamic>{
-      'cameraUpdate': cameraUpdate._toJson(),
-      'duration': duration != null ? duration.inMilliseconds : null
-    });
+  Future<bool> animateCamera(CameraUpdate cameraUpdate) async {
+    assert(cameraUpdate != null);
+    return MapboxGlPlatform.instance.animateCamera(cameraUpdate);
   }
 
   /// Instantaneously re-position the camera.
@@ -256,9 +238,7 @@ class MapboxMapController extends ChangeNotifier {
   /// It returns true if the camera was successfully moved and false if the movement was canceled.
   /// Note: this currently always returns immediately with a value of null on iOS
   Future<bool> moveCamera(CameraUpdate cameraUpdate) async {
-    return await _channel.invokeMethod('camera#move', <String, dynamic>{
-      'cameraUpdate': cameraUpdate._toJson(),
-    });
+    return MapboxGlPlatform.instance.moveCamera(cameraUpdate);
   }
 
   /// Updates user location tracking mode.
@@ -267,10 +247,8 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> updateMyLocationTrackingMode(
       MyLocationTrackingMode myLocationTrackingMode) async {
-    await _channel
-        .invokeMethod('map#updateMyLocationTrackingMode', <String, dynamic>{
-      'mode': myLocationTrackingMode.index,
-    });
+    return MapboxGlPlatform.instance
+        .updateMyLocationTrackingMode(myLocationTrackingMode);
   }
 
   /// Updates the language of the map labels to match the device's language.
@@ -278,7 +256,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   Future<void> matchMapLanguageWithDeviceDefault() async {
-    await _channel.invokeMethod('map#matchMapLanguageWithDeviceDefault');
+    return MapboxGlPlatform.instance.matchMapLanguageWithDeviceDefault();
   }
 
   /// Updates the distance from the edges of the map view’s frame to the edges
@@ -294,15 +272,7 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> updateContentInsets(EdgeInsets insets,
       [bool animated = false]) async {
-    await _channel.invokeMethod('map#updateContentInsets', <String, dynamic>{
-      'bounds': <String, double>{
-        'top': insets.top,
-        'left': insets.left,
-        'bottom': insets.bottom,
-        'right': insets.right,
-      },
-      'animated': animated,
-    });
+    return MapboxGlPlatform.instance.updateContentInsets(insets, animated);
   }
 
   /// Updates the language of the map labels to match the specified language.
@@ -311,9 +281,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   Future<void> setMapLanguage(String language) async {
-    await _channel.invokeMethod('map#setMapLanguage', <String, dynamic>{
-      'language': language,
-    });
+    return MapboxGlPlatform.instance.setMapLanguage(language);
   }
 
   /// Enables or disables the collection of anonymized telemetry data.
@@ -321,9 +289,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   Future<void> setTelemetryEnabled(bool enabled) async {
-    await _channel.invokeMethod('map#setTelemetryEnabled', <String, dynamic>{
-      'enabled': enabled,
-    });
+    return MapboxGlPlatform.instance.setTelemetryEnabled(enabled);
   }
 
   /// Retrieves whether collection of anonymized telemetry data is enabled.
@@ -331,7 +297,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after the query has been made on the
   /// platform side.
   Future<bool> getTelemetryEnabled() async {
-    return await _channel.invokeMethod('map#getTelemetryEnabled');
+    return MapboxGlPlatform.instance.getTelemetryEnabled();
   }
 
   /// Adds a symbol to the map, configured using the specified custom [options].
@@ -344,14 +310,8 @@ class MapboxMapController extends ChangeNotifier {
   Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
     final SymbolOptions effectiveOptions =
         SymbolOptions.defaultOptions.copyWith(options);
-    final String symbolId = await _channel.invokeMethod(
-      'symbol#add',
-      <String, dynamic>{
-        'options': effectiveOptions._toJson(),
-      },
-    );
-    final Symbol symbol = Symbol(symbolId, effectiveOptions, data);
-    _symbols[symbolId] = symbol;
+    final symbol = await MapboxGlPlatform.instance.addSymbol(effectiveOptions);
+    _symbols[symbol.id] = symbol;
     notifyListeners();
     return symbol;
   }
@@ -365,13 +325,10 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
     assert(symbol != null);
-    assert(_symbols[symbol._id] == symbol);
+    assert(_symbols[symbol.id] == symbol);
     assert(changes != null);
-    await _channel.invokeMethod('symbol#update', <String, dynamic>{
-      'symbol': symbol._id,
-      'options': changes._toJson(),
-    });
-    symbol._options = symbol._options.copyWith(changes);
+    await MapboxGlPlatform.instance.updateSymbol(symbol, changes);
+    symbol.options = symbol.options.copyWith(changes);
     notifyListeners();
   }
 
@@ -384,8 +341,8 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeSymbol(Symbol symbol) async {
     assert(symbol != null);
-    assert(_symbols[symbol._id] == symbol);
-    await _removeSymbol(symbol._id);
+    assert(_symbols[symbol.id] == symbol);
+    await _removeSymbol(symbol.id);
     notifyListeners();
   }
 
@@ -410,9 +367,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once the symbol has been removed from
   /// [_symbols].
   Future<void> _removeSymbol(String id) async {
-    await _channel.invokeMethod('symbol#remove', <String, dynamic>{
-      'symbol': id,
-    });
+    await MapboxGlPlatform.instance.removeSymbol(id);
     _symbols.remove(id);
   }
 
@@ -426,14 +381,8 @@ class MapboxMapController extends ChangeNotifier {
   Future<Line> addLine(LineOptions options, [Map data]) async {
     final LineOptions effectiveOptions =
         LineOptions.defaultOptions.copyWith(options);
-    final String lineId = await _channel.invokeMethod(
-      'line#add',
-      <String, dynamic>{
-        'options': effectiveOptions._toJson(),
-      },
-    );
-    final Line line = Line(lineId, effectiveOptions, data);
-    _lines[lineId] = line;
+    final line = await MapboxGlPlatform.instance.addLine(effectiveOptions);
+    _lines[line.id] = line;
     notifyListeners();
     return line;
   }
@@ -447,13 +396,10 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> updateLine(Line line, LineOptions changes) async {
     assert(line != null);
-    assert(_lines[line._id] == line);
+    assert(_lines[line.id] == line);
     assert(changes != null);
-    await _channel.invokeMethod('line#update', <String, dynamic>{
-      'line': line._id,
-      'options': changes._toJson(),
-    });
-    line._options = line._options.copyWith(changes);
+    await MapboxGlPlatform.instance.updateLine(line, changes);
+    line.options = line.options.copyWith(changes);
     notifyListeners();
   }
 
@@ -466,8 +412,8 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeLine(Line line) async {
     assert(line != null);
-    assert(_lines[line._id] == line);
-    await _removeLine(line._id);
+    assert(_lines[line.id] == line);
+    await _removeLine(line.id);
     notifyListeners();
   }
 
@@ -492,9 +438,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once the line has been removed from
   /// [_lines].
   Future<void> _removeLine(String id) async {
-    await _channel.invokeMethod('line#remove', <String, dynamic>{
-      'line': id,
-    });
+    await MapboxGlPlatform.instance.removeLine(id);
     _lines.remove(id);
   }
 
@@ -508,14 +452,8 @@ class MapboxMapController extends ChangeNotifier {
   Future<Circle> addCircle(CircleOptions options, [Map data]) async {
     final CircleOptions effectiveOptions =
         CircleOptions.defaultOptions.copyWith(options);
-    final String circleId = await _channel.invokeMethod(
-      'circle#add',
-      <String, dynamic>{
-        'options': effectiveOptions._toJson(),
-      },
-    );
-    final Circle circle = Circle(circleId, effectiveOptions, data);
-    _circles[circleId] = circle;
+    final circle = await MapboxGlPlatform.instance.addCircle(effectiveOptions);
+    _circles[circle.id] = circle;
     notifyListeners();
     return circle;
   }
@@ -529,13 +467,10 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> updateCircle(Circle circle, CircleOptions changes) async {
     assert(circle != null);
-    assert(_circles[circle._id] == circle);
+    assert(_circles[circle.id] == circle);
     assert(changes != null);
-    await _channel.invokeMethod('circle#update', <String, dynamic>{
-      'circle': circle._id,
-      'options': changes._toJson(),
-    });
-    circle._options = circle._options.copyWith(changes);
+    await MapboxGlPlatform.instance.updateCircle(circle, changes);
+    circle.options = circle.options.copyWith(changes);
     notifyListeners();
   }
 
@@ -544,13 +479,9 @@ class MapboxMapController extends ChangeNotifier {
   /// should use `getCircleLatLng()`
   Future<LatLng> getCircleLatLng(Circle circle) async {
     assert(circle != null);
-    assert(_circles[circle._id] == circle);
-    Map mapLatLng =
-        await _channel.invokeMethod('circle#getGeometry', <String, dynamic>{
-      'circle': circle._id,
-    });
-    LatLng circleLatLng =
-        new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
+    assert(_circles[circle.id] == circle);
+    final circleLatLng =
+        await MapboxGlPlatform.instance.getCircleLatLng(circle);
     notifyListeners();
     return circleLatLng;
   }
@@ -564,8 +495,8 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeCircle(Circle circle) async {
     assert(circle != null);
-    assert(_circles[circle._id] == circle);
-    await _removeCircle(circle._id);
+    assert(_circles[circle.id] == circle);
+    await _removeCircle(circle.id);
     notifyListeners();
   }
 
@@ -590,107 +521,46 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once the circle has been removed from
   /// [_circles].
   Future<void> _removeCircle(String id) async {
-    await _channel.invokeMethod('circle#remove', <String, dynamic>{
-      'circle': id,
-    });
+    await MapboxGlPlatform.instance.removeCircle(id);
+
     _circles.remove(id);
   }
 
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, String filter) async {
-    try {
-      final Map<Object, Object> reply = await _channel.invokeMethod(
-        'map#queryRenderedFeatures',
-        <String, Object>{
-          'x': point.x,
-          'y': point.y,
-          'layerIds': layerIds,
-          'filter': filter,
-        },
-      );
-      return reply['features'];
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+    return MapboxGlPlatform.instance
+        .queryRenderedFeatures(point, layerIds, filter);
   }
 
   Future<List> queryRenderedFeaturesInRect(
       Rect rect, List<String> layerIds, String filter) async {
-    try {
-      final Map<Object, Object> reply = await _channel.invokeMethod(
-        'map#queryRenderedFeatures',
-        <String, Object>{
-          'left': rect.left,
-          'top': rect.top,
-          'right': rect.right,
-          'bottom': rect.bottom,
-          'layerIds': layerIds,
-          'filter': filter,
-        },
-      );
-      return reply['features'];
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+    return MapboxGlPlatform.instance
+        .queryRenderedFeaturesInRect(rect, layerIds, filter);
   }
 
   Future invalidateAmbientCache() async {
-    try {
-      await _channel.invokeMethod('map#invalidateAmbientCache');
-      return null;
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+    return MapboxGlPlatform.instance.invalidateAmbientCache();
   }
 
   /// Get last my location
   ///
   /// Return last latlng, nullable
-
   Future<LatLng> requestMyLocationLatLng() async {
-    try {
-      final Map<Object, Object> reply = await _channel.invokeMethod(
-          'locationComponent#getLastLocation', null);
-      double latitude = 0.0, longitude = 0.0;
-      if (reply.containsKey("latitude") && reply["latitude"] != null) {
-        latitude = double.parse(reply["latitude"].toString());
-      }
-      if (reply.containsKey("longitude") && reply["longitude"] != null) {
-        longitude = double.parse(reply["longitude"].toString());
-      }
-      return LatLng(latitude, longitude);
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+    return MapboxGlPlatform.instance.requestMyLocationLatLng();
   }
 
-  ///This method returns the boundaries of the region currently displayed in the map.
+  /// This method returns the boundaries of the region currently displayed in the map.
   Future<LatLngBounds> getVisibleRegion() async {
-    try {
-      final Map<Object, Object> reply =
-          await _channel.invokeMethod('map#getVisibleRegion', null);
-      LatLng southwest, northeast;
-      if (reply.containsKey("sw")) {
-        List<dynamic> coordinates = reply["sw"];
-        southwest = LatLng(coordinates[0], coordinates[1]);
-      }
-      if (reply.containsKey("ne")) {
-        List<dynamic> coordinates = reply["ne"];
-        northeast = LatLng(coordinates[0], coordinates[1]);
-      }
-      return LatLngBounds(southwest: southwest, northeast: northeast);
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+    return MapboxGlPlatform.instance.getVisibleRegion();
   }
 
   /// Adds an image to the style currently displayed in the map, so that it can later be referred to by the provided name.
-  /// 
+  ///
   /// This allows you to add an image to the currently displayed style once, and from there on refer to it e.g. in the [Symbol.iconImage] anytime you add a [Symbol] later on.
   /// Set [sdf] to true if the image you add is an SDF image.
   /// Returns after the image has successfully been added to the style.
   /// Note: This can only be called after OnStyleLoadedCallback has been invoked and any added images will have to be re-added if a new style is loaded.
-  /// 
+  ///
   /// Example: Adding an asset image and using it in a new symbol:
   /// ```dart
   /// Future<void> addImageFromAsset() async{
@@ -705,7 +575,7 @@ class MapboxMapController extends ChangeNotifier {
   ///   );
   /// }
   /// ```
-  /// 
+  ///
   /// Example: Adding a network image (with the http package) and using it in a new symbol:
   /// ```dart
   /// Future<void> addImageFromUrl() async{
@@ -720,19 +590,6 @@ class MapboxMapController extends ChangeNotifier {
   /// }
   /// ```
   Future<void> addImage(String name, Uint8List bytes, [bool sdf = false]) {
-    try {
-      return _channel.invokeMethod('style#addImage', <String, Object>{
-        "name": name,
-        "bytes": bytes,
-        "length": bytes.length,
-        "sdf": sdf
-      });
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
+    return MapboxGlPlatform.instance.addImage(name, bytes, sdf);
   }
-
-  
-
- 
 }

@@ -289,10 +289,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let name = arguments["name"] as? String else { return }
             //guard let length = arguments["length"] as? NSNumber else { return }
             guard let bytes = arguments["bytes"] as? FlutterStandardTypedData else { return }
+            guard let sdf = arguments["sdf"] as? Bool else { return }
             guard let data = bytes.data as? Data else{ return }
             guard let image = UIImage(data: data) else { return }
-            
-            self.mapView.style?.setImage(image, forName: name)
+            if (sdf) {
+                self.mapView.style?.setImage(image.withRenderingMode(.alwaysTemplate), forName: name)
+            } else {
+                self.mapView.style?.setImage(image, forName: name)
+            }
             result(nil)
         default:
             result(FlutterMethodNotImplemented)
@@ -414,7 +418,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         circleAnnotationController?.delegate = self
 
         mapReadyResult?(nil)
+        print("asdasd\(channel)")
         if let channel = channel {
+            print("asdasd2 ")
             channel.invokeMethod("map#onStyleLoaded", arguments: nil)
         }
     }
