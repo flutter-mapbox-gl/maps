@@ -1,4 +1,4 @@
-## 0.0.6, May 31, 2019
+## 0.0.6, May 31, 2020
 * Update mapbox depdendency to 9.2.0 (android) and 5.6.0 (iOS)
 * Long press handlers for both iOS as Android
 * Change default location tracking to none
