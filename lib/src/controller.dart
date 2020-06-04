@@ -371,6 +371,34 @@ class MapboxMapController extends ChangeNotifier {
     _symbols.remove(id);
   }
 
+  /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
+  Future<void> setSymbolIconAllowOverlap(bool enable) async {
+    await _channel.invokeMethod('symbolManager#iconAllowOverlap', <String, dynamic>{
+      'iconAllowOverlap': enable,
+    });
+  }
+  
+  /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
+  Future<void> setSymbolIconIgnorePlacement(bool enable) async {
+    await _channel.invokeMethod('symbolManager#iconIgnorePlacement', <String, dynamic>{
+      'iconIgnorePlacement': enable,
+    });
+  }
+  
+  /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
+  Future<void> setSymbolTextAllowOverlap(bool enable) async {
+    await _channel.invokeMethod('symbolManager#textAllowOverlap', <String, dynamic>{
+      'textAllowOverlap': enable,
+    });
+  }
+
+  /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
+  Future<void> setSymbolTextIgnorePlacement(bool enable) async {
+    await _channel.invokeMethod('symbolManager#textIgnorePlacement', <String, dynamic>{
+      'textIgnorePlacement': enable,
+    });
+  }
+
   /// Adds a line to the map, configured using the specified custom [options].
   ///
   /// Change listeners are notified once the line has been added on the

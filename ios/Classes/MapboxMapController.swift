@@ -201,6 +201,29 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "symbolManager#iconAllowOverlap":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let iconAllowOverlap = arguments["iconAllowOverlap"] as? Bool else { return }
+
+            symbolAnnotationController.iconAllowsOverlap = iconAllowOverlap
+            result(nil)
+        case "symbolManager#iconIgnorePlacement":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let iconIgnorePlacement = arguments["iconIgnorePlacement"] as? Bool else { return }
+
+            symbolAnnotationController.iconIgnoresPlacement = iconIgnorePlacement
+            result(nil)
+        case "symbolManager#textAllowOverlap":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let textAllowOverlap = arguments["textAllowOverlap"] as? Bool else { return }
+
+            symbolAnnotationController.textAllowsOverlap = textAllowOverlap
+            result(nil)
+        case "symbolManager#textIgnorePlacement":
+            result(FlutterMethodNotImplemented)
         case "circle#add":
             guard let circleAnnotationController = circleAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }

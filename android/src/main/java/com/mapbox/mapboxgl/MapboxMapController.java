@@ -373,6 +373,8 @@ final class MapboxMapController
     }
   }
 
+
+
   private void enableLineManager(@NonNull Style style) {
     if (lineManager == null) {
       lineManager = new LineManager(mapView, mapboxMap, style);
@@ -566,6 +568,30 @@ final class MapboxMapController
         final SymbolController symbol = symbol(symbolId);
         Convert.interpretSymbolOptions(call.argument("options"), symbol);
         symbol.update(symbolManager);
+        result.success(null);
+        break;
+      }
+      case "symbolManager#iconAllowOverlap": {
+        final Boolean value = call.argument("iconAllowOverlap");
+        symbolManager.setIconAllowOverlap(value);
+        result.success(null);
+        break;
+      }
+      case "symbolManager#iconIgnorePlacement": {
+        final Boolean value = call.argument("iconIgnorePlacement");
+        symbolManager.setIconIgnorePlacement(value);
+        result.success(null);
+        break;
+      }
+      case "symbolManager#textAllowOverlap": {
+        final Boolean value = call.argument("textAllowOverlap");
+        symbolManager.setTextAllowOverlap(value);
+        result.success(null);
+        break;
+      }
+      case "symbolManager#textIgnorePlacement": {
+        final Boolean iconAllowOverlap = call.argument("textIgnorePlacement");
+        symbolManager.setTextIgnorePlacement(iconAllowOverlap);
         result.success(null);
         break;
       }
