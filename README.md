@@ -8,7 +8,14 @@ embedded interactive and customizable vector maps inside a Flutter widget by emb
 ![screenshot.png](screenshot.png)
 
 ## Install
-This project is available on [pub.dartlang](https://pub.dartlang.org/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to integrate a package into your flutter application.
+
+This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to integrate a package into your flutter application.
+
+## :new: :new: Who's using this SDK :new: :new:
+
+We're compiling a list of apps using this SDK. If you want to be listed here, please open a PR and add yourself below (or open a ticket and we'll add you).
+
+- You?
 
 ### Running example app
 
@@ -19,37 +26,72 @@ This project is available on [pub.dartlang](https://pub.dartlang.org/packages/ma
 #### Mapbox Access Token
 
 This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
+> **Even if you do not use Mapbox vector tiles but vector tiles from a different source (like self-hosted tiles) with this plugin, you will need to specify any non-empty string as Access Token as explained below!**
 
 ##### Android
+
 Add Mapbox read token value in the application manifest ```android/app/src/main/AndroidManifest.xml:```
 
-```<manifest ...
+```xml
+<manifest ...
   <application ...
     <meta-data android:name="com.mapbox.token" android:value="YOUR_TOKEN_HERE" />
 ```
 
-#### iOS
+##### iOS
+
 Add these lines to your Info.plist
 
-```plist
+```xml
 <key>io.flutter.embedded_views_preview</key>
 <true/>
 <key>MGLMapboxAccessToken</key>
 <string>YOUR_TOKEN_HERE</string>
 ```
 
+If you access your users' location, you should also add the following key to your Info.plist to explain why you need access to their location data:
+
+```xml
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>[Your explanation here]</string>
+```
+
+Mapbox [recommends](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location) the explanation "Shows your location on the map and helps improve the map".
+
+##### Web
+
+Add mapbox-gl.js library in the `<head>` of your html page:
+
+```html
+<head>
+  ...
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.js'></script>
+</head>
+```
+
+Add your `accessToken` in a script tag at the end of your body:
+
+```html
+<body>
+  ...
+  <script>
+    mapboxgl.accessToken = 'YOUR_TOKEN_HERE';
+  </script>
+</body>
+```
+
 ## Supported API
 
-| Feature | Android | iOS |
-| ------ | ------ | ----- |
-| Style | :white_check_mark:   | :white_check_mark: |
-| Camera | :white_check_mark:   | :white_check_mark: |
-| Gesture | :white_check_mark:   | :white_check_mark: |
-| User Location | :white_check_mark: | :white_check_mark: |
-| Symbol | :white_check_mark:   | |
-| Circle | :white_check_mark:   |  |
-| Line | :white_check_mark:   |  |
-| Fill |   |  |
+| Feature | Android | iOS | Web |
+| ------ | ------ | ----- | ----- |
+| Style | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Camera | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Gesture | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| User Location | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| Symbol | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Circle | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Line | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Fill |   |  |  |
 
 ## Offline Sideloading
 
@@ -80,7 +122,7 @@ This README file currently houses all of the documentation for this Flutter proj
 
 ## Getting Help
 
-- **Need help with your code?**: Look for previous questions on the [#mapbox tag](https://stackoverflow.com/questions/tagged/mapbox+android) — or [ask a new question](https://stackoverflow.com/questions/tagged/mapbox+android).
+- **Need help with your code?**: Look for previous questions on the [#mapbox tag](https://stackoverflow.com/questions/tagged/mapbox+flutter) — or [ask a new question](https://stackoverflow.com/questions/tagged/mapbox+android).
 - **Have a bug to report?** [Open an issue](https://github.com/tobrun/flutter-mapbox-gl/issues/new). If possible, include a full log and information which shows the issue.
 - **Have a feature request?** [Open an issue](https://github.com/tobrun/flutter-mapbox-gl/issues/new). Tell us what the feature should do and why you want the feature.
 

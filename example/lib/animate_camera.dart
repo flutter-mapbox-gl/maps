@@ -7,7 +7,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class AnimateCameraPage extends Page {
+class AnimateCameraPage extends ExamplePage {
   AnimateCameraPage()
       : super(const Icon(Icons.map), 'Camera control, animated');
 
@@ -63,7 +63,7 @@ class AnimateCameraState extends State<AnimateCamera> {
                           zoom: 17.0,
                         ),
                       ),
-                    );
+                    ).then((result)=>print("mapController.animateCamera() returned $result"));
                   },
                   child: const Text('newCameraPosition'),
                 ),
@@ -73,7 +73,7 @@ class AnimateCameraState extends State<AnimateCamera> {
                       CameraUpdate.newLatLng(
                         const LatLng(56.1725505, 10.1850512),
                       ),
-                    );
+                    ).then((result)=>print("mapController.animateCamera() returned $result"));
                   },
                   child: const Text('newLatLng'),
                 ),

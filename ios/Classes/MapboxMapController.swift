@@ -1,8 +1,9 @@
 import Flutter
 import UIKit
 import Mapbox
+import MapboxAnnotationExtension
 
-class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink {
+class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink, MGLAnnotationControllerDelegate {
     
     private var registrar: FlutterPluginRegistrar
     private var channel: FlutterMethodChannel?
@@ -15,6 +16,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var cameraTargetBounds: MGLCoordinateBounds?
     private var trackCameraPosition = false
     private var myLocationEnabled = false
+
+    private var symbolAnnotationController: MGLSymbolAnnotationController?
+    private var circleAnnotationController: MGLCircleAnnotationController?
+    private var lineAnnotationController: MGLLineAnnotationController?
 
     func view() -> UIView {
         return mapView
@@ -31,6 +36,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         channel!.setMethodCallHandler(onMethodCall)
         
         mapView.delegate = self
+        
+        let singleTap = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(sender:)))
+        for recognizer in mapView.gestureRecognizers! where recognizer is UITapGestureRecognizer {
+            singleTap.require(toFail: recognizer)
+        }
+        mapView.addGestureRecognizer(singleTap)
+        
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleMapLongPress(sender:)))
+        for recognizer in mapView.gestureRecognizers! where recognizer is UILongPressGestureRecognizer {
+            longPress.require(toFail: recognizer)
+        }
+        mapView.addGestureRecognizer(longPress)
         
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
@@ -59,60 +76,271 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
+        case "map#invalidateAmbientCache":
+            MGLOfflineStorage.shared.invalidateAmbientCache{
+                (error) in
+                if let error = error {
+                    result(error)
+                } else{
+                    result(nil)
+                }
+            }
+        case "map#updateMyLocationTrackingMode":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            if let myLocationTrackingMode = arguments["mode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
+                setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
+            }
+            result(nil)
+        case "map#matchMapLanguageWithDeviceDefault":
+            if let style = mapView.style {
+                style.localizeLabels(into: nil)
+            }
+            result(nil)
+        case "map#updateContentInsets":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+
+            if let bounds = arguments["bounds"] as? [String: Any],
+                let top = bounds["top"] as? CGFloat,
+                let left = bounds["left"]  as? CGFloat,
+                let bottom = bounds["bottom"] as? CGFloat,
+                let right = bounds["right"] as? CGFloat,
+                let animated = arguments["animated"] as? Bool {
+                mapView.setContentInset(UIEdgeInsets(top: top, left: left, bottom: bottom, right: right), animated: animated) {
+                    result(nil)
+                }
+            } else {
+                result(nil)
+            }
+        case "map#setMapLanguage":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            if let localIdentifier = arguments["language"] as? String, let style = mapView.style {
+                let locale = Locale(identifier: localIdentifier)
+                style.localizeLabels(into: locale)
+            }
+            result(nil)
+        case "map#setTelemetryEnabled":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            let telemetryEnabled = arguments["enabled"] as? Bool
+            UserDefaults.standard.set(telemetryEnabled, forKey: "MGLMapboxMetricsEnabled")
+            result(nil)
+        case "map#getTelemetryEnabled":
+            let telemetryEnabled = UserDefaults.standard.bool(forKey: "MGLMapboxMetricsEnabled")
+            result(telemetryEnabled)
+        case "map#getVisibleRegion":
+            var reply = [String: NSObject]()
+            let visibleRegion = mapView.visibleCoordinateBounds
+            reply["sw"] = [visibleRegion.sw.latitude, visibleRegion.sw.longitude] as NSObject
+            reply["ne"] = [visibleRegion.ne.latitude, visibleRegion.ne.longitude] as NSObject
+            result(reply)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
             if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
                 mapView.setCamera(camera, animated: false)
             }
+            result(nil)
         case "camera#animate":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
             if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
+                if let duration = arguments["duration"] as? TimeInterval {
+                    mapView.setCamera(camera, withDuration: TimeInterval(duration / 1000), 
+                        animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut))
+                    result(nil)
+                }
                 mapView.setCamera(camera, animated: true)
             }
+            result(nil)
         case "symbol#add":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            let symbol = Symbol()
-            Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
-            if CLLocationCoordinate2DIsValid(symbol.geometry) {
-                mapView.addAnnotation(symbol)
-                result(symbol.id)
+            
+            // Parse geometry
+            if let options = arguments["options"] as? [String: Any],
+                let geometry = options["geometry"] as? [Double] {
+                // Convert geometry to coordinate and create symbol.
+                let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+                let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
+                Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
+                // Load icon image from asset if an icon name is supplied.
+                if let iconImage = options["iconImage"] as? String {
+                    addIconImageToMap(iconImageName: iconImage)
+                }
+                symbolAnnotationController.addStyleAnnotation(symbol)
+                result(symbol.identifier)
             } else {
                 result(nil)
             }
         case "symbol#update":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let symbolIdString = arguments["symbol"] as? String else { return }
-            
-            if let symbol = getSymbolInMapView(mapView: mapView, symbolId: symbolIdString) {
-                Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
+            guard let symbolId = arguments["symbol"] as? String else { return }
+
+            for symbol in symbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolId {
+                    Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol as! MGLSymbolStyleAnnotation)
+                    // Load (updated) icon image from asset if an icon name is supplied.
+                    if let options = arguments["options"] as? [String: Any],
+                        let iconImage = options["iconImage"] as? String {
+                        addIconImageToMap(iconImageName: iconImage)
+                    }
+                    symbolAnnotationController.updateStyleAnnotation(symbol)
+                    break;
+                }
             }
             result(nil)
         case "symbol#remove":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let symbolIdString = arguments["symbol"] as? String else { return }
+            guard let symbolId = arguments["symbol"] as? String else { return }
 
-            if let symbol = getSymbolInMapView(mapView: mapView, symbolId: symbolIdString) {
-                mapView.removeAnnotation(symbol)
+            for symbol in symbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolId {
+                    symbolAnnotationController.removeStyleAnnotation(symbol)
+                    break;
+                }
+            }
+            result(nil)
+        case "symbolManager#iconAllowOverlap":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let iconAllowOverlap = arguments["iconAllowOverlap"] as? Bool else { return }
+
+            symbolAnnotationController.iconAllowsOverlap = iconAllowOverlap
+            result(nil)
+        case "symbolManager#iconIgnorePlacement":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let iconIgnorePlacement = arguments["iconIgnorePlacement"] as? Bool else { return }
+
+            symbolAnnotationController.iconIgnoresPlacement = iconIgnorePlacement
+            result(nil)
+        case "symbolManager#textAllowOverlap":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let textAllowOverlap = arguments["textAllowOverlap"] as? Bool else { return }
+
+            symbolAnnotationController.textAllowsOverlap = textAllowOverlap
+            result(nil)
+        case "symbolManager#textIgnorePlacement":
+            result(FlutterMethodNotImplemented)
+        case "circle#add":
+            guard let circleAnnotationController = circleAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            // Parse geometry
+            if let options = arguments["options"] as? [String: Any],
+                let geometry = options["geometry"] as? [Double] {
+                // Convert geometry to coordinate and create circle.
+                let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+                let circle = MGLCircleStyleAnnotation(center: coordinate)
+                Convert.interpretCircleOptions(options: arguments["options"], delegate: circle)
+                circleAnnotationController.addStyleAnnotation(circle)
+                result(circle.identifier)
+            } else {
+                result(nil)
+            }
+        case "circle#update":
+            guard let circleAnnotationController = circleAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let circleId = arguments["circle"] as? String else { return }
+            
+            for circle in circleAnnotationController.styleAnnotations() {
+                if circle.identifier == circleId {
+                    Convert.interpretCircleOptions(options: arguments["options"], delegate: circle as! MGLCircleStyleAnnotation)
+                    circleAnnotationController.updateStyleAnnotation(circle)
+                    break;
+                }
+            }
+            result(nil)
+        case "circle#remove":
+            guard let circleAnnotationController = circleAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let circleId = arguments["circle"] as? String else { return }
+            
+            for circle in circleAnnotationController.styleAnnotations() {
+                if circle.identifier == circleId {
+                    circleAnnotationController.removeStyleAnnotation(circle)
+                    break;
+                }
+            }
+            result(nil)
+        case "line#add":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            // Parse geometry
+            if let options = arguments["options"] as? [String: Any],
+                let geometry = options["geometry"] as? [[Double]] {
+                // Convert geometry to coordinate and create a line.
+                var lineCoordinates: [CLLocationCoordinate2D] = []
+                for coordinate in geometry {
+                    lineCoordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
+                }
+                let line = MGLLineStyleAnnotation(coordinates: lineCoordinates, count: UInt(lineCoordinates.count))
+                Convert.interpretLineOptions(options: arguments["options"], delegate: line)
+                lineAnnotationController.addStyleAnnotation(line)
+                result(line.identifier)
+            } else {
+                result(nil)
+            }
+        case "line#update":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineId = arguments["line"] as? String else { return }
+            
+            for line in lineAnnotationController.styleAnnotations() {
+                if line.identifier == lineId {
+                    Convert.interpretLineOptions(options: arguments["options"], delegate: line as! MGLLineStyleAnnotation)
+                    lineAnnotationController.updateStyleAnnotation(line)
+                    break;
+                }
+            }
+            result(nil)
+        case "line#remove":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineId = arguments["line"] as? String else { return }
+            
+            for line in lineAnnotationController.styleAnnotations() {
+                if line.identifier == lineId {
+                    lineAnnotationController.removeStyleAnnotation(line)
+                    break;
+                }
+            }
+            result(nil)
+        case "style#addImage":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let name = arguments["name"] as? String else { return }
+            //guard let length = arguments["length"] as? NSNumber else { return }
+            guard let bytes = arguments["bytes"] as? FlutterStandardTypedData else { return }
+            guard let sdf = arguments["sdf"] as? Bool else { return }
+            guard let data = bytes.data as? Data else{ return }
+            guard let image = UIImage(data: data) else { return }
+            if (sdf) {
+                self.mapView.style?.setImage(image.withRenderingMode(.alwaysTemplate), forName: name)
+            } else {
+                self.mapView.style?.setImage(image, forName: name)
             }
             result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
     }
-
-    private func getSymbolInMapView(mapView: MGLMapView, symbolId: String) -> Symbol? {
-        if let annotations = mapView.annotations {
-            for (_, annotation) in annotations.enumerated() {
-                if let symbolAnnotation = annotation as? Symbol {
-                    if symbolAnnotation.id == symbolId {
-                        return symbolAnnotation
-                    }
+    
+    private func addIconImageToMap(iconImageName: String) {
+        // Check if the image has already been added to the map.
+        if self.mapView.style?.image(forName: iconImageName) == nil {
+            // Build up the full path of the asset.
+            // First find the last '/' ans split the image name in the asset directory and the image file name.
+            if let range = iconImageName.range(of: "/", options: [.backwards]) {
+                let directory = String(iconImageName[..<range.lowerBound])
+                let assetPath = registrar.lookupKey(forAsset: "\(directory)/")
+                let fileName = String(iconImageName[range.upperBound...])
+                // If we can load the image from file then add it to the map.
+                if let imageFromAsset = UIImage.loadFromFile(imagePath: assetPath, imageName: fileName) {
+                    self.mapView.style?.setImage(imageFromAsset, forName: iconImageName)
                 }
             }
         }
-        return nil
     }
 
     private func updateMyLocationEnabled() {
@@ -121,6 +349,70 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     private func getCamera() -> MGLMapCamera? {
         return trackCameraPosition ? mapView.camera : nil
+        
+    }
+    
+    /*
+    *  UITapGestureRecognizer
+    *  On tap invoke the map#onMapClick callback.
+    */
+    @objc @IBAction func handleMapTap(sender: UITapGestureRecognizer) {
+        // Get the CGPoint where the user tapped.
+        let point = sender.location(in: mapView)
+        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+        channel?.invokeMethod("map#onMapClick", arguments: [
+                      "x": point.x,
+                      "y": point.y,
+                      "lng": coordinate.longitude,
+                      "lat": coordinate.latitude,
+                  ])
+    }
+    
+    /*
+    *  UILongPressGestureRecognizer
+    *  After a long press invoke the map#onMapLongClick callback.
+    */
+    @objc @IBAction func handleMapLongPress(sender: UILongPressGestureRecognizer) {
+        //Only fire at the end of the long press
+        if (sender.state == .ended) {
+          // Get the CGPoint where the user tapped.
+            let point = sender.location(in: mapView)
+            let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+            channel?.invokeMethod("map#onMapLongClick", arguments: [
+                          "x": point.x,
+                          "y": point.y,
+                          "lng": coordinate.longitude,
+                          "lat": coordinate.latitude,
+                      ])
+        }
+        
+    }
+    
+    
+    
+    /*
+     *  MGLAnnotationControllerDelegate
+     */
+    func annotationController(_ annotationController: MGLAnnotationController, didSelect styleAnnotation: MGLStyleAnnotation) {
+        guard let channel = channel else {
+            return
+        }
+        
+        if let symbol = styleAnnotation as? MGLSymbolStyleAnnotation {
+            channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.identifier)"])
+        } else if let circle = styleAnnotation as? MGLCircleStyleAnnotation {
+            channel.invokeMethod("circle#onTap", arguments: ["circle" : "\(circle.identifier)"])
+        } else if let line = styleAnnotation as? MGLLineStyleAnnotation {
+            channel.invokeMethod("line#onTap", arguments: ["line" : "\(line.identifier)"])
+        }
+    }
+    
+    // This is required in order to hide the default Maps SDK pin
+    func mapView(_ mapView: MGLMapView, viewFor annotation: MGLAnnotation) -> MGLAnnotationView? {
+        if annotation is MGLUserLocation {
+            return nil
+        }
+        return MGLAnnotationView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
     }
     
     /*
@@ -135,12 +427,30 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             camera.pitch = initialTilt
             mapView.setCamera(camera, animated: false)
         }
+
+        lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
+        lineAnnotationController!.annotationsInteractionEnabled = true
+        lineAnnotationController?.delegate = self
+
+        symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
+        symbolAnnotationController!.annotationsInteractionEnabled = true
+        symbolAnnotationController?.delegate = self
         
+        circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
+        circleAnnotationController!.annotationsInteractionEnabled = true
+        circleAnnotationController?.delegate = self
+
         mapReadyResult?(nil)
+        print("asdasd\(channel)")
+        if let channel = channel {
+            print("asdasd2 ")
+            channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+        }
     }
     
     func mapView(_ mapView: MGLMapView, shouldChangeFrom oldCamera: MGLMapCamera, to newCamera: MGLMapCamera) -> Bool {
         guard let bbox = cameraTargetBounds else { return true }
+                
         // Get the current camera to restore it after.
         let currentCamera = mapView.camera
         
@@ -186,13 +496,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     // On tap invoke the symbol#onTap callback.
     func mapView(_ mapView: MGLMapView, didSelect annotation: MGLAnnotation) {
-        // Only for Symbols images should loaded.
-        guard let symbol = annotation as? Symbol else {
-            return
-        }
         
-        if let channel = channel {
-            channel.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
+       if let symbol = annotation as? Symbol {
+            channel?.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
+        
         }
     }
     
@@ -200,7 +507,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func mapView(_ mapView: MGLMapView, annotationCanShowCallout annotation: MGLAnnotation) -> Bool {
         return true
     }
-    
+   
     func mapView(_ mapView: MGLMapView, didChange mode: MGLUserTrackingMode, animated: Bool) {
         if let channel = channel {
             channel.invokeMethod("map#onCameraTrackingChanged", arguments: ["mode": mode.rawValue])
@@ -209,7 +516,34 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
         }
     }
-
+    
+    func mapViewDidBecomeIdle(_ mapView: MGLMapView) {
+        if let channel = channel {
+            channel.invokeMethod("map#onIdle", arguments: []);
+        }
+    }
+    
+    func mapView(_ mapView: MGLMapView, regionWillChangeAnimated animated: Bool) {
+        if let channel = channel {
+            channel.invokeMethod("camera#onMoveStarted", arguments: []);
+        }
+    }
+    
+    func mapViewRegionIsChanging(_ mapView: MGLMapView) {
+        if !trackCameraPosition { return };
+        if let channel = channel {
+            channel.invokeMethod("camera#onMove", arguments: [
+                "position": getCamera()?.toDict(mapView: mapView)
+            ]);
+        }
+    }
+    
+    func mapView(_ mapView: MGLMapView, regionDidChangeAnimated animated: Bool) {
+        if let channel = channel {
+            channel.invokeMethod("camera#onIdle", arguments: []);
+        }
+    }
+    
     /*
      *  MapboxMapOptionsSink
      */
@@ -262,6 +596,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     func setLogoViewMargins(x: Double, y: Double) {
         mapView.logoViewMargins = CGPoint(x: x, y: y)
+    }
+    func setCompassViewPosition(position: MGLOrnamentPosition) {
+        mapView.compassViewPosition = position
     }
     func setCompassViewMargins(x: Double, y: Double) {
         mapView.compassViewMargins = CGPoint(x: x, y: y)

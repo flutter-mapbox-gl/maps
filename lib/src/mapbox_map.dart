@@ -10,6 +10,7 @@ class MapboxMap extends StatefulWidget {
   const MapboxMap({
     @required this.initialCameraPosition,
     this.onMapCreated,
+    this.onStyleLoadedCallback,
     this.gestureRecognizers,
     this.compassEnabled = true,
     this.cameraTargetBounds = CameraTargetBounds.unbounded,
@@ -21,17 +22,25 @@ class MapboxMap extends StatefulWidget {
     this.tiltGesturesEnabled = true,
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
-    this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
+    this.myLocationTrackingMode = MyLocationTrackingMode.None,
     this.myLocationRenderMode = MyLocationRenderMode.COMPASS,
     this.logoViewMargins,
+    this.compassViewPosition,
     this.compassViewMargins,
     this.attributionButtonMargins,
     this.onMapClick,
+    this.onMapLongClick,
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
+    this.onCameraIdle,
+    this.onMapIdle,
   }) : assert(initialCameraPosition != null);
 
   final MapCreatedCallback onMapCreated;
+  
+  /// Called when the map style has been successfully loaded and the annotation managers have been enabled.
+  /// Please note: you should only add annotations (e.g. symbols or circles) after this callback has been called.
+  final OnStyleLoadedCallback onStyleLoadedCallback;
 
   /// The initial position of the map's camera.
   final CameraPosition initialCameraPosition;
@@ -101,6 +110,9 @@ class MapboxMap extends StatefulWidget {
   /// Set the layout margins for the Mapbox Logo
   final Point logoViewMargins;
 
+  /// Set the position for the Mapbox Compass
+  final CompassViewPosition compassViewPosition;
+
   /// Set the layout margins for the Mapbox Compass
   final Point compassViewMargins;
 
@@ -119,10 +131,22 @@ class MapboxMap extends StatefulWidget {
   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
 
   final OnMapClickCallback onMapClick;
+  final OnMapClickCallback onMapLongClick;
 
   /// Called when the location tracking mode changes, such as when the user moves the map
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
+
+  // Called when camera movement has ended.
+  final OnCameraIdleCallback onCameraIdle;
+
+  /// Called when map view is entering an idle state, and no more drawing will
+  /// be necessary until new data is loaded or there is some interaction with
+  /// the map.
+  /// * No camera transitions are in progress
+  /// * All currently requested tiles have loaded
+  /// * All fade/transition animations have completed
+  final OnMapIdleCallback onMapIdle;
 
   @override
   State createState() => _MapboxMapState();
@@ -137,29 +161,11 @@ class _MapboxMapState extends State<MapboxMap> {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> creationParams = <String, dynamic>{
-      'initialCameraPosition': widget.initialCameraPosition?._toMap(),
+      'initialCameraPosition': widget.initialCameraPosition?.toMap(),
       'options': _MapboxMapOptions.fromWidget(widget).toMap(),
     };
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return AndroidView(
-        viewType: 'plugins.flutter.io/mapbox_gl',
-        onPlatformViewCreated: onPlatformViewCreated,
-        gestureRecognizers: widget.gestureRecognizers,
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-      );
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      return UiKitView(
-        viewType: 'plugins.flutter.io/mapbox_gl',
-        onPlatformViewCreated: onPlatformViewCreated,
-        gestureRecognizers: widget.gestureRecognizers,
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-      );
-    }
-
-    return Text(
-        '$defaultTargetPlatform is not yet supported by the maps plugin');
+    return MapboxGlPlatform.instance.buildView(
+        creationParams, onPlatformViewCreated, widget.gestureRecognizers);
   }
 
   @override
@@ -189,9 +195,13 @@ class _MapboxMapState extends State<MapboxMap> {
   Future<void> onPlatformViewCreated(int id) async {
     final MapboxMapController controller = await MapboxMapController.init(
         id, widget.initialCameraPosition,
+        onStyleLoadedCallback: widget.onStyleLoadedCallback,
         onMapClick: widget.onMapClick,
+        onMapLongClick: widget.onMapLongClick,
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
-        onCameraTrackingChanged: widget.onCameraTrackingChanged);
+        onCameraTrackingChanged: widget.onCameraTrackingChanged,
+        onCameraIdle: widget.onCameraIdle,
+        onMapIdle: widget.onMapIdle);
     _controller.complete(controller);
     if (widget.onMapCreated != null) {
       widget.onMapCreated(controller);
@@ -218,6 +228,7 @@ class _MapboxMapOptions {
     this.myLocationTrackingMode,
     this.myLocationRenderMode,
     this.logoViewMargins,
+    this.compassViewPosition,
     this.compassViewMargins,
     this.attributionButtonMargins,
   });
@@ -237,8 +248,9 @@ class _MapboxMapOptions {
       myLocationTrackingMode: map.myLocationTrackingMode,
       myLocationRenderMode: map.myLocationRenderMode,
       logoViewMargins: map.logoViewMargins,
+      compassViewPosition: map.compassViewPosition,
       compassViewMargins: map.compassViewMargins,
-      attributionButtonMargins: map.attributionButtonMargins
+      attributionButtonMargins: map.attributionButtonMargins,
     );
   }
 
@@ -268,6 +280,8 @@ class _MapboxMapOptions {
 
   final Point logoViewMargins;
 
+  final CompassViewPosition compassViewPosition;
+
   final Point compassViewMargins;
 
   final Point attributionButtonMargins;
@@ -290,9 +304,9 @@ class _MapboxMapOptions {
     }
 
     addIfNonNull('compassEnabled', compassEnabled);
-    addIfNonNull('cameraTargetBounds', cameraTargetBounds?._toJson());
+    addIfNonNull('cameraTargetBounds', cameraTargetBounds?.toJson());
     addIfNonNull('styleString', styleString);
-    addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?._toJson());
+    addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?.toJson());
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);
     addIfNonNull('scrollGesturesEnabled', scrollGesturesEnabled);
     addIfNonNull('tiltGesturesEnabled', tiltGesturesEnabled);
@@ -302,13 +316,17 @@ class _MapboxMapOptions {
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
     addIfNonNull('myLocationRenderMode', myLocationRenderMode?.index);
     addIfNonNull('logoViewMargins', pointToArray(logoViewMargins));
+    addIfNonNull('compassViewPosition', compassViewPosition?.index);
     addIfNonNull('compassViewMargins', pointToArray(compassViewMargins));
-    addIfNonNull('attributionButtonMargins', pointToArray(attributionButtonMargins));
+    addIfNonNull(
+        'attributionButtonMargins', pointToArray(attributionButtonMargins));
     return optionsMap;
   }
 
   Map<String, dynamic> updatesMap(_MapboxMapOptions newOptions) {
     final Map<String, dynamic> prevOptionsMap = toMap();
-    return newOptions.toMap()..removeWhere((String key, dynamic value) => prevOptionsMap[key] == value);
+    return newOptions.toMap()
+      ..removeWhere(
+          (String key, dynamic value) => prevOptionsMap[key] == value);
   }
 }
