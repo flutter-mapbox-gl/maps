@@ -37,7 +37,6 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   MapboxMapController controller;
   int _symbolCount = 0;
   Symbol _selectedSymbol;
-  bool _iconAllowOverlap = false;
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
@@ -208,13 +207,6 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
 
-  Future<void> _changeIconOverlap() async {
-    setState(() {
-      _iconAllowOverlap = !_iconAllowOverlap;
-    });
-    controller.setSymbolIconAllowOverlap(_iconAllowOverlap);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -258,10 +250,6 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                         FlatButton(
                           child: const Text('remove'),
                           onPressed: (_selectedSymbol == null) ? null : _remove,
-                        ),
-                        FlatButton(
-                          child:  Text('${_iconAllowOverlap ? 'disable' : 'enable'} icon overlap'),
-                          onPressed: _changeIconOverlap,
                         ),
                         FlatButton(
                           child: const Text('add (asset image)'),
