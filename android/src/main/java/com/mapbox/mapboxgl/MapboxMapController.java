@@ -313,6 +313,14 @@ final class MapboxMapController
       Log.e(TAG, "setStyleString - string empty or null");
     } else if (styleString.startsWith("{") || styleString.startsWith("[")) {
       mapboxMap.setStyle(new Style.Builder().fromJson(styleString), onStyleLoadedCallback);
+    } else if (
+      !styleString.startsWith("http://") && 
+      !styleString.startsWith("https://")&& 
+      !styleString.startsWith("mapbox://")) {
+      // We are assuming that the style will be loaded from an asset here.
+      AssetManager assetManager = registrar.context().getAssets();
+      String key = registrar.lookupKeyForAsset(styleString);
+      mapboxMap.setStyle(new Style.Builder().fromUri("asset://" + key), onStyleLoadedCallback);
     } else {
       mapboxMap.setStyle(new Style.Builder().fromUrl(styleString), onStyleLoadedCallback);
     }
