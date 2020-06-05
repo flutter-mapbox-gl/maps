@@ -90,6 +90,7 @@ final class MapboxMapController
   MapboxMap.OnCameraMoveStartedListener,
   OnAnnotationClickListener,
   MapboxMap.OnMapClickListener,
+  MapboxMap.OnMapLongClickListener,
   MapboxMapOptionsSink,
   MethodChannel.MethodCallHandler,
   com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
@@ -330,6 +331,7 @@ final class MapboxMapController
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
+      mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
 	  
 	  localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
@@ -370,6 +372,8 @@ final class MapboxMapController
       symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
+
+
 
   private void enableLineManager(@NonNull Style style) {
     if (lineManager == null) {
@@ -575,6 +579,28 @@ final class MapboxMapController
         hashMapLatLng.put("latitude", symbolLatLng.getLatitude());
         hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
         result.success(hashMapLatLng);
+      case "symbolManager#iconAllowOverlap": {
+        final Boolean value = call.argument("iconAllowOverlap");
+        symbolManager.setIconAllowOverlap(value);
+        result.success(null);
+        break;
+      }
+      case "symbolManager#iconIgnorePlacement": {
+        final Boolean value = call.argument("iconIgnorePlacement");
+        symbolManager.setIconIgnorePlacement(value);
+        result.success(null);
+        break;
+      }
+      case "symbolManager#textAllowOverlap": {
+        final Boolean value = call.argument("textAllowOverlap");
+        symbolManager.setTextAllowOverlap(value);
+        result.success(null);
+        break;
+      }
+      case "symbolManager#textIgnorePlacement": {
+        final Boolean iconAllowOverlap = call.argument("textIgnorePlacement");
+        symbolManager.setTextIgnorePlacement(iconAllowOverlap);
+        result.success(null);
         break;
       }
       case "line#add": {
@@ -777,6 +803,18 @@ final class MapboxMapController
     arguments.put("lng", point.getLongitude());
     arguments.put("lat", point.getLatitude());
     methodChannel.invokeMethod("map#onMapClick", arguments);
+    return true;
+  }
+
+  @Override
+  public boolean onMapLongClick(@NonNull LatLng point) {
+    PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
+    final Map<String, Object> arguments = new HashMap<>(5);
+    arguments.put("x", pointf.x);
+    arguments.put("y", pointf.y);
+    arguments.put("lng", point.getLongitude());
+    arguments.put("lat", point.getLatitude());
+    methodChannel.invokeMethod("map#onMapLongClick", arguments);
     return true;
   }
 
