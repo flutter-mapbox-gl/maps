@@ -229,6 +229,29 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "symbolManager#iconAllowOverlap":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let iconAllowOverlap = arguments["iconAllowOverlap"] as? Bool else { return }
+
+            symbolAnnotationController.iconAllowsOverlap = iconAllowOverlap
+            result(nil)
+        case "symbolManager#iconIgnorePlacement":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let iconIgnorePlacement = arguments["iconIgnorePlacement"] as? Bool else { return }
+
+            symbolAnnotationController.iconIgnoresPlacement = iconIgnorePlacement
+            result(nil)
+        case "symbolManager#textAllowOverlap":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let textAllowOverlap = arguments["textAllowOverlap"] as? Bool else { return }
+
+            symbolAnnotationController.textAllowsOverlap = textAllowOverlap
+            result(nil)
+        case "symbolManager#textIgnorePlacement":
+            result(FlutterMethodNotImplemented)
         case "circle#add":
             guard let circleAnnotationController = circleAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
@@ -317,10 +340,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let name = arguments["name"] as? String else { return }
             //guard let length = arguments["length"] as? NSNumber else { return }
             guard let bytes = arguments["bytes"] as? FlutterStandardTypedData else { return }
+            guard let sdf = arguments["sdf"] as? Bool else { return }
             guard let data = bytes.data as? Data else{ return }
             guard let image = UIImage(data: data) else { return }
-            
-            self.mapView.style?.setImage(image, forName: name)
+            if (sdf) {
+                self.mapView.style?.setImage(image.withRenderingMode(.alwaysTemplate), forName: name)
+            } else {
+                self.mapView.style?.setImage(image, forName: name)
+            }
             result(nil)
         default:
             result(FlutterMethodNotImplemented)

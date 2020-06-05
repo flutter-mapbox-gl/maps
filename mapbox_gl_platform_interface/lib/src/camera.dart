@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of mapbox_gl;
+part of mapbox_gl_platform_interface;
 
 /// The position of the map "camera", the view point from which the world is
 /// shown in the map view. Aggregates the camera's [target] geographical
@@ -51,9 +51,9 @@ class CameraPosition {
   /// will be silently clamped to the supported range.
   final double zoom;
 
-  dynamic _toMap() => <String, dynamic>{
+  dynamic toMap() => <String, dynamic>{
         'bearing': bearing,
-        'target': target._toJson(),
+        'target': target.toJson(),
         'tilt': tilt,
         'zoom': zoom,
       };
@@ -98,14 +98,14 @@ class CameraUpdate {
   /// Returns a camera update that moves the camera to the specified position.
   static CameraUpdate newCameraPosition(CameraPosition cameraPosition) {
     return CameraUpdate._(
-      <dynamic>['newCameraPosition', cameraPosition._toMap()],
+      <dynamic>['newCameraPosition', cameraPosition.toMap()],
     );
   }
 
   /// Returns a camera update that moves the camera target to the specified
   /// geographical location.
   static CameraUpdate newLatLng(LatLng latLng) {
-    return CameraUpdate._(<dynamic>['newLatLng', latLng._toJson()]);
+    return CameraUpdate._(<dynamic>['newLatLng', latLng.toJson()]);
   }
 
   /// Returns a camera update that transforms the camera so that the specified
@@ -115,7 +115,7 @@ class CameraUpdate {
   static CameraUpdate newLatLngBounds(LatLngBounds bounds, double padding) {
     return CameraUpdate._(<dynamic>[
       'newLatLngBounds',
-      bounds._toList(),
+      bounds.toList(),
       padding,
     ]);
   }
@@ -124,7 +124,7 @@ class CameraUpdate {
   /// geographical location and zoom level.
   static CameraUpdate newLatLngZoom(LatLng latLng, double zoom) {
     return CameraUpdate._(
-      <dynamic>['newLatLngZoom', latLng._toJson(), zoom],
+      <dynamic>['newLatLngZoom', latLng.toJson(), zoom],
     );
   }
 
@@ -180,7 +180,7 @@ class CameraUpdate {
   static CameraUpdate bearingTo(double bearing) {
     return CameraUpdate._(<dynamic>['bearingTo', bearing]);
   }
-  
+
   /// Returns a camera update that sets the camera bearing.
   static CameraUpdate tiltTo(double tilt) {
     return CameraUpdate._(<dynamic>['tiltTo', tilt]);
@@ -188,5 +188,5 @@ class CameraUpdate {
 
   final dynamic _json;
 
-  dynamic _toJson() => _json;
+  dynamic toJson() => _json;
 }
