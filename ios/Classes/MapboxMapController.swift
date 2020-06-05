@@ -294,6 +294,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "line#getGeometry":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineId = arguments["line"] as? String else { return }
+            
+            var reply: [Any]? = nil
+            for line in lineAnnotationController.styleAnnotations() {
+                if line.identifier == lineId {
+                    if let geometry = line.geoJSONDictionary["geometry"] as? [String: Any],
+                        let coordinates = geometry["coordinates"] as? [[Double]] {
+                        reply = coordinates.map { [ "latitude": $0[1], "longitude": $0[0] ] }
+                    }
+                    break;
+                }
+            }
+            result(reply)
         case "style#addImage":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let name = arguments["name"] as? String else { return }
