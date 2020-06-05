@@ -259,6 +259,7 @@ class MapboxMapController extends MapboxGlPlatform
     );
   }
 
+  @override
   Future<void> addImage(String name, Uint8List bytes,
       [bool sdf = false]) async {
     final photo = decodeImage(bytes);
@@ -273,6 +274,30 @@ class MapboxMapController extends MapboxGlPlatform
         {'sdf': sdf},
       );
     }
+  }
+
+  @override
+  Future<void> setSymbolIconAllowOverlap(bool enable) async {
+    //TODO: to implement
+    print('setSymbolIconAllowOverlap not implemented yet');
+  }
+
+  @override
+  Future<void> setSymbolIconIgnorePlacement(bool enable) async {
+    //TODO: to implement
+    print('setSymbolIconIgnorePlacement not implemented yet');
+  }
+
+  @override
+  Future<void> setSymbolTextAllowOverlap(bool enable) async {
+    //TODO: to implement
+    print('setSymbolTextAllowOverlap not implemented yet');
+  }
+
+  @override
+  Future<void> setSymbolTextIgnorePlacement(bool enable) async {
+    //TODO: to implement
+    print('setSymbolTextIgnorePlacement not implemented yet');
   }
 
   CameraPosition _getCameraPosition() {

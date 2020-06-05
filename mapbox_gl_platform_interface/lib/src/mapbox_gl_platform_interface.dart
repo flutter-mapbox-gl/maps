@@ -176,4 +176,24 @@ abstract class MapboxGlPlatform {
       [bool sdf = false]) async {
     throw UnimplementedError('addImage() has not been implemented.');
   }
+
+  Future<void> setSymbolIconAllowOverlap(bool enable) async {
+    throw UnimplementedError(
+        'setSymbolIconAllowOverlap() has not been implemented.');
+  }
+
+  Future<void> setSymbolIconIgnorePlacement(bool enable) async {
+    throw UnimplementedError(
+        'setSymbolIconIgnorePlacement() has not been implemented.');
+  }
+
+  Future<void> setSymbolTextAllowOverlap(bool enable) async {
+    throw UnimplementedError(
+        'setSymbolTextAllowOverlap() has not been implemented.');
+  }
+
+  Future<void> setSymbolTextIgnorePlacement(bool enable) async {
+    throw UnimplementedError(
+        'setSymbolTextIgnorePlacement() has not been implemented.');
+  }
 }
