@@ -356,6 +356,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     }
   }
 
+  @override
   Future<void> addImage(String name, Uint8List bytes,
       [bool sdf = false]) async {
     try {
@@ -364,6 +365,54 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         "bytes": bytes,
         "length": bytes.length,
         "sdf": sdf
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> setSymbolIconAllowOverlap(bool enable) async {
+    try {
+      await _channel
+          .invokeMethod('symbolManager#iconAllowOverlap', <String, dynamic>{
+        'iconAllowOverlap': enable,
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> setSymbolIconIgnorePlacement(bool enable) async {
+    try {
+      await _channel
+          .invokeMethod('symbolManager#iconIgnorePlacement', <String, dynamic>{
+        'iconIgnorePlacement': enable,
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> setSymbolTextAllowOverlap(bool enable) async {
+    try {
+      await _channel
+          .invokeMethod('symbolManager#textAllowOverlap', <String, dynamic>{
+        'textAllowOverlap': enable,
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> setSymbolTextIgnorePlacement(bool enable) async {
+    try {
+      await _channel
+          .invokeMethod('symbolManager#textIgnorePlacement', <String, dynamic>{
+        'textIgnorePlacement': enable,
       });
     } on PlatformException catch (e) {
       return new Future.error(e);
