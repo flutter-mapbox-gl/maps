@@ -142,6 +142,14 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('getCircleLatLng() has not been implemented.');
   }
 
+  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
+    throw UnimplementedError('getSymbolLatLng() has not been implemented.');
+  }
+
+  Future<List<LatLng>> getLineLatLngs(Line line) async {
+    throw UnimplementedError('getLineLatLngs() has not been implemented.');
+  }
+
   Future<void> removeCircle(String circleId) async {
     throw UnimplementedError('removeCircle() has not been implemented.');
   }

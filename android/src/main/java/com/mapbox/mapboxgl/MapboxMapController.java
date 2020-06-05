@@ -579,6 +579,7 @@ final class MapboxMapController
         hashMapLatLng.put("latitude", symbolLatLng.getLatitude());
         hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
         result.success(hashMapLatLng);
+      }
       case "symbolManager#iconAllowOverlap": {
         final Boolean value = call.argument("iconAllowOverlap");
         symbolManager.setIconAllowOverlap(value);
