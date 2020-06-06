@@ -90,7 +90,7 @@ class LineController implements LineOptionsSink {
 
   public List<LatLng> getGeometry() {
     List<Point> points =  line.getGeometry().coordinates();
-    List<LatLng> latLngs = new LinkedList<>();
+    List<LatLng> latLngs = new ArrayList<>();
     for (Point point : points) {
       latLngs.add(new LatLng(point.latitude(), point.longitude()));
     }
