@@ -1,15 +1,13 @@
 name: mapbox_gl
-description: A Flutter plugin for integrating Mapbox Maps SDK inside a Flutter widget in iOS and Android applications.
-version: 0.0.6
+description: A Flutter plugin for integrating Mapbox Maps inside a Flutter application on Android, iOS and web platfroms.
+version: 0.7.0
 homepage: https://github.com/tobrun/flutter-mapbox-gl
 
 dependencies:
   flutter:
     sdk: flutter
-  mapbox_gl_platform_interface:
-    path: ./mapbox_gl_platform_interface
-  mapbox_gl_web:
-    path: ./mapbox_gl_web
+  mapbox_gl_platform_interface: ^0.7.0
+  mapbox_gl_web: ^0.7.0
     
 flutter:
   plugin:
