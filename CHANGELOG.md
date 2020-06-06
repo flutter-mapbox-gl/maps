@@ -1,3 +1,9 @@
+## 0.7.0, June 6, 2020
+* Introduction of mapbox_gl_platform_interface library
+* Introduction of mapbox_gl_web library
+* Integrate web support through mapbox-gl-js
+* Add icon-allow-overlap configurations
+
 ## 0.0.6, May 31, 2020
 * Update mapbox depdendency to 9.2.0 (android) and 5.6.0 (iOS)
 * Long press handlers for both iOS as Android
