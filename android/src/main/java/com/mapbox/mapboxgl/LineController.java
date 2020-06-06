@@ -6,7 +6,7 @@
 
 package com.mapbox.mapboxgl;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.PointF;
