@@ -9,11 +9,11 @@ This Flutter plugin allows to show embedded interactive and customizable vector 
 ## Running the example app
 
 - Install [Flutter](https://flutter.io/get-started/) and validate its installation with `flutter doctor`
-- Clone the repository with `git clone git@github.com:mapbox/flutter-mapbox-gl.git`
+- Clone the repository with `git clone git@github.com:tobrun/flutter-mapbox-gl.git`
 - Add a Mapbox access token to the example app (see next section)
 - Connect a mobile device or start an emulator, simulator or chrome
 - Locate the id of a the device with `flutter devices`
-- Run the app with `cd flutter_mapbox/example && flutter packages get && flutter run -d {device_id}``
+- Run the app with `cd flutter_mapbox/example && flutter packages get && flutter run -d {device_id}`
 
 ### Adding a Mapbox Access Token
 
