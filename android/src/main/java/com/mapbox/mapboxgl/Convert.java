@@ -422,7 +422,6 @@ class Convert {
       sink.setDraggable(toBoolean(draggable));
     }
   }
-
   static void interpretLineOptions(Object o, LineOptionsSink sink) {
     final Map<?, ?> data = toMap(o);
     final Object lineJoin = data.get("lineJoin");
@@ -476,6 +475,7 @@ class Convert {
       sink.setDraggable(toBoolean(draggable));
     }
   }
+
   static void interpretFillOptions(Object o, FillOptionsSink sink) {
     final Map<?, ?> data = toMap(o);
     final Object fillOpacity = data.get("fillOpacity");
