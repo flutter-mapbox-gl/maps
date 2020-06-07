@@ -269,6 +269,32 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    final String fillId = await _channel.invokeMethod(
+      'fill#add',
+      <String, dynamic>{
+        'options': options.toJson(),
+      },
+    );
+    return Fill(fillId, options, data);
+  }
+
+  @override
+  Future<void> updateFill(Fill fill, FillOptions changes) async {
+    await _channel.invokeMethod('fill#update', <String, dynamic>{
+      'fill': fill.id,
+      'options': changes.toJson(),
+    });
+  }
+
+  @override
+  Future<void> removeFill(String fillId) async {
+    await _channel.invokeMethod('fill#remove', <String, dynamic>{
+      'fill': fillId,
+    });
+  }
+
+  @override
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, String filter) async {
     try {

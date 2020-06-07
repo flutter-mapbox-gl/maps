@@ -146,6 +146,18 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('removeCircle() has not been implemented.');
   }
 
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    throw UnimplementedError('addFill() has not been implemented.');
+  }
+
+  Future<void>updateFill(Fill fill, FillOptions changes) async {
+    throw UnimplementedError('updateFill() has not been implemented.');
+  }
+
+  Future<void> removeFill(String fillId) async {
+    throw UnimplementedError('removeFill() has not been implemented.');
+  }
+
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, String filter) async {
     throw UnimplementedError(

@@ -31,7 +31,9 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         Circle,
         CircleOptions,
         Line,
-        LineOptions;
+        LineOptions,
+        Fill,
+        FillOptions;
 
 part 'src/bitmap.dart';
 part 'src/controller.dart';

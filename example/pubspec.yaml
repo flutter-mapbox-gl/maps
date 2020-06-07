@@ -1,6 +1,7 @@
 name: mapbox_gl_example
 description: Demonstrates how to use the mapbox_gl plugin.
 publish_to: 'none'
+version: 1.0.0+1
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -14,6 +15,12 @@ dependencies:
   cupertino_icons: ^0.1.2
   location: ^2.5.3
   http:
+
+dependency_overrides:
+  mapbox_gl_platform_interface:
+    path: ../mapbox_gl_platform_interface
+  mapbox_gl_web:
+    path: ../mapbox_gl_web
 
 dev_dependencies:
   flutter_test:
