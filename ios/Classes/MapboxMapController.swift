@@ -201,6 +201,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "symbol#getGeometry":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolId = arguments["symbol"] as? String else { return }
+
+            var reply: [String:Double]? = nil
+            for symbol in symbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolId {
+                    if let geometry = symbol.geoJSONDictionary["geometry"] as? [String: Any],
+                        let coordinates = geometry["coordinates"] as? [Double] {
+                        reply = ["latitude": coordinates[1], "longitude": coordinates[0]]
+                    }
+                    break;
+                }
+            }
+            result(reply)
         case "symbolManager#iconAllowOverlap":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
@@ -307,6 +323,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "line#getGeometry":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineId = arguments["line"] as? String else { return }
+            
+            var reply: [Any]? = nil
+            for line in lineAnnotationController.styleAnnotations() {
+                if line.identifier == lineId {
+                    if let geometry = line.geoJSONDictionary["geometry"] as? [String: Any],
+                        let coordinates = geometry["coordinates"] as? [[Double]] {
+                        reply = coordinates.map { [ "latitude": $0[1], "longitude": $0[0] ] }
+                    }
+                    break;
+                }
+            }
+            result(reply)
         case "style#addImage":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let name = arguments["name"] as? String else { return }
@@ -499,7 +531,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
        if let symbol = annotation as? Symbol {
             channel?.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
-        
         }
     }
     

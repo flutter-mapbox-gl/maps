@@ -15,7 +15,7 @@ jobs:
     - uses: subosito/flutter-action@v1
     - run: flutter pub get
     - name: Lint analysis
-      run: flutter analyze
+      run: cd example && flutter analyze
 
   build-android:
     name: "Build Android apk"

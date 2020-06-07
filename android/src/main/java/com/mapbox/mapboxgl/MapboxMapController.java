@@ -571,6 +571,15 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "symbol#getGeometry": {
+        final String symbolId = call.argument("symbol");
+        final SymbolController symbol = symbol(symbolId);
+        final LatLng symbolLatLng = symbol.getGeometry();
+        Map<String, Double> hashMapLatLng = new HashMap<>();
+        hashMapLatLng.put("latitude", symbolLatLng.getLatitude());
+        hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
+        result.success(hashMapLatLng);
+      }
       case "symbolManager#iconAllowOverlap": {
         final Boolean value = call.argument("iconAllowOverlap");
         symbolManager.setIconAllowOverlap(value);
@@ -616,6 +625,20 @@ final class MapboxMapController
         Convert.interpretLineOptions(call.argument("options"), line);
         line.update(lineManager);
         result.success(null);
+        break;
+      }
+      case "line#getGeometry": {
+        final String lineId = call.argument("line");
+        final LineController line = line(lineId);
+        final List<LatLng> lineLatLngs = line.getGeometry();
+        final List<Object> resultList = new ArrayList<>();
+        for (LatLng latLng: lineLatLngs){
+          Map<String, Double> hashMapLatLng = new HashMap<>();
+          hashMapLatLng.put("latitude", latLng.getLatitude());
+          hashMapLatLng.put("longitude", latLng.getLongitude());
+          resultList.add(hashMapLatLng);
+        }
+        result.success(resultList);
         break;
       }
       case "circle#add": {

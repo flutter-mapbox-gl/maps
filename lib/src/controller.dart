@@ -332,6 +332,19 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  /// Retrieves the current position of the symbol.
+  /// This may be different from the value of `symbol.options.geometry` if the symbol is draggable.
+  /// In that case this method provides the symbol's actual position, and `symbol.options.geometry` the last programmatically set position.
+  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
+    assert(symbol != null);
+    assert(_symbols[symbol.id] == symbol);
+    final symbolLatLng =
+        await MapboxGlPlatform.instance.getSymbolLatLng(symbol);
+    notifyListeners();
+    return symbolLatLng;
+  }
+
   /// Removes the specified [symbol] from the map. The symbol must be a current
   /// member of the [symbols] set.
   ///
@@ -401,6 +414,19 @@ class MapboxMapController extends ChangeNotifier {
     await MapboxGlPlatform.instance.updateLine(line, changes);
     line.options = line.options.copyWith(changes);
     notifyListeners();
+  }
+
+  /// Retrieves the current position of the line.
+  /// This may be different from the value of `line.options.geometry` if the line is draggable.
+  /// In that case this method provides the line's actual position, and `line.options.geometry` the last programmatically set position.
+  Future<List<LatLng>> getLineLatLngs(Line line) async {
+    assert(line != null);
+    assert(_lines[line.id] == line);
+    final lineLatLngs =
+        await MapboxGlPlatform.instance.getLineLatLngs(line);
+    notifyListeners();
+    return lineLatLngs;
+    
   }
 
   /// Removes the specified [line] from the map. The line must be a current
@@ -474,9 +500,9 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// `circle.options.geometry` can't get real-time location.For example, when you
-  /// set circle `draggable` is true,and you dragged circle.At this time you
-  /// should use `getCircleLatLng()`
+  /// Retrieves the current position of the circle.
+  /// This may be different from the value of `circle.options.geometry` if the circle is draggable.
+  /// In that case this method provides the circle's actual position, and `circle.options.geometry` the last programmatically set position.
   Future<LatLng> getCircleLatLng(Circle circle) async {
     assert(circle != null);
     assert(_circles[circle.id] == circle);
