@@ -5,3 +5,7 @@ android/.project
 .idea/
 
 android/.settings/org.eclipse.buildship.core.prefs
+
+.dart_tool/
+example/.flutter-plugins-dependencies
+example/ios/Flutter/flutter_export_environment.sh
