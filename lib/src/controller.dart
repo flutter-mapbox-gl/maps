@@ -83,6 +83,9 @@ class MapboxMapController extends ChangeNotifier {
 
     MapboxGlPlatform.instance.onCameraIdlePlatform.add((_) {
       _isCameraMoving = false;
+      if (onCameraIdle != null) {
+        onCameraIdle();
+      }
       notifyListeners();
     });
 
