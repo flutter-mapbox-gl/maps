@@ -168,6 +168,11 @@ class SymbolController implements SymbolOptionsSink {
     symbol.setGeometry(Point.fromLngLat(geometry.getLongitude(), geometry.getLatitude()));
   }
 
+  public LatLng getGeometry() {
+    Point point =  symbol.getGeometry();
+    return new LatLng(point.latitude(), point.longitude());
+  }
+
   @Override
   public void setDraggable(boolean draggable) {
     symbol.setDraggable(draggable);

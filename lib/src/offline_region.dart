@@ -25,7 +25,7 @@ class OfflineRegion {
     return OfflineRegion(
       id: json['id'],
       bounds: json['bounds'] != null
-          ? LatLngBounds.fromList(
+          ? fromList(
               json['bounds'],
             )
           : null,
@@ -36,10 +36,27 @@ class OfflineRegion {
     );
   }
 
+  static LatLngBounds fromList(dynamic json) {
+    if (json == null) {
+      return null;
+    }
+    return LatLngBounds(
+      southwest: latLngFromJson(json[0]),
+      northeast: latLngFromJson(json[1]),
+    );
+  }
+
+  static LatLng latLngFromJson(dynamic json) {
+    if (json == null) {
+      return null;
+    }
+    return LatLng(json[0], json[1]);
+  }
+
   Map<String, dynamic> _toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = id;
-    data['bounds'] = bounds._toList();
+    data['bounds'] = bounds.toList();
     data['metadata'] = metadata;
     data['mapStyleUrl'] = mapStyleUrl;
     data['minZoom'] = minZoom;

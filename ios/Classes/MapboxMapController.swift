@@ -43,6 +43,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         mapView.addGestureRecognizer(singleTap)
         
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleMapLongPress(sender:)))
+        for recognizer in mapView.gestureRecognizers! where recognizer is UILongPressGestureRecognizer {
+            longPress.require(toFail: recognizer)
+        }
+        mapView.addGestureRecognizer(longPress)
+        
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
             if let initialCameraPosition = args["initialCameraPosition"] as? [String: Any],
@@ -195,6 +201,45 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "symbol#getGeometry":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolId = arguments["symbol"] as? String else { return }
+
+            var reply: [String:Double]? = nil
+            for symbol in symbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolId {
+                    if let geometry = symbol.geoJSONDictionary["geometry"] as? [String: Any],
+                        let coordinates = geometry["coordinates"] as? [Double] {
+                        reply = ["latitude": coordinates[1], "longitude": coordinates[0]]
+                    }
+                    break;
+                }
+            }
+            result(reply)
+        case "symbolManager#iconAllowOverlap":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let iconAllowOverlap = arguments["iconAllowOverlap"] as? Bool else { return }
+
+            symbolAnnotationController.iconAllowsOverlap = iconAllowOverlap
+            result(nil)
+        case "symbolManager#iconIgnorePlacement":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let iconIgnorePlacement = arguments["iconIgnorePlacement"] as? Bool else { return }
+
+            symbolAnnotationController.iconIgnoresPlacement = iconIgnorePlacement
+            result(nil)
+        case "symbolManager#textAllowOverlap":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let textAllowOverlap = arguments["textAllowOverlap"] as? Bool else { return }
+
+            symbolAnnotationController.textAllowsOverlap = textAllowOverlap
+            result(nil)
+        case "symbolManager#textIgnorePlacement":
+            result(FlutterMethodNotImplemented)
         case "circle#add":
             guard let circleAnnotationController = circleAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
@@ -278,6 +323,36 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "line#getGeometry":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineId = arguments["line"] as? String else { return }
+            
+            var reply: [Any]? = nil
+            for line in lineAnnotationController.styleAnnotations() {
+                if line.identifier == lineId {
+                    if let geometry = line.geoJSONDictionary["geometry"] as? [String: Any],
+                        let coordinates = geometry["coordinates"] as? [[Double]] {
+                        reply = coordinates.map { [ "latitude": $0[1], "longitude": $0[0] ] }
+                    }
+                    break;
+                }
+            }
+            result(reply)
+        case "style#addImage":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let name = arguments["name"] as? String else { return }
+            //guard let length = arguments["length"] as? NSNumber else { return }
+            guard let bytes = arguments["bytes"] as? FlutterStandardTypedData else { return }
+            guard let sdf = arguments["sdf"] as? Bool else { return }
+            guard let data = bytes.data as? Data else{ return }
+            guard let image = UIImage(data: data) else { return }
+            if (sdf) {
+                self.mapView.style?.setImage(image.withRenderingMode(.alwaysTemplate), forName: name)
+            } else {
+                self.mapView.style?.setImage(image, forName: name)
+            }
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -324,6 +399,28 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                       "lat": coordinate.latitude,
                   ])
     }
+    
+    /*
+    *  UILongPressGestureRecognizer
+    *  After a long press invoke the map#onMapLongClick callback.
+    */
+    @objc @IBAction func handleMapLongPress(sender: UILongPressGestureRecognizer) {
+        //Only fire at the end of the long press
+        if (sender.state == .ended) {
+          // Get the CGPoint where the user tapped.
+            let point = sender.location(in: mapView)
+            let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+            channel?.invokeMethod("map#onMapLongClick", arguments: [
+                          "x": point.x,
+                          "y": point.y,
+                          "lng": coordinate.longitude,
+                          "lat": coordinate.latitude,
+                      ])
+        }
+        
+    }
+    
+    
     
     /*
      *  MGLAnnotationControllerDelegate
@@ -376,7 +473,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         circleAnnotationController?.delegate = self
 
         mapReadyResult?(nil)
+        print("asdasd\(channel)")
         if let channel = channel {
+            print("asdasd2 ")
             channel.invokeMethod("map#onStyleLoaded", arguments: nil)
         }
     }
@@ -432,7 +531,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
        if let symbol = annotation as? Symbol {
             channel?.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
-        
         }
     }
     

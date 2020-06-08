@@ -4,11 +4,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of mapbox_gl;
+part of mapbox_gl_platform_interface;
 
 class Symbol {
-  @visibleForTesting
-  Symbol(this._id, this._options, [this._data]);
+  Symbol(this._id, this.options, [this._data]);
 
   /// A unique identifier for this symbol.
   ///
@@ -17,16 +16,15 @@ class Symbol {
 
   String get id => _id;
 
-  SymbolOptions _options;
-
   final Map _data;
   Map get data => _data;
+
   /// The symbol configuration options most recently applied programmatically
   /// via the map controller.
   ///
   /// The returned value does not reflect any changes made to the symbol through
   /// touch events. Add listeners to the owning map controller to track those.
-  SymbolOptions get options => _options;
+  SymbolOptions options;
 }
 
 dynamic _offsetToJson(Offset offset) {
@@ -103,9 +101,7 @@ class SymbolOptions {
   final int zIndex;
   final bool draggable;
 
-  static const SymbolOptions defaultOptions = SymbolOptions(
-
-  );
+  static const SymbolOptions defaultOptions = SymbolOptions();
 
   SymbolOptions copyWith(SymbolOptions changes) {
     if (changes == null) {
@@ -142,7 +138,7 @@ class SymbolOptions {
     );
   }
 
-  dynamic _toJson() {
+  dynamic toJson() {
     final Map<String, dynamic> json = <String, dynamic>{};
 
     void addIfPresent(String fieldName, dynamic value) {
@@ -175,10 +171,9 @@ class SymbolOptions {
     addIfPresent('textHaloColor', textHaloColor);
     addIfPresent('textHaloWidth', textHaloWidth);
     addIfPresent('textHaloBlur', textHaloBlur);
-    addIfPresent('geometry', geometry?._toJson());
+    addIfPresent('geometry', geometry?.toJson());
     addIfPresent('zIndex', zIndex);
     addIfPresent('draggable', draggable);
     return json;
   }
-
 }
