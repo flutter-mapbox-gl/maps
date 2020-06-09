@@ -2,14 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class PlaceSymbolPage extends Page {
+class PlaceSymbolPage extends ExamplePage {
   PlaceSymbolPage() : super(const Icon(Icons.place), 'Place symbol');
 
   @override
@@ -33,16 +37,35 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   MapboxMapController controller;
   int _symbolCount = 0;
   Symbol _selectedSymbol;
+  bool _iconAllowOverlap = false;
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
     controller.onSymbolTapped.add(_onSymbolTapped);
   }
 
+  void _onStyleLoaded() {
+    addImageFromAsset("assetImage", "assets/symbols/custom-icon.png");
+    addImageFromUrl("networkImage", "https://via.placeholder.com/50");
+  }
+
   @override
   void dispose() {
     controller?.onSymbolTapped?.remove(_onSymbolTapped);
     super.dispose();
+  }
+
+  /// Adds an asset image to the currently displayed style
+  Future<void> addImageFromAsset(String name, String assetName) async {
+    final ByteData bytes = await rootBundle.load(assetName);
+    final Uint8List list = bytes.buffer.asUint8List();
+    return controller.addImage(name, list);
+  }
+
+  /// Adds a network image to the currently displayed style
+  Future<void> addImageFromUrl(String name, String url) async {
+    var response = await get(url);
+    return controller.addImage(name, response.bodyBytes);
   }
 
   void _onSymbolTapped(Symbol symbol) {
@@ -184,6 +207,22 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     );
   }
 
+   void _getLatLng() async {
+    LatLng latLng = await controller.getSymbolLatLng(_selectedSymbol);
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(latLng.toString()),
+      ),
+    );
+  }
+
+  Future<void> _changeIconOverlap() async {
+    setState(() {
+      _iconAllowOverlap = !_iconAllowOverlap;
+    });
+    controller.setSymbolIconAllowOverlap(_iconAllowOverlap);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -196,6 +235,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
             height: 200.0,
             child: MapboxMap(
               onMapCreated: _onMapCreated,
+              onStyleLoadedCallback: _onStyleLoaded,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),
                 zoom: 11.0,
@@ -227,6 +267,22 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           child: const Text('remove'),
                           onPressed: (_selectedSymbol == null) ? null : _remove,
                         ),
+                        FlatButton(
+                          child:  Text('${_iconAllowOverlap ? 'disable' : 'enable'} icon overlap'),
+                          onPressed: _changeIconOverlap,
+                        ),
+                        FlatButton(
+                          child: const Text('add (asset image)'),
+                          onPressed: () => (_symbolCount == 12)
+                              ? null
+                              : _add(
+                                  "assetImage"), //assetImage added to the style in _onStyleLoaded
+                        ),
+                        FlatButton(
+                          child: const Text('add (network image)'),
+                          onPressed: () =>
+                              (_symbolCount == 12) ? null : _add("networkImage"), //networkImage added to the style in _onStyleLoaded
+                        ),
                       ],
                     ),
                     Column(
@@ -238,8 +294,9 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                         ),
                         FlatButton(
                           child: const Text('change icon offset'),
-                          onPressed:
-                              (_selectedSymbol == null) ? null : _changeIconOffset,
+                          onPressed: (_selectedSymbol == null)
+                              ? null
+                              : _changeIconOffset,
                         ),
                         FlatButton(
                           child: const Text('change icon anchor'),
@@ -274,6 +331,12 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           child: const Text('change zIndex'),
                           onPressed:
                               (_selectedSymbol == null) ? null : _changeZIndex,
+                        ),
+                        FlatButton(
+                          child: const Text('get current LatLng'),
+                          onPressed: (_selectedSymbol == null)
+                              ? null
+                              : _getLatLng,
                         ),
                       ],
                     ),

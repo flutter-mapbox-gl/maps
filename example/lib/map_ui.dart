@@ -12,7 +12,7 @@ final LatLngBounds sydneyBounds = LatLngBounds(
   northeast: const LatLng(-33.571835, 151.325952),
 );
 
-class MapUiPage extends Page {
+class MapUiPage extends ExamplePage {
   MapUiPage() : super(const Icon(Icons.map), 'User interface');
 
   @override
@@ -48,6 +48,7 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _tiltGesturesEnabled = true;
   bool _zoomGesturesEnabled = true;
   bool _myLocationEnabled = true;
+  bool _telemetryEnabled = true;
   MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
 
   @override
@@ -93,7 +94,7 @@ class MapUiBodyState extends State<MapUiBody> {
           _compassEnabled = !_compassEnabled;
         });
       },
-    ); 
+    );
   }
 
   Widget _latLngBoundsToggler() {
@@ -194,6 +195,28 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  Widget _telemetryToggler() {
+    return FlatButton(
+      child: Text('${_telemetryEnabled ? 'disable' : 'enable'} telemetry'),
+      onPressed: () {
+        setState(() {
+          _telemetryEnabled = !_telemetryEnabled;
+        });
+        mapController?.setTelemetryEnabled(_telemetryEnabled);
+      },
+    );
+  }
+
+  Widget _visibleRegionGetter(){
+    return FlatButton(
+      child: Text('get currently visible region'),
+      onPressed: () async{
+        var result = await mapController.getVisibleRegion();
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text("SW: ${result.southwest.toString()} NE: ${result.northeast.toString()}"),));
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final MapboxMap mapboxMap = MapboxMap(
@@ -212,7 +235,14 @@ class MapUiBodyState extends State<MapUiBody> {
       myLocationTrackingMode: _myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
       onMapClick: (point, latLng) async {
-        print("${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
+        print("Map click: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
+        List features = await mapController.queryRenderedFeatures(point, [],null);
+        if (features.length>0) {
+          print(features[0]);
+        }
+      },
+      onMapLongClick: (point, latLng) async {
+        print("Map long press: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
         List features = await mapController.queryRenderedFeatures(point, [],null);
         if (features.length>0) {
           print(features[0]);
@@ -260,6 +290,8 @@ class MapUiBodyState extends State<MapUiBody> {
               _tiltToggler(),
               _zoomToggler(),
               _myLocationToggler(),
+              _telemetryToggler(),
+              _visibleRegionGetter(),
             ],
           ),
         ),
@@ -276,6 +308,10 @@ class MapUiBodyState extends State<MapUiBody> {
     mapController = controller;
     mapController.addListener(_onMapChanged);
     _extractMapInfo();
-    setState(() {});
+
+    mapController.getTelemetryEnabled().then((isEnabled) =>
+        setState(() {
+          _telemetryEnabled = isEnabled;
+        }));
   }
 }

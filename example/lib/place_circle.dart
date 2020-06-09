@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'page.dart';
 
-class PlaceCirclePage extends Page {
+class PlaceCirclePage extends ExamplePage {
   PlaceCirclePage() : super(const Icon(Icons.check_circle), 'Place circle');
 
   @override

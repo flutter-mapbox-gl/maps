@@ -45,6 +45,8 @@
 	<true/>
 	<key>MGLMapboxAccessToken</key>
 	<string>YOUR_TOKEN_HERE</string>
+	<key>MGLMapboxMetricsEnabledSettingShownInApp</key>
+	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>NSLocationAlwaysUsageDescription</key>
