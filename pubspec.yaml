@@ -8,14 +8,12 @@ dependencies:
     sdk: flutter
   mapbox_gl_platform_interface:
     git:
-      url: git@github.com:andrea689/flutter-mapbox-gl.git
+      url: git@github.com:tobrun/flutter-mapbox-gl.git
       path: mapbox_gl_platform_interface
-      ref: dependencies-from-git
   mapbox_gl_web:
     git:
-      url: git@github.com:andrea689/flutter-mapbox-gl.git
+      url: git@github.com:tobrun/flutter-mapbox-gl.git
       path: mapbox_gl_web
-      ref: dependencies-from-git
 
 flutter:
   plugin:
