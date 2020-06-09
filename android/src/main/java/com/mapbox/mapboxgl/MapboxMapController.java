@@ -227,10 +227,6 @@ final class MapboxMapController
     return trackCameraPosition ? mapboxMap.getCameraPosition() : null;
   }
 
-  private SymbolBuilder newSymbolBuilder() {
-    return new SymbolBuilder();
-  }
-
   private SymbolController symbol(String symbolId) {
     final SymbolController symbol = symbols.get(symbolId);
     if (symbol == null) {
@@ -550,31 +546,31 @@ final class MapboxMapController
         });
         break;
       }
-      case "symbol#add": {
-          List<String> newSymbolIds = new ArrayList<String>();
-          final List<Object> options = call.argument("options");
-          List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
-          if (options != null) {
-              SymbolBuilder symbolBuilder;
-              for (Object o : options) {
-                  symbolBuilder = newSymbolBuilder();
-                  Convert.interpretSymbolOptions(o, symbolBuilder);
-                  symbolOptionsList.add(symbolBuilder.getSymbolOptions());
-              }
-              if (!symbolOptionsList.isEmpty()) {
-                  List<Symbol> newSymbols = symbolManager.create(symbolOptionsList);
-                  String symbolId;
-                  for (Symbol symbol : newSymbols) {
-                      symbolId = String.valueOf(symbol.getId());
-                      newSymbolIds.add(symbolId);
-                      symbols.put(symbolId, new SymbolController(symbol, true, this));
-                  }
-              }
+      case "symbols#addAll": {
+        List<String> newSymbolIds = new ArrayList<String>();
+        final List<Object> options = call.argument("options");
+        List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
+        if (options != null) {
+          SymbolBuilder symbolBuilder;
+          for (Object o : options) {
+            symbolBuilder =  new SymbolBuilder();
+            Convert.interpretSymbolOptions(o, symbolBuilder);
+            symbolOptionsList.add(symbolBuilder.getSymbolOptions());
           }
-          result.success(newSymbolIds);
-          break;
+          if (!symbolOptionsList.isEmpty()) {
+            List<Symbol> newSymbols = symbolManager.create(symbolOptionsList);
+            String symbolId;
+            for (Symbol symbol : newSymbols) {
+              symbolId = String.valueOf(symbol.getId());
+              newSymbolIds.add(symbolId);
+              symbols.put(symbolId, new SymbolController(symbol, true, this));
+            }
+          }
+        }
+        result.success(newSymbolIds);
+        break;
       }
-      case "symbol#remove": {
+      case "symbols#removeAll": {
         final ArrayList<String> symbolIds = call.argument("symbols");
         SymbolController symbolController;
 

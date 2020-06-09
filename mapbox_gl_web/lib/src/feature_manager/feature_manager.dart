@@ -39,13 +39,27 @@ abstract class FeatureManager<T> {
     return '${feature.id}';
   }
 
+  
   void updateFeature(Feature feature) {
-    _features['${feature.id}'] = feature;
-    _updateSource();
+    updateFeatures([feature]);
   }
 
+  
+  void updateFeatures(Iterable<Feature> features) {
+    features.forEach(
+        (feature) => _features['${feature.id}'] = feature
+    );
+    _updateSource();
+  }
+  
   void remove(String featureId) {
-    _features.remove(featureId);
+    removeAll([featureId]);
+  }
+
+  void removeAll(Iterable<String> featuresIds) {
+    featuresIds.forEach(
+      (featureId) => _features.remove(featureId)
+    );
     _updateSource();
   }
 
