@@ -42,7 +42,11 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _compassEnabled = true;
   CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
   MinMaxZoomPreference _minMaxZoomPreference = MinMaxZoomPreference.unbounded;
-  String _styleString = MapboxStyles.MAPBOX_STREETS;
+  int _styleStringIndex = 0;
+  // Style string can a reference to a local or remote resources.
+  // On Android the raw JSON can also be passed via a styleString, on iOS this is not supported. 
+  List<String> _styleStrings = [MapboxStyles.MAPBOX_STREETS, MapboxStyles.SATELLITE, "assets/style.json"];
+  List<String> _styleStringLabels = ["MAPBOX_STREETS", "SATELLITE", "LOCAL_ASSET"];
   bool _rotateGesturesEnabled = true;
   bool _scrollGesturesEnabled = true;
   bool _tiltGesturesEnabled = true;
@@ -131,10 +135,10 @@ class MapUiBodyState extends State<MapUiBody> {
 
   Widget _setStyleToSatellite() {
     return FlatButton(
-      child: Text('change map style to Satellite'),
+      child: Text('change map style to ${_styleStringLabels[(_styleStringIndex + 1) % _styleStringLabels.length]}'),
       onPressed: () {
         setState(() {
-          _styleString = MapboxStyles.SATELLITE;
+          _styleStringIndex = (_styleStringIndex + 1) % _styleStrings.length;
         });
       },
     );
@@ -226,7 +230,7 @@ class MapUiBodyState extends State<MapUiBody> {
       compassEnabled: _compassEnabled,
       cameraTargetBounds: _cameraTargetBounds,
       minMaxZoomPreference: _minMaxZoomPreference,
-      styleString: _styleString,
+      styleString: _styleStrings[_styleStringIndex],
       rotateGesturesEnabled: _rotateGesturesEnabled,
       scrollGesturesEnabled: _scrollGesturesEnabled,
       tiltGesturesEnabled: _tiltGesturesEnabled,

@@ -2,8 +2,7 @@ part of mapbox_gl_web;
 
 class MapboxMapController extends MapboxGlPlatform
     implements MapboxMapOptionsSink {
-  final List<DivElement> _mapElements = [];
-  final Set<Function> _callbacks = Set();
+  DivElement _mapElement;
 
   Map<String, dynamic> _creationParams;
   MapboxMap _map;
@@ -25,19 +24,18 @@ class MapboxMapController extends MapboxGlPlatform
       Function onPlatformViewCreated,
       Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers) {
     _creationParams = creationParams;
-    _callbacks.add(onPlatformViewCreated);
-    _registerViewFactory();
-    return HtmlElementView(viewType: 'plugins.flutter.io/mapbox_gl');
+    _registerViewFactory(onPlatformViewCreated, this.hashCode);
+    return HtmlElementView(
+        viewType: 'plugins.flutter.io/mapbox_gl_${this.hashCode}');
   }
 
-  void _registerViewFactory() {
+  void _registerViewFactory(Function(int) callback, int identifier) {
     // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory('plugins.flutter.io/mapbox_gl',
-        (int viewId) {
-      _callbacks.elementAt(viewId)(viewId);
-      final mapElement = DivElement();
-      _mapElements.add(mapElement);
-      return mapElement;
+    ui.platformViewRegistry.registerViewFactory(
+        'plugins.flutter.io/mapbox_gl_$identifier', (int viewId) {
+      _mapElement = DivElement();
+      callback(viewId);
+      return _mapElement;
     });
   }
 
@@ -48,7 +46,7 @@ class MapboxMapController extends MapboxGlPlatform
       var camera = _creationParams['initialCameraPosition'];
       _map = MapboxMap(
         MapOptions(
-          container: _mapElements[id],
+          container: _mapElement,
           style: 'mapbox://styles/mapbox/streets-v11',
           center: LngLat(camera['target'][1], camera['target'][0]),
           zoom: camera['zoom'],

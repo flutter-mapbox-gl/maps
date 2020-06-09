@@ -16,7 +16,8 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   meta: ^1.1.7
-  mapbox_gl_platform_interface: ^0.7.0
+  mapbox_gl_platform_interface: 
+    path: ../mapbox_gl_platform_interface
   mapbox_gl_dart: ^0.1.5
   image: ^2.1.12
 

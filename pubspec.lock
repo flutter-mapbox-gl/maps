@@ -66,7 +66,7 @@ packages:
       name: js
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.1+1"
+    version: "0.6.2"
   mapbox_gl_dart:
     dependency: transitive
     description:
@@ -77,16 +77,16 @@ packages:
   mapbox_gl_platform_interface:
     dependency: "direct main"
     description:
-      name: mapbox_gl_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: mapbox_gl_platform_interface
+      relative: true
+    source: path
     version: "0.7.0"
   mapbox_gl_web:
     dependency: "direct main"
     description:
-      name: mapbox_gl_web
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: mapbox_gl_web
+      relative: true
+    source: path
     version: "0.7.0"
   meta:
     dependency: transitive

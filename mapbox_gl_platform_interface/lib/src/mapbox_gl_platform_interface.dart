@@ -3,7 +3,24 @@
 part of mapbox_gl_platform_interface;
 
 abstract class MapboxGlPlatform {
-  static MapboxGlPlatform _instance = MethodChannelMapboxGl();
+  /// The default instance of [MapboxGlPlatform] to use.
+  ///
+  /// Defaults to [MethodChannelMapboxGl].
+  ///
+  /// Platform-specific plugins should set this with their own platform-specific
+  /// class that extends [MapboxGlPlatform] when they register themselves.
+  static MapboxGlPlatform Function() createInstance =
+      () => MethodChannelMapboxGl();
+
+  static Map<int, MapboxGlPlatform> _instances = {};
+
+  static void addInstance(int id, MapboxGlPlatform platform) {
+    _instances[id] = platform;
+  }
+
+  static MapboxGlPlatform getInstance(int id) {
+    return _instances[id];
+  }
 
   final ArgumentCallbacks<String> onInfoWindowTappedPlatform =
       ArgumentCallbacks<String>();
@@ -43,17 +60,6 @@ abstract class MapboxGlPlatform {
       ArgumentCallbacks<void>();
 
   final ArgumentCallbacks<void> onMapIdlePlatform = ArgumentCallbacks<void>();
-
-  /// The default instance of [MapboxGlPlatform] to use.
-  ///
-  /// Defaults to [MethodChannelMapboxGl].
-  static MapboxGlPlatform get instance => _instance;
-
-  /// Platform-specific plugins should set this with their own platform-specific
-  /// class that extends [MapboxGlPlatform] when they register themselves.
-  static set instance(MapboxGlPlatform instance) {
-    _instance = instance;
-  }
 
   Future<void> initPlatform(int id) async {
     throw UnimplementedError('initPlatform() has not been implemented.');
