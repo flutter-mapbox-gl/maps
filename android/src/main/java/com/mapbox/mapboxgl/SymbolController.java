@@ -34,6 +34,10 @@ class SymbolController implements SymbolOptionsSink {
     return consumeTapEvents;
   }
 
+  public Symbol getSymbol(){
+    return this.symbol;
+  }
+
   void remove(SymbolManager symbolManager) {
     symbolManager.delete(symbol);
   }

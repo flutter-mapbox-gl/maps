@@ -136,15 +136,31 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
-    String symbolId = symbolManager.add(Feature(
-      geometry: Geometry(
-        type: 'Point',
-        coordinates: [options.geometry.longitude, options.geometry.latitude],
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    Map<String, SymbolOptions> optionsById = Map.fromIterable(
+      options,
+      key: (o) => symbolManager.add(
+          Feature(
+            geometry: Geometry(
+              type: 'Point',
+              coordinates: [o.geometry.longitude, o.geometry.latitude],
+            ),
+          )
       ),
-    ));
-    symbolManager.update(symbolId, options);
-    return Symbol(symbolId, options, data);
+      value: (o) => o
+    );
+    symbolManager.updateAll(optionsById);
+    
+    return optionsById.map(
+        (id, singleOptions) {
+          int dataIndex = options.indexOf(singleOptions);
+          Map singleData = data != null && data.length >= dataIndex + 1 ? data[dataIndex] : null;
+          return MapEntry(
+            id,
+            Symbol(id, singleOptions, singleData)
+          );
+        }
+    ).values.toList();
   }
 
   @override
@@ -153,8 +169,8 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  Future<void> removeSymbol(String symbolId) async {
-    symbolManager.remove(symbolId);
+  Future<void> removeSymbols(Iterable<String> symbolsIds) async {
+    symbolManager.removeAll(symbolsIds);
   }
 
   @override

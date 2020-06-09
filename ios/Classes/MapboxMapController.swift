@@ -151,23 +151,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 mapView.setCamera(camera, animated: true)
             }
             result(nil)
-        case "symbol#add":
+        case "symbols#addAll":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            
-            // Parse geometry
-            if let options = arguments["options"] as? [String: Any],
-                let geometry = options["geometry"] as? [Double] {
-                // Convert geometry to coordinate and create symbol.
-                let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
-                let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
-                Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
-                // Load icon image from asset if an icon name is supplied.
-                if let iconImage = options["iconImage"] as? String {
-                    addIconImageToMap(iconImageName: iconImage)
+
+            if let options = arguments["options"] as? [[String: Any]] {
+                var symbols: [MGLSymbolStyleAnnotation] = [];
+                for o in options {
+                    if let symbol = getSymbolForOptions(options: o)  {
+                        symbols.append(symbol)
+                    }
                 }
-                symbolAnnotationController.addStyleAnnotation(symbol)
-                result(symbol.identifier)
+                if !symbols.isEmpty {
+                    symbolAnnotationController.addStyleAnnotations(symbols)
+                }
+
+                result(symbols.map { $0.identifier })
             } else {
                 result(nil)
             }
@@ -189,17 +188,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
-        case "symbol#remove":
+        case "symbols#removeAll":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let symbolId = arguments["symbol"] as? String else { return }
+            guard let symbolIds = arguments["symbols"] as? [String] else { return }
+            var symbols: [MGLSymbolStyleAnnotation] = [];
 
             for symbol in symbolAnnotationController.styleAnnotations(){
-                if symbol.identifier == symbolId {
-                    symbolAnnotationController.removeStyleAnnotation(symbol)
-                    break;
+                if symbolIds.contains(symbol.identifier) {
+                    symbols.append(symbol as! MGLSymbolStyleAnnotation)
                 }
             }
+            symbolAnnotationController.removeStyleAnnotations(symbols)
             result(nil)
         case "symbol#getGeometry":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
@@ -327,7 +327,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let lineAnnotationController = lineAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let lineId = arguments["line"] as? String else { return }
-            
+
             var reply: [Any]? = nil
             for line in lineAnnotationController.styleAnnotations() {
                 if line.identifier == lineId {
@@ -358,6 +358,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
     
+    private func getSymbolForOptions(options: [String: Any]) -> MGLSymbolStyleAnnotation? {
+        // Parse geometry
+        if let geometry = options["geometry"] as? [Double] {
+            // Convert geometry to coordinate and create symbol.
+            let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+            let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
+            Convert.interpretSymbolOptions(options: options, delegate: symbol)
+            // Load icon image from asset if an icon name is supplied.
+            if let iconImage = options["iconImage"] as? String {
+                addIconImageToMap(iconImageName: iconImage)
+            }
+            return symbol
+        }
+        return nil
+    }
+
     private func addIconImageToMap(iconImageName: String) {
         // Check if the image has already been added to the map.
         if self.mapView.style?.image(forName: iconImageName) == nil {

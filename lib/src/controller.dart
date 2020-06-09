@@ -321,13 +321,21 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes with the added symbol once listeners have
   /// been notified.
   Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
-    final SymbolOptions effectiveOptions =
-        SymbolOptions.defaultOptions.copyWith(options);
-    final symbol =
-        await MapboxGlPlatform.getInstance(_id).addSymbol(effectiveOptions);
-    _symbols[symbol.id] = symbol;
+    List<Symbol> result = await addSymbols([options], [data]);
+  
+    return result.first;
+  }
+
+
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    final List<SymbolOptions> effectiveOptions = options.map(
+          (o) => SymbolOptions.defaultOptions.copyWith(o)
+    ).toList();
+
+    final symbols = await MapboxGlPlatform.getInstance(_id).addSymbols(effectiveOptions, data);
+    symbols.forEach((s) => _symbols[s.id] = s);
     notifyListeners();
-    return symbol;
+    return symbols;
   }
 
   /// Updates the specified [symbol] with the given [changes]. The symbol must
@@ -368,7 +376,17 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> removeSymbol(Symbol symbol) async {
     assert(symbol != null);
     assert(_symbols[symbol.id] == symbol);
-    await _removeSymbol(symbol.id);
+    await _removeSymbols([symbol.id]);
+    notifyListeners();
+  }
+
+  Future<void> removeSymbols(Iterable<Symbol> symbols) async {
+    assert(symbols.length > 0);
+    symbols.forEach((s) {
+      assert(_symbols[s.id] == s);
+    });
+  
+    await _removeSymbols(symbols.map((s) => s.id));
     notifyListeners();
   }
 
@@ -381,9 +399,7 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> clearSymbols() async {
     assert(_symbols != null);
     final List<String> symbolIds = List<String>.from(_symbols.keys);
-    for (String id in symbolIds) {
-      await _removeSymbol(id);
-    }
+    _removeSymbols(symbolIds);
     notifyListeners();
   }
 
@@ -392,9 +408,9 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once the symbol has been removed from
   /// [_symbols].
-  Future<void> _removeSymbol(String id) async {
-    await MapboxGlPlatform.getInstance(_id).removeSymbol(id);
-    _symbols.remove(id);
+  Future<void> _removeSymbols(Iterable<String> ids) async {
+    await MapboxGlPlatform.getInstance(_id).removeSymbols(ids);
+    _symbols.removeWhere((k, s) => ids.contains(k));
   }
 
   /// Adds a line to the map, configured using the specified custom [options].
