@@ -596,6 +596,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         } else if (styleString.hasPrefix("{") || styleString.hasPrefix("[")) {
             // Currently the iOS Mapbox SDK does not have a builder for json.
             NSLog("setStyleString - JSON style currently not supported")
+        } else if (
+            !styleString.hasPrefix("http://") && 
+            !styleString.hasPrefix("https://") && 
+            !styleString.hasPrefix("mapbox://")) {
+            // We are assuming that the style will be loaded from an asset here.
+            let assetPath = registrar.lookupKey(forAsset: styleString)
+            mapView.styleURL = URL(string: assetPath, relativeTo: Bundle.main.resourceURL)
         } else {
             mapView.styleURL = URL(string: styleString)
         }
