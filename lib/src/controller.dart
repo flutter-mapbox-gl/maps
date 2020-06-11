@@ -373,30 +373,30 @@ class MapboxMapController extends ChangeNotifier {
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolIconAllowOverlap(bool enable) async {
-    await _channel.invokeMethod('symbolManager#iconAllowOverlap', <String, dynamic>{
-      'iconAllowOverlap': enable,
-    });
+    // await _channel.invokeMethod('symbolManager#iconAllowOverlap', <String, dynamic>{
+    //   'iconAllowOverlap': enable,
+    // });
   }
   
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolIconIgnorePlacement(bool enable) async {
-    await _channel.invokeMethod('symbolManager#iconIgnorePlacement', <String, dynamic>{
-      'iconIgnorePlacement': enable,
-    });
+    // await _channel.invokeMethod('symbolManager#iconIgnorePlacement', <String, dynamic>{
+    //   'iconIgnorePlacement': enable,
+    // });
   }
   
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolTextAllowOverlap(bool enable) async {
-    await _channel.invokeMethod('symbolManager#textAllowOverlap', <String, dynamic>{
-      'textAllowOverlap': enable,
-    });
+    // await _channel.invokeMethod('symbolManager#textAllowOverlap', <String, dynamic>{
+    //   'textAllowOverlap': enable,
+    // });
   }
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolTextIgnorePlacement(bool enable) async {
-    await _channel.invokeMethod('symbolManager#textIgnorePlacement', <String, dynamic>{
-      'textIgnorePlacement': enable,
-    });
+    // await _channel.invokeMethod('symbolManager#textIgnorePlacement', <String, dynamic>{
+    //   'textIgnorePlacement': enable,
+    // });
   }
 
   /// Adds a line to the map, configured using the specified custom [options].
@@ -619,25 +619,5 @@ class MapboxMapController extends ChangeNotifier {
   /// ```
   Future<void> addImage(String name, Uint8List bytes, [bool sdf = false]) {
     return MapboxGlPlatform.instance.addImage(name, bytes, sdf);
-  }
-
-  /// Get last my location
-  ///
-  /// Return last latlng, nullable
-  
-  Future<LatLng> requestMyLocationLatLng() async {
-    try {
-      final Map<Object, Object> reply = await _channel.invokeMethod('locationComponent#getLastLocation', null);
-      double latitude = 0.0, longitude = 0.0;
-      if (reply.containsKey("latitude") && reply["latitude"] != null) {
-        latitude = double.parse(reply["latitude"].toString());
-      }
-      if (reply.containsKey("longitude") && reply["longitude"] != null) {
-        longitude = double.parse(reply["longitude"].toString());
-      }
-      return LatLng(latitude, longitude);
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
   }
 }
