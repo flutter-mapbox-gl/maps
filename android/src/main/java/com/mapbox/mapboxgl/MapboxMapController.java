@@ -134,8 +134,9 @@ final class MapboxMapController
     AtomicInteger activityState,
     PluginRegistry.Registrar registrar,
     MapboxMapOptions options,
+    String accessToken,
     String styleStringInitial) {
-    Mapbox.getInstance(context, getAccessToken(context));
+    Mapbox.getInstance(context, accessToken!=null ? accessToken : getAccessToken(context));
     this.id = id;
     this.context = context;
     this.activityState = activityState;

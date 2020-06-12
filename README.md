@@ -15,44 +15,15 @@ This Flutter plugin allows to show embedded interactive and customizable vector 
 - Locate the id of a the device with `flutter devices`
 - Run the app with `cd flutter_mapbox/example && flutter packages get && flutter run -d {device_id}`
 
-### Adding a Mapbox Access Token
+## Adding a Mapbox Access Token
 
 This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
 > **Even if you do not use Mapbox vector tiles but vector tiles from a different source (like self-hosted tiles) with this plugin, you will need to specify any non-empty string as Access Token as explained below!**
 
-##### Android
 
-Add Mapbox access token configuration in the application manifest `example/android/app/src/main/AndroidManifest.xml`:
+The **recommended** way to provide your access token is through the `MapboxMap` constructor's `accessToken` parameter, which is available starting from the v0.8 release. Note that you should always use the same token throughout your entire app.
 
-```xml
-<manifest ...
-  <application ...
-    <meta-data android:name="com.mapbox.token" android:value="YOUR_TOKEN_HERE" />
-```
-
-##### iOS
-
-Add Mapbox access token configuration to the application Info.plist `example/ios/Runner/Info.plist`:
-
-```xml
-<key>io.flutter.embedded_views_preview</key>
-<true/>
-<key>MGLMapboxAccessToken</key>
-<string>YOUR_TOKEN_HERE</string>
-```
-
-##### Web
-
-Add Mapbox access token configuration to index.html `example/web/index.html`:
-
-```html
-<body>
-  ...
-  <script>
-    mapboxgl.accessToken = 'YOUR_TOKEN_HERE';
-  </script>
-</body>
-```
+An alternative method to provide access tokens that was required until the v0.7 release is described in [this wiki article](https://github.com/tobrun/flutter-mapbox-gl/wiki/Mapbox-access-tokens).
 
 ## Using the SDK in your project
 

@@ -44,6 +44,9 @@ class MapboxMapController extends MapboxGlPlatform
     await _addStylesheetToShadowRoot();
     if (_creationParams.containsKey('initialCameraPosition')) {
       var camera = _creationParams['initialCameraPosition'];
+      if (_creationParams.containsKey('accessToken')) {
+        Mapbox.accessToken = _creationParams['accessToken'];
+      }
       _map = MapboxMap(
         MapOptions(
           container: _mapElement,
