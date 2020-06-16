@@ -1231,10 +1231,6 @@ final class MapboxMapController
   public void downloadRegion(final String regionName) {
     // Define offline region parameters, including bounds,
     // min/max zoom, and metadata
-
-    // Start the progressBar
-//        startProgress();
-
     // Create offline definition using the current
     // style and boundaries of visible map area
 

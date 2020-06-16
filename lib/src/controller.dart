@@ -727,53 +727,11 @@ class MapboxMapController extends ChangeNotifier {
   ///  );
   /// }
   /// ```
+
+
   Future<void> addImage(String name, Uint8List bytes, [bool sdf = false]) {
     return MapboxGlPlatform.getInstance(_id).addImage(name, bytes, sdf);
   }
-
-
-
-////Offline Manager Method calls
-//
-//  void setDownloadTileLimit(int tileLimit) async {
-//    _channel.invokeMethod("offline#setDownloadTileLimit",
-//        <String, int>{
-//          "numTiles": tileLimit
-//        });
-//  }
-//
-//  Future<List> getDownloadedTiles() async{
-//    try {
-//      return await _channel.invokeMethod("offline#getDownloadedTiles");
-//    } on PlatformException catch (e) {
-//      return new Future.error(e);
-//    }
-//
-//  }
-//
-//  void downloadOnClick(String mapName) async{
-//    _channel.invokeMethod("offline#downloadOnClick", <String, String>{
-//    "downloadName": mapName
-//    });
-//  }
-//
-//  void deleteDownloadedTiles(int index) async{
-//    _channel.invokeMethod("offline#deleteDownloadedTiles",<String, int>{
-//      "indexToDelete": index
-//    });
-//  }
-//
-//  void navigateToRegion(int index) async{
-//    _channel.invokeMethod("offline#navigateToRegion",<String, int>{
-//      "indexToNavigate": index
-//    });
-//  }
-//
-//  void cancelDownloadingTiles() {
-//    _channel.invokeMethod("offline#cancelDownloadingTiles");
-//  }
-
-
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolIconAllowOverlap(bool enable) async {
@@ -795,6 +753,48 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> setSymbolTextIgnorePlacement(bool enable) async {
     await MapboxGlPlatform.getInstance(_id)
         .setSymbolTextIgnorePlacement(enable);
+  }
+
+//Offline Manager Method calls
+  void setDownloadTileLimit(int tileLimit) async {
+    MapboxGlPlatform.getInstance(_id).setDownloadTileLimit(tileLimit);
+  }
+
+  Future<List> getDownloadedTiles() async{
+//    try {
+//      return await _channel.invokeMethod("offline#getDownloadedTiles");
+//    } on PlatformException catch (e) {
+//      return new Future.error(e);
+//    }
+
+    return MapboxGlPlatform.getInstance(_id).getDownloadedTiles();
+
+  }
+
+  void downloadOnClick(String mapName) async{
+//    _channel.invokeMethod("offline#downloadOnClick", <String, String>{
+//    "downloadName": mapName
+//    });
+    return MapboxGlPlatform.getInstance(_id).downloadOnClick(mapName);
+  }
+
+  void deleteDownloadedTiles(int index) async{
+//    _channel.invokeMethod("offline#deleteDownloadedTiles",<String, int>{
+//      "indexToDelete": index
+//    });
+    return MapboxGlPlatform.getInstance(_id).deleteDownloadedTiles(index);
+  }
+
+  void navigateToRegion(int index) async{
+//    _channel.invokeMethod("offline#navigateToRegion",<String, int>{
+//      "indexToNavigate": index
+//    });
+    return MapboxGlPlatform.getInstance(_id).navigateToRegion(index);
+  }
+
+  void cancelDownloadingTiles() {
+//    _channel.invokeMethod("offline#cancelDownloadingTiles");
+    return MapboxGlPlatform.getInstance(_id).cancelDownloadingTiles();
   }
 
 }

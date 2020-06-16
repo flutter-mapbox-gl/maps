@@ -210,4 +210,42 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError(
         'setSymbolTextIgnorePlacement() has not been implemented.');
   }
+
+  // Offline Manager
+
+  void setDownloadTileLimit(int tileLimit) async {
+    throw UnimplementedError(
+        'setDownloadTileLimit() has not been implemented.');
+  }
+
+  Future<List> getDownloadedTiles() async {
+    throw UnimplementedError(
+        'getDownloadedTiles() has not been implemented.');
+  }
+
+  void downloadOnClick(String mapName) async{
+    throw UnimplementedError(
+        'downloadOnClick() has not been implemented.');
+  }
+
+
+  void deleteDownloadedTiles(int index) async{
+    throw UnimplementedError(
+        'deleteDownloadedTiles() has not been implemented.');
+  }
+
+
+  void navigateToRegion(int index) async{
+    throw UnimplementedError(
+        'navigateToRegion() has not been implemented.');
+  }
+
+
+  void cancelDownloadingTiles() {
+    throw UnimplementedError(
+        'cancelDownloadingTiles() has not been implemented.');
+  }
+
+
+
 }

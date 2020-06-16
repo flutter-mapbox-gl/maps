@@ -453,4 +453,49 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       return new Future.error(e);
     }
   }
+
+// Offline Manager Method calls
+  @override
+  void setDownloadTileLimit(int tileLimit) async {
+    _channel.invokeMethod("offline#setDownloadTileLimit",
+        <String, int>{
+          "numTiles": tileLimit
+        });
+  }
+
+  @override
+  Future<List> getDownloadedTiles() async{
+    try {
+      return await _channel.invokeMethod("offline#getDownloadedTiles");
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+
+  }
+
+  @override
+  void downloadOnClick(String mapName) async{
+    _channel.invokeMethod("offline#downloadOnClick", <String, String>{
+    "downloadName": mapName
+    });
+  }
+
+  @override
+  void deleteDownloadedTiles(int index) async{
+    _channel.invokeMethod("offline#deleteDownloadedTiles",<String, int>{
+      "indexToDelete": index
+    });
+  }
+
+  @override
+  void navigateToRegion(int index) async{
+    _channel.invokeMethod("offline#navigateToRegion",<String, int>{
+      "indexToNavigate": index
+    });
+  }
+
+  @override
+  void cancelDownloadingTiles() {
+    _channel.invokeMethod("offline#cancelDownloadingTiles");
+  }
 }
