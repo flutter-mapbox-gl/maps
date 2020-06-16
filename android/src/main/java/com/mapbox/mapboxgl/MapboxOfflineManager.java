@@ -38,7 +38,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
     public static final String JSON_CHARSET = "UTF-8";
     public static final String JSON_FIELD_REGION_NAME = "FIELD_REGION_NAME";
     public static final String TAG = "MapboxOfflineManager";
-    private final String CHANNEL_1_ID = "ch1";
+
     Context context;
     MapboxMap map;
     private OfflineManager offlineManager;
@@ -167,7 +167,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
         offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
     }
 
-    public void getDownloadedTiles() {
+    private void getDownloadedTiles() {
         // Query the DB asynchronously
         offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback(){
             @Override
@@ -213,7 +213,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
         return regionName;
     }
 
-    public void deleteRegion(int regionSelected){
+    private void deleteRegion(int regionSelected){
         offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback(){
             @Override
             public void onList(OfflineRegion[] offlineRegions) {
@@ -222,6 +222,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
                 if (offlineRegions == null || offlineRegions.length == 0) {
                     return;
                 }
+
                 offlineRegions[regionSelected].delete(new OfflineRegion.OfflineRegionDeleteCallback() {
                     @Override
                     public void onDelete() {
@@ -243,7 +244,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
 
     }
 
-    public void navigateToRegion(int regionSelected){
+    private void navigateToRegion(int regionSelected){
         offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback(){
             @Override
             public void onList(OfflineRegion[] offlineRegions) {
@@ -276,6 +277,10 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
 
     }
 
+    private void cancelRegionDownload() {
+        offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
+    }
+
     @Override
     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         switch (call.method) {
@@ -301,11 +306,17 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
             case "offline#navigateToRegion":
                 navigateToRegion(call.argument("indexToNavigate"));
                 break;
+            case "offline#cancelDownloadingTiles":
+                cancelRegionDownload();
+                break;
+
 
             default:
                 result.notImplemented();
         }
     }
+
+
 
     @Override
     public void onListen(Object arguments, EventChannel.EventSink events) {

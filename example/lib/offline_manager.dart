@@ -182,7 +182,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return AlertDialogDownloadProgressWidget(_downloadTileProgress);
+            return AlertDialogDownloadProgressWidget(_downloadTileProgress,_offlineMC);
           },
         );
       },
@@ -307,8 +307,8 @@ class AlertDialogDownloadProgressWidget extends StatefulWidget {
 //  final List<dynamic> downloadedTiles;
 //  final MethodChannel mapBoxglMC;
   final EventChannel downloadTileProgress;
-
-  AlertDialogDownloadProgressWidget(this.downloadTileProgress, {Key key})
+  final MethodChannel mapBoxglMC;
+  AlertDialogDownloadProgressWidget(this.downloadTileProgress,this.mapBoxglMC, {Key key})
       : super(key: key);
 
   @override
@@ -335,6 +335,7 @@ class AlertDialogDownloadProgressState
     Widget cancelButton = FlatButton(
       child: Text("Cancel"),
       onPressed: () {
+        widget.mapBoxglMC.invokeMethod("offline#cancelDownloadingTiles");
         Navigator.of(context).pop();
       },
     );
@@ -342,7 +343,6 @@ class AlertDialogDownloadProgressState
         stream: downloadProgress,
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData) {
-            // Close Dialog after 3 seconds
 
             var progress = double.tryParse(snapshot.data);
             if (progress==null){
@@ -350,7 +350,8 @@ class AlertDialogDownloadProgressState
             }
 
             if(progress>=1.0){
-              Timer(Duration(seconds: 1), () {
+              // Close Dialog after 2 seconds
+              Timer(Duration(seconds: 2), () {
                 Navigator.of(context).pop();
               });
             }
@@ -376,62 +377,6 @@ class AlertDialogDownloadProgressState
   }
 }
 
-class _LinearProgressIndicatorApp extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return _LinearProgressIndicatorAppState();
-  }
-}
 
-class _LinearProgressIndicatorAppState
-    extends State<_LinearProgressIndicatorApp> {
-  double _progress = 0;
 
-  void startTimer() {
-    new Timer.periodic(
-      Duration(seconds: 1),
-      (Timer timer) => setState(
-        () {
-          if (_progress == 1) {
-            timer.cancel();
-          } else {
-            _progress += 0.2;
-          }
-        },
-      ),
-    );
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Woolha.com Flutter Tutorial'),
-      ),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              LinearProgressIndicator(
-                backgroundColor: Colors.cyanAccent,
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.red),
-                value: _progress,
-              ),
-              RaisedButton(
-                child: Text('Start timer'),
-                onPressed: () {
-                  setState(() {
-                    _progress = 0;
-                  });
-                  startTimer();
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
