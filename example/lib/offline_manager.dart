@@ -338,12 +338,13 @@ class AlertDialogDownloadProgressState
   Widget build(BuildContext context) {
     // set up the buttons
     Widget cancelButton = FlatButton(
-      child: Text("Cancel"),
+      child: Text("Stop/Cancel"),
       onPressed: () {
         widget.mapBoxglMC.invokeMethod("offline#cancelDownloadingTiles");
         Navigator.of(context).pop();
       },
     );
+
     Widget streamBuilder = StreamBuilder(
         stream: downloadProgress,
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {

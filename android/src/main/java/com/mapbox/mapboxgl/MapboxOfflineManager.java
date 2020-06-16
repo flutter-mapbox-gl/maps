@@ -44,7 +44,6 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
     private OfflineManager offlineManager;
     private OfflineRegion offlineRegion;
 
-    private NotificationManager notificationManager;
     private MethodChannel methodChannel;
     private EventChannel eventChannel;
     private EventChannel.EventSink eventSink;
