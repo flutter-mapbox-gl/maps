@@ -1,16 +1,9 @@
 package com.mapbox.mapboxgl;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
-
-
-
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
-
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -60,7 +53,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
         eventChannel.setStreamHandler(this);
     }
 
-    public void downloadRegion(final String regionName, final EventChannel.EventSink ev) {
+    public void downloadRegion(final String regionName) {
         // Define offline region parameters, including bounds,
         // min/max zoom, and metadata
 
@@ -310,7 +303,7 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
                     regionName = String.format("%.3f", centerLat) +" | "+String.format("%.3f", centerLng);
                 }
 
-                downloadRegion(regionName,eventSink);
+                downloadRegion(regionName);
                 break;
             case "offline#getDownloadedTiles":
                 getDownloadedTiles();
