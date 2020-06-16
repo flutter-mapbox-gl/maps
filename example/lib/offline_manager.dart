@@ -31,11 +31,12 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
     super.initState();
   }
 
-  Widget _onTileRetrieve(var names) {
+  void _onTileRetrieve(Future<List> names) async {
+    List futureNames = await names;
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        var downloadedTiles = (names.length == 0) ? [] : names;
+        var downloadedTiles = (futureNames.length == 0) ? [] : futureNames;
         return ListAlertDialogWidget(downloadedTiles, mapController);
       },
     );
@@ -43,7 +44,6 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
-    controller.onTileRetrieve.add(_onTileRetrieve);
     mapController.setDownloadTileLimit(2500);
   }
 
@@ -129,7 +129,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
                             icon: Icon(Icons.menu),
                             color: Colors.white,
                             onPressed: () {
-                              mapController.getDownloadedTiles();
+                              _onTileRetrieve(mapController.getDownloadedTiles());
                             },
                           ),
                           Text(
@@ -326,10 +326,7 @@ class AlertDialogDownloadProgressState
             }
 
             if (progress >= 1.0) {
-              // Close Dialog after 2 seconds
-              Timer(Duration(seconds: 2), () {
-                Navigator.of(context, rootNavigator: true).pop();
-              });
+              // Download Completed
               return Text('Downloaded!');
             }
             return LinearProgressIndicator(

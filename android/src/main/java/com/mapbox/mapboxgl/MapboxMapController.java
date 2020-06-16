@@ -134,7 +134,7 @@ final class MapboxMapController
   private LocationEngine locationEngine = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
-//  private MapboxOfflineManager mapboxOfflineManager;
+
 
   // Offline
   public static final String JSON_CHARSET = "UTF-8";
@@ -339,8 +339,7 @@ final class MapboxMapController
     });
 
     setStyleString(styleStringInitial);
-//    mapboxOfflineManager = new MapboxOfflineManager(context,this.mapboxMap,registrar);
-    // updateMyLocationEnabled();
+
   }
 
   @Override
@@ -709,7 +708,7 @@ final class MapboxMapController
         downloadRegion(regionName);
         break;
       case "offline#getDownloadedTiles":
-        getDownloadedTiles();
+        getDownloadedTiles(result);
         break;
       case "offline#deleteDownloadedTiles":
         deleteRegion(call.argument("indexToDelete"));
@@ -1247,7 +1246,7 @@ final class MapboxMapController
     offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
   }
 
-  private void getDownloadedTiles() {
+  private void getDownloadedTiles(MethodChannel.Result result) {
     // Query the DB asynchronously
     offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback(){
       @Override
@@ -1255,8 +1254,7 @@ final class MapboxMapController
         // Check result. If no regions have been
         // downloaded yet, notify user and return
         if (offlineRegions == null || offlineRegions.length == 0) {
-          //Toast.makeText(getApplicationContext(), getString(R.string.toast_no_regions_yet), Toast.LENGTH_SHORT).show();
-          methodChannel.invokeMethod("offline#retrieveDownloadedTileNames", new ArrayList<>());
+          result.success(new ArrayList<>());
           return;
         }
 
@@ -1268,7 +1266,8 @@ final class MapboxMapController
             offlineRegionsNames.add(name);
           }
         }
-        methodChannel.invokeMethod("offline#retrieveDownloadedTileNames", offlineRegionsNames);
+
+        result.success(offlineRegionsNames);
       }
 
       @Override

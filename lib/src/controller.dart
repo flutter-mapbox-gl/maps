@@ -90,10 +90,6 @@ class MapboxMapController extends ChangeNotifier {
   final ArgumentCallbacks<Symbol> onInfoWindowTapped =
       ArgumentCallbacks<Symbol>();
 
-  /// Callbacks to get downloaded offline tile names
-  final ArgumentCallbacks<List> onTileRetrieve =
-  ArgumentCallbacks<List>();
-
   /// The current set of symbols on this map.
   ///
   /// The returned set will be a detached snapshot of the symbols collection.
@@ -200,9 +196,6 @@ class MapboxMapController extends ChangeNotifier {
         if (onMapIdle != null) {
           onMapIdle();
         }
-        break;
-      case 'offline#retrieveDownloadedTileNames':
-        onTileRetrieve(call.arguments);
         break;
 
       default:
@@ -736,8 +729,13 @@ class MapboxMapController extends ChangeNotifier {
         });
   }
 
-  void getDownloadedTiles() async{
-    _channel.invokeMethod("offline#getDownloadedTiles");
+  Future<List> getDownloadedTiles() async{
+    try {
+      return await _channel.invokeMethod("offline#getDownloadedTiles");
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+
   }
 
   void downloadOnClick(String mapName) async{
