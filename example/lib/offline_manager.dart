@@ -44,7 +44,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
-    mapController.setDownloadTileLimit(2500);
+//    mapController.setDownloadTileLimit(2500);
   }
 
   CameraPosition _initCameraPosition() {
@@ -129,7 +129,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
                             icon: Icon(Icons.menu),
                             color: Colors.white,
                             onPressed: () {
-                              _onTileRetrieve(mapController.getDownloadedTiles());
+//                              _onTileRetrieve(mapController.getDownloadedTiles());
                             },
                           ),
                           Text(
@@ -162,7 +162,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
       child: Text("Download"),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop();
-        mapController.downloadOnClick(widget.downloadController.text);
+//        mapController.downloadOnClick(widget.downloadController.text);
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -248,7 +248,7 @@ class _AlertDialogWidgetState extends State<ListAlertDialogWidget> {
     Widget deleteButton = FlatButton(
       child: Text("Delete"),
       onPressed: () {
-        widget.mapController.deleteDownloadedTiles(int.parse(_index));
+//        widget.mapController.deleteDownloadedTiles(int.parse(_index));
         Navigator.of(context, rootNavigator: true).pop();
       },
     );
@@ -261,7 +261,7 @@ class _AlertDialogWidgetState extends State<ListAlertDialogWidget> {
     Widget navToButton = FlatButton(
       child: Text("Navigate To"),
       onPressed: () {
-        widget.mapController.navigateToRegion(int.parse(_index));
+//        widget.mapController.navigateToRegion(int.parse(_index));
         Navigator.of(context, rootNavigator: true).pop();
       },
     );
@@ -311,7 +311,7 @@ class AlertDialogDownloadProgressState
     Widget cancelButton = FlatButton(
       child: Text("Stop"),
       onPressed: () {
-        widget.mapController.cancelDownloadingTiles();
+//        widget.mapController.cancelDownloadingTiles();
         Navigator.of(context, rootNavigator: true).pop();
       },
     );

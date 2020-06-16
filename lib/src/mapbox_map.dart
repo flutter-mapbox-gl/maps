@@ -9,6 +9,7 @@ typedef void MapCreatedCallback(MapboxMapController controller);
 class MapboxMap extends StatefulWidget {
   const MapboxMap({
     @required this.initialCameraPosition,
+    this.accessToken,
     this.onMapCreated,
     this.onStyleLoadedCallback,
     this.gestureRecognizers,
@@ -22,21 +23,30 @@ class MapboxMap extends StatefulWidget {
     this.tiltGesturesEnabled = true,
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
-    this.myLocationTrackingMode = MyLocationTrackingMode.Tracking,
+    this.myLocationTrackingMode = MyLocationTrackingMode.None,
     this.myLocationRenderMode = MyLocationRenderMode.COMPASS,
     this.logoViewMargins,
     this.compassViewPosition,
     this.compassViewMargins,
     this.attributionButtonMargins,
     this.onMapClick,
+    this.onMapLongClick,
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
     this.onCameraIdle,
     this.onMapIdle,
   }) : assert(initialCameraPosition != null);
 
+
+  /// If you want to use Mapbox hosted styles and map tiles, you need to provide a Mapbox access token.
+  /// Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
+  /// The reccommended way is to use this parameter to set your access token, an alternative way to add your access tokens through external files is described in the plugin's wiki on Github.
+  /// 
+  /// Note: You should not use this parameter AND set the access token through external files at the same time, and you should use the same token throughout the entire app.
+  final String accessToken;
+
   final MapCreatedCallback onMapCreated;
-  
+
   /// Called when the map style has been successfully loaded and the annotation managers have been enabled.
   /// Please note: you should only add annotations (e.g. symbols or circles) after this callback has been called.
   final OnStyleLoadedCallback onStyleLoadedCallback;
@@ -130,6 +140,7 @@ class MapboxMap extends StatefulWidget {
   final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
 
   final OnMapClickCallback onMapClick;
+  final OnMapClickCallback onMapLongClick;
 
   /// Called when the location tracking mode changes, such as when the user moves the map
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
@@ -155,33 +166,17 @@ class _MapboxMapState extends State<MapboxMap> {
       Completer<MapboxMapController>();
 
   _MapboxMapOptions _mapboxMapOptions;
+  final MapboxGlPlatform _mapboxGlPlatform = MapboxGlPlatform.createInstance();
 
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> creationParams = <String, dynamic>{
-      'initialCameraPosition': widget.initialCameraPosition?._toMap(),
+      'initialCameraPosition': widget.initialCameraPosition?.toMap(),
       'options': _MapboxMapOptions.fromWidget(widget).toMap(),
+      'accessToken': widget.accessToken,
     };
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return AndroidView(
-        viewType: 'plugins.flutter.io/mapbox_gl',
-        onPlatformViewCreated: onPlatformViewCreated,
-        gestureRecognizers: widget.gestureRecognizers,
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-      );
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      return UiKitView(
-        viewType: 'plugins.flutter.io/mapbox_gl',
-        onPlatformViewCreated: onPlatformViewCreated,
-        gestureRecognizers: widget.gestureRecognizers,
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-      );
-    }
-
-    return Text(
-        '$defaultTargetPlatform is not yet supported by the maps plugin');
+    return _mapboxGlPlatform.buildView(
+        creationParams, onPlatformViewCreated, widget.gestureRecognizers);
   }
 
   @override
@@ -209,10 +204,12 @@ class _MapboxMapState extends State<MapboxMap> {
   }
 
   Future<void> onPlatformViewCreated(int id) async {
+    MapboxGlPlatform.addInstance(id, _mapboxGlPlatform);
     final MapboxMapController controller = await MapboxMapController.init(
         id, widget.initialCameraPosition,
         onStyleLoadedCallback: widget.onStyleLoadedCallback,
         onMapClick: widget.onMapClick,
+        onMapLongClick: widget.onMapLongClick,
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged,
         onCameraIdle: widget.onCameraIdle,
@@ -265,7 +262,7 @@ class _MapboxMapOptions {
       logoViewMargins: map.logoViewMargins,
       compassViewPosition: map.compassViewPosition,
       compassViewMargins: map.compassViewMargins,
-      attributionButtonMargins: map.attributionButtonMargins
+      attributionButtonMargins: map.attributionButtonMargins,
     );
   }
 
@@ -319,9 +316,9 @@ class _MapboxMapOptions {
     }
 
     addIfNonNull('compassEnabled', compassEnabled);
-    addIfNonNull('cameraTargetBounds', cameraTargetBounds?._toJson());
+    addIfNonNull('cameraTargetBounds', cameraTargetBounds?.toJson());
     addIfNonNull('styleString', styleString);
-    addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?._toJson());
+    addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?.toJson());
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);
     addIfNonNull('scrollGesturesEnabled', scrollGesturesEnabled);
     addIfNonNull('tiltGesturesEnabled', tiltGesturesEnabled);
@@ -333,12 +330,15 @@ class _MapboxMapOptions {
     addIfNonNull('logoViewMargins', pointToArray(logoViewMargins));
     addIfNonNull('compassViewPosition', compassViewPosition?.index);
     addIfNonNull('compassViewMargins', pointToArray(compassViewMargins));
-    addIfNonNull('attributionButtonMargins', pointToArray(attributionButtonMargins));
+    addIfNonNull(
+        'attributionButtonMargins', pointToArray(attributionButtonMargins));
     return optionsMap;
   }
 
   Map<String, dynamic> updatesMap(_MapboxMapOptions newOptions) {
     final Map<String, dynamic> prevOptionsMap = toMap();
-    return newOptions.toMap()..removeWhere((String key, dynamic value) => prevOptionsMap[key] == value);
+    return newOptions.toMap()
+      ..removeWhere(
+          (String key, dynamic value) => prevOptionsMap[key] == value);
   }
 }
