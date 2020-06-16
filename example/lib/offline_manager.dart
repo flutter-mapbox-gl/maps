@@ -52,14 +52,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
     }
   }
 
-//  Stream<double> get downloadProgress {
-//    if (_downloadProgressStream == null) {
-//      _downloadProgressStream = _downloadTileProgress
-//          .receiveBroadcastStream()
-//          .map<double>((val) => val);
-//    }
-//    return _downloadProgressStream;
-//  }
+
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
@@ -326,13 +319,13 @@ class AlertDialogDownloadProgressWidget extends StatefulWidget {
 class AlertDialogDownloadProgressState
     extends State<AlertDialogDownloadProgressWidget> {
   double _progress = 0;
-  Stream<double> downloadProgressStream;
+  Stream<String> downloadProgressStream;
 
-  Stream<double> get downloadProgress {
+  Stream<String> get downloadProgress {
     if (downloadProgressStream == null) {
       downloadProgressStream = widget.downloadTileProgress
           .receiveBroadcastStream()
-          .map<double>((val) => val);
+          .map<String>((val) => val);
     }
     return downloadProgressStream;
   }
@@ -347,10 +340,16 @@ class AlertDialogDownloadProgressState
     );
     Widget streamBuilder = StreamBuilder(
         stream: downloadProgress,
-        builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData) {
             // Close Dialog after 3 seconds
-            if(snapshot.data>=1.0){
+
+            var progress = double.tryParse(snapshot.data);
+            if (progress==null){
+              return Text ("Error: ${snapshot.data}");
+            }
+
+            if(progress>=1.0){
               Timer(Duration(seconds: 1), () {
                 Navigator.of(context).pop();
               });
@@ -358,7 +357,7 @@ class AlertDialogDownloadProgressState
             return LinearProgressIndicator(
               backgroundColor: Colors.white10,
               valueColor: new AlwaysStoppedAnimation<Color>(Colors.blueAccent),
-              value: snapshot.data,
+              value: progress,
             );
 
           }else{

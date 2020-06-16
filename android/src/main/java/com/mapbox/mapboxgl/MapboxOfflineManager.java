@@ -23,6 +23,8 @@ import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
 import org.json.JSONObject;
+
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import io.flutter.plugin.common.EventChannel;
@@ -57,22 +59,6 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
 
         eventChannel = new EventChannel(registrar.messenger(),"plugins.flutter.io/offline_tile_progress");
         eventChannel.setStreamHandler(this);
-
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            NotificationChannel channel1 = new NotificationChannel(
-//                    CHANNEL_1_ID,
-//                    "Channel 1",
-//                    NotificationManager.IMPORTANCE_HIGH
-//            );
-//
-//            notificationManager = context.getSystemService(NotificationManager.class);
-//            notificationManager.createNotificationChannel(channel1);
-//
-//        }
-
-
-
     }
 
     public void downloadRegion(final String regionName, final EventChannel.EventSink ev) {
@@ -128,27 +114,26 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
         });
     }
 
+    // Emit Progress Percentage Value
     private void emitEventChannelEventCallback(double percentage){
+        String eventToEmit = percentage/100.0 +"";
         if(eventSink!=null){
-            eventSink.success(percentage/100.0);
+            eventSink.success(eventToEmit);
         }
         Log.d(TAG,"percentage: "+percentage);
+    }
 
+    // Emit String Error / Tile Limit message
+    private void emitEventChannelEventCallback(String message){
+        if(eventSink!=null){
+            eventSink.success(message);
+        }
     }
 
 
     private void launchDownload(String regName) {
         // Set up an observer to handle download progress and
         // notify the user when the region is finished downloading
-//        final NotificationCompat.Builder downloadNotification = new NotificationCompat.Builder(context, CHANNEL_1_ID)
-//                .setSmallIcon(R.drawable.mapbox_logo_icon)
-//                .setContentTitle("Downloading "+regName)
-////                .setContentText("Downloading "+regName)
-//                .setPriority(NotificationCompat.PRIORITY_LOW)
-//                .setOngoing(true)
-//                .setOnlyAlertOnce(true)
-//                .setProgress(100, 0, false);
-
 
         offlineRegion.setObserver(new OfflineRegion.OfflineRegionObserver() {
             @Override
@@ -160,38 +145,21 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
 
                 emitEventChannelEventCallback(percentage);
 
-//                if (status.isComplete()) {
-//                    // Download complete//
-//                    downloadNotification.setContentTitle(regName+" Downloaded")
-//                            .setProgress(0, 0, false)
-//                            .setOngoing(false);
-//                    notificationManager.notify(1, downloadNotification.build());
-//                    return;
-//                }
 
-                // Log what is being currently downloaded
-//                Log.d(TAG,"%s/%s resources; %s bytes downloaded. "+
-//                        String.valueOf(status.getCompletedResourceCount())+" "+
-//                        String.valueOf(status.getRequiredResourceCount())+" "+
-//                        String.valueOf(status.getCompletedResourceSize()));
             }
 
             @Override
             public void onError(OfflineRegionError error) {
                 Log.d(TAG,"error: "+error.getMessage());
                 Log.d(TAG,"error: "+error.getReason());
+                emitEventChannelEventCallback(error.getReason());
 
             }
 
             @Override
             public void mapboxTileCountLimitExceeded(long limit) {
                 Log.d(TAG,"tile count limit exceeded: "+limit);
-//                downloadNotification.setContentTitle("Tile count limit exceeded")
-//                        .setProgress(0, 0, false)
-//                        .setOngoing(false);
-//                notificationManager.notify(1, downloadNotification.build());
-
-                emitEventChannelEventCallback(-1.0);
+                emitEventChannelEventCallback("Tile count limit exceeded");
             }
         });
 
@@ -315,8 +283,12 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
                 Log.d(TAG,"DOWNLOAD OFFLINE "+call.argument("downloadName"));
                 String regionName = call.argument("downloadName");
                 if(regionName.length()==0){
-                    regionName = map.getProjection().getVisibleRegion().latLngBounds.toString();
+                    double centerLat = map.getProjection().getVisibleRegion().latLngBounds.getCenter().getLatitude();
+                    double centerLng = map.getProjection().getVisibleRegion().latLngBounds.getCenter().getLongitude();
+                    regionName = String.format("%.3f", centerLat) +" | "+String.format("%.3f", centerLng);
                 }
+
+
 
                 downloadRegion(regionName,eventSink);
                 break;
