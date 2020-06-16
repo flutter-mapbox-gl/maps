@@ -25,7 +25,7 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
   MapboxMapController mapController;
 
 //  MethodChannel _offlineMC = const MethodChannel('plugins.flutter.io/offline_map');
-  MethodChannel _offlineMC = const MethodChannel('plugins.flutter.io/mapbox_maps_0');
+//  MethodChannel _offlineMC = const MethodChannel('plugins.flutter.io/mapbox_maps_0');
   EventChannel _downloadTileProgress =
       const EventChannel('plugins.flutter.io/offline_tile_progress');
 
@@ -36,31 +36,42 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
   }
 
   Future<dynamic> _handleMethodOffline(MethodCall call) async {
-    switch (call.method) {
-      case "retrieveDownloadedTileNames":
-        var names = call.arguments;
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            var downloadedTiles = (names.length == 0) ? [] : names;
-            return ListAlertDialogWidget(downloadedTiles, _offlineMC);
-          },
-        );
-        return new Future.value("");
-    }
+//    switch (call.method) {
+//      case "offline#retrieveDownloadedTileNames":
+//        var names = call.arguments;
+//        showDialog(
+//          context: context,
+//          builder: (BuildContext context) {
+//            var downloadedTiles = (names.length == 0) ? [] : names;
+//            return ListAlertDialogWidget(downloadedTiles, _offlineMC);
+//          },
+//        );
+//        return new Future.value("");
+//    }
+  }
+
+  Widget _onTileRetrieve(var names){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          var downloadedTiles = (names.length == 0) ? [] : names;
+          return ListAlertDialogWidget(downloadedTiles, mapController);
+        },
+      );
   }
 
 
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
-
-    _offlineMC.setMethodCallHandler(_handleMethodOffline);
+    controller.onTileRetrieve.add(_onTileRetrieve);
+//    _offlineMC.setMethodCallHandler(_handleMethodOffline);
     // Set Tile Limit
-    _offlineMC.invokeMethod("offline#setDownloadTileLimit",
-        <String, int>{
-          "numTiles": 2500
-        });
+//    _offlineMC.invokeMethod("offline#setDownloadTileLimit",
+//        <String, int>{
+//          "numTiles": 2500
+//        });
+    mapController.setDownloadTileLimit(2500);
   }
 
   CameraPosition _initCameraPosition() {
@@ -146,9 +157,10 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
                             color: Colors.white,
                             onPressed: () {
                               // retrieve list of names
-                              _offlineMC
-                                  .invokeMethod("offline#getDownloadedTiles");
+//                              _offlineMC.invokeMethod("offline#getDownloadedTiles");
+                            mapController.getDownloadedTiles();
                             },
+
                           ),
                           Text(
                             "List",
@@ -180,14 +192,15 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
       child: Text("Download"),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop();
-        final Map<String, String> args = <String, String>{
-          "downloadName": widget.downloadController.text
-        };
-        _offlineMC.invokeMethod("offline#downloadOnClick", args);
+//        final Map<String, String> args = <String, String>{
+//          "downloadName": widget.downloadController.text
+//        };
+//        _offlineMC.invokeMethod("offline#downloadOnClick", args);
+        mapController.downloadOnClick(widget.downloadController.text);
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return AlertDialogDownloadProgressWidget(_downloadTileProgress,_offlineMC);
+            return AlertDialogDownloadProgressWidget(_downloadTileProgress,mapController);
           },
         );
       },
@@ -232,8 +245,9 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
 // *** List Tiles AlertDialog ***
 class ListAlertDialogWidget extends StatefulWidget {
   final List<dynamic> downloadedTiles;
-  final MethodChannel mapBoxglMC;
-  ListAlertDialogWidget(this.downloadedTiles, this.mapBoxglMC, {Key key})
+//  final MethodChannel mapBoxglMC;
+  final MapboxMapController mapController;
+  ListAlertDialogWidget(this.downloadedTiles, this.mapController, {Key key})
       : super(key: key);
 
   @override
@@ -269,11 +283,13 @@ class _AlertDialogWidgetState extends State<ListAlertDialogWidget> {
     Widget deleteButton = FlatButton(
       child: Text("Delete"),
       onPressed: () {
-        final Map<String, int> args = <String, int>{
-          "indexToDelete": int.parse(_index)
-        };
-        widget.mapBoxglMC.invokeMethod("offline#deleteDownloadedTiles", args);
+//        final Map<String, int> args = <String, int>{
+//          "indexToDelete": int.parse(_index)
+//        };
+//        widget.mapBoxglMC.invokeMethod("offline#deleteDownloadedTiles", args);
+        widget.mapController.deleteDownloadedTiles(int.parse(_index));
         Navigator.of(context, rootNavigator: true).pop();
+
       },
     );
     Widget cancelButton = FlatButton(
@@ -285,10 +301,11 @@ class _AlertDialogWidgetState extends State<ListAlertDialogWidget> {
     Widget navToButton = FlatButton(
       child: Text("Navigate To"),
       onPressed: () {
-        final Map<String, int> args = <String, int>{
-          "indexToNavigate": int.parse(_index)
-        };
-        widget.mapBoxglMC.invokeMethod("offline#navigateToRegion", args);
+//        final Map<String, int> args = <String, int>{
+//          "indexToNavigate": int.parse(_index)
+//        };
+//        widget.mapBoxglMC.invokeMethod("offline#navigateToRegion", args);
+        widget.mapController.navigateToRegion(int.parse(_index));
         Navigator.of(context, rootNavigator: true).pop();
       },
     );
@@ -312,8 +329,9 @@ class AlertDialogDownloadProgressWidget extends StatefulWidget {
 //  final List<dynamic> downloadedTiles;
 //  final MethodChannel mapBoxglMC;
   final EventChannel downloadTileProgress;
-  final MethodChannel mapBoxglMC;
-  AlertDialogDownloadProgressWidget(this.downloadTileProgress,this.mapBoxglMC, {Key key})
+//  final MethodChannel mapBoxglMC;
+  final MapboxMapController mapController;
+  AlertDialogDownloadProgressWidget(this.downloadTileProgress,this.mapController, {Key key})
       : super(key: key);
 
   @override
@@ -338,7 +356,8 @@ class AlertDialogDownloadProgressState
     Widget cancelButton = FlatButton(
       child: Text("Stop"),
       onPressed: () {
-        widget.mapBoxglMC.invokeMethod("offline#cancelDownloadingTiles");
+//        widget.mapBoxglMC.invokeMethod("offline#cancelDownloadingTiles");
+        widget.mapController.cancelDownloadingTiles();
         Navigator.of(context, rootNavigator: true).pop();
       },
     );

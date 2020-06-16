@@ -1256,7 +1256,7 @@ final class MapboxMapController
         // downloaded yet, notify user and return
         if (offlineRegions == null || offlineRegions.length == 0) {
           //Toast.makeText(getApplicationContext(), getString(R.string.toast_no_regions_yet), Toast.LENGTH_SHORT).show();
-          methodChannel.invokeMethod("retrieveDownloadedTileNames", new ArrayList<>());
+          methodChannel.invokeMethod("offline#retrieveDownloadedTileNames", new ArrayList<>());
           return;
         }
 
@@ -1268,7 +1268,7 @@ final class MapboxMapController
             offlineRegionsNames.add(name);
           }
         }
-        methodChannel.invokeMethod("retrieveDownloadedTileNames", offlineRegionsNames);
+        methodChannel.invokeMethod("offline#retrieveDownloadedTileNames", offlineRegionsNames);
       }
 
       @Override

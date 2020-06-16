@@ -90,6 +90,10 @@ class MapboxMapController extends ChangeNotifier {
   final ArgumentCallbacks<Symbol> onInfoWindowTapped =
       ArgumentCallbacks<Symbol>();
 
+  /// Callbacks to get downloaded offline tile names
+  final ArgumentCallbacks<List> onTileRetrieve =
+  ArgumentCallbacks<List>();
+
   /// The current set of symbols on this map.
   ///
   /// The returned set will be a detached snapshot of the symbols collection.
@@ -197,6 +201,10 @@ class MapboxMapController extends ChangeNotifier {
           onMapIdle();
         }
         break;
+      case 'offline#retrieveDownloadedTileNames':
+        onTileRetrieve(call.arguments);
+        break;
+
       default:
         throw MissingPluginException();
     }
@@ -718,7 +726,41 @@ class MapboxMapController extends ChangeNotifier {
     }
   }
 
-  
 
- 
+//Offline Manager Method calls
+
+  void setDownloadTileLimit(int tileLimit) async {
+    _channel.invokeMethod("offline#setDownloadTileLimit",
+        <String, int>{
+          "numTiles": tileLimit
+        });
+  }
+
+  void getDownloadedTiles() async{
+    _channel.invokeMethod("offline#getDownloadedTiles");
+  }
+
+  void downloadOnClick(String mapName) async{
+    _channel.invokeMethod("offline#downloadOnClick", <String, String>{
+    "downloadName": mapName
+    });
+  }
+
+  void deleteDownloadedTiles(int index) async{
+    _channel.invokeMethod("offline#deleteDownloadedTiles",<String, int>{
+      "indexToDelete": index
+    });
+  }
+
+  void navigateToRegion(int index) async{
+    _channel.invokeMethod("offline#navigateToRegion",<String, int>{
+      "indexToNavigate": index
+    });
+  }
+
+  void cancelDownloadingTiles() {
+    _channel.invokeMethod("offline#cancelDownloadingTiles");
+  }
+
+
 }
