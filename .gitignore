@@ -4,4 +4,6 @@ android/.project
 .vscode/
 .idea/
 
+example/android/app/src/main/AndroidManifest.xml
+example/ios/Runner/Info.plist
 android/.settings/org.eclipse.buildship.core.prefs

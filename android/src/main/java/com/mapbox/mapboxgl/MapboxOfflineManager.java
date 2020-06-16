@@ -1,15 +1,11 @@
 package com.mapbox.mapboxgl;
 
-import android.app.Activity;
-import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.ProgressBar;
+
 
 
 import androidx.annotation.NonNull;
@@ -29,13 +25,14 @@ import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 import org.json.JSONObject;
 import java.util.ArrayList;
 
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 
 
 
-public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
+public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, EventChannel.StreamHandler {
     public static final String JSON_CHARSET = "UTF-8";
     public static final String JSON_FIELD_REGION_NAME = "FIELD_REGION_NAME";
     public static final String TAG = "MapboxOfflineManager";
@@ -44,36 +41,41 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
     MapboxMap map;
     private OfflineManager offlineManager;
     private OfflineRegion offlineRegion;
-    private boolean isEndNotified;
+
     private NotificationManager notificationManager;
     private MethodChannel methodChannel;
+    private EventChannel eventChannel;
+    private EventChannel.EventSink eventSink;
 
     public MapboxOfflineManager(Context ctx, MapboxMap mapboxMap, PluginRegistry.Registrar registrar){
         context = ctx;
         map = mapboxMap;
 
         offlineManager = OfflineManager.getInstance(context);
-        isEndNotified = false;
-        methodChannel =
-                new MethodChannel(registrar.messenger(), "plugins.flutter.io/offline_map");
+        methodChannel = new MethodChannel(registrar.messenger(), "plugins.flutter.io/offline_map");
         methodChannel.setMethodCallHandler(this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel1 = new NotificationChannel(
-                    CHANNEL_1_ID,
-                    "Channel 1",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
 
-            notificationManager = context.getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel1);
+        eventChannel = new EventChannel(registrar.messenger(),"plugins.flutter.io/offline_tile_progress");
+        eventChannel.setStreamHandler(this);
 
-        }
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel channel1 = new NotificationChannel(
+//                    CHANNEL_1_ID,
+//                    "Channel 1",
+//                    NotificationManager.IMPORTANCE_HIGH
+//            );
+//
+//            notificationManager = context.getSystemService(NotificationManager.class);
+//            notificationManager.createNotificationChannel(channel1);
+//
+//        }
 
 
 
     }
 
-    public void downloadRegion(final String regionName) {
+    public void downloadRegion(final String regionName, final EventChannel.EventSink ev) {
         // Define offline region parameters, including bounds,
         // min/max zoom, and metadata
 
@@ -126,18 +128,26 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
         });
     }
 
+    private void emitEventChannelEventCallback(double percentage){
+        if(eventSink!=null){
+            eventSink.success(percentage/100.0);
+        }
+        Log.d(TAG,"percentage: "+percentage);
+
+    }
+
 
     private void launchDownload(String regName) {
         // Set up an observer to handle download progress and
         // notify the user when the region is finished downloading
-        final NotificationCompat.Builder downloadNotification = new NotificationCompat.Builder(context, CHANNEL_1_ID)
-                .setSmallIcon(R.drawable.mapbox_logo_icon)
-                .setContentTitle("Downloading "+regName)
-//                .setContentText("Downloading "+regName)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .setProgress(100, 0, false);
+//        final NotificationCompat.Builder downloadNotification = new NotificationCompat.Builder(context, CHANNEL_1_ID)
+//                .setSmallIcon(R.drawable.mapbox_logo_icon)
+//                .setContentTitle("Downloading "+regName)
+////                .setContentText("Downloading "+regName)
+//                .setPriority(NotificationCompat.PRIORITY_LOW)
+//                .setOngoing(true)
+//                .setOnlyAlertOnce(true)
+//                .setProgress(100, 0, false);
 
 
         offlineRegion.setObserver(new OfflineRegion.OfflineRegionObserver() {
@@ -148,24 +158,22 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
                         ? (100.0 * status.getCompletedResourceCount() / status.getRequiredResourceCount()) :
                         0.0;
 
-                downloadNotification.setProgress(100, (int)percentage, false);
-                notificationManager.notify(1, downloadNotification.build());
+                emitEventChannelEventCallback(percentage);
 
-                Log.d(TAG,"percentage: "+percentage);
-                if (status.isComplete()) {
-                    // Download complete//
-                    downloadNotification.setContentTitle(regName+" Downloaded")
-                            .setProgress(0, 0, false)
-                            .setOngoing(false);
-                    notificationManager.notify(1, downloadNotification.build());
-                    return;
-                }
+//                if (status.isComplete()) {
+//                    // Download complete//
+//                    downloadNotification.setContentTitle(regName+" Downloaded")
+//                            .setProgress(0, 0, false)
+//                            .setOngoing(false);
+//                    notificationManager.notify(1, downloadNotification.build());
+//                    return;
+//                }
 
                 // Log what is being currently downloaded
-                Log.d(TAG,"%s/%s resources; %s bytes downloaded. "+
-                        String.valueOf(status.getCompletedResourceCount())+" "+
-                        String.valueOf(status.getRequiredResourceCount())+" "+
-                        String.valueOf(status.getCompletedResourceSize()));
+//                Log.d(TAG,"%s/%s resources; %s bytes downloaded. "+
+//                        String.valueOf(status.getCompletedResourceCount())+" "+
+//                        String.valueOf(status.getRequiredResourceCount())+" "+
+//                        String.valueOf(status.getCompletedResourceSize()));
             }
 
             @Override
@@ -178,10 +186,12 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
             @Override
             public void mapboxTileCountLimitExceeded(long limit) {
                 Log.d(TAG,"tile count limit exceeded: "+limit);
-                downloadNotification.setContentTitle("Tile count limit exceeded")
-                        .setProgress(0, 0, false)
-                        .setOngoing(false);
-                notificationManager.notify(1, downloadNotification.build());
+//                downloadNotification.setContentTitle("Tile count limit exceeded")
+//                        .setProgress(0, 0, false)
+//                        .setOngoing(false);
+//                notificationManager.notify(1, downloadNotification.build());
+
+                emitEventChannelEventCallback(-1.0);
             }
         });
 
@@ -205,7 +215,6 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
                 // Add all of the region names to a list
                 ArrayList<String> offlineRegionsNames = new ArrayList<>();
                 for (OfflineRegion offlineRegion : offlineRegions) {
-
                     String name = getRegionName(offlineRegion);
                     if (name.length()>0) {
                         offlineRegionsNames.add(name);
@@ -308,7 +317,8 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
                 if(regionName.length()==0){
                     regionName = map.getProjection().getVisibleRegion().latLngBounds.toString();
                 }
-                downloadRegion(regionName);
+
+                downloadRegion(regionName,eventSink);
                 break;
             case "offline#getDownloadedTiles":
                 getDownloadedTiles();
@@ -323,6 +333,18 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler {
             default:
                 result.notImplemented();
         }
+    }
+
+    @Override
+    public void onListen(Object arguments, EventChannel.EventSink events) {
+        Log.d(TAG, "adding listener");
+        eventSink = events;
+    }
+
+    @Override
+    public void onCancel(Object arguments) {
+        Log.d(TAG, "on cancelled");
+        eventSink = null;
     }
 }
 
