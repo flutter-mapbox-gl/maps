@@ -281,6 +281,24 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
         offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
     }
 
+    private void setTileDownloadLimit(int numTiles) throws TileLimitExceeded{
+        if (numTiles>6000){
+            throw new TileLimitExceeded("Maximum value of tiles should be 6000 , https://docs.mapbox.com/android/maps/overview/offline/#limitations");
+        } else if (numTiles<0){
+            throw new TileLimitExceeded("Minimum value of tiles should be more than 0");
+        }
+        offlineManager.setOfflineMapboxTileCountLimit(numTiles);
+        Log.d(TAG,"Tile limit set to "+numTiles);
+    }
+
+    class TileLimitExceeded extends Exception
+    {
+        public TileLimitExceeded(String message)
+        {
+            super(message);
+        }
+    }
+
     @Override
     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         switch (call.method) {
@@ -292,8 +310,6 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
                     double centerLng = map.getProjection().getVisibleRegion().latLngBounds.getCenter().getLongitude();
                     regionName = String.format("%.3f", centerLat) +" | "+String.format("%.3f", centerLng);
                 }
-
-
 
                 downloadRegion(regionName,eventSink);
                 break;
@@ -310,6 +326,13 @@ public class MapboxOfflineManager implements MethodChannel.MethodCallHandler, Ev
                 cancelRegionDownload();
                 break;
 
+            case "offline#setDownloadTileLimit":
+                try {
+                    setTileDownloadLimit(call.argument("numTiles"));
+                } catch (TileLimitExceeded tileLimitExceeded) {
+                    tileLimitExceeded.printStackTrace();
+                }
+                break;
 
             default:
                 result.notImplemented();

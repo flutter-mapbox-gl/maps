@@ -35,6 +35,8 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
     super.initState();
     _offlineMC = const MethodChannel('plugins.flutter.io/offline_map');
     _offlineMC.setMethodCallHandler(_handleMethodOffline);
+
+
   }
 
   Future<dynamic> _handleMethodOffline(MethodCall call) async {
@@ -56,6 +58,11 @@ class OfflineManagerMapState extends State<OfflineManagerMap> {
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
+    // Set Tile Limit
+    _offlineMC.invokeMethod("offline#setDownloadTileLimit",
+        <String, int>{
+          "numTiles": 2500
+        });
   }
 
   CameraPosition _initCameraPosition() {
@@ -318,9 +325,7 @@ class AlertDialogDownloadProgressWidget extends StatefulWidget {
 
 class AlertDialogDownloadProgressState
     extends State<AlertDialogDownloadProgressWidget> {
-  double _progress = 0;
   Stream<String> downloadProgressStream;
-
   Stream<String> get downloadProgress {
     if (downloadProgressStream == null) {
       downloadProgressStream = widget.downloadTileProgress
