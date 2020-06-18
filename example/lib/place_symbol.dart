@@ -43,7 +43,6 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
     controller.onSymbolTapped.add(_onSymbolTapped);
-
   }
 
   void _onStyleLoaded() {
