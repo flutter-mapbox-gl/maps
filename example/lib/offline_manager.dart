@@ -313,7 +313,7 @@ class AlertDialogDownloadProgressState
     Widget cancelButton = FlatButton(
       child: Text("Stop"),
       onPressed: () {
-//        widget.mapController.cancelDownloadingTiles();
+        widget.mapController.cancelDownloadingTiles();
         Navigator.of(context, rootNavigator: true).pop();
       },
     );

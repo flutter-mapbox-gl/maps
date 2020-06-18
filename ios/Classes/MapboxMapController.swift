@@ -3,7 +3,7 @@ import UIKit
 import Mapbox
 import MapboxAnnotationExtension
 
-class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink, MGLAnnotationControllerDelegate {
+class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink, MGLAnnotationControllerDelegate, FlutterStreamHandler{
     
     private var registrar: FlutterPluginRegistrar
     private var channel: FlutterMethodChannel?
@@ -20,7 +20,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var symbolAnnotationController: MGLSymbolAnnotationController?
     private var circleAnnotationController: MGLCircleAnnotationController?
     private var lineAnnotationController: MGLLineAnnotationController?
-
+    
+    private var eventSink:FlutterEventSink?
+    private var currentPackDownload:MGLOfflinePack?
+    
     func view() -> UIView {
         return mapView
     }
@@ -68,6 +71,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         NotificationCenter.default.addObserver(self, selector: #selector(offlinePackProgressDidChange), name: NSNotification.Name.MGLOfflinePackProgressChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(offlinePackDidReceiveError), name: NSNotification.Name.MGLOfflinePackError, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(offlinePackDidReceiveMaximumAllowedMapboxTiles), name: NSNotification.Name.MGLOfflinePackMaximumMapboxTilesReached, object: nil)
+        
+        // Event Channel for offline map download progress
+        let eventChannel = FlutterEventChannel(name: "plugins.flutter.io/offline_tile_progress", binaryMessenger: registrar.messenger())
+        eventChannel.setStreamHandler(self)
     }
     
     func onMethodCall(methodCall: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -365,37 +372,45 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             result(nil)
             
         // Offline Manager
-            case "offline#downloadOnClick":
-                guard let arguments = methodCall.arguments as? [String: Any] else { return }
-                guard var regName = arguments["downloadName"] as? String else { return }
-                if(regName.count==0){
-                    regName = String(format:"%.1f,%.1f,%.1f,%.1f",mapView.visibleCoordinateBounds.ne.latitude,mapView.visibleCoordinateBounds.ne.longitude,
-                                        mapView.visibleCoordinateBounds.sw.latitude,
-                    mapView.visibleCoordinateBounds.sw.longitude)
-                        
-                }
+        case "offline#downloadOnClick":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard var regName = arguments["downloadName"] as? String else { return }
+            if(regName.count==0){
+                regName = String(format:"%.1f,%.1f,%.1f,%.1f",mapView.visibleCoordinateBounds.ne.latitude,mapView.visibleCoordinateBounds.ne.longitude,
+                                    mapView.visibleCoordinateBounds.sw.latitude,
+                mapView.visibleCoordinateBounds.sw.longitude)
+                    
+            }
 
-                downloadRegion(regionName:regName)
-                break;
-            case "offline#getDownloadedTiles":
-                getDownloadedTiles(result:result);
-                break;
-            case "offline#deleteDownloadedTiles":
-                guard let arguments = methodCall.arguments as? [String: Any] else { return }
-                guard let indexToDelete = arguments["indexToDelete"] as? Int else { return }
-                deleteRegion(index:indexToDelete);
-                break;
-            case "offline#navigateToRegion":
-                guard let arguments = methodCall.arguments as? [String: Any] else { return }
-                guard let indexToNavigate = arguments["indexToNavigate"] as? Int else { return }
-                  
-                navigateToRegion(index:indexToNavigate);
-                break;
-            case "offline#setDownloadTileLimit":
+            downloadRegion(regionName:regName)
+            break;
+        case "offline#getDownloadedTiles":
+            getDownloadedTiles(result:result);
+            break;
+        case "offline#deleteDownloadedTiles":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let indexToDelete = arguments["indexToDelete"] as? Int else { return }
+            deleteRegion(index:indexToDelete);
+            break;
+        case "offline#navigateToRegion":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let indexToNavigate = arguments["indexToNavigate"] as? Int else { return }
+              
+            navigateToRegion(index:indexToNavigate);
+            break;
+            
+        case "offline#setDownloadTileLimit":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let tileLimitCount = arguments["numTiles"] as? Int else { return }
             setTileDownloadLimit(numTiles:tileLimitCount)
-            break
+            break;
+            
+        case "offline#cancelDownloadingTiles":
+            currentPackDownload?.suspend()
+            currentPackDownload = nil
+            break;
+            
+        
             
         default:
             result(FlutterMethodNotImplemented)
@@ -709,6 +724,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     /*
      * Offline Manager
      */
+    
+    func emitEventChannelEventCallback(percentage:Float){
+        var percentageString = String(percentage)
+        eventSink?(percentageString)
+    }
+    func emitEventChannelEventCallback(message:String){
+        eventSink?(message)
+    }
     func downloadRegion(regionName:String){
     // Create a region that includes the current viewport and any tiles needed to view it when zoomed further in.
     // Because tile count grows exponentially with the maximum zoom level, you should be conservative with your `toZoomLevel` setting.
@@ -723,7 +746,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         MGLOfflineStorage.shared.addPack(for: region, withContext: context) { (pack, error) in
             guard error == nil else {
             // The pack couldn’t be created for some reason.
-            //print("Error: \(error?.localizedDescription ?? "unknown error")")
+       
             NSLog("\nError: \(error?.localizedDescription ?? "unknown error")")
             return
             }
@@ -741,7 +764,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         if let pack = notification.object as? MGLOfflinePack,
         let userInfo = NSKeyedUnarchiver.unarchiveObject(with: pack.context) as? [String: String] {
         let progress = pack.progress
-        
+        currentPackDownload = pack
             
         // or notification.userInfo![MGLOfflinePackProgressUserInfoKey]!.MGLOfflinePackProgressValue
         let completedResources = progress.countOfResourcesCompleted
@@ -749,32 +772,19 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
          
         // Calculate current progress percentage.
         let progressPercentage = Float(completedResources) / Float(expectedResources)
-         
-        // Setup the progress bar.
-//        if progressView == nil {
-//            progressView = UIProgressView(progressViewStyle: .default)
-//            let frame = mapView.bounds.size
-//            progressView.frame = CGRect(x: 0, y: frame.height , width: frame.width / 1, height: 20)
-//
-//            progressView.transform = CGAffineTransform(scaleX:1, y:8)
-//            mapView.addSubview(progressView)
-//
-//
-//        }
-//
-//        progressView.progress = progressPercentage
-         
+            
+        emitEventChannelEventCallback(percentage:progressPercentage)
+
+            
         // If this pack has finished, print its size and resource count.
         if completedResources == expectedResources {
+            currentPackDownload = nil
             let byteCount = ByteCountFormatter.string(fromByteCount: Int64(pack.progress.countOfBytesCompleted), countStyle: ByteCountFormatter.CountStyle.memory)
             print("Offline pack “\(userInfo["name"] ?? "unknown")” completed: \(byteCount), \(completedResources) resources")
-            
-//            progressView.removeFromSuperview()
-   
+
                  
             } else {
             // Otherwise, print download/verification progress.
-//            print()
             NSLog("\nOffline pack “\(userInfo["name"] ?? "unknown")” has \(completedResources) of \(expectedResources) resources — \(String(format: "%.2f", progressPercentage * 100))%.")
             }
         }
@@ -786,6 +796,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             let userInfo = NSKeyedUnarchiver.unarchiveObject(with: pack.context) as? [String: String],
             let error = notification.userInfo?[MGLOfflinePackUserInfoKey.error] as? NSError {
             print("Offline pack “\(userInfo["name"] ?? "unknown")” received error: \(error.localizedFailureReason ?? "unknown error")")
+            
+            emitEventChannelEventCallback(message:"Offline pack “\(userInfo["name"] ?? "unknown")” received error: \(error.localizedFailureReason ?? "unknown error")")
         }
     }
 
@@ -794,6 +806,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             let userInfo = NSKeyedUnarchiver.unarchiveObject(with: pack.context) as? [String: String],
             let maximumCount = (notification.userInfo?[MGLOfflinePackUserInfoKey.maximumCount] as AnyObject).uint64Value {
             print("Offline pack “\(userInfo["name"] ?? "unknown")” reached limit of \(maximumCount) tiles.")
+            
+            emitEventChannelEventCallback(message:"Offline pack “\(userInfo["name"] ?? "unknown")” reached limit of \(maximumCount) tiles.")
         }
     }
     
@@ -849,5 +863,20 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
         MGLOfflineStorage.shared.setMaximumAllowedMapboxTiles(numTiles_)
     }
+    
+    
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        NSLog("\nonlisten eventchannel")
+        eventSink = events
+        return nil
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        eventSink = nil
+        return nil
+    }
+    
+    
+
         
 }
