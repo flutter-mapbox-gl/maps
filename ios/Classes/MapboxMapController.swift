@@ -387,10 +387,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 break;
             case "offline#navigateToRegion":
                 guard let arguments = methodCall.arguments as? [String: Any] else { return }
-                 guard let indexToNavigate = arguments["indexToNavigate"] as? Int else { return }
+                guard let indexToNavigate = arguments["indexToNavigate"] as? Int else { return }
                   
                 navigateToRegion(index:indexToNavigate);
                 break;
+            case "offline#setDownloadTileLimit":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let tileLimitCount = arguments["numTiles"] as? Int else { return }
+            setTileDownloadLimit(numTiles:tileLimitCount)
+            break
+            
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -791,24 +797,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
     
-//    func retrieveOfflineTileNames() -> [AnyObject]{
-////        var allPacks = [MGLOfflinePack]()
-////        var result :[AnyObject] = []
-////        if let offlinePacks = MGLOfflineStorage.shared.packs {
-////
-////           allPacks = offlinePacks.filter({
-////            guard let context = NSKeyedUnarchiver.unarchiveObject(with: $0.context) as? [String:String] else {
-////                   NSLog("\n Error retrieving offline pack context")
-////                   return false
-////               }
-//////            NSLog("\ncontext \(context as AnyObject)")
-////            result.append(context["name"] as AnyObject)
-////            return true
-////           })
-////        }
-////
-////        return result
-//    }
+
     
     func getDownloadedTiles(result: @escaping FlutterResult){
 //        let result :[AnyObject] = retrieveOfflineTileNames()
@@ -846,6 +835,19 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             mapView.setVisibleCoordinateBounds(tiles.bounds, animated: true)
         }
 
+    }
+    
+    func setTileDownloadLimit(numTiles:Int){
+        var numTiles_: UInt64 = UInt64(numTiles)
+        if(numTiles>6000){
+            var numTiles_: UInt64 = UInt64(6000)
+        }
+            
+        else if (numTiles<0){
+            var numTiles_: UInt64 = UInt64(0)
+        }
+        
+        MGLOfflineStorage.shared.setMaximumAllowedMapboxTiles(numTiles_)
     }
         
 }
