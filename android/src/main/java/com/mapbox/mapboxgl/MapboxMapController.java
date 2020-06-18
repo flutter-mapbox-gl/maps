@@ -797,11 +797,7 @@ final class MapboxMapController
         break;
 
       case "offline#setDownloadTileLimit":
-        try {
-          setTileDownloadLimit(call.argument("numTiles"));
-        } catch (TileLimitExceeded tileLimitExceeded) {
-          tileLimitExceeded.printStackTrace();
-        }
+        setTileDownloadLimit(call.argument("numTiles"));
         break;
       default:
         result.notImplemented();
@@ -1444,21 +1440,12 @@ final class MapboxMapController
     offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
   }
 
-  private void setTileDownloadLimit(int numTiles) throws TileLimitExceeded {
-    if (numTiles>6000){
-      throw new TileLimitExceeded("Maximum value of tiles should be 6000 , https://docs.mapbox.com/android/maps/overview/offline/#limitations");
-    } else if (numTiles<0){
-      throw new TileLimitExceeded("Minimum value of tiles should be more than 0");
-    }
-    offlineManager.setOfflineMapboxTileCountLimit(numTiles);
-    Log.d(TAG,"Tile limit set to "+numTiles);
+  private void setTileDownloadLimit(int numTiles) {
+    // Clip tile values to between 0 - 6000
+    int numTiles_ = Math.max(0,numTiles>6000 ?6000:numTiles);
+    offlineManager.setOfflineMapboxTileCountLimit(numTiles_);
+    Log.d(TAG,"Tile limit set to "+numTiles_);
   }
 
-  class TileLimitExceeded extends Exception
-  {
-    public TileLimitExceeded(String message)
-    {
-      super(message);
-    }
-  }
+
 }
