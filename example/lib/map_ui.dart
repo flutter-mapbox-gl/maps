@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+import 'main.dart';
 import 'page.dart';
 
 final LatLngBounds sydneyBounds = LatLngBounds(
@@ -12,7 +13,7 @@ final LatLngBounds sydneyBounds = LatLngBounds(
   northeast: const LatLng(-33.571835, 151.325952),
 );
 
-class MapUiPage extends Page {
+class MapUiPage extends ExamplePage {
   MapUiPage() : super(const Icon(Icons.map), 'User interface');
 
   @override
@@ -42,7 +43,11 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _compassEnabled = true;
   CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
   MinMaxZoomPreference _minMaxZoomPreference = MinMaxZoomPreference.unbounded;
-  String _styleString = MapboxStyles.MAPBOX_STREETS;
+  int _styleStringIndex = 0;
+  // Style string can a reference to a local or remote resources.
+  // On Android the raw JSON can also be passed via a styleString, on iOS this is not supported. 
+  List<String> _styleStrings = [MapboxStyles.MAPBOX_STREETS, MapboxStyles.SATELLITE, "assets/style.json"];
+  List<String> _styleStringLabels = ["MAPBOX_STREETS", "SATELLITE", "LOCAL_ASSET"];
   bool _rotateGesturesEnabled = true;
   bool _scrollGesturesEnabled = true;
   bool _tiltGesturesEnabled = true;
@@ -131,10 +136,10 @@ class MapUiBodyState extends State<MapUiBody> {
 
   Widget _setStyleToSatellite() {
     return FlatButton(
-      child: Text('change map style to Satellite'),
+      child: Text('change map style to ${_styleStringLabels[(_styleStringIndex + 1) % _styleStringLabels.length]}'),
       onPressed: () {
         setState(() {
-          _styleString = MapboxStyles.SATELLITE;
+          _styleStringIndex = (_styleStringIndex + 1) % _styleStrings.length;
         });
       },
     );
@@ -220,13 +225,14 @@ class MapUiBodyState extends State<MapUiBody> {
   @override
   Widget build(BuildContext context) {
     final MapboxMap mapboxMap = MapboxMap(
+      accessToken: MapsDemo.ACCESS_TOKEN,
       onMapCreated: onMapCreated,
       initialCameraPosition: _kInitialPosition,
       trackCameraPosition: true,
       compassEnabled: _compassEnabled,
       cameraTargetBounds: _cameraTargetBounds,
       minMaxZoomPreference: _minMaxZoomPreference,
-      styleString: _styleString,
+      styleString: _styleStrings[_styleStringIndex],
       rotateGesturesEnabled: _rotateGesturesEnabled,
       scrollGesturesEnabled: _scrollGesturesEnabled,
       tiltGesturesEnabled: _tiltGesturesEnabled,
@@ -235,7 +241,14 @@ class MapUiBodyState extends State<MapUiBody> {
       myLocationTrackingMode: _myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
       onMapClick: (point, latLng) async {
-        print("${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
+        print("Map click: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
+        List features = await mapController.queryRenderedFeatures(point, [],null);
+        if (features.length>0) {
+          print(features[0]);
+        }
+      },
+      onMapLongClick: (point, latLng) async {
+        print("Map long press: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
         List features = await mapController.queryRenderedFeatures(point, [],null);
         if (features.length>0) {
           print(features[0]);

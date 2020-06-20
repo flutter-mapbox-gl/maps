@@ -8,9 +8,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+import 'main.dart';
 import 'page.dart';
 
-class PlaceCirclePage extends Page {
+class PlaceCirclePage extends ExamplePage {
   PlaceCirclePage() : super(const Icon(Icons.check_circle), 'Place circle');
 
   @override
@@ -217,6 +218,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
             width: 300.0,
             height: 200.0,
             child: MapboxMap(
+              accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),

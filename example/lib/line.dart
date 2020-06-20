@@ -7,9 +7,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+import 'main.dart';
 import 'page.dart';
 
-class LinePage extends Page {
+class LinePage extends ExamplePage {
   LinePage() : super(const Icon(Icons.share), 'Line');
 
   @override
@@ -79,6 +80,7 @@ class LineBodyState extends State<LineBody> {
         lineColor: "#ff0000",
         lineWidth: 14.0,
         lineOpacity: 0.5,
+        draggable: true
       ),
     );
     setState(() {
@@ -143,6 +145,7 @@ class LineBodyState extends State<LineBody> {
             width: 300.0,
             height: 200.0,
             child: MapboxMap(
+              accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
               onStyleLoadedCallback: onStyleLoadedCallback,
               initialCameraPosition: const CameraPosition(
@@ -182,6 +185,16 @@ class LineBodyState extends State<LineBody> {
                           child: const Text('toggle visible'),
                           onPressed:
                               (_selectedLine == null) ? null : _toggleVisible,
+                        ),
+                        FlatButton(
+                          child: const Text('print current LatLng'),
+                          onPressed:
+                              (_selectedLine == null) ? null : () async{
+                                var latLngs = await controller.getLineLatLngs(_selectedLine);
+                                for (var latLng in latLngs) {
+                                  print(latLng.toString());
+                                }
+                              },
                         ),
                       ],
                     ),
