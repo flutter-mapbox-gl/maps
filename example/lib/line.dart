@@ -79,6 +79,7 @@ class LineBodyState extends State<LineBody> {
         lineColor: "#ff0000",
         lineWidth: 14.0,
         lineOpacity: 0.5,
+        draggable: true
       ),
     );
     setState(() {
@@ -182,6 +183,16 @@ class LineBodyState extends State<LineBody> {
                           child: const Text('toggle visible'),
                           onPressed:
                               (_selectedLine == null) ? null : _toggleVisible,
+                        ),
+                        FlatButton(
+                          child: const Text('print current LatLng'),
+                          onPressed:
+                              (_selectedLine == null) ? null : () async{
+                                var latLngs = await controller.getLineLatLngs(_selectedLine);
+                                for (var latLng in latLngs) {
+                                  print(latLng.toString());
+                                }
+                              },
                         ),
                       ],
                     ),
