@@ -583,7 +583,7 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   Future<List> queryRenderedFeatures(
-      Point<double> point, List<String> layerIds, String filter) async {
+      Point<double> point, List<String> layerIds, List<Object> filter) async {
     return MapboxGlPlatform.getInstance(_id)
         .queryRenderedFeatures(point, layerIds, filter);
   }
