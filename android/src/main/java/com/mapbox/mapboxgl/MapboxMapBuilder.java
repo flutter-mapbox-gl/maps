@@ -30,9 +30,9 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private String styleString = Style.MAPBOX_STREETS;
 
   MapboxMapController build(
-    int id, Context context, AtomicInteger state, PluginRegistry.Registrar registrar) {
+    int id, Context context, AtomicInteger state, PluginRegistry.Registrar registrar, String accessToken) {
     final MapboxMapController controller =
-      new MapboxMapController(id, context, state, registrar, options, styleString);
+      new MapboxMapController(id, context, state, registrar, options, accessToken, styleString);
     controller.init();
     controller.setMyLocationEnabled(myLocationEnabled);
     controller.setMyLocationTrackingMode(myLocationTrackingMode);

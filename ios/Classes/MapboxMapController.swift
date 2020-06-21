@@ -26,6 +26,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     
     init(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, registrar: FlutterPluginRegistrar) {
+        if let args = args as? [String: Any] {
+            if let token = args["accessToken"] as? NSString{
+                MGLAccountManager.accessToken = token
+            }
+        }
         mapView = MGLMapView(frame: frame)
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.registrar = registrar
@@ -118,6 +123,34 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 style.localizeLabels(into: locale)
             }
             result(nil)
+        case "map#queryRenderedFeatures":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            let layerIds = arguments["layerIds"] as? Set<String>
+            var filterExpression: NSPredicate?
+            if let filter = arguments["filter"] as? [Any] {
+                filterExpression = NSPredicate(mglJSONObject: filter)
+            }
+            var reply = [String: NSObject]()
+            var features:[MGLFeature] = []
+            if let x = arguments["x"] as? Double, let y = arguments["y"] as? Double {
+                features = mapView.visibleFeatures(at: CGPoint(x: x, y: y), styleLayerIdentifiers: layerIds, predicate: filterExpression)
+            }
+            if  let top = arguments["top"] as? Double,
+                let bottom = arguments["bottom"] as? Double,
+                let left = arguments["left"] as? Double,
+                let right = arguments["right"] as? Double {
+                features = mapView.visibleFeatures(in: CGRect(x: left, y: top, width: right, height: bottom), styleLayerIdentifiers: layerIds, predicate: filterExpression)
+            }
+            var featuresJson = [String]()
+            for feature in features {
+                let dictionary = feature.geoJSONDictionary()
+                if  let theJSONData = try? JSONSerialization.data(withJSONObject: dictionary, options: []),
+                    let theJSONText = String(data: theJSONData, encoding: .ascii) {
+                    featuresJson.append(theJSONText)
+                }
+            }
+            reply["features"] = featuresJson as NSObject
+            result(reply)
         case "map#setTelemetryEnabled":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             let telemetryEnabled = arguments["enabled"] as? Bool
@@ -151,23 +184,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 mapView.setCamera(camera, animated: true)
             }
             result(nil)
-        case "symbol#add":
+        case "symbols#addAll":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            
-            // Parse geometry
-            if let options = arguments["options"] as? [String: Any],
-                let geometry = options["geometry"] as? [Double] {
-                // Convert geometry to coordinate and create symbol.
-                let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
-                let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
-                Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
-                // Load icon image from asset if an icon name is supplied.
-                if let iconImage = options["iconImage"] as? String {
-                    addIconImageToMap(iconImageName: iconImage)
+
+            if let options = arguments["options"] as? [[String: Any]] {
+                var symbols: [MGLSymbolStyleAnnotation] = [];
+                for o in options {
+                    if let symbol = getSymbolForOptions(options: o)  {
+                        symbols.append(symbol)
+                    }
                 }
-                symbolAnnotationController.addStyleAnnotation(symbol)
-                result(symbol.identifier)
+                if !symbols.isEmpty {
+                    symbolAnnotationController.addStyleAnnotations(symbols)
+                }
+
+                result(symbols.map { $0.identifier })
             } else {
                 result(nil)
             }
@@ -189,18 +221,35 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
-        case "symbol#remove":
+        case "symbols#removeAll":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIds = arguments["symbols"] as? [String] else { return }
+            var symbols: [MGLSymbolStyleAnnotation] = [];
+
+            for symbol in symbolAnnotationController.styleAnnotations(){
+                if symbolIds.contains(symbol.identifier) {
+                    symbols.append(symbol as! MGLSymbolStyleAnnotation)
+                }
+            }
+            symbolAnnotationController.removeStyleAnnotations(symbols)
+            result(nil)
+        case "symbol#getGeometry":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let symbolId = arguments["symbol"] as? String else { return }
 
+            var reply: [String:Double]? = nil
             for symbol in symbolAnnotationController.styleAnnotations(){
                 if symbol.identifier == symbolId {
-                    symbolAnnotationController.removeStyleAnnotation(symbol)
+                    if let geometry = symbol.geoJSONDictionary["geometry"] as? [String: Any],
+                        let coordinates = geometry["coordinates"] as? [Double] {
+                        reply = ["latitude": coordinates[1], "longitude": coordinates[0]]
+                    }
                     break;
                 }
             }
-            result(nil)
+            result(reply)
         case "symbolManager#iconAllowOverlap":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
@@ -307,6 +356,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "line#getGeometry":
+            guard let lineAnnotationController = lineAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let lineId = arguments["line"] as? String else { return }
+
+            var reply: [Any]? = nil
+            for line in lineAnnotationController.styleAnnotations() {
+                if line.identifier == lineId {
+                    if let geometry = line.geoJSONDictionary["geometry"] as? [String: Any],
+                        let coordinates = geometry["coordinates"] as? [[Double]] {
+                        reply = coordinates.map { [ "latitude": $0[1], "longitude": $0[0] ] }
+                    }
+                    break;
+                }
+            }
+            result(reply)
         case "style#addImage":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let name = arguments["name"] as? String else { return }
@@ -326,6 +391,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
     
+    private func getSymbolForOptions(options: [String: Any]) -> MGLSymbolStyleAnnotation? {
+        // Parse geometry
+        if let geometry = options["geometry"] as? [Double] {
+            // Convert geometry to coordinate and create symbol.
+            let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
+            let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
+            Convert.interpretSymbolOptions(options: options, delegate: symbol)
+            // Load icon image from asset if an icon name is supplied.
+            if let iconImage = options["iconImage"] as? String {
+                addIconImageToMap(iconImageName: iconImage)
+            }
+            return symbol
+        }
+        return nil
+    }
+
     private func addIconImageToMap(iconImageName: String) {
         // Check if the image has already been added to the map.
         if self.mapView.style?.image(forName: iconImageName) == nil {
@@ -441,9 +522,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         circleAnnotationController?.delegate = self
 
         mapReadyResult?(nil)
-        print("asdasd\(channel)")
         if let channel = channel {
-            print("asdasd2 ")
             channel.invokeMethod("map#onStyleLoaded", arguments: nil)
         }
     }
@@ -499,7 +578,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
        if let symbol = annotation as? Symbol {
             channel?.invokeMethod("symbol#onTap", arguments: ["symbol" : "\(symbol.id)"])
-        
         }
     }
     
@@ -565,6 +643,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         } else if (styleString.hasPrefix("{") || styleString.hasPrefix("[")) {
             // Currently the iOS Mapbox SDK does not have a builder for json.
             NSLog("setStyleString - JSON style currently not supported")
+        } else if (
+            !styleString.hasPrefix("http://") && 
+            !styleString.hasPrefix("https://") && 
+            !styleString.hasPrefix("mapbox://")) {
+            // We are assuming that the style will be loaded from an asset here.
+            let assetPath = registrar.lookupKey(forAsset: styleString)
+            mapView.styleURL = URL(string: assetPath, relativeTo: Bundle.main.resourceURL)
         } else {
             mapView.styleURL = URL(string: styleString)
         }

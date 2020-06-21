@@ -373,7 +373,7 @@ class Convert {
     if (geometry != null) {
       sink.setGeometry(toLatLng(geometry));
     }
-    final Object symbolSortKey = data.get("symbolSortKey");
+    final Object symbolSortKey = data.get("zIndex");
     if (symbolSortKey != null) {
       sink.setSymbolSortKey(toFloat(symbolSortKey));
     }

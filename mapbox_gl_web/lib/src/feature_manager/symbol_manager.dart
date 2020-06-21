@@ -76,9 +76,21 @@ class SymbolManager extends FeatureManager<SymbolOptions> {
 
   @override
   void update(String lineId, SymbolOptions changes) {
-    Feature olfFeature = getFeature(lineId);
-    Feature newFeature = Convert.interpretSymbolOptions(changes, olfFeature);
-    updateFeature(newFeature);
+    updateAll({lineId: changes});
+  }
+
+  
+  void updateAll(Map<String, SymbolOptions> changesById) {
+    List<Feature> featuresWithUpdatedOptions = [];
+    changesById.forEach(
+      (id, options) => featuresWithUpdatedOptions.add(
+        Convert.interpretSymbolOptions(
+          options,
+          getFeature(id)
+        )
+      )
+    );
+    updateFeatures(featuresWithUpdatedOptions);
   }
 
   @override

@@ -9,50 +9,21 @@ This Flutter plugin allows to show embedded interactive and customizable vector 
 ## Running the example app
 
 - Install [Flutter](https://flutter.io/get-started/) and validate its installation with `flutter doctor`
-- Clone the repository with `git clone git@github.com:mapbox/flutter-mapbox-gl.git`
+- Clone the repository with `git clone git@github.com:tobrun/flutter-mapbox-gl.git`
 - Add a Mapbox access token to the example app (see next section)
 - Connect a mobile device or start an emulator, simulator or chrome
 - Locate the id of a the device with `flutter devices`
-- Run the app with `cd flutter_mapbox/example && flutter packages get && flutter run -d {device_id}``
+- Run the app with `cd flutter_mapbox/example && flutter packages get && flutter run -d {device_id}`
 
-### Adding a Mapbox Access Token
+## Adding a Mapbox Access Token
 
 This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
 > **Even if you do not use Mapbox vector tiles but vector tiles from a different source (like self-hosted tiles) with this plugin, you will need to specify any non-empty string as Access Token as explained below!**
 
-##### Android
 
-Add Mapbox access token configuration in the application manifest `example/android/app/src/main/AndroidManifest.xml`:
+The **recommended** way to provide your access token is through the `MapboxMap` constructor's `accessToken` parameter, which is available starting from the v0.8 release. Note that you should always use the same token throughout your entire app.
 
-```xml
-<manifest ...
-  <application ...
-    <meta-data android:name="com.mapbox.token" android:value="YOUR_TOKEN_HERE" />
-```
-
-##### iOS
-
-Add Mapbox access token configuration to the application Info.plist `example/ios/Runner/Info.plist`:
-
-```xml
-<key>io.flutter.embedded_views_preview</key>
-<true/>
-<key>MGLMapboxAccessToken</key>
-<string>YOUR_TOKEN_HERE</string>
-```
-
-##### Web
-
-Add Mapbox access token configuration to index.html `example/web/index.html`:
-
-```html
-<body>
-  ...
-  <script>
-    mapboxgl.accessToken = 'YOUR_TOKEN_HERE';
-  </script>
-</body>
-```
+An alternative method to provide access tokens that was required until the v0.7 release is described in [this wiki article](https://github.com/tobrun/flutter-mapbox-gl/wiki/Mapbox-access-tokens).
 
 ## Using the SDK in your project
 
@@ -70,6 +41,14 @@ This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), foll
 | Circle | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Line | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Fill |   |  |  |
+
+## Map Styles
+
+Map styles can be supplied by setting the `styleString` in the `MapOptions`. The following formats are supported:
+
+1. Passing the URL of the map style. This can be one of the built-in map styles, also see `MapboxStyles` or a custom map style served remotely using a URL that start with 'http(s)://' or 'mapbox://'
+2. Passing the style as a local asset. Create a JSON file in the `assets` and add a reference in `pubspec.yml`. Set the style string to the relative path for this asset in order to load it into the map.
+3. Passing the raw JSON of the map style. This is only supported on Android.  
 
 ## Offline Sideloading
 
