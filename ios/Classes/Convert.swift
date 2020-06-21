@@ -314,4 +314,23 @@ class Convert {
             delegate.isDraggable = draggable
         }
     }
+    
+    class func interpretFillOptions(options: Any?, delegate: MGLPolygonStyleAnnotation) {
+        guard let options = options as? [String: Any] else { return }
+        if let fillOpacity = options["fillOpacity"] as? CGFloat {
+            delegate.fillOpacity = fillOpacity
+        }
+        if let fillColor = options["fillColor"] as? String {
+            delegate.fillColor = UIColor(hexString: fillColor) ?? UIColor.black
+        }
+        if let fillOutlineColor = options["fillOutlineColor"] as? String {
+            delegate.fillOutlineColor = UIColor(hexString: fillOutlineColor) ?? UIColor.black
+        }
+        if let fillPattern = options["fillPattern"] as? String {
+            delegate.fillPattern = fillPattern
+        }
+        if let draggable = options["draggable"] as? Bool {
+            delegate.isDraggable = draggable
+        }
+    }
 }

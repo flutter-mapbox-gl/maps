@@ -29,6 +29,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           onCircleTappedPlatform(circleId);
         }
         break;
+      case 'fill#onTap':
+        final String fillId = call.arguments['fill'];
+        if (fillId != null) {
+          onFillTappedPlatform(fillId);
+        }
+        break;
       case 'camera#onMoveStarted':
         onCameraMoveStartedPlatform(null);
         break;

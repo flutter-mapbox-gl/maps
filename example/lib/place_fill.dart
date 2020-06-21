@@ -51,6 +51,7 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
     //     const FillOptions(fillRadius: 60),
     //   );
     // }
+    print("Fill: ${fill.id}");
     setState(() {
       _selectedFill = fill;
     });
@@ -68,10 +69,12 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   void _add() {
     controller.addFill(
       FillOptions(
-          geometry: LatLng(
-            center.latitude + sin(_fillCount * pi / 6.0) / 20.0,
-            center.longitude + cos(_fillCount * pi / 6.0) / 20.0,
-          ),
+          geometry: [
+            LatLng(-32.86711, 152.1947171),
+            LatLng(-33.86711, 151.1947171),
+            LatLng(-32.86711, 151.1947171),
+            LatLng(-33.86711, 152.1947171),
+          ],
           fillColor: "#FF0000"),
     );
     setState(() {
@@ -88,19 +91,19 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   }
 
   void _changePosition() {
-    final LatLng current = _selectedFill.options.geometry;
-    final Offset offset = Offset(
-      center.latitude - current.latitude,
-      center.longitude - current.longitude,
-    );
-    _updateSelectedFill(
-      FillOptions(
-        geometry: LatLng(
-          center.latitude + offset.dy,
-          center.longitude + offset.dx,
-        ),
-      ),
-    );
+    // final LatLng current = _selectedFill.options.geometry;
+    // final Offset offset = Offset(
+    //   center.latitude - current.latitude,
+    //   center.longitude - current.longitude,
+    // );
+    // _updateSelectedFill(
+    //   FillOptions(
+    //     geometry: LatLng(
+    //       center.latitude + offset.dy,
+    //       center.longitude + offset.dx,
+    //     ),
+    //   ),
+    // );
   }
 
   void _changeDraggable() {
@@ -215,7 +218,7 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
               onMapCreated: _onMapCreated,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),
-                zoom: 11.0,
+                zoom: 7.0,
               ),
             ),
           ),

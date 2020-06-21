@@ -20,6 +20,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var symbolAnnotationController: MGLSymbolAnnotationController?
     private var circleAnnotationController: MGLCircleAnnotationController?
     private var lineAnnotationController: MGLLineAnnotationController?
+    private var fillAnnotationController: MGLPolygonAnnotationController?
 
     func view() -> UIView {
         return mapView
@@ -372,6 +373,49 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(reply)
+        case "fill#add":
+            guard let fillAnnotationController = fillAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            // Parse geometry
+            if let options = arguments["options"] as? [String: Any],
+                let geometry = options["geometry"] as? [[Double]] {
+                // Convert geometry to coordinate and create polygon.
+                var fillCoordinates: [CLLocationCoordinate2D] = []
+                for coordinate in geometry {
+                    fillCoordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
+                }
+                let fill = MGLPolygonStyleAnnotation(coordinates: fillCoordinates, count: UInt(fillCoordinates.count))
+                Convert.interpretFillOptions(options: arguments["options"], delegate: fill)
+                fillAnnotationController.addStyleAnnotation(fill)
+                result(fill.identifier)
+            } else {
+                result(nil)
+            }
+        case "fill#update":
+            guard let fillAnnotationController = fillAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let fillId = arguments["fill"] as? String else { return }
+        
+            for fill in fillAnnotationController.styleAnnotations() {
+                if fill.identifier == fillId {
+                    Convert.interpretFillOptions(options: arguments["options"], delegate: fill as! MGLPolygonStyleAnnotation)
+                    fillAnnotationController.updateStyleAnnotation(fill)
+                    break;
+                }
+            }
+            result(nil)
+        case "fill#remove":
+            guard let fillAnnotationController = fillAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let fillId = arguments["fill"] as? String else { return }
+        
+            for fill in fillAnnotationController.styleAnnotations() {
+                if fill.identifier == fillId {
+                    fillAnnotationController.removeStyleAnnotation(fill)
+                    break;
+                }
+            }
+            result(nil)
         case "style#addImage":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let name = arguments["name"] as? String else { return }
@@ -485,6 +529,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             channel.invokeMethod("circle#onTap", arguments: ["circle" : "\(circle.identifier)"])
         } else if let line = styleAnnotation as? MGLLineStyleAnnotation {
             channel.invokeMethod("line#onTap", arguments: ["line" : "\(line.identifier)"])
+        } else if let fill = styleAnnotation as? MGLPolygonStyleAnnotation {
+            channel.invokeMethod("fill#onTap", arguments: ["fill" : "\(fill.identifier)"])
         }
     }
     
@@ -521,6 +567,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         circleAnnotationController!.annotationsInteractionEnabled = true
         circleAnnotationController?.delegate = self
 
+        fillAnnotationController = MGLPolygonAnnotationController(mapView: self.mapView)
+        fillAnnotationController!.annotationsInteractionEnabled = true
+        fillAnnotationController?.delegate = self
+        
         mapReadyResult?(nil)
         if let channel = channel {
             channel.invokeMethod("map#onStyleLoaded", arguments: nil)

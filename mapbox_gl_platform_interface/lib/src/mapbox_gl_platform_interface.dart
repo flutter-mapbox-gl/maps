@@ -34,6 +34,9 @@ abstract class MapboxGlPlatform {
   final ArgumentCallbacks<String> onCircleTappedPlatform =
       ArgumentCallbacks<String>();
 
+  final ArgumentCallbacks<String> onFillTappedPlatform =
+      ArgumentCallbacks<String>();
+
   final ArgumentCallbacks<void> onCameraMoveStartedPlatform =
       ArgumentCallbacks<void>();
 

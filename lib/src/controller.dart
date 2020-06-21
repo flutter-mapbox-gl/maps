@@ -73,6 +73,13 @@ class MapboxMapController extends ChangeNotifier {
       }
     });
 
+    MapboxGlPlatform.getInstance(_id).onFillTappedPlatform.add((fillId) {
+      final Fill fill = _fills[fillId];
+      if (fill != null) {
+        onFillTapped(fill);
+      }
+    });
+
     MapboxGlPlatform.getInstance(_id).onCameraMoveStartedPlatform.add((_) {
       _isCameraMoving = true;
       notifyListeners();
@@ -601,7 +608,7 @@ class MapboxMapController extends ChangeNotifier {
   Future<Fill> addFill(FillOptions options, [Map data]) async {
     final FillOptions effectiveOptions =
         FillOptions.defaultOptions.copyWith(options);
-    final fill = await MapboxGlPlatform.instance.addFill(effectiveOptions);
+    final fill = await MapboxGlPlatform.getInstance(_id).addFill(effectiveOptions);
     _fills[fill.id] = fill;
     notifyListeners();
     return fill;
@@ -618,7 +625,7 @@ class MapboxMapController extends ChangeNotifier {
     assert(fill != null);
     assert(_fills[fill.id] == fill);
     assert(changes != null);
-    await MapboxGlPlatform.instance.updateFill(fill, changes);
+    await MapboxGlPlatform.getInstance(_id).updateFill(fill, changes);
     fill.options = fill.options.copyWith(changes);
     notifyListeners();
   }
@@ -643,7 +650,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once the fill has been removed from
   /// [_fills].
   Future<void> _removeFill(String id) async {
-    await MapboxGlPlatform.instance.removeFill(id);
+    await MapboxGlPlatform.getInstance(_id).removeFill(id);
 
     _fills.remove(id);
   }

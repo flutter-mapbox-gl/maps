@@ -49,15 +49,15 @@ class FillOptions {
   final String fillColor;
   final String fillOutlineColor;
   final String fillPattern;
-  final LatLng geometry;
+  final List<LatLng> geometry;
   final bool draggable;
 
   static const FillOptions defaultOptions = FillOptions(
-    fillOpacity: 1.0,
-    fillColor: "rgba(0, 0, 0, 1)",
-    fillOutlineColor: "rgba(0, 0, 0, 1)",
-    fillPattern: "pedestrian-polygon",
-    geometry: LatLng(0.0, 0.0),
+  //   fillOpacity: 1.0,
+  //   fillColor: "rgba(0, 0, 0, 1)",
+  //   fillOutlineColor: "rgba(0, 0, 0, 1)",
+  //   fillPattern: "pedestrian-polygon",
+  //   geometry: LatLng(0.0, 0.0),
   );
 
   FillOptions copyWith(FillOptions changes) {
@@ -83,11 +83,12 @@ class FillOptions {
       }
     }
 
-    addIfPresent('fill-opacity', fillOpacity);
-    addIfPresent('fill-color', fillColor);
-    addIfPresent('fill-outline-color', fillOutlineColor);
-    addIfPresent('fill-pattern', fillPattern);
-    addIfPresent('geometry', geometry?.toJson());
+    addIfPresent('fillOpacity', fillOpacity);
+    addIfPresent('fillColor', fillColor);
+    addIfPresent('fillOutlineColor', fillOutlineColor);
+    addIfPresent('fillPattern', fillPattern);
+    addIfPresent('geometry',
+        geometry?.map((LatLng latLng) => latLng.toJson())?.toList());
     addIfPresent('draggable', draggable);
     return json;
   }
