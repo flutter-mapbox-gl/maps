@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:math';
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:mapbox_gl_example/main.dart';
 
 import 'page.dart';
 
@@ -75,7 +77,8 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
             LatLng(-32.86711, 151.1947171),
             LatLng(-33.86711, 152.1947171),
           ],
-          fillColor: "#FF0000"),
+          fillColor: "#FF0000",
+          fillOutlineColor: "#FF0000"),
     );
     setState(() {
       _fillCount += 1;
@@ -119,42 +122,6 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
     );
   }
 
-  void _changeFillStrokeOpacity() {
-    //TODO: Implement fillStrokeOpacity.
-    // double current = _selectedFill.options.fillStrokeOpacity;
-    // if (current == null) {
-    //   // default value
-    //   current = 1.0;
-    // }
-
-    // _updateSelectedFill(
-    //   FillOptions(fillStrokeOpacity: current < 0.1 ? 1.0 : current * 0.75),
-    // );
-  }
-
-  void _changeFillStrokeWidth() {
-    //TODO: Implement fillStrokeWidth
-    // double current = _selectedFill.options.fillStrokeWidth;
-    // if (current == null) {
-    //   // default value
-    //   current = 0;
-    // }
-    // _updateSelectedFill(FillOptions(fillStrokeWidth: current == 0 ? 5.0 : 0));
-  }
-
-  Future<void> _changeFillStrokeColor() async {
-    //TODO: Implement fillStrokeColor
-    // String current = _selectedFill.options.fillStrokeColor;
-    // if (current == null) {
-    //   // default value
-    //   current = "#FFFFFF";
-    // }
-
-    // _updateSelectedFill(
-    //   FillOptions(fillStrokeColor: current == "#FFFFFF" ? "#FF0000" : "#FFFFFF"),
-    // );
-  }
-
   Future<void> _changeFillOpacity() async {
     double current = _selectedFill.options.fillOpacity;
     if (current == null) {
@@ -167,18 +134,6 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
     );
   }
 
-  Future<void> _changeFillRadius() async {
-    // TODO: Implement fillRadius
-    // double current = _selectedFill.options.fillRadius;
-    // if (current == null) {
-    //   // default value
-    //   current = 0;
-    // }
-    // _updateSelectedFill(
-    //   FillOptions(fillRadius: current == 120.0 ? 30.0 : current + 30.0),
-    // );
-  }
-
   Future<void> _changeFillColor() async {
     String current = _selectedFill.options.fillColor;
     if (current == null) {
@@ -188,20 +143,25 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
 
     _updateSelectedFill(
       FillOptions(
-          fillColor: "#FFFF00"),
+        fillColor: "#FFFF00"),
     );
   }
 
-  Future<void> _changeFillBlur() async {
-    // TODO: Implement fillBlur
-    // double current = _selectedFill.options.fillBlur;
-    // if (current == null) {
-    //   // default value
-    //   current = 0;
-    // }
-    // _updateSelectedFill(
-    //   FillOptions(fillBlur: current == 0.75 ? 0 : 0.75),
-    // );
+  Future<void> _changeFillOutlineColor() async {
+    String current = _selectedFill.options.fillOutlineColor;
+    if (current == null) {
+      // default value
+      current = "#FF0000";
+    }
+
+    _updateSelectedFill(
+      FillOptions(
+        fillOutlineColor: "#FFFF00"),
+    );
+  }
+
+  void _notImplemented(item) {
+    Scaffold.of(context).showSnackBar(SnackBar(content: Text('$item not yet implemented')));
   }
 
   @override
@@ -215,6 +175,7 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
             width: 300.0,
             height: 200.0,
             child: MapboxMap(
+              accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),
@@ -250,37 +211,19 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
                               (_selectedFill == null) ? null : _changeFillOpacity,
                         ),
                         FlatButton(
-                          child: const Text('change fill-radius'),
-                          onPressed: (_selectedFill == null)
-                              ? null
-                              : _changeFillRadius,
-                        ),
-                        FlatButton(
                           child: const Text('change fill-color'),
                           onPressed:
                           (_selectedFill == null) ? null : _changeFillColor,
                         ),
                         FlatButton(
-                          child: const Text('change fill-blur'),
+                          child: const Text('change fill-outline-color'),
                           onPressed:
-                          (_selectedFill == null) ? null : _changeFillBlur,
+                          (_selectedFill == null) ? null : _changeFillOutlineColor,
                         ),
                         FlatButton(
-                          child: const Text('change fill-stroke-width'),
-                          onPressed:
-                              (_selectedFill == null) ? null : _changeFillStrokeWidth,
-                        ),
-                        FlatButton(
-                          child: const Text('change fill-stroke-color'),
-                          onPressed: (_selectedFill == null)
-                              ? null
-                              : _changeFillStrokeColor,
-                        ),
-                        FlatButton(
-                          child: const Text('change fill-stroke-opacity'),
-                          onPressed: (_selectedFill == null)
-                              ? null
-                              : _changeFillStrokeOpacity,
+                          child: const Text('change fill-pattern'),
+                          onPressed: 
+                              (_selectedFill == null) ? null : () => _notImplemented('fill-pattern'),
                         ),
                         FlatButton(
                           child: const Text('change position'),
