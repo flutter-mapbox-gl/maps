@@ -26,7 +26,7 @@ abstract class OfflineManagerUtils {
 
     static void downloadRegion(OfflineRegionData offlineRegionData, MethodChannel.Result result, PluginRegistry.Registrar registrar) {
         //Initialize Mapbox
-        MapBoxUtils.getMapbox(registrar.context());
+        MapBoxUtils.getMapbox(registrar.context(), null);
         //Prepare channel
         String channelName = "downloadOfflineRegion_" + offlineRegionData.getId();
         OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(registrar.messenger(), channelName);
@@ -113,7 +113,7 @@ abstract class OfflineManagerUtils {
 
     static void regionsList(MethodChannel.Result result, Context context) {
         //Initialize Mapbox
-        MapBoxUtils.getMapbox(context);
+        MapBoxUtils.getMapbox(context, null);
         // Set up the OfflineManager
         OfflineManager offlineManager = OfflineManager.getInstance(context);
         offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
@@ -139,7 +139,7 @@ abstract class OfflineManagerUtils {
 
     static void deleteRegion(MethodChannel.Result result, Context context, int id) {
         //Initialize Mapbox
-        MapBoxUtils.getMapbox(context);
+        MapBoxUtils.getMapbox(context, null);
         // Set up the OfflineManager
         OfflineManager offlineManager = OfflineManager.getInstance(context);
         Gson gson = new Gson();
