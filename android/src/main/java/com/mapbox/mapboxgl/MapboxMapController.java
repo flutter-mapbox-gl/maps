@@ -158,6 +158,23 @@ final class MapboxMapController
     this.registrarActivityHashCode = registrar.activity().hashCode();
   }
 
+  private static String getAccessToken(@NonNull Context context) {
+    try {
+      ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+      Bundle bundle = ai.metaData;
+      String token = bundle.getString("com.mapbox.token");
+      if (token == null || token.isEmpty()) {
+        throw new NullPointerException();
+      }
+      return token;
+    } catch (Exception e) {
+      Log.e(TAG, "Failed to find an Access Token in the Application meta-data. Maps may not load correctly. " +
+        "Please refer to the installation guide at https://github.com/tobrun/flutter-mapbox-gl#mapbox-access-token " +
+        "for troubleshooting advice." + e.getMessage());
+    }
+    return null;
+  }	  
+	  
   @Override
   public View getView() {
     return mapView;
