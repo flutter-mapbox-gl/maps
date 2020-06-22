@@ -111,16 +111,16 @@ abstract class MapboxGlPlatform {
   Future<bool> getTelemetryEnabled() async {
     throw UnimplementedError('getTelemetryEnabled() has not been implemented.');
   }
-
-  Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
-    throw UnimplementedError('addSymbol() has not been implemented.');
+  
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    throw UnimplementedError('addSymbols() has not been implemented.');
   }
 
   Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
     throw UnimplementedError('updateSymbol() has not been implemented.');
   }
 
-  Future<void> removeSymbol(String symbolId) async {
+  Future<void> removeSymbols(Iterable<String> symbolsIds) async {
     throw UnimplementedError('removeSymbol() has not been implemented.');
   }
 
@@ -161,7 +161,7 @@ abstract class MapboxGlPlatform {
   }
 
   Future<List> queryRenderedFeatures(
-      Point<double> point, List<String> layerIds, String filter) async {
+      Point<double> point, List<String> layerIds, List<Object> filter) async {
     throw UnimplementedError(
         'queryRenderedFeatures() has not been implemented.');
   }

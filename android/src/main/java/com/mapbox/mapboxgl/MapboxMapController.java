@@ -24,6 +24,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -54,6 +57,10 @@ import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
+import com.mapbox.mapboxsdk.plugins.annotation.Line;
+import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
+import com.mapbox.geojson.Feature;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 
@@ -132,8 +139,9 @@ final class MapboxMapController
     AtomicInteger activityState,
     PluginRegistry.Registrar registrar,
     MapboxMapOptions options,
+    String accessToken,
     String styleStringInitial) {
-    MapBoxUtils.getMapbox(context);
+    Mapbox.getInstance(context, accessToken!=null ? accessToken : getAccessToken(context));
     this.id = id;
     this.context = context;
     this.activityState = activityState;
@@ -206,17 +214,6 @@ final class MapboxMapController
 
   private CameraPosition getCameraPosition() {
     return trackCameraPosition ? mapboxMap.getCameraPosition() : null;
-  }
-
-  private SymbolBuilder newSymbolBuilder() {
-    return new SymbolBuilder(symbolManager);
-  }
-
-  private void removeSymbol(String symbolId) {
-    final SymbolController symbolController = symbols.remove(symbolId);
-    if (symbolController != null) {
-      symbolController.remove(symbolManager);
-    }
   }
 
   private SymbolController symbol(String symbolId) {
@@ -487,9 +484,13 @@ final class MapboxMapController
 
         String[] layerIds = ((List<String>) call.argument("layerIds")).toArray(new String[0]);
 
-        String filter = (String) call.argument("filter");
-
-        Expression filterExpression = filter == null ? null : new Expression(filter);
+        List<Object> filter = call.argument("filter");
+        JsonElement jsonElement = filter == null ? null : new Gson().toJsonTree(filter);
+        JsonArray jsonArray = null;
+        if (jsonElement != null && jsonElement.isJsonArray()) {
+          jsonArray = jsonElement.getAsJsonArray();
+        }
+        Expression filterExpression = jsonArray == null ? null : Expression.Converter.convert(jsonArray);
         if (call.hasArgument("x")) {
           Double x = call.argument("x");
           Double y = call.argument("y");
@@ -538,18 +539,44 @@ final class MapboxMapController
         });
         break;
       }
-      case "symbol#add": {
-        final SymbolBuilder symbolBuilder = newSymbolBuilder();
-        Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
-        final Symbol symbol = symbolBuilder.build();
-        final String symbolId = String.valueOf(symbol.getId());
-        symbols.put(symbolId, new SymbolController(symbol, true, this));
-        result.success(symbolId);
+      case "symbols#addAll": {
+        List<String> newSymbolIds = new ArrayList<String>();
+        final List<Object> options = call.argument("options");
+        List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
+        if (options != null) {
+          SymbolBuilder symbolBuilder;
+          for (Object o : options) {
+            symbolBuilder =  new SymbolBuilder();
+            Convert.interpretSymbolOptions(o, symbolBuilder);
+            symbolOptionsList.add(symbolBuilder.getSymbolOptions());
+          }
+          if (!symbolOptionsList.isEmpty()) {
+            List<Symbol> newSymbols = symbolManager.create(symbolOptionsList);
+            String symbolId;
+            for (Symbol symbol : newSymbols) {
+              symbolId = String.valueOf(symbol.getId());
+              newSymbolIds.add(symbolId);
+              symbols.put(symbolId, new SymbolController(symbol, true, this));
+            }
+          }
+        }
+        result.success(newSymbolIds);
         break;
       }
-      case "symbol#remove": {
-        final String symbolId = call.argument("symbol");
-        removeSymbol(symbolId);
+      case "symbols#removeAll": {
+        final ArrayList<String> symbolIds = call.argument("symbols");
+        SymbolController symbolController;
+
+        List<Symbol> symbolList = new ArrayList<Symbol>();
+        for(String symbolId : symbolIds){
+            symbolController = symbols.remove(symbolId);
+            if (symbolController != null) {
+              symbolList.add(symbolController.getSymbol());
+            }
+        }
+        if(!symbolList.isEmpty()) {
+          symbolManager.delete(symbolList);
+        }
         result.success(null);
         break;
       }
