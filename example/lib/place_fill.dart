@@ -162,10 +162,6 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
     );
   }
 
-  void _notImplemented(item) {
-    Scaffold.of(context).showSnackBar(SnackBar(content: Text('$item not yet implemented')));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
