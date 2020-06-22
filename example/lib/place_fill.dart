@@ -48,20 +48,9 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   }
 
   void _onFillTapped(Fill fill) {
-    // if (_selectedFill != null) {
-    //   _updateSelectedFill(
-    //     const FillOptions(fillRadius: 60),
-    //   );
-    // }
-    print("Fill: ${fill.id}");
     setState(() {
       _selectedFill = fill;
     });
-    // _updateSelectedFill(
-    //   FillOptions(
-    //     fillRadius: 30,
-    //   ),
-    // );
   }
 
   void _updateSelectedFill(FillOptions changes) {
@@ -96,19 +85,7 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   }
 
   void _changePosition() {
-    // final LatLng current = _selectedFill.options.geometry;
-    // final Offset offset = Offset(
-    //   center.latitude - current.latitude,
-    //   center.longitude - current.longitude,
-    // );
-    // _updateSelectedFill(
-    //   FillOptions(
-    //     geometry: LatLng(
-    //       center.latitude + offset.dy,
-    //       center.longitude + offset.dx,
-    //     ),
-    //   ),
-    // );
+    //TODO: Implement change position.
   }
 
   void _changeDraggable() {
