@@ -52,13 +52,7 @@ class FillOptions {
   final List<LatLng> geometry;
   final bool draggable;
 
-  static const FillOptions defaultOptions = FillOptions(
-  //   fillOpacity: 1.0,
-  //   fillColor: "rgba(0, 0, 0, 1)",
-  //   fillOutlineColor: "rgba(0, 0, 0, 1)",
-  //   fillPattern: "pedestrian-polygon",
-  //   geometry: LatLng(0.0, 0.0),
-  );
+  static const FillOptions defaultOptions = FillOptions();
 
   FillOptions copyWith(FillOptions changes) {
     if (changes == null) {
