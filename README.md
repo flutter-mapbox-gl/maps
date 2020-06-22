@@ -81,7 +81,8 @@ An offline region is a defined region of a map that is available for use in cond
 
 * Call `downloadOfflineRegionStream` with predefined `OfflineRegion` and optionally track progress in the callback function.
 
-```    final Function(DownloadRegionStatus event) onEvent = (DownloadRegionStatus status) {
+```      
+    final Function(DownloadRegionStatus event) onEvent = (DownloadRegionStatus status) {
       if (status.runtimeType == Success) {
         // ...
       } else if (status.runtimeType == InProgress) {
