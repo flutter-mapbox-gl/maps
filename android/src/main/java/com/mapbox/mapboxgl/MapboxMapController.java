@@ -19,6 +19,7 @@ import android.graphics.RectF;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -37,24 +38,25 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
+
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.geometry.VisibleRegion;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
-import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.maps.Projection;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
+import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Annotation;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
-import com.mapbox.mapboxsdk.plugins.annotation.Line;
-import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
@@ -62,23 +64,16 @@ import com.mapbox.mapboxsdk.plugins.annotation.Line;
 import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
-import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.platform.PlatformView;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.CREATED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.DESTROYED;
@@ -86,6 +81,8 @@ import static com.mapbox.mapboxgl.MapboxMapsPlugin.PAUSED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.RESUMED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STARTED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STOPPED;
+
+import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 
 /**
  * Controller of a single MapboxMaps MapView instance.
@@ -174,8 +171,8 @@ final class MapboxMapController
         "for troubleshooting advice." + e.getMessage());
     }
     return null;
-  }	  
-	  
+  }
+
   @Override
   public View getView() {
     return mapView;
