@@ -4,8 +4,10 @@
 
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:mapbox_gl_example/main.dart';
 
@@ -31,6 +33,7 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   PlaceFillBodyState();
 
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
+  final String _fillPatternImage = "assets/fill/cat_silhouette_pattern.png";
 
   MapboxMapController controller;
   int _fillCount = 0;
@@ -39,6 +42,17 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
     controller.onFillTapped.add(_onFillTapped);
+  }
+
+  void _onStyleLoaded() {
+    addImageFromAsset("assetImage", _fillPatternImage);
+  }
+
+  /// Adds an asset image to the currently displayed style
+  Future<void> addImageFromAsset(String name, String assetName) async {
+    final ByteData bytes = await rootBundle.load(assetName);
+    final Uint8List list = bytes.buffer.asUint8List();
+    return controller.addImage(name, list);
   }
 
   @override
@@ -138,6 +152,15 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
         fillOutlineColor: "#FFFF00"),
     );
   }
+  
+  Future<void> _changeFillPattern() async {
+    String current = _selectedFill.options.fillPattern == null ? "assetImage" : null;
+    _updateSelectedFill(
+      FillOptions(
+        fillPattern: current
+      ),
+    );
+  }
 
   void _notImplemented(item) {
     Scaffold.of(context).showSnackBar(SnackBar(content: Text('$item not yet implemented')));
@@ -156,6 +179,7 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
             child: MapboxMap(
               accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
+              onStyleLoadedCallback: _onStyleLoaded,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),
                 zoom: 7.0,
@@ -202,7 +226,7 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
                         FlatButton(
                           child: const Text('change fill-pattern'),
                           onPressed: 
-                              (_selectedFill == null) ? null : () => _notImplemented('fill-pattern'),
+                              (_selectedFill == null) ? null : _changeFillPattern,
                         ),
                         FlatButton(
                           child: const Text('change position'),
