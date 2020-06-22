@@ -49,7 +49,7 @@ class FillOptions {
   final String fillColor;
   final String fillOutlineColor;
   final String fillPattern;
-  final List<LatLng> geometry;
+  final List<List<LatLng>> geometry;
   final bool draggable;
 
   static const FillOptions defaultOptions = FillOptions();
@@ -82,7 +82,7 @@ class FillOptions {
     addIfPresent('fillOutlineColor', fillOutlineColor);
     addIfPresent('fillPattern', fillPattern);
     addIfPresent('geometry',
-        geometry?.map((LatLng latLng) => latLng.toJson())?.toList());
+        geometry?.map((List<LatLng> latLngList) => latLngList.map((LatLng latLng) => latLng.toJson())?.toList())?.toList());
     addIfPresent('draggable', draggable);
     return json;
   }

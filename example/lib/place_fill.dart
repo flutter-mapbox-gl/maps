@@ -72,10 +72,12 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
     controller.addFill(
       FillOptions(
           geometry: [
-            LatLng(-32.86711, 152.1947171),
-            LatLng(-33.86711, 151.1947171),
-            LatLng(-32.86711, 151.1947171),
-            LatLng(-33.86711, 152.1947171),
+            [
+              LatLng(-32.86711, 152.1947171),
+              LatLng(-33.86711, 151.1947171),
+              LatLng(-32.86711, 151.1947171),
+              LatLng(-33.86711, 152.1947171),
+            ]
           ],
           fillColor: "#FF0000",
           fillOutlineColor: "#FF0000"),

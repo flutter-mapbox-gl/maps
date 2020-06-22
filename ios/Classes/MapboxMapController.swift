@@ -378,10 +378,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             // Parse geometry
             if let options = arguments["options"] as? [String: Any],
-                let geometry = options["geometry"] as? [[Double]] {
+                let geometry = options["geometry"] as? [[[Double]]] {
                 // Convert geometry to coordinate and create polygon.
+                // FIXME: The Polygon in Annotation Plugin takes a list of coordinates. This should how ever be 
+                // a list of list of coordinates. For now we will only take the first list of coordinates (from the list of lists)
                 var fillCoordinates: [CLLocationCoordinate2D] = []
-                for coordinate in geometry {
+                for coordinate in geometry[0] {
                     fillCoordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
                 }
                 let fill = MGLPolygonStyleAnnotation(coordinates: fillCoordinates, count: UInt(fillCoordinates.count))

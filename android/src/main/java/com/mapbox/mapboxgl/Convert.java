@@ -168,6 +168,31 @@ class Convert {
     return latLngList;
   }
 
+  private static List<List<LatLng>> toLatLngListList(Object o) {
+    if (o == null) {
+      return null;
+    }
+    final List<?> data = toList(o);
+    List<List<LatLng>> latLngListList = new ArrayList<>();
+    for (int i = 0; i < data.size(); i++) {
+      List<LatLng> latLngList = toLatLngList(data.get(i));
+      latLngListList.add(latLngList);
+    }
+    return latLngListList;
+  }
+
+  static Polygon interpretListLatLng(List<List<LatLng>> geometry) {
+    List<List<com.mapbox.geojson.Point>> points = new ArrayList<>(geometry.size());
+    for (List<LatLng> innerGeometry : geometry) {
+      List<com.mapbox.geojson.Point> innerPoints = new ArrayList<>(innerGeometry.size());
+      for (LatLng latLng : innerGeometry) {
+        innerPoints.add(com.mapbox.geojson.Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude()));
+      }
+      points.add(innerPoints);
+    }
+    return Polygon.fromLngLats(points);
+  }
+
   private static List<?> toList(Object o) {
     return (List<?>) o;
   }
@@ -503,25 +528,5 @@ class Convert {
     if (draggable != null) {
       sink.setDraggable(toBoolean(draggable));
     }
-  }
-
-  private static List<List<LatLng>> toLatLngListList(Object o) {
-    if (o == null) {
-      return null;
-    }
-    // todo add conversion
-    return new ArrayList<>();
-  }
-
-  static Polygon interpretListLatLng(List<List<LatLng>> geometry) {
-    List<List<com.mapbox.geojson.Point>> points = new ArrayList<>(geometry.size());
-    for (List<LatLng> innerGeometry : geometry) {
-      List<com.mapbox.geojson.Point> innerPoints = new ArrayList<>(innerGeometry.size());
-      for (LatLng latLng : innerGeometry) {
-        innerPoints.add(com.mapbox.geojson.Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude()));
-      }
-      points.add(innerPoints);
-    }
-    return Polygon.fromLngLats(points);
   }
 }
