@@ -53,6 +53,6 @@ class FillBuilder implements FillOptionsSink {
 
   @Override
   public void setDraggable(boolean draggable) {
-    fillOptions.setDraggable(draggable);
+    fillOptions.withDraggable(draggable);
   }
 }

@@ -284,6 +284,10 @@ final class MapboxMapController
     return circle;
   }
 
+  private FillBuilder newFillBuilder() {
+    return new FillBuilder(fillManager);
+  }
+
   private void removeFill(String fillId) {
     final FillController fillController = fills.remove(fillId);
     if (fillController != null) {
@@ -291,12 +295,12 @@ final class MapboxMapController
     }
   }
 
-  private CircleController fill(String fillId) {
-    final CircleController circle = circles.get(fillId);
-    if (circle == null) {
+  private FillController fill(String fillId) {
+    final FillController fill = fills.get(fillId);
+    if (fill == null) {
       throw new IllegalArgumentException("Unknown fill: " + fillId);
     }
-    return circle;
+    return fill;
   }
 
   @Override
@@ -557,12 +561,12 @@ final class MapboxMapController
         result.success(reply);
         break;
       }
-	  case "map#setTelemetryEnabled": {
-        final boolean enabled = call.argument("enabled");
-        Mapbox.getTelemetry().setUserTelemetryRequestState(enabled);
-        result.success(null);
-        break;
-	  }
+      case "map#setTelemetryEnabled": {
+          final boolean enabled = call.argument("enabled");
+          Mapbox.getTelemetry().setUserTelemetryRequestState(enabled);
+          result.success(null);
+          break;
+      }
       case "map#getTelemetryEnabled": {
         final TelemetryEnabler.State telemetryState = TelemetryEnabler.retrieveTelemetryStateFromPreferences();
         result.success(telemetryState == TelemetryEnabler.State.ENABLED);
@@ -737,6 +741,30 @@ final class MapboxMapController
         result.success(hashMapLatLng);
         break;
       }
+      case "fill#add": {
+        final FillBuilder fillBuilder = newFillBuilder();
+        Convert.interpretFillOptions(call.argument("options"), fillBuilder);
+        final Fill fill = fillBuilder.build();
+        final String fillId = String.valueOf(fill.getId());
+        fills.put(fillId, new FillController(fill, true, this));
+        result.success(fillId);
+        break;
+      }
+      case "fill#remove": {
+        final String fillId = call.argument("fill");
+        removeFill(fillId);
+        result.success(null);
+        break;
+      }
+      case "fill#update": {
+        Log.e(TAG, "update fill");
+        final String fillId = call.argument("fill");
+        final FillController fill = fill(fillId);
+        Convert.interpretFillOptions(call.argument("options"), fill);
+        fill.update(fillManager);
+        result.success(null);
+        break;
+      }
       case "locationComponent#getLastLocation": {
         Log.e(TAG, "location component: getLastLocation");
         if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
@@ -763,32 +791,11 @@ final class MapboxMapController
         }
         break;
       }
-      case "style#addImage":{
-        if(style==null){
+      case "style#addImage": {
+        if(style==null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
         style.addImage(call.argument("name"), BitmapFactory.decodeByteArray(call.argument("bytes"),0,call.argument("length")), call.argument("sdf"));
-      case "fill#add": {
-        final FillBuilder fillBuilder = newFillBuilder();
-        Convert.interpretFillOptions(call.argument("options"), fillBuilder);
-        final Fill fill = fillBuilder.build();
-        final String fillId = String.valueOf(fill.getId());
-        fills.put(fillId, new FillController(fill, true, this));
-        result.success(fillId);
-        break;
-      }
-      case "fill#remove": {
-        final String fillId = call.argument("fill");
-        removeFill(fillId);
-        result.success(null);
-        break;
-      }
-      case "fill#update": {
-        Log.e(TAG, "update fill");
-        final String fillId = call.argument("fill");
-        final FillController fill = fill(fillId);
-        Convert.interpretFillOptions(call.argument("options"), fill);
-        fill.update(fillManager);
         result.success(null);
         break;
       }

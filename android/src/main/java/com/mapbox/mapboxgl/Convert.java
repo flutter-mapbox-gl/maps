@@ -11,6 +11,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.log.Logger;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 import java.util.ArrayList;
