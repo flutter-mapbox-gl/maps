@@ -70,6 +70,20 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       case 'map#onIdle':
         onMapIdlePlatform(null);
         break;
+      case 'map#onUserLocationUpdated':
+        final dynamic userLocation = call.arguments['userLocation'];
+        if (onUserLocationUpdatedPlatform != null) {
+          onUserLocationUpdatedPlatform(UserLocation(
+              position: LatLng(userLocation['position'][0], userLocation['position'][1]),
+              altitude: userLocation['altitude'],
+              bearing: userLocation['bearing'],
+              speed: userLocation['speed'],
+              horizontalAccuracy: userLocation['horizontalAccuracy'],
+              verticalAccuracy: userLocation['verticalAccuracy'],
+              timestamp: DateTime.fromMillisecondsSinceEpoch(userLocation['timestamp'])
+          ));
+        }
+        break;
       default:
         throw MissingPluginException();
     }

@@ -400,6 +400,7 @@ class MapboxMapController extends MapboxGlPlatform
     );
     _geolocateControl.on('geolocate', (e) {
       _myLastLocation = LatLng(e.coords.latitude, e.coords.longitude);
+      onUserLocationUpdatedPlatform(UserLocation(position: LatLng(e.coords.latitude, e.coords.longitude), altitude: e.coords.altitude, bearing: e.coords.heading, speed: e.coords.speed, horizontalAccuracy: e.coords.accuracy, verticalAccuracy: e.coords.altitudeAccuracy, timestamp: DateTime.fromMillisecondsSinceEpoch(e.timestamp)));
     });
     _geolocateControl.on('trackuserlocationstart', (_) {
       _onCameraTrackingChanged(true);

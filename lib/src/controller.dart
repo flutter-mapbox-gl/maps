@@ -135,6 +135,9 @@ class MapboxMapController extends ChangeNotifier {
         onMapIdle();
       }
     });
+    MapboxGlPlatform.getInstance(_id).onUserLocationUpdatedPlatform.add((location) { 
+      onUserLocationUpdated?.call(location);
+    });
   }
 
   static Future<MapboxMapController> init(

@@ -60,6 +60,8 @@ abstract class MapboxGlPlatform {
       ArgumentCallbacks<void>();
 
   final ArgumentCallbacks<void> onMapIdlePlatform = ArgumentCallbacks<void>();
+  
+  final ArgumentCallbacks<UserLocation> onUserLocationUpdatedPlatform = ArgumentCallbacks<UserLocation>();
 
   Future<void> initPlatform(int id) async {
     throw UnimplementedError('initPlatform() has not been implemented.');
@@ -210,4 +212,6 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError(
         'setSymbolTextIgnorePlacement() has not been implemented.');
   }
+
+  
 }
