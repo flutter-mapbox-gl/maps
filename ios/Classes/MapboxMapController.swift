@@ -679,6 +679,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func setMyLocationTrackingMode(myLocationTrackingMode: MGLUserTrackingMode) {
         mapView.userTrackingMode = myLocationTrackingMode
     }
+    func setMyLocationRenderMode(myLocationRenderMode: MyLocationRenderMode) {
+        switch myLocationRenderMode {
+        case .Normal:
+            mapView.showsUserHeadingIndicator = false
+        case .Compass:
+            mapView.showsUserHeadingIndicator = true
+        case .Gps:
+            NSLog("RenderMode.GPS currently not supported")
+        }
+    }
     func setLogoViewMargins(x: Double, y: Double) {
         mapView.logoViewMargins = CGPoint(x: x, y: y)
     }
