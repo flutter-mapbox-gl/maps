@@ -454,8 +454,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     *  After a long press invoke the map#onMapLongClick callback.
     */
     @objc @IBAction func handleMapLongPress(sender: UILongPressGestureRecognizer) {
-        //Only fire at the end of the long press
-        if (sender.state == .ended) {
+        //Fire when the long press starts
+        if (sender.state == .began) {
           // Get the CGPoint where the user tapped.
             let point = sender.location(in: mapView)
             let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
