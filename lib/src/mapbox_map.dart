@@ -110,7 +110,7 @@ class MapboxMap extends StatefulWidget {
   /// when the map tries to turn on the My Location layer.
   final bool myLocationEnabled;
 
-  /// The mode used to track the user location on the map
+  /// The mode used to let the map camera follow the device's physical location
   final MyLocationTrackingMode myLocationTrackingMode;
 
   /// The mode to render the user location symbol
@@ -142,8 +142,10 @@ class MapboxMap extends StatefulWidget {
   final OnMapClickCallback onMapClick;
   final OnMapClickCallback onMapLongClick;
 
-  /// Called when the location tracking mode changes, such as when the user moves the map
+  /// Called when the map camera no longer follows the physical device location, e.g. because the user moved the map
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
+  
+  /// Called when the location tracking mode changes
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
 
   // Called when camera movement has ended.
