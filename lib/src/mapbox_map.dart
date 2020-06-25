@@ -45,6 +45,7 @@ class MapboxMap extends StatefulWidget {
   /// Note: You should not use this parameter AND set the access token through external files at the same time, and you should use the same token throughout the entire app.
   final String accessToken;
 
+  /// Please note: you should only add annotations (e.g. symbols or circles) after `onStyleLoadedCallback` has been called. 
   final MapCreatedCallback onMapCreated;
 
   /// Called when the map style has been successfully loaded and the annotation managers have been enabled.
@@ -110,7 +111,7 @@ class MapboxMap extends StatefulWidget {
   /// when the map tries to turn on the My Location layer.
   final bool myLocationEnabled;
 
-  /// The mode used to let the map camera follow the device's physical location
+  /// The mode used to let the map's camera follow the device's physical location
   final MyLocationTrackingMode myLocationTrackingMode;
 
   /// The mode to render the user location symbol
@@ -142,7 +143,7 @@ class MapboxMap extends StatefulWidget {
   final OnMapClickCallback onMapClick;
   final OnMapClickCallback onMapLongClick;
 
-  /// Called when the map camera no longer follows the physical device location, e.g. because the user moved the map
+  /// Called when the map's camera no longer follows the physical device location, e.g. because the user moved the map
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   
   /// Called when the location tracking mode changes
