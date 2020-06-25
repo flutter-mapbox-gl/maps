@@ -83,7 +83,10 @@ class MapboxMap extends StatefulWidget {
   /// True if the map view should respond to tilt gestures.
   final bool tiltGesturesEnabled;
 
-  /// True if the map view should relay camera move events to Flutter.
+  /// True if you want to be notified of map camera movements by the MapboxMapController. Default is false.
+  ///
+  /// If this is set to true and the user pans/zooms/rotates the map, MapboxMapController (which is a ChangeNotifier)
+  /// will notify it's listeners and you can then get the new MapboxMapController.cameraPosition.
   final bool trackCameraPosition;
 
   /// True if a "My Location" layer should be shown on the map.
