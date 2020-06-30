@@ -24,9 +24,9 @@ import io.flutter.plugin.common.PluginRegistry;
 abstract class OfflineManagerUtils {
     private static final String TAG = "OfflineManagerUtils";
 
-    static void downloadRegion(OfflineRegionData offlineRegionData, MethodChannel.Result result, PluginRegistry.Registrar registrar) {
+    static void downloadRegion(OfflineRegionData offlineRegionData, MethodChannel.Result result, PluginRegistry.Registrar registrar, String accessToken) {
         //Initialize Mapbox
-        MapBoxUtils.getMapbox(registrar.context());
+        MapBoxUtils.getMapbox(registrar.context(), accessToken);
         //Prepare channel
         String channelName = "downloadOfflineRegion_" + offlineRegionData.getId();
         OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(registrar.messenger(), channelName);
@@ -90,7 +90,7 @@ abstract class OfflineManagerUtils {
                         channelHandler.onError("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
                         result.error("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
                         //Mapbox even after crash and not downloading fully region still keeps part of it in database, so we have to remove it
-                        deleteRegion(null, registrar.context(), offlineRegionData.getId());
+                        deleteRegion(null, registrar.context(), offlineRegionData.getId(), accessToken);
                     }
                 };
                 _offlineRegion.setObserver(observer);
@@ -111,9 +111,9 @@ abstract class OfflineManagerUtils {
         });
     }
 
-    static void regionsList(MethodChannel.Result result, Context context) {
+    static void regionsList(MethodChannel.Result result, Context context, String accessToken) {
         //Initialize Mapbox
-        MapBoxUtils.getMapbox(context);
+        MapBoxUtils.getMapbox(context, accessToken);
         // Set up the OfflineManager
         OfflineManager offlineManager = OfflineManager.getInstance(context);
         offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
@@ -137,9 +137,9 @@ abstract class OfflineManagerUtils {
         });
     }
 
-    static void deleteRegion(MethodChannel.Result result, Context context, int id) {
+    static void deleteRegion(MethodChannel.Result result, Context context, int id, String accessToken) {
         //Initialize Mapbox
-        MapBoxUtils.getMapbox(context);
+        MapBoxUtils.getMapbox(context, accessToken);
         // Set up the OfflineManager
         OfflineManager offlineManager = OfflineManager.getInstance(context);
         Gson gson = new Gson();
