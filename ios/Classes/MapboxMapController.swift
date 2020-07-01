@@ -123,6 +123,34 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 style.localizeLabels(into: locale)
             }
             result(nil)
+        case "map#queryRenderedFeatures":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            let layerIds = arguments["layerIds"] as? Set<String>
+            var filterExpression: NSPredicate?
+            if let filter = arguments["filter"] as? [Any] {
+                filterExpression = NSPredicate(mglJSONObject: filter)
+            }
+            var reply = [String: NSObject]()
+            var features:[MGLFeature] = []
+            if let x = arguments["x"] as? Double, let y = arguments["y"] as? Double {
+                features = mapView.visibleFeatures(at: CGPoint(x: x, y: y), styleLayerIdentifiers: layerIds, predicate: filterExpression)
+            }
+            if  let top = arguments["top"] as? Double,
+                let bottom = arguments["bottom"] as? Double,
+                let left = arguments["left"] as? Double,
+                let right = arguments["right"] as? Double {
+                features = mapView.visibleFeatures(in: CGRect(x: left, y: top, width: right, height: bottom), styleLayerIdentifiers: layerIds, predicate: filterExpression)
+            }
+            var featuresJson = [String]()
+            for feature in features {
+                let dictionary = feature.geoJSONDictionary()
+                if  let theJSONData = try? JSONSerialization.data(withJSONObject: dictionary, options: []),
+                    let theJSONText = String(data: theJSONData, encoding: .ascii) {
+                    featuresJson.append(theJSONText)
+                }
+            }
+            reply["features"] = featuresJson as NSObject
+            result(reply)
         case "map#setTelemetryEnabled":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             let telemetryEnabled = arguments["enabled"] as? Bool
@@ -426,8 +454,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     *  After a long press invoke the map#onMapLongClick callback.
     */
     @objc @IBAction func handleMapLongPress(sender: UILongPressGestureRecognizer) {
-        //Only fire at the end of the long press
-        if (sender.state == .ended) {
+        //Fire when the long press starts
+        if (sender.state == .began) {
           // Get the CGPoint where the user tapped.
             let point = sender.location(in: mapView)
             let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
@@ -494,9 +522,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         circleAnnotationController?.delegate = self
 
         mapReadyResult?(nil)
-        print("asdasd\(channel)")
         if let channel = channel {
-            print("asdasd2 ")
             channel.invokeMethod("map#onStyleLoaded", arguments: nil)
         }
     }
@@ -660,6 +686,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     func setMyLocationTrackingMode(myLocationTrackingMode: MGLUserTrackingMode) {
         mapView.userTrackingMode = myLocationTrackingMode
+    }
+    func setMyLocationRenderMode(myLocationRenderMode: MyLocationRenderMode) {
+        switch myLocationRenderMode {
+        case .Normal:
+            mapView.showsUserHeadingIndicator = false
+        case .Compass:
+            mapView.showsUserHeadingIndicator = true
+        case .Gps:
+            NSLog("RenderMode.GPS currently not supported")
+        }
     }
     func setLogoViewMargins(x: Double, y: Double) {
         mapView.logoViewMargins = CGPoint(x: x, y: y)
