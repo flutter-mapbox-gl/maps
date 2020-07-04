@@ -74,8 +74,11 @@ Support for offline maps is available by *"side loading"* the required map tiles
 ```
 
 ## Location features
+To enable location features in an **Android** application:
 
-To enable location features in an iOS application:
+You need to declare the `ACCESS_COARSE_LOCATION` or `ACCESS_FINE_LOCATION` permission in the AndroidManifest.xml and starting from Android API level 23 also request it at runtime. The plugin does not handle this for you. The example app uses the flutter ['location' plugin](https://pub.dev/packages/location) for this. 
+
+To enable location features in an **iOS** application:
 
 If you access your users' location, you should also add the following key to your Info.plist to explain why you need access to their location data:
 
