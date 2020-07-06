@@ -41,7 +41,7 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 Gson gson = new Gson();
                 OfflineRegionData args = gson.fromJson(methodCall.arguments.toString(), OfflineRegionData.class);
                 //Start downloading
-                OfflineManagerUtils.downloadRegion(args, result, registrar, (String) methodCall.argument("accessToken"));
+                OfflineManagerUtils.downloadRegion(args, result, registrar, args.getAccessToken());
                 break;
             case "downloadListOfRegions":
                 OfflineManagerUtils.regionsList(result, registrar.context(), (String) methodCall.argument("accessToken"));
