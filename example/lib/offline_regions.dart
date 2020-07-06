@@ -205,7 +205,7 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
 
     try {
       await downloadOfflineRegion(item.offlineRegion);
-    } on Exception catch (e) {
+    } on Exception catch (_) {
       setState(() {
         _items.removeAt(index);
         _items.insert(

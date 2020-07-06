@@ -13,8 +13,8 @@ import com.mapbox.mapboxsdk.Mapbox;
 abstract class MapBoxUtils {
     private static final String TAG = "MapboxMapController";
 
-    static Mapbox getMapbox(Context context) {
-        return Mapbox.getInstance(context, getAccessToken(context));
+    static Mapbox getMapbox(Context context, String accessToken) {
+        return Mapbox.getInstance(context, accessToken!=null ? accessToken : getAccessToken(context));
     }
 
     private static String getAccessToken(@NonNull Context context) {
