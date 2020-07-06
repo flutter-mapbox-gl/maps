@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+import 'main.dart';
 import 'page.dart';
 
 class PlaceSymbolPage extends ExamplePage {
@@ -89,18 +90,50 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _add(String iconImage) {
-    controller.addSymbol(
-      SymbolOptions(
-        geometry: LatLng(
-          center.latitude + sin(_symbolCount * pi / 6.0) / 20.0,
-          center.longitude + cos(_symbolCount * pi / 6.0) / 20.0,
-        ),
-        iconImage: iconImage,
-      ),
+    List<int> availableNumbers = Iterable<int>.generate(12).toList();
+    controller.symbols.forEach(
+            (s) => availableNumbers.removeWhere((i) => i == s.data['count'])
     );
-    setState(() {
-      _symbolCount += 1;
-    });
+    if (availableNumbers.isNotEmpty) {
+      controller.addSymbol(
+        _getSymbolOptions(iconImage, availableNumbers.first),
+        {'count': availableNumbers.first}
+      );
+      setState(() {
+        _symbolCount += 1;
+      });
+    }
+  }
+
+  SymbolOptions _getSymbolOptions(String iconImage, int symbolCount){
+    return SymbolOptions(
+      geometry: LatLng(
+        center.latitude + sin(symbolCount * pi / 6.0) / 20.0,
+        center.longitude + cos(symbolCount * pi / 6.0) / 20.0,
+      ),
+      iconImage: iconImage,
+    );
+  }
+
+  Future<void> _addAll(String iconImage) async {
+    List<int> symbolsToAddNumbers = Iterable<int>.generate(12).toList();
+    controller.symbols.forEach(
+        (s) => symbolsToAddNumbers.removeWhere((i) => i == s.data['count'])
+    );
+    
+    if (symbolsToAddNumbers.isNotEmpty) {
+      final List<SymbolOptions> symbolOptionsList = symbolsToAddNumbers.map(
+        (i) => _getSymbolOptions(iconImage, i)
+      ).toList();
+      controller.addSymbols(
+        symbolOptionsList,
+          symbolsToAddNumbers.map((i) => {'count': i}).toList()
+      );
+  
+      setState(() {
+        _symbolCount += symbolOptionsList.length;
+      });
+    }
   }
 
   void _remove() {
@@ -108,6 +141,14 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     setState(() {
       _selectedSymbol = null;
       _symbolCount -= 1;
+    });
+  }
+
+  void _removeAll() {
+    controller.removeSymbols(controller.symbols);
+    setState(() {
+      _selectedSymbol = null;
+      _symbolCount = 0;
     });
   }
 
@@ -234,6 +275,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
             width: 300.0,
             height: 200.0,
             child: MapboxMap(
+              accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
               onStyleLoadedCallback: _onStyleLoaded,
               initialCameraPosition: const CameraPosition(
@@ -258,6 +300,11 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                               (_symbolCount == 12) ? null : _add("airport-15"),
                         ),
                         FlatButton(
+                          child: const Text('add all'),
+                          onPressed: () =>
+                            (_symbolCount == 12) ? null : _addAll("airport-15"),
+                        ),
+                        FlatButton(
                           child: const Text('add (custom icon)'),
                           onPressed: () => (_symbolCount == 12)
                               ? null
@@ -270,6 +317,10 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                         FlatButton(
                           child:  Text('${_iconAllowOverlap ? 'disable' : 'enable'} icon overlap'),
                           onPressed: _changeIconOverlap,
+                        ),
+                        FlatButton(
+                          child: const Text('remove all'),
+                          onPressed: (_symbolCount == 0) ? null : _removeAll,
                         ),
                         FlatButton(
                           child: const Text('add (asset image)'),

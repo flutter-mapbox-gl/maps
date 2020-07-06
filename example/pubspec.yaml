@@ -51,6 +51,7 @@ flutter:
     - assets/symbols/custom-icon.png
     - assets/symbols/2.0x/custom-icon.png
     - assets/symbols/3.0x/custom-icon.png
+    - assets/style.json
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.io/assets-and-images/#from-packages

@@ -37,6 +37,9 @@ class Convert {
         if let myLocationTrackingMode = options["myLocationTrackingMode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
             delegate.setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
         }
+        if let myLocationRenderMode = options["myLocationRenderMode"] as? Int, let renderMode = MyLocationRenderMode(rawValue: myLocationRenderMode) {
+            delegate.setMyLocationRenderMode(myLocationRenderMode: renderMode)
+        }
         if let logoViewMargins = options["logoViewMargins"] as? [Double] {
             delegate.setLogoViewMargins(x: logoViewMargins[0], y: logoViewMargins[1])
         }

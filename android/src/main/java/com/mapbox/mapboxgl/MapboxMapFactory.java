@@ -34,6 +34,6 @@ public class MapboxMapFactory extends PlatformViewFactory {
       CameraPosition position = Convert.toCameraPosition(params.get("initialCameraPosition"));
       builder.setInitialCameraPosition(position);
     }
-    return builder.build(id, context, mActivityState, mPluginRegistrar);
+    return builder.build(id, context, mActivityState, mPluginRegistrar, (String) params.get("accessToken"));
   }
 }

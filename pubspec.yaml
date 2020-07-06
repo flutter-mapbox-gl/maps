@@ -6,9 +6,15 @@ homepage: https://github.com/tobrun/flutter-mapbox-gl
 dependencies:
   flutter:
     sdk: flutter
-  mapbox_gl_platform_interface: ^0.7.0
-  mapbox_gl_web: ^0.7.0
-    
+  mapbox_gl_platform_interface:
+    git:
+      url: https://github.com/tobrun/flutter-mapbox-gl.git
+      path: mapbox_gl_platform_interface
+  mapbox_gl_web:
+    git:
+      url: https://github.com/tobrun/flutter-mapbox-gl.git
+      path: mapbox_gl_web
+
 flutter:
   plugin:
     platforms:
