@@ -74,6 +74,12 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
     controller.addFill(
       FillOptions(geometry: [
         [
+          LatLng(-32.81711, 151.1447171),
+          LatLng(-32.81711, 152.2447171),
+          LatLng(-33.91711, 152.2447171),
+          LatLng(-33.91711, 151.1447171),
+        ],
+        [
           LatLng(-32.86711, 152.1947171),
           LatLng(-33.86711, 151.1947171),
           LatLng(-32.86711, 151.1947171),

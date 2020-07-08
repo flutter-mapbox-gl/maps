@@ -89,3 +89,10 @@ extension UIColor {
         return nil
     }
 }
+
+
+extension Array {
+    var tail: Array {
+        return Array(self.dropFirst())
+    }
+}

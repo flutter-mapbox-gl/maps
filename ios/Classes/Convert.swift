@@ -333,4 +333,17 @@ class Convert {
             delegate.isDraggable = draggable
         }
     }
+
+    class func toPolygons(geometry: [[[Double]]]) -> [MGLPolygonFeature] {
+        var polygons:[MGLPolygonFeature] = []
+        for lineString in geometry {
+            var linearRing: [CLLocationCoordinate2D] = []
+            for coordinate in lineString {
+                linearRing.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
+            }
+            let polygon = MGLPolygonFeature(coordinates: linearRing, count: UInt(linearRing.count))
+            polygons.append(polygon)
+        }
+        return polygons
+    }
 }
