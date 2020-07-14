@@ -50,6 +50,9 @@ class SymbolBuilder implements SymbolOptionsSink {
   }
 
   @Override
+  public void setFontNames(String[] fontNames) { symbolOptions.withTextFont(fontNames); }
+
+  @Override
   public void setTextField(String textField) {
     symbolOptions.withTextField(textField);
   }

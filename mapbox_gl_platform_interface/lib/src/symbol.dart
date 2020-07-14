@@ -49,6 +49,7 @@ class SymbolOptions {
     this.iconRotate,
     this.iconOffset,
     this.iconAnchor,
+    this.fontNames,
     this.textField,
     this.textSize,
     this.textMaxWidth,
@@ -78,6 +79,7 @@ class SymbolOptions {
   final double iconRotate;
   final Offset iconOffset;
   final String iconAnchor;
+  final List<String> fontNames;
   final String textField;
   final double textSize;
   final double textMaxWidth;
@@ -113,6 +115,7 @@ class SymbolOptions {
       iconRotate: changes.iconRotate ?? iconRotate,
       iconOffset: changes.iconOffset ?? iconOffset,
       iconAnchor: changes.iconAnchor ?? iconAnchor,
+      fontNames: changes.fontNames ?? fontNames,
       textField: changes.textField ?? textField,
       textSize: changes.textSize ?? textSize,
       textMaxWidth: changes.textMaxWidth ?? textMaxWidth,
@@ -152,6 +155,7 @@ class SymbolOptions {
     addIfPresent('iconRotate', iconRotate);
     addIfPresent('iconOffset', _offsetToJson(iconOffset));
     addIfPresent('iconAnchor', iconAnchor);
+    addIfPresent('fontNames', fontNames);
     addIfPresent('textField', textField);
     addIfPresent('textSize', textSize);
     addIfPresent('textMaxWidth', textMaxWidth);
