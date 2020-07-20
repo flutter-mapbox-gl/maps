@@ -542,6 +542,10 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   void setMyLocationTrackingMode(int myLocationTrackingMode) {
+    if(_geolocateControl==null){
+      //myLocationEnabled is false, ignore myLocationTrackingMode
+      return;
+    }
     if (myLocationTrackingMode == 0) {
       _addGeolocateControl(trackUserLocation: false);
     } else {
