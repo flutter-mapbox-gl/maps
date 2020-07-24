@@ -103,3 +103,41 @@ class LatLngBounds {
   @override
   int get hashCode => hashValues(southwest, northeast);
 }
+
+/// A pair of x and y screen coordinates.
+class ScreenLocation {
+  /// Creates a screen location specified in [x] and [y].
+  const ScreenLocation(int x, int y)
+      : assert(x != null),
+        assert(y != null),
+        this.x = x,
+        this.y = y;
+
+  /// The latitude in degrees between -90.0 and 90.0, both inclusive.
+  final int x;
+
+  /// The longitude in degrees between -180.0 (inclusive) and 180.0 (exclusive).
+  final int y;
+
+  dynamic toJson() {
+    return <int>[x, y];
+  }
+
+  static ScreenLocation _fromJson(dynamic json) {
+    if (json == null) {
+      return null;
+    }
+    return ScreenLocation(json[0], json[1]);
+  }
+
+  @override
+  String toString() => '$runtimeType($x, $y)';
+
+  @override
+  bool operator ==(Object o) {
+    return o is ScreenLocation && o.x == x && o.y == y;
+  }
+
+  @override
+  int get hashCode => hashValues(x, y);
+}

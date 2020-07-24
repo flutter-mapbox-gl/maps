@@ -165,6 +165,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             reply["sw"] = [visibleRegion.sw.latitude, visibleRegion.sw.longitude] as NSObject
             reply["ne"] = [visibleRegion.ne.latitude, visibleRegion.ne.longitude] as NSObject
             result(reply)
+        case "map#toScreenLocation":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            let latitude = arguments["latitude"] as? Double
+            let longitude = arguments["longitude"] as? Double
+            let latlng = CLLocationCoordinate2DMake(latitude, longitude)
+            let returnVal = convert(latlng, toPointTo: mapView)
+            var reply = [String: NSObject]()
+            reply["x"] = returnVal.x
+            reply["y"] = returnVal.y
+            result(reply)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }

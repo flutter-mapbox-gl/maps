@@ -670,4 +670,17 @@ class MapboxMapController extends ChangeNotifier {
     await MapboxGlPlatform.getInstance(_id)
         .setSymbolTextIgnorePlacement(enable);
   }
+
+  /// Returns a ScreenPosition that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
+  /// Returns null if [latLng] is not currently visible on the map.
+  Future<ScreenLocation> toScreenLocation(LatLng latLng) async{
+    return MapboxGlPlatform.getInstance(_id).toScreenLocation(latLng);
+  }
+
+  /// Returns the geographic location (as [LatLng]) that corresponds to a [ScreenLocation]. The screen location is specified in screen pixels (not display pixels) relative to the top left of the map (not the top left of the whole screen).
+  Future<LatLng> toLatLng(ScreenLocation screenLocation) async{
+    return MapboxGlPlatform.getInstance(_id).toLatLng(screenLocation);
+  }
+
+  
 }

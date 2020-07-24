@@ -441,6 +441,22 @@ final class MapboxMapController
         result.success(reply);
         break;
       }
+      case "map#toScreenLocation": {
+        Map<String, Object> reply = new HashMap<>();
+        PointF pointf = mapboxMap.getProjection().toScreenLocation(LatLng(call.argument("latitude"),call.argument("longitude")));
+        reply.put("x", pointf.x);
+        reply.put("y", pointf.y);
+        result.success(reply);
+        break;
+      }
+      case "map#toLatLng": {
+        Map<String, Object> reply = new HashMap<>();
+        LatLng latlng = mapboxMap.getProjection().fromScreenLocation(PointF(call.argument("x"),call.argument("y")));
+        reply.put("latitude", latLng.latitude);
+        reply.put("longitude", latLng.longitude);
+        result.success(reply);
+        break;
+      }
       case "camera#move": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
         if (cameraUpdate != null) {
