@@ -17,6 +17,7 @@ rootProject.allprojects {
         google()
         jcenter()
         mavenCentral()
+        maven { url 'https://mapbox.bintray.com/mapbox' }
     }
 }
 
@@ -40,6 +41,13 @@ android {
         implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:9.2.0"
         implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.8.0"
         implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-localization-v9:0.12.0"
+
+        implementation ('com.mapbox.mapboxsdk:mapbox-android-navigation:0.42.6') {
+            exclude group: 'com.mapbox.mapboxsdk', module:'mapbox-android-plugin-annotation-v8'
+        }
+        implementation ('com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.42.6') {
+            exclude group: 'com.mapbox.mapboxsdk', module:'mapbox-android-plugin-annotation-v8'
+        }
     }
     compileOptions {
         sourceCompatibility 1.8

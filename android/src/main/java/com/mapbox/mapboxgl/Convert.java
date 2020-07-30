@@ -155,7 +155,7 @@ class Convert {
     return builder.build();
   }
 
-  private static List<LatLng> toLatLngList(Object o) {
+  static List<LatLng> toLatLngList(Object o) {
     if (o == null) {
       return null;
     }
@@ -374,7 +374,7 @@ class Convert {
     if (geometry != null) {
       sink.setGeometry(toLatLng(geometry));
     }
-    final Object symbolSortKey = data.get("symbolSortKey");
+    final Object symbolSortKey = data.get("zIndex");
     if (symbolSortKey != null) {
       sink.setSymbolSortKey(toFloat(symbolSortKey));
     }
@@ -476,5 +476,10 @@ class Convert {
       Logger.e(TAG, "SetDraggable");
       sink.setDraggable(toBoolean(draggable));
     }
+  }
+
+  static void interpretNavigationDrawRouteOptions(Object o) {
+    final Map<?, ?> data = toMap(o);
+
   }
 }

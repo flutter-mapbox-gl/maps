@@ -182,14 +182,25 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
-    final String symbolId = await _channel.invokeMethod(
-      'symbol#add',
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    final List<dynamic> symbolIds = await _channel.invokeMethod(
+      'symbols#addAll',
       <String, dynamic>{
-        'options': options.toJson(),
+        'options': options.map((o) => o.toJson()).toList(),
       },
     );
-    return Symbol(symbolId, options, data);
+    final List<Symbol> symbols = symbolIds.asMap().map(
+            (i, id) => MapEntry(
+            i,
+            Symbol(
+                id,
+                options.elementAt(i),
+                data != null && data.length > i ? data.elementAt(i) : null
+            )
+        )
+    ).values.toList();
+
+    return symbols;
   }
 
   @override
@@ -201,9 +212,20 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> removeSymbol(String symbolId) async {
-    await _channel.invokeMethod('symbol#remove', <String, dynamic>{
-      'symbol': symbolId,
+  Future<LatLng> getSymbolLatLng(Symbol symbol) async{
+    Map mapLatLng =
+        await _channel.invokeMethod('symbol#getGeometry', <String, dynamic>{
+      'symbol': symbol._id,
+    });
+    LatLng symbolLatLng =
+        new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
+    return symbolLatLng;
+  }
+
+  @override
+  Future<void> removeSymbols(Iterable<String> ids) async {
+    await _channel.invokeMethod('symbols#removeAll', <String, dynamic>{
+      'symbols': ids.toList(),
     });
   }
 
@@ -224,6 +246,19 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       'line': line.id,
       'options': changes.toJson(),
     });
+  }
+
+  @override
+  Future<List<LatLng>> getLineLatLngs(Line line) async{
+    List latLngList =
+        await _channel.invokeMethod('line#getGeometry', <String, dynamic>{
+      'line': line._id,
+    });
+    List<LatLng> resultList = [];
+    for (var latLng in latLngList) {
+      resultList.add(LatLng(latLng['latitude'], latLng['longitude']));
+    }
+    return resultList;
   }
 
   @override
@@ -270,7 +305,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
 
   @override
   Future<List> queryRenderedFeatures(
-      Point<double> point, List<String> layerIds, String filter) async {
+      Point<double> point, List<String> layerIds, List<Object> filter) async {
     try {
       final Map<Object, Object> reply = await _channel.invokeMethod(
         'map#queryRenderedFeatures',
@@ -356,6 +391,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     }
   }
 
+  @override
   Future<void> addImage(String name, Uint8List bytes,
       [bool sdf = false]) async {
     try {
@@ -364,6 +400,66 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         "bytes": bytes,
         "length": bytes.length,
         "sdf": sdf
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> setSymbolIconAllowOverlap(bool enable) async {
+    try {
+      await _channel
+          .invokeMethod('symbolManager#iconAllowOverlap', <String, dynamic>{
+        'iconAllowOverlap': enable,
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> setSymbolIconIgnorePlacement(bool enable) async {
+    try {
+      await _channel
+          .invokeMethod('symbolManager#iconIgnorePlacement', <String, dynamic>{
+        'iconIgnorePlacement': enable,
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> setSymbolTextAllowOverlap(bool enable) async {
+    try {
+      await _channel
+          .invokeMethod('symbolManager#textAllowOverlap', <String, dynamic>{
+        'textAllowOverlap': enable,
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> setSymbolTextIgnorePlacement(bool enable) async {
+    try {
+      await _channel
+          .invokeMethod('symbolManager#textIgnorePlacement', <String, dynamic>{
+        'textIgnorePlacement': enable,
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> drawRoute(List<LatLng> latLngs) async {
+    try {
+      await _channel
+          .invokeMethod('navigation#drawRoute', <String, dynamic>{
+        'options': latLngs
       });
     } on PlatformException catch (e) {
       return new Future.error(e);

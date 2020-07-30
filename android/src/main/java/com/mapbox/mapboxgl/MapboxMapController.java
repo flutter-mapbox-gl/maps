@@ -5,6 +5,7 @@
 package com.mapbox.mapboxgl;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -17,6 +18,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
@@ -26,12 +28,23 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.telemetry.TelemetryEnabler;
+import com.mapbox.api.directions.v5.DirectionsCriteria;
+import com.mapbox.api.directions.v5.MapboxDirections;
+import com.mapbox.api.directions.v5.models.DirectionsResponse;
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.mapbox.api.directions.v5.models.RouteLeg;
 import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
@@ -60,17 +73,26 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.Line;
 import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.geojson.Feature;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.platform.PlatformView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.mapbox.api.directions.v5.DirectionsCriteria.ANNOTATION_CONGESTION;
+import static com.mapbox.api.directions.v5.DirectionsCriteria.GEOMETRY_POLYLINE6;
+import static com.mapbox.api.directions.v5.DirectionsCriteria.OVERVIEW_FULL;
+import static com.mapbox.core.constants.Constants.PRECISION_6;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.CREATED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.DESTROYED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.PAUSED;
@@ -79,6 +101,11 @@ import static com.mapbox.mapboxgl.MapboxMapsPlugin.STARTED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STOPPED;
 
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
+import com.mapbox.services.android.navigation.ui.v5.route.OnRouteSelectionChangeListener;
+import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation;
+import com.mapbox.services.android.navigation.v5.navigation.RouteRefresh;
 
 /**
  * Controller of a single MapboxMaps MapView instance.
@@ -99,6 +126,13 @@ final class MapboxMapController
   OnLineTappedListener,
   OnCircleTappedListener,
   PlatformView {
+
+  static final String ROUTE_SOURCE_ID = "mapbox-navigation-route-source";
+  static final String ROUTE_LAYER_ID = "mapbox-navigation-route-layer";
+  static final String WAYPOINT_LAYER_ID = "mapbox-navigation-waypoint-layer";
+  static final String PRIMARY_ROUTE_PROPERTY_KEY = "primary-route";
+  static final String CONGESTION_KEY = "congestion";
+
   private static final String TAG = "MapboxMapController";
   private final int id;
   private final AtomicInteger activityState;
@@ -127,14 +161,25 @@ final class MapboxMapController
   private LocalizationPlugin localizationPlugin;
   private Style style;
 
+  private Location myLocation;
+  private NavigationMapRoute navigationMapRoute;
+  private DirectionsRoute directionsRoute;
+
+  private ArrayList<DirectionsRoute> directionsRoutes;
+
+  private RouteRefresh routeRefresh;
+
+  private MapboxNavigation mapboxNavigation;
+
   MapboxMapController(
     int id,
     Context context,
     AtomicInteger activityState,
     PluginRegistry.Registrar registrar,
     MapboxMapOptions options,
+    String accessToken,
     String styleStringInitial) {
-    Mapbox.getInstance(context, getAccessToken(context));
+    Mapbox.getInstance(context, accessToken!=null ? accessToken : getAccessToken(context));
     this.id = id;
     this.context = context;
     this.activityState = activityState;
@@ -181,6 +226,9 @@ final class MapboxMapController
         mapView.onResume();
         mapView.onPause();
         mapView.onStop();
+        if (navigationMapRoute != null) {
+          navigationMapRoute.onStart();
+        }
         break;
       case PAUSED:
         mapView.onCreate(null);
@@ -196,6 +244,9 @@ final class MapboxMapController
       case STARTED:
         mapView.onCreate(null);
         mapView.onStart();
+        if (navigationMapRoute != null) {
+          navigationMapRoute.onStart();
+        }
         break;
       case CREATED:
         mapView.onCreate(null);
@@ -205,6 +256,9 @@ final class MapboxMapController
         mapboxMap.removeOnCameraMoveStartedListener(this);
         mapboxMap.removeOnCameraMoveListener(this);
         mapView.onDestroy();
+        if (mapboxNavigation != null) {
+          mapboxNavigation.onDestroy();
+        }
         break;
       default:
         throw new IllegalArgumentException(
@@ -224,17 +278,6 @@ final class MapboxMapController
 
   private CameraPosition getCameraPosition() {
     return trackCameraPosition ? mapboxMap.getCameraPosition() : null;
-  }
-
-  private SymbolBuilder newSymbolBuilder() {
-    return new SymbolBuilder(symbolManager);
-  }
-
-  private void removeSymbol(String symbolId) {
-    final SymbolController symbolController = symbols.remove(symbolId);
-    if (symbolController != null) {
-      symbolController.remove(symbolManager);
-    }
   }
 
   private SymbolController symbol(String symbolId) {
@@ -313,6 +356,14 @@ final class MapboxMapController
       Log.e(TAG, "setStyleString - string empty or null");
     } else if (styleString.startsWith("{") || styleString.startsWith("[")) {
       mapboxMap.setStyle(new Style.Builder().fromJson(styleString), onStyleLoadedCallback);
+    } else if (
+      !styleString.startsWith("http://") &&
+      !styleString.startsWith("https://")&&
+      !styleString.startsWith("mapbox://")) {
+      // We are assuming that the style will be loaded from an asset here.
+      AssetManager assetManager = registrar.context().getAssets();
+      String key = registrar.lookupKeyForAsset(styleString);
+      mapboxMap.setStyle(new Style.Builder().fromUri("asset://" + key), onStyleLoadedCallback);
     } else {
       mapboxMap.setStyle(new Style.Builder().fromUrl(styleString), onStyleLoadedCallback);
     }
@@ -332,8 +383,11 @@ final class MapboxMapController
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
       mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
-	  
+
 	  localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
+
+      mapboxNavigation = new MapboxNavigation(context, getAccessToken(context));
+      routeRefresh = new RouteRefresh(getAccessToken(context));
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
     }
@@ -389,6 +443,7 @@ final class MapboxMapController
     }
   }
 
+  @SuppressLint("MissingPermission")
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
@@ -497,9 +552,13 @@ final class MapboxMapController
 
         String[] layerIds = ((List<String>) call.argument("layerIds")).toArray(new String[0]);
 
-        String filter = (String) call.argument("filter");
-
-        Expression filterExpression = filter == null ? null : new Expression(filter);
+        List<Object> filter = call.argument("filter");
+        JsonElement jsonElement = filter == null ? null : new Gson().toJsonTree(filter);
+        JsonArray jsonArray = null;
+        if (jsonElement != null && jsonElement.isJsonArray()) {
+          jsonArray = jsonElement.getAsJsonArray();
+        }
+        Expression filterExpression = jsonArray == null ? null : Expression.Converter.convert(jsonArray);
         if (call.hasArgument("x")) {
           Double x = call.argument("x");
           Double y = call.argument("y");
@@ -548,18 +607,44 @@ final class MapboxMapController
         });
         break;
       }
-      case "symbol#add": {
-        final SymbolBuilder symbolBuilder = newSymbolBuilder();
-        Convert.interpretSymbolOptions(call.argument("options"), symbolBuilder);
-        final Symbol symbol = symbolBuilder.build();
-        final String symbolId = String.valueOf(symbol.getId());
-        symbols.put(symbolId, new SymbolController(symbol, true, this));
-        result.success(symbolId);
+      case "symbols#addAll": {
+        List<String> newSymbolIds = new ArrayList<String>();
+        final List<Object> options = call.argument("options");
+        List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
+        if (options != null) {
+          SymbolBuilder symbolBuilder;
+          for (Object o : options) {
+            symbolBuilder =  new SymbolBuilder();
+            Convert.interpretSymbolOptions(o, symbolBuilder);
+            symbolOptionsList.add(symbolBuilder.getSymbolOptions());
+          }
+          if (!symbolOptionsList.isEmpty()) {
+            List<Symbol> newSymbols = symbolManager.create(symbolOptionsList);
+            String symbolId;
+            for (Symbol symbol : newSymbols) {
+              symbolId = String.valueOf(symbol.getId());
+              newSymbolIds.add(symbolId);
+              symbols.put(symbolId, new SymbolController(symbol, true, this));
+            }
+          }
+        }
+        result.success(newSymbolIds);
         break;
       }
-      case "symbol#remove": {
-        final String symbolId = call.argument("symbol");
-        removeSymbol(symbolId);
+      case "symbols#removeAll": {
+        final ArrayList<String> symbolIds = call.argument("symbols");
+        SymbolController symbolController;
+
+        List<Symbol> symbolList = new ArrayList<Symbol>();
+        for(String symbolId : symbolIds){
+            symbolController = symbols.remove(symbolId);
+            if (symbolController != null) {
+              symbolList.add(symbolController.getSymbol());
+            }
+        }
+        if(!symbolList.isEmpty()) {
+          symbolManager.delete(symbolList);
+        }
         result.success(null);
         break;
       }
@@ -570,6 +655,15 @@ final class MapboxMapController
         symbol.update(symbolManager);
         result.success(null);
         break;
+      }
+      case "symbol#getGeometry": {
+        final String symbolId = call.argument("symbol");
+        final SymbolController symbol = symbol(symbolId);
+        final LatLng symbolLatLng = symbol.getGeometry();
+        Map<String, Double> hashMapLatLng = new HashMap<>();
+        hashMapLatLng.put("latitude", symbolLatLng.getLatitude());
+        hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
+        result.success(hashMapLatLng);
       }
       case "symbolManager#iconAllowOverlap": {
         final Boolean value = call.argument("iconAllowOverlap");
@@ -616,6 +710,20 @@ final class MapboxMapController
         Convert.interpretLineOptions(call.argument("options"), line);
         line.update(lineManager);
         result.success(null);
+        break;
+      }
+      case "line#getGeometry": {
+        final String lineId = call.argument("line");
+        final LineController line = line(lineId);
+        final List<LatLng> lineLatLngs = line.getGeometry();
+        final List<Object> resultList = new ArrayList<>();
+        for (LatLng latLng: lineLatLngs){
+          Map<String, Double> hashMapLatLng = new HashMap<>();
+          hashMapLatLng.put("latitude", latLng.getLatitude());
+          hashMapLatLng.put("longitude", latLng.getLongitude());
+          resultList.add(hashMapLatLng);
+        }
+        result.success(resultList);
         break;
       }
       case "circle#add": {
@@ -684,6 +792,17 @@ final class MapboxMapController
         }
         style.addImage(call.argument("name"), BitmapFactory.decodeByteArray(call.argument("bytes"),0,call.argument("length")), call.argument("sdf"));
         result.success(null);
+        break;
+      }
+
+      case "navigation#drawRoutes": {
+        final Object options = call.argument("options");
+        if (options != null) {
+          final List<LatLng> latLngs = Convert.toLatLngList(options);
+          getMapboxAPIRoute(latLngs, directionsResponse -> {
+            addRoutesToMap(directionsResponse.routes());
+          });
+        }
         break;
       }
       default:
@@ -796,6 +915,7 @@ final class MapboxMapController
     return true;
   }
 
+  @SuppressLint("MissingPermission")
   @Override
   public void dispose() {
     if (disposed) {
@@ -1004,6 +1124,7 @@ final class MapboxMapController
     mapboxMap.getUiSettings().setAttributionMargins(0, 0, x, y);
   }
 
+  @SuppressLint("MissingPermission")
   private void updateMyLocationEnabled() {
     if(this.locationComponent == null && myLocationEnabled == true){
       enableLocationComponent(mapboxMap.getStyle());
@@ -1104,6 +1225,224 @@ final class MapboxMapController
 
     @Override
     public void onCancel() {
+    }
+  }
+
+  public void getMapboxAPIRoute(LatLng[] latLngs, @NonNull final DirectionsResponseCallback callback) {
+    this.getMapboxAPIRoute(Arrays.asList(latLngs), callback);
+  }
+
+  public void getMapboxAPIRoute(List<LatLng> latLngs, @NonNull final DirectionsResponseCallback callback) {
+    MapboxDirections.Builder builder = MapboxDirections.builder()
+            .accessToken(getAccessToken(context))
+            .profile(DirectionsCriteria.PROFILE_DRIVING)
+            .steps(true)
+            .alternatives(true)
+            .enableRefresh(true)
+            .overview(OVERVIEW_FULL)
+            .annotations(ANNOTATION_CONGESTION)
+            .bannerInstructions(true)
+            .voiceInstructions(true)
+            .voiceUnits(DirectionsCriteria.METRIC)
+            .language(Locale.ENGLISH)
+            .geometries(GEOMETRY_POLYLINE6)
+            .post();
+    for (int i = 0; i < latLngs.size(); i++) {
+      LatLng latLng = latLngs.get(i);
+      //
+      if (i == 0) {
+        builder.origin(Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude(), latLng.getAltitude()));
+      } else if (i == latLngs.size() - 1) {
+        builder.destination(Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude(), latLng.getAltitude()));
+      } else {
+        builder.addWaypoint(Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude(), latLng.getAltitude()));
+      }
+    }
+    //
+    builder.build().enqueueCall(new Callback<DirectionsResponse>() {
+      @Override
+      public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+        if (callback != null) {
+          callback.onDirectionsResponse(response.body());
+        }
+      }
+
+      @Override
+      public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+
+      }
+    });
+  }
+
+  public void addRouteToMap(DirectionsRoute directionsRoute) {
+    navigationMapRoute.updateRouteVisibilityTo(false);
+    navigationMapRoute.addRoute(directionsRoute);
+  }
+
+  public void addTrackingRouteToMap(DirectionsRoute directionRoute) {
+    if (directionsRoutes != null) {
+      directionsRoutes.clear();
+    } else {
+      directionsRoutes = new ArrayList<>();
+    }
+    directionsRoutes.add(directionRoute);
+//        navigationMapRoute.updateRouteVisibilityTo(false);
+//        navigationMapRoute.updateRouteArrowVisibilityTo(false);
+    //
+//        navigationMapRoute.updateRouteVisibilityTo(true);
+//        navigationMapRoute.updateRouteArrowVisibilityTo(true);
+    //
+    navigationMapRoute.addRoute(directionsRoute);
+    navigationMapRoute.showAlternativeRoutes(false);
+    //
+    selectRoute(0);
+  }
+
+  public void addRoutesToMap(List<DirectionsRoute> directionsRoutes) {
+    if (directionsRoutes != null) {
+      directionsRoutes.clear();
+    } else {
+      directionsRoutes = new ArrayList<>();
+    }
+    directionsRoutes.addAll(directionsRoutes);
+    //
+    navigationMapRoute.updateRouteVisibilityTo(false);
+    navigationMapRoute.updateRouteArrowVisibilityTo(false);
+    //
+    navigationMapRoute.showAlternativeRoutes(true);
+    //
+    navigationMapRoute.updateRouteVisibilityTo(true);
+    navigationMapRoute.updateRouteArrowVisibilityTo(true);
+    //
+    navigationMapRoute.addRoutes(directionsRoutes);
+    //
+    selectRoute(0);
+  }
+
+  public void selectRoute(int index) {
+    if (mapboxMap != null && mapboxMap.getStyle() != null) {
+      GeoJsonSource routeLineSource = (GeoJsonSource) mapboxMap.getStyle().getSource(ROUTE_SOURCE_ID);
+      if (routeLineSource != null) {
+        new CustomFeatureProcessingTask(directionsRoutes, index, customOnRouteFeaturesProcessedCallback).execute();
+      }
+      onRouteSelectionChangeListener.onNewPrimaryRouteSelected(directionsRoutes.get(index));
+    }
+  }
+
+  public interface DirectionsRouteResponseCallback {
+    void onDirectionsRouteResponse(DirectionsRoute directionsRoute);
+  }
+
+  public interface DirectionsResponseCallback {
+    void onDirectionsResponse(DirectionsResponse directionsResponse);
+  }
+
+  interface CustomOnRouteFeaturesProcessedCallback {
+    void onRouteFeaturesProcessed(List<FeatureCollection> routeFeatureCollections,
+                                  HashMap<LineString, DirectionsRoute> routeLineStrings);
+  }
+
+  OnRouteSelectionChangeListener onRouteSelectionChangeListener = directionsRoute -> {
+    directionsRoute = directionsRoute;
+    //
+//    fitBounds(getRoutingPoints(mDirectionsRoutes));
+    //
+//    onRouteSelectionChange(directionsRoute);
+  };
+  CustomOnRouteFeaturesProcessedCallback customOnRouteFeaturesProcessedCallback = new CustomOnRouteFeaturesProcessedCallback() {
+    @Override
+    public void onRouteFeaturesProcessed(List<FeatureCollection> routeFeatureCollections, HashMap<LineString, DirectionsRoute> routeLineStrings) {
+      GeoJsonSource routeLineSource = (GeoJsonSource) mapboxMap.getStyle().getSource(ROUTE_SOURCE_ID);
+      if (routeLineSource != null) {
+        List<Feature> routeFeatures = new ArrayList<>();
+        for (int i = routeFeatureCollections.size() - 1; i >= 0; i--) {
+          routeFeatures.addAll(routeFeatureCollections.get(i).features());
+        }
+        routeLineSource.setGeoJson(FeatureCollection.fromFeatures(routeFeatures));
+      }
+    }
+  };
+
+  class CustomFeatureProcessingTask extends AsyncTask<Void, Void, Void> {
+
+    private final int indexPrimary;
+    private final List<DirectionsRoute> routes;
+    private final List<FeatureCollection> routeFeatureCollections = new ArrayList<>();
+    private final WeakReference<CustomOnRouteFeaturesProcessedCallback> callbackWeakReference;
+    private final HashMap<LineString, DirectionsRoute> routeLineStrings = new HashMap<>();
+
+    CustomFeatureProcessingTask(List<DirectionsRoute> routes, int indexPrimary, CustomOnRouteFeaturesProcessedCallback callback) {
+      this.indexPrimary = indexPrimary;
+      this.routes = routes;
+      this.callbackWeakReference = new WeakReference<>(callback);
+    }
+
+    @Override
+    protected Void doInBackground(Void... voids) {
+      for (int i = 0; i < routes.size(); i++) {
+        DirectionsRoute route = routes.get(i);
+        boolean isPrimary = i == (indexPrimary < routes.size() ? indexPrimary : 0);
+        FeatureCollection routeFeatureCollection = createRouteFeatureCollection(route, isPrimary);
+        if (isPrimary) {
+          routeFeatureCollections.add(0, routeFeatureCollection);
+        } else {
+          routeFeatureCollections.add(routeFeatureCollection);
+        }
+      }
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void result) {
+      super.onPostExecute(result);
+      Runtime.getRuntime().gc();
+      CustomOnRouteFeaturesProcessedCallback callback = callbackWeakReference.get();
+      if (callback != null) {
+        callback.onRouteFeaturesProcessed(routeFeatureCollections, routeLineStrings);
+      }
+    }
+
+    private FeatureCollection createRouteFeatureCollection(DirectionsRoute route, boolean isPrimary) {
+      final List<Feature> features = new ArrayList<>();
+
+      LineString routeGeometry = LineString.fromPolyline(route.geometry(), PRECISION_6);
+      Feature routeFeature = Feature.fromGeometry(routeGeometry);
+      routeFeature.addBooleanProperty(PRIMARY_ROUTE_PROPERTY_KEY, isPrimary);
+      features.add(routeFeature);
+      routeLineStrings.put(routeGeometry, route);
+
+      // List<Feature> congestionFeatures = buildCongestionFeaturesFromRoute(route, routeGeometry, isPrimary);
+//            features.addAll(congestionFeatures);
+      return FeatureCollection.fromFeatures(features);
+    }
+
+    private List<Feature> buildCongestionFeaturesFromRoute(DirectionsRoute route, LineString lineString,
+                                                           boolean isPrimary) {
+      final List<Feature> features = new ArrayList<>();
+      for (RouteLeg leg : route.legs()) {
+        if (leg.annotation() != null && leg.annotation().congestion() != null) {
+          for (int i = 0; i < leg.annotation().congestion().size(); i++) {
+            // See https://github.com/mapbox/mapbox-navigation-android/issues/353
+            if (leg.annotation().congestion().size() + 1 <= lineString.coordinates().size()) {
+
+              List<Point> points = new ArrayList<>();
+              points.add(lineString.coordinates().get(i));
+              points.add(lineString.coordinates().get(i + 1));
+
+              LineString congestionLineString = LineString.fromLngLats(points);
+              Feature feature = Feature.fromGeometry(congestionLineString);
+              String congestionValue = leg.annotation().congestion().get(i);
+              feature.addStringProperty(CONGESTION_KEY, congestionValue);
+              feature.addBooleanProperty(PRIMARY_ROUTE_PROPERTY_KEY, isPrimary);
+              features.add(feature);
+            }
+          }
+        } else {
+          Feature feature = Feature.fromGeometry(lineString);
+          features.add(feature);
+        }
+      }
+      return features;
     }
   }
 }

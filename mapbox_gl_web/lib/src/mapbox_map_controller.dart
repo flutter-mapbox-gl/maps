@@ -2,8 +2,7 @@ part of mapbox_gl_web;
 
 class MapboxMapController extends MapboxGlPlatform
     implements MapboxMapOptionsSink {
-  final List<DivElement> _mapElements = [];
-  final Set<Function> _callbacks = Set();
+  DivElement _mapElement;
 
   Map<String, dynamic> _creationParams;
   MapboxMap _map;
@@ -25,19 +24,18 @@ class MapboxMapController extends MapboxGlPlatform
       Function onPlatformViewCreated,
       Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers) {
     _creationParams = creationParams;
-    _callbacks.add(onPlatformViewCreated);
-    _registerViewFactory();
-    return HtmlElementView(viewType: 'plugins.flutter.io/mapbox_gl');
+    _registerViewFactory(onPlatformViewCreated, this.hashCode);
+    return HtmlElementView(
+        viewType: 'plugins.flutter.io/mapbox_gl_${this.hashCode}');
   }
 
-  void _registerViewFactory() {
+  void _registerViewFactory(Function(int) callback, int identifier) {
     // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory('plugins.flutter.io/mapbox_gl',
-        (int viewId) {
-      _callbacks.elementAt(viewId)(viewId);
-      final mapElement = DivElement();
-      _mapElements.add(mapElement);
-      return mapElement;
+    ui.platformViewRegistry.registerViewFactory(
+        'plugins.flutter.io/mapbox_gl_$identifier', (int viewId) {
+      _mapElement = DivElement();
+      callback(viewId);
+      return _mapElement;
     });
   }
 
@@ -46,9 +44,12 @@ class MapboxMapController extends MapboxGlPlatform
     await _addStylesheetToShadowRoot();
     if (_creationParams.containsKey('initialCameraPosition')) {
       var camera = _creationParams['initialCameraPosition'];
+      if (_creationParams.containsKey('accessToken')) {
+        Mapbox.accessToken = _creationParams['accessToken'];
+      }
       _map = MapboxMap(
         MapOptions(
-          container: _mapElements[id],
+          container: _mapElement,
           style: 'mapbox://styles/mapbox/streets-v11',
           center: LngLat(camera['target'][1], camera['target'][0]),
           zoom: camera['zoom'],
@@ -138,15 +139,31 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
-    String symbolId = symbolManager.add(Feature(
-      geometry: Geometry(
-        type: 'Point',
-        coordinates: [options.geometry.longitude, options.geometry.latitude],
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    Map<String, SymbolOptions> optionsById = Map.fromIterable(
+      options,
+      key: (o) => symbolManager.add(
+          Feature(
+            geometry: Geometry(
+              type: 'Point',
+              coordinates: [o.geometry.longitude, o.geometry.latitude],
+            ),
+          )
       ),
-    ));
-    symbolManager.update(symbolId, options);
-    return Symbol(symbolId, options, data);
+      value: (o) => o
+    );
+    symbolManager.updateAll(optionsById);
+    
+    return optionsById.map(
+        (id, singleOptions) {
+          int dataIndex = options.indexOf(singleOptions);
+          Map singleData = data != null && data.length >= dataIndex + 1 ? data[dataIndex] : null;
+          return MapEntry(
+            id,
+            Symbol(id, singleOptions, singleData)
+          );
+        }
+    ).values.toList();
   }
 
   @override
@@ -155,8 +172,8 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  Future<void> removeSymbol(String symbolId) async {
-    symbolManager.remove(symbolId);
+  Future<void> removeSymbols(Iterable<String> symbolsIds) async {
+    symbolManager.removeAll(symbolsIds);
   }
 
   @override
@@ -213,7 +230,7 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future<List> queryRenderedFeatures(
-      Point<double> point, List<String> layerIds, String filter) async {
+      Point<double> point, List<String> layerIds, List<Object> filter) async {
     Map<String, dynamic> options = {};
     if (layerIds.length > 0) {
       options['layers'] = layerIds;
@@ -259,6 +276,7 @@ class MapboxMapController extends MapboxGlPlatform
     );
   }
 
+  @override
   Future<void> addImage(String name, Uint8List bytes,
       [bool sdf = false]) async {
     final photo = decodeImage(bytes);
@@ -273,6 +291,30 @@ class MapboxMapController extends MapboxGlPlatform
         {'sdf': sdf},
       );
     }
+  }
+
+  @override
+  Future<void> setSymbolIconAllowOverlap(bool enable) async {
+    //TODO: to implement
+    print('setSymbolIconAllowOverlap not implemented yet');
+  }
+
+  @override
+  Future<void> setSymbolIconIgnorePlacement(bool enable) async {
+    //TODO: to implement
+    print('setSymbolIconIgnorePlacement not implemented yet');
+  }
+
+  @override
+  Future<void> setSymbolTextAllowOverlap(bool enable) async {
+    //TODO: to implement
+    print('setSymbolTextAllowOverlap not implemented yet');
+  }
+
+  @override
+  Future<void> setSymbolTextIgnorePlacement(bool enable) async {
+    //TODO: to implement
+    print('setSymbolTextIgnorePlacement not implemented yet');
   }
 
   CameraPosition _getCameraPosition() {

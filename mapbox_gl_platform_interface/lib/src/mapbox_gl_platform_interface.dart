@@ -3,7 +3,24 @@
 part of mapbox_gl_platform_interface;
 
 abstract class MapboxGlPlatform {
-  static MapboxGlPlatform _instance = MethodChannelMapboxGl();
+  /// The default instance of [MapboxGlPlatform] to use.
+  ///
+  /// Defaults to [MethodChannelMapboxGl].
+  ///
+  /// Platform-specific plugins should set this with their own platform-specific
+  /// class that extends [MapboxGlPlatform] when they register themselves.
+  static MapboxGlPlatform Function() createInstance =
+      () => MethodChannelMapboxGl();
+
+  static Map<int, MapboxGlPlatform> _instances = {};
+
+  static void addInstance(int id, MapboxGlPlatform platform) {
+    _instances[id] = platform;
+  }
+
+  static MapboxGlPlatform getInstance(int id) {
+    return _instances[id];
+  }
 
   final ArgumentCallbacks<String> onInfoWindowTappedPlatform =
       ArgumentCallbacks<String>();
@@ -43,17 +60,6 @@ abstract class MapboxGlPlatform {
       ArgumentCallbacks<void>();
 
   final ArgumentCallbacks<void> onMapIdlePlatform = ArgumentCallbacks<void>();
-
-  /// The default instance of [MapboxGlPlatform] to use.
-  ///
-  /// Defaults to [MethodChannelMapboxGl].
-  static MapboxGlPlatform get instance => _instance;
-
-  /// Platform-specific plugins should set this with their own platform-specific
-  /// class that extends [MapboxGlPlatform] when they register themselves.
-  static set instance(MapboxGlPlatform instance) {
-    _instance = instance;
-  }
 
   Future<void> initPlatform(int id) async {
     throw UnimplementedError('initPlatform() has not been implemented.');
@@ -105,16 +111,16 @@ abstract class MapboxGlPlatform {
   Future<bool> getTelemetryEnabled() async {
     throw UnimplementedError('getTelemetryEnabled() has not been implemented.');
   }
-
-  Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
-    throw UnimplementedError('addSymbol() has not been implemented.');
+  
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    throw UnimplementedError('addSymbols() has not been implemented.');
   }
 
   Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
     throw UnimplementedError('updateSymbol() has not been implemented.');
   }
 
-  Future<void> removeSymbol(String symbolId) async {
+  Future<void> removeSymbols(Iterable<String> symbolsIds) async {
     throw UnimplementedError('removeSymbol() has not been implemented.');
   }
 
@@ -142,12 +148,20 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('getCircleLatLng() has not been implemented.');
   }
 
+  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
+    throw UnimplementedError('getSymbolLatLng() has not been implemented.');
+  }
+
+  Future<List<LatLng>> getLineLatLngs(Line line) async {
+    throw UnimplementedError('getLineLatLngs() has not been implemented.');
+  }
+
   Future<void> removeCircle(String circleId) async {
     throw UnimplementedError('removeCircle() has not been implemented.');
   }
 
   Future<List> queryRenderedFeatures(
-      Point<double> point, List<String> layerIds, String filter) async {
+      Point<double> point, List<String> layerIds, List<Object> filter) async {
     throw UnimplementedError(
         'queryRenderedFeatures() has not been implemented.');
   }
@@ -175,5 +189,30 @@ abstract class MapboxGlPlatform {
   Future<void> addImage(String name, Uint8List bytes,
       [bool sdf = false]) async {
     throw UnimplementedError('addImage() has not been implemented.');
+  }
+
+  Future<void> setSymbolIconAllowOverlap(bool enable) async {
+    throw UnimplementedError(
+        'setSymbolIconAllowOverlap() has not been implemented.');
+  }
+
+  Future<void> setSymbolIconIgnorePlacement(bool enable) async {
+    throw UnimplementedError(
+        'setSymbolIconIgnorePlacement() has not been implemented.');
+  }
+
+  Future<void> setSymbolTextAllowOverlap(bool enable) async {
+    throw UnimplementedError(
+        'setSymbolTextAllowOverlap() has not been implemented.');
+  }
+
+  Future<void> setSymbolTextIgnorePlacement(bool enable) async {
+    throw UnimplementedError(
+        'setSymbolTextIgnorePlacement() has not been implemented.');
+  }
+
+  Future<void> drawRoute(List<LatLng> latLngs) async {
+    throw UnimplementedError(
+        'drawRoute() hash not been implemented.');
   }
 }
