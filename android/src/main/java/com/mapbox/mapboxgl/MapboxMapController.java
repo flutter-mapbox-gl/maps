@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
@@ -49,6 +50,7 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.geometry.VisibleRegion;
@@ -99,6 +101,7 @@ import static com.mapbox.mapboxgl.MapboxMapsPlugin.PAUSED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.RESUMED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STARTED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STOPPED;
+import static com.mapbox.mapboxsdk.constants.MapboxConstants.MINIMUM_TILT;
 
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
@@ -161,15 +164,21 @@ final class MapboxMapController
   private LocalizationPlugin localizationPlugin;
   private Style style;
 
+  private int[] mapPaddings = new int[]{0, 0, 0, 0};
+
   private Location myLocation;
   private NavigationMapRoute navigationMapRoute;
   private DirectionsRoute directionsRoute;
 
-  private ArrayList<DirectionsRoute> directionsRoutes;
+  private ArrayList<DirectionsRoute> directionsRoutes = new ArrayList<>();
 
   private RouteRefresh routeRefresh;
 
   private MapboxNavigation mapboxNavigation;
+
+  private OnRouteSelectionChangeListener onRouteSelectionChangeListener;
+
+  CustomOnRouteFeaturesProcessedCallback customOnRouteFeaturesProcessedCallback;
 
   MapboxMapController(
     int id,
@@ -381,12 +390,63 @@ final class MapboxMapController
       }
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
-      mapboxMap.addOnMapClickListener(MapboxMapController.this);
+//      mapboxMap.addOnMapClickListener(MapboxMapController.this);
       mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
 
 	  localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
+      onRouteSelectionChangeListener = directionsRoute -> {
+        MapboxMapController.this.directionsRoute = directionsRoute;
+
+        fitBounds(getRoutingPoints(directionsRoutes));
+
+//     onRouteSelectionChange(directionsRoute);
+        final Map<String, Object> arguments = new HashMap<>(1);
+        arguments.put("directionsRoute", directionsRoute.toJson());
+        methodChannel.invokeMethod("navigation#onRouteSelectionChange", arguments);
+      };
+
+      customOnRouteFeaturesProcessedCallback = (routeFeatureCollections, routeLineStrings) -> {
+        GeoJsonSource routeLineSource = (GeoJsonSource) mapboxMap.getStyle().getSource(ROUTE_SOURCE_ID);
+        if (routeLineSource != null) {
+          List<Feature> routeFeatures = new ArrayList<>();
+          for (int i = routeFeatureCollections.size() - 1; i >= 0; i--) {
+            routeFeatures.addAll(routeFeatureCollections.get(i).features());
+          }
+          routeLineSource.setGeoJson(FeatureCollection.fromFeatures(routeFeatures));
+        }
+      };
+
       mapboxNavigation = new MapboxNavigation(context, getAccessToken(context));
+      mapboxNavigation.addProgressChangeListener((location, routeProgress) -> {
+        locationComponent.forceLocationUpdate(location);
+      });
+      mapboxNavigation.addOffRouteListener(location -> {
+//        if (!mRefreshing) {
+//          mRefreshing = true;
+//          Point destination = mDirectionsRoute.routeOptions().coordinates().get(mDirectionsRoute.routeOptions().coordinates().size() - 1);
+//          getMapboxAPIRoute(new LatLng[]{new LatLng(location), new LatLng(destination.latitude(), destination.longitude())}, directionsResponse -> {
+//            mRefreshing = false;
+//            if (directionsResponse.routes().isEmpty() == false) {
+//              mDirectionsRoute = directionsResponse.routes().get(0);
+//              //
+//              if (mDirectionsRoutes != null) {
+//                mDirectionsRoutes.clear();
+//              } else {
+//                mDirectionsRoutes = new ArrayList<>();
+//              }
+//              mDirectionsRoutes.add(mDirectionsRoute);
+//              //
+//              mNavigationMapRoute.addRoute(mDirectionsRoute);
+//              mNavigation.startNavigation(mDirectionsRoute);
+//            }
+//          });
+//        }
+      });
+
+      navigationMapRoute = new NavigationMapRoute(mapboxNavigation, mapView, mapboxMap);
+      navigationMapRoute.setOnRouteSelectionChangeListener(onRouteSelectionChangeListener);
+
       routeRefresh = new RouteRefresh(getAccessToken(context));
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
@@ -492,6 +552,15 @@ final class MapboxMapController
         reply.put("sw", Arrays.asList(visibleRegion.nearLeft.getLatitude(), visibleRegion.nearLeft.getLongitude()));
         reply.put("ne", Arrays.asList(visibleRegion.farRight.getLatitude(), visibleRegion.farRight.getLongitude()));
         result.success(reply);
+        break;
+      }
+      case "map#setMapPadding": {
+        int left = call.argument("left");
+        int top = call.argument("top");
+        int right = call.argument("right");
+        int bottom = call.argument("bottom");
+        setMapPadding(left, top, right, bottom);
+        result.success(null);
         break;
       }
       case "camera#move": {
@@ -795,13 +864,31 @@ final class MapboxMapController
         break;
       }
 
-      case "navigation#drawRoutes": {
+      case "navigation#getMapboxAPIRoute": {
+        final Object options = call.argument("options");
+        if (options != null) {
+          final List<LatLng> latLngs = Convert.toLatLngList(options);
+          getMapboxAPIRoute(latLngs, directionsResponse -> {
+            Map<String, String> arguments = new HashMap<>();
+            arguments.put("directionsResponse", directionsResponse.toJson());
+            result.success(arguments);
+          });
+        } else {
+          result.error("WAYPOINTS IS NULL", "", null);
+        }
+        break;
+      }
+
+      case "navigation#drawRoute": {
         final Object options = call.argument("options");
         if (options != null) {
           final List<LatLng> latLngs = Convert.toLatLngList(options);
           getMapboxAPIRoute(latLngs, directionsResponse -> {
             addRoutesToMap(directionsResponse.routes());
+            result.success(null);
           });
+        } else {
+          result.error("WAYPOINTS IS NULL", "", null);
         }
         break;
       }
@@ -1298,13 +1385,13 @@ final class MapboxMapController
     selectRoute(0);
   }
 
-  public void addRoutesToMap(List<DirectionsRoute> directionsRoutes) {
+  public void addRoutesToMap(List<DirectionsRoute> directionRoutes) {
     if (directionsRoutes != null) {
       directionsRoutes.clear();
     } else {
       directionsRoutes = new ArrayList<>();
     }
-    directionsRoutes.addAll(directionsRoutes);
+    directionsRoutes.addAll(directionRoutes);
     //
     navigationMapRoute.updateRouteVisibilityTo(false);
     navigationMapRoute.updateRouteArrowVisibilityTo(false);
@@ -1329,6 +1416,79 @@ final class MapboxMapController
     }
   }
 
+  public void fitPrimaryRoute() {
+    if (directionsRoute != null) {
+      fitBounds(getRoutingPoints(directionsRoutes));
+    }
+  }
+
+  public void fitBounds(@NonNull final LatLng[] points) {
+    fitBounds(points, mapPaddings[0], mapPaddings[1], mapPaddings[2], mapPaddings[3]);
+  }
+
+  public void fitBounds(@NonNull LatLng p1, @NonNull LatLng p2, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
+    fitBounds(new LatLng[]{p1, p2}, paddingLeft, paddingTop, paddingRight, paddingBottom);
+  }
+
+  public void fitBounds(@NonNull LatLng p1, @NonNull LatLng p2) {
+    fitBounds(p1, p2, mapPaddings[0], mapPaddings[1], mapPaddings[2], mapPaddings[3]);
+  }
+
+  public void fitBounds(@NonNull final LatLng[] points, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
+    LatLngBounds latLngBounds = new LatLngBounds.Builder()
+            .includes(Arrays.asList(points))
+            .build();
+
+    setTilt(MINIMUM_TILT, new MapboxMap.CancelableCallback() {
+      @Override
+      public void onCancel() {
+
+      }
+
+      @Override
+      public void onFinish() {
+        mapboxMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds,
+                paddingLeft,
+                paddingTop,
+                paddingRight,
+                paddingBottom), 1000);
+      }
+    });
+  }
+
+  public void setMapPadding(int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
+    mapPaddings[0] = paddingLeft;
+    mapPaddings[1] = paddingTop;
+    mapPaddings[2] = paddingRight;
+    mapPaddings[3] = paddingBottom;
+  }
+
+  public void setCameraMode(int mode) {
+    if (locationComponent != null) {
+      locationComponent.setCameraMode(mode);
+    }
+  }
+
+  public void setTilt(double tilt, MapboxMap.CancelableCallback callback) {
+    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().tilt(tilt).build()), callback);
+  }
+
+  public LatLng[] getRoutingPoints(List<DirectionsRoute> directionsRoutes) {
+    if (directionsRoutes != null) {
+      ArrayList<LatLng> latLngs = new ArrayList<>();
+      //
+      for (DirectionsRoute directionsRoute : directionsRoutes) {
+        List<Point> points = LineString.fromPolyline(directionsRoute.geometry(), PRECISION_6).coordinates();
+        for (Point p : points) {
+          latLngs.add(new LatLng(p.latitude(), p.longitude()));
+        }
+      }
+      //
+      return latLngs.toArray(new LatLng[latLngs.size()]);
+    }
+    return new LatLng[]{};
+  }
+
   public interface DirectionsRouteResponseCallback {
     void onDirectionsRouteResponse(DirectionsRoute directionsRoute);
   }
@@ -1341,27 +1501,6 @@ final class MapboxMapController
     void onRouteFeaturesProcessed(List<FeatureCollection> routeFeatureCollections,
                                   HashMap<LineString, DirectionsRoute> routeLineStrings);
   }
-
-  OnRouteSelectionChangeListener onRouteSelectionChangeListener = directionsRoute -> {
-    directionsRoute = directionsRoute;
-    //
-//    fitBounds(getRoutingPoints(mDirectionsRoutes));
-    //
-//    onRouteSelectionChange(directionsRoute);
-  };
-  CustomOnRouteFeaturesProcessedCallback customOnRouteFeaturesProcessedCallback = new CustomOnRouteFeaturesProcessedCallback() {
-    @Override
-    public void onRouteFeaturesProcessed(List<FeatureCollection> routeFeatureCollections, HashMap<LineString, DirectionsRoute> routeLineStrings) {
-      GeoJsonSource routeLineSource = (GeoJsonSource) mapboxMap.getStyle().getSource(ROUTE_SOURCE_ID);
-      if (routeLineSource != null) {
-        List<Feature> routeFeatures = new ArrayList<>();
-        for (int i = routeFeatureCollections.size() - 1; i >= 0; i--) {
-          routeFeatures.addAll(routeFeatureCollections.get(i).features());
-        }
-        routeLineSource.setGeoJson(FeatureCollection.fromFeatures(routeFeatures));
-      }
-    }
-  };
 
   class CustomFeatureProcessingTask extends AsyncTask<Void, Void, Void> {
 

@@ -297,6 +297,11 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxGlPlatform.getInstance(_id).setMapLanguage(language);
   }
 
+  /// Update map padding when fitbounds
+  Future<void> setMapPadding(int left, int top, int right, int bottom) async {
+    return MapboxGlPlatform.getInstance(_id).setMapPadding(left, top, right, bottom);
+  }
+
   /// Enables or disables the collection of anonymized telemetry data.
   ///
   /// The returned [Future] completes after the change has been made on the
@@ -669,6 +674,12 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> setSymbolTextIgnorePlacement(bool enable) async {
     await MapboxGlPlatform.getInstance(_id)
         .setSymbolTextIgnorePlacement(enable);
+  }
+
+  /// get Route
+  Future<DirectionsResponse> getMapboxAPIRoute(List<LatLng> latLngs) async {
+    return await MapboxGlPlatform.getInstance(_id)
+        .getMapboxAPIRoute(latLngs);
   }
 
   /// Draw navigation route

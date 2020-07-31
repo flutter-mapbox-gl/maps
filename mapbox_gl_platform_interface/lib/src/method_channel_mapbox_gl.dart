@@ -70,6 +70,16 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       case 'map#onIdle':
         onMapIdlePlatform(null);
         break;
+      case 'navigation#onRouteSelectionChange':
+        String directionsRouteRaw = call.arguments['directionsRoute'];
+        Map<String, dynamic> map = json.decode(directionsRouteRaw);
+        try {
+          DirectionsRoute directionsRoute = DirectionsRoute.fromJson(map);
+          String uuid = directionsRoute.routeIndex;
+        } catch (ex){
+         debugPrint(e.toString());
+        }
+        break;
       default:
         throw MissingPluginException();
     }
@@ -166,6 +176,16 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   Future<void> setMapLanguage(String language) async {
     await _channel.invokeMethod('map#setMapLanguage', <String, dynamic>{
       'language': language,
+    });
+  }
+
+  @override
+  Future<void> setMapPadding(int left, int top, int right, int bottom) async {
+    await _channel.invokeMethod('map#setMapPadding', <String, dynamic>{
+      'left': left,
+      'top': top,
+      'right': right,
+      'bottom': bottom
     });
   }
 
@@ -455,11 +475,24 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<DirectionsResponse> getMapboxAPIRoute(List<LatLng> latLngs) async {
+    try {
+      Map directionsResponseMap = await _channel
+          .invokeMethod('navigation#getMapboxAPIRoute', <String, dynamic>{
+        'options': latLngs.map((e) => e.toJson()).toList()
+      });
+      return DirectionsResponse.fromJson(json.decode(directionsResponseMap["directionsResponse"]));
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
   Future<void> drawRoute(List<LatLng> latLngs) async {
     try {
       await _channel
           .invokeMethod('navigation#drawRoute', <String, dynamic>{
-        'options': latLngs
+        'options': latLngs.map((e) => e.toJson()).toList()
       });
     } on PlatformException catch (e) {
       return new Future.error(e);

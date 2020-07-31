@@ -104,6 +104,10 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('setMapLanguage() has not been implemented.');
   }
 
+  Future<void> setMapPadding(int left, int top, int right, int bottom) {
+    throw UnimplementedError('setMapPadding() set not been implemented.');
+  }
+
   Future<void> setTelemetryEnabled(bool enabled) async {
     throw UnimplementedError('setTelemetryEnabled() has not been implemented.');
   }
@@ -209,6 +213,11 @@ abstract class MapboxGlPlatform {
   Future<void> setSymbolTextIgnorePlacement(bool enable) async {
     throw UnimplementedError(
         'setSymbolTextIgnorePlacement() has not been implemented.');
+  }
+
+  Future<DirectionsResponse> getMapboxAPIRoute(List<LatLng> latLngs) async {
+    throw UnimplementedError(
+        'getMapboxAPIRoute() hash not been implemented.');
   }
 
   Future<void> drawRoute(List<LatLng> latLngs) async {

@@ -1,6 +1,7 @@
 library mapbox_gl_platform_interface;
 
 import 'dart:math';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -16,4 +17,6 @@ part 'src/location.dart';
 part 'src/method_channel_mapbox_gl.dart';
 part 'src/symbol.dart';
 part 'src/ui.dart';
+part 'src/navigation/directions_route.dart';
+part 'src/navigation/directions_response.dart';
 part 'src/mapbox_gl_platform_interface.dart';
