@@ -77,7 +77,18 @@ void downloadOfflineRegionStream(
         status = InProgress(0.0);
         break;
       case 'progress':
-        status = InProgress(jsonData['progress'] ?? 0.0);
+        final dynamic value = jsonData['progress'];
+        double progress = 0.0;
+
+        if (value is int) {
+          progress = value.toDouble();
+        }
+
+        if (value is double) {
+          progress = value;
+        }
+
+        status = InProgress(progress);
         break;
       case 'success':
         status = Success();
