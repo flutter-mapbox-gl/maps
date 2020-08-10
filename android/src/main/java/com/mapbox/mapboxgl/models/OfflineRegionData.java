@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -28,6 +29,9 @@ public class OfflineRegionData {
     private double minZoom;
     @SerializedName("maxZoom")
     private double maxZoom;
+    @Expose(serialize = false)
+    @SerializedName("accessToken")
+    private String accessToken;
 
     public OfflineRegionData(int id, List<List<Double>> bounds, Map<String, Object> metadata, String mapStyleUrl, double minZoom, double maxZoom) {
         this.id = id;
@@ -63,6 +67,10 @@ public class OfflineRegionData {
 
     public double getMaxZoom() {
         return maxZoom;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
     }
 
     @Nullable

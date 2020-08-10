@@ -41,13 +41,13 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 Gson gson = new Gson();
                 OfflineRegionData args = gson.fromJson(methodCall.arguments.toString(), OfflineRegionData.class);
                 //Start downloading
-                OfflineManagerUtils.downloadRegion(args, result, registrar);
+                OfflineManagerUtils.downloadRegion(args, result, registrar, args.getAccessToken());
                 break;
             case "downloadListOfRegions":
-                OfflineManagerUtils.regionsList(result, registrar.context());
+                OfflineManagerUtils.regionsList(result, registrar.context(), (String) methodCall.argument("accessToken"));
                 break;
             case "deleteOfflineRegion":
-                OfflineManagerUtils.deleteRegion(result, registrar.context(), (int) methodCall.argument("id"));
+                OfflineManagerUtils.deleteRegion(result, registrar.context(), (int) methodCall.argument("id"), (String) methodCall.argument("accessToken"));
                 break;
             default:
                 result.notImplemented();
