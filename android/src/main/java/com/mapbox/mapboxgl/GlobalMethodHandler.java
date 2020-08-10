@@ -36,12 +36,12 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 installOfflineMapTiles(tilesDb);
                 result.success(null);
                 break;
-            case "getListOfRegions":
+            case "downloadOfflineRegion":
                 //Get download region arguments from caller
                 Gson gson = new Gson();
                 OfflineRegionData args = gson.fromJson(methodCall.arguments.toString(), OfflineRegionData.class);
                 //Start downloading
-                OfflineManagerUtils.getRegion(args, result, registrar, args.getAccessToken());
+                OfflineManagerUtils.downloadRegion(args, result, registrar, args.getAccessToken());
                 break;
             case "downloadListOfRegions":
                 OfflineManagerUtils.regionsList(result, registrar.context(), (String) methodCall.argument("accessToken"));

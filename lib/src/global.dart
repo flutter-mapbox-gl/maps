@@ -18,9 +18,9 @@ Future<void> installOfflineMapTiles(String tilesDb) async {
   );
 }
 
-Future<List<OfflineRegion>> getListOfRegions({String accessToken}) async {
+Future<List<OfflineRegion>> downloadListOfRegions({String accessToken}) async {
   String regionsJson = await _globalChannel.invokeMethod(
-    'getListOfRegions',
+    'downloadListOfRegions',
     <String, dynamic>{
       'accessToken': accessToken,
     },
