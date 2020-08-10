@@ -24,7 +24,7 @@ import io.flutter.plugin.common.PluginRegistry;
 abstract class OfflineManagerUtils {
     private static final String TAG = "OfflineManagerUtils";
 
-    static void downloadRegion(OfflineRegionData offlineRegionData, MethodChannel.Result result, PluginRegistry.Registrar registrar, String accessToken) {
+    static void getRegion(OfflineRegionData offlineRegionData, MethodChannel.Result result, PluginRegistry.Registrar registrar, String accessToken) {
         //Initialize Mapbox
         MapBoxUtils.getMapbox(registrar.context(), accessToken);
         //Prepare channel

@@ -182,7 +182,7 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
 
   void _updateListOfRegions() async {
     List<int> storedRegionsIds =
-        (await downloadListOfRegions()).map((region) => region.id).toList();
+        (await getListOfRegions()).map((region) => region.id).toList();
     List<OfflineRegionListItem> regions = [];
     for (var region in allRegions) {
       if (storedRegionsIds.contains(region.offlineRegion.id)) {
