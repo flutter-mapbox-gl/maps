@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:mapbox_gl_example/main.dart';
 
 import 'offline_region_map.dart';
 import 'page.dart';
@@ -181,8 +182,11 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
   }
 
   void _updateListOfRegions() async {
-    List<int> storedRegionsIds =
-        (await downloadListOfRegions()).map((region) => region.id).toList();
+    List<int> storedRegionsIds = (await getListOfRegions(
+      accessToken: MapsDemo.ACCESS_TOKEN,
+    ))
+        .map((region) => region.id)
+        .toList();
     List<OfflineRegionListItem> regions = [];
     for (var region in allRegions) {
       if (storedRegionsIds.contains(region.offlineRegion.id)) {
@@ -204,7 +208,10 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
     });
 
     try {
-      await downloadOfflineRegion(item.offlineRegion);
+      await downloadOfflineRegion(
+        item.offlineRegion,
+        accessToken: MapsDemo.ACCESS_TOKEN,
+      );
     } on Exception catch (_) {
       setState(() {
         _items.removeAt(index);
@@ -235,7 +242,10 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
       _items.insert(index, item.copyWith(isDownloading: true));
     });
 
-    await deleteOfflineRegion(item.offlineRegion.id);
+    await deleteOfflineRegion(
+      item.offlineRegion.id,
+      accessToken: MapsDemo.ACCESS_TOKEN,
+    );
 
     setState(() {
       _items.removeAt(index);

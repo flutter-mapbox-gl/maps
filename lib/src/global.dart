@@ -38,14 +38,18 @@ Future<dynamic> deleteOfflineRegion(int id, {String accessToken}) =>
       },
     );
 
-Future<dynamic> downloadOfflineRegion(OfflineRegion region,
-        {String accessToken}) =>
-    _globalChannel.invokeMethod(
-      'downloadOfflineRegion',
-      json.encode(
-        region._toJson()..putIfAbsent('accessToken', () => accessToken),
-      ),
-    );
+Future<dynamic> downloadOfflineRegion(
+  OfflineRegion region, {
+  String accessToken,
+}) {
+  final Map<String, dynamic> jsonMap = region._toJson()
+    ..putIfAbsent('accessToken', () => accessToken);
+
+  return _globalChannel.invokeMethod(
+    'downloadOfflineRegion',
+    json.encode(jsonMap),
+  );
+}
 
 void downloadOfflineRegionStream(
   OfflineRegion region,
