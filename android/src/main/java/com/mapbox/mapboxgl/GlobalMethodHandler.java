@@ -43,7 +43,7 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 //Start downloading
                 OfflineManagerUtils.downloadRegion(args, result, registrar, args.getAccessToken());
                 break;
-            case "downloadListOfRegions":
+            case "getListOfRegions":
                 OfflineManagerUtils.regionsList(result, registrar.context(), (String) methodCall.argument("accessToken"));
                 break;
             case "deleteOfflineRegion":
