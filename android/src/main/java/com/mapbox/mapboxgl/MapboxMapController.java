@@ -25,9 +25,11 @@ import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -41,6 +43,7 @@ import com.mapbox.api.directions.v5.DirectionsCriteria;
 import com.mapbox.api.directions.v5.MapboxDirections;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.mapbox.api.directions.v5.models.LegStep;
 import com.mapbox.api.directions.v5.models.RouteLeg;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -51,6 +54,7 @@ import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.geometry.VisibleRegion;
@@ -101,14 +105,22 @@ import static com.mapbox.mapboxgl.MapboxMapsPlugin.PAUSED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.RESUMED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STARTED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STOPPED;
+import static com.mapbox.mapboxsdk.constants.MapboxConstants.MINIMUM_DIRECTION;
 import static com.mapbox.mapboxsdk.constants.MapboxConstants.MINIMUM_TILT;
 
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.ui.v5.route.OnRouteSelectionChangeListener;
+import com.mapbox.services.android.navigation.v5.location.replay.ReplayRouteLocationEngine;
+import com.mapbox.services.android.navigation.v5.navigation.DirectionsRouteType;
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation;
 import com.mapbox.services.android.navigation.v5.navigation.RouteRefresh;
+import com.mapbox.services.android.navigation.v5.routeprogress.RouteStepProgress;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Controller of a single MapboxMaps MapView instance.
@@ -166,7 +178,6 @@ final class MapboxMapController
 
   private int[] mapPaddings = new int[]{0, 0, 0, 0};
 
-  private Location myLocation;
   private NavigationMapRoute navigationMapRoute;
   private DirectionsRoute directionsRoute;
 
@@ -175,6 +186,8 @@ final class MapboxMapController
   private RouteRefresh routeRefresh;
 
   private MapboxNavigation mapboxNavigation;
+
+  private boolean isRouteRefreshing;
 
   private OnRouteSelectionChangeListener onRouteSelectionChangeListener;
 
@@ -397,13 +410,9 @@ final class MapboxMapController
 
       onRouteSelectionChangeListener = directionsRoute -> {
         MapboxMapController.this.directionsRoute = directionsRoute;
-
-        fitBounds(getRoutingPoints(directionsRoutes));
-
-//     onRouteSelectionChange(directionsRoute);
         final Map<String, Object> arguments = new HashMap<>(1);
         arguments.put("directionsRoute", directionsRoute.toJson());
-        methodChannel.invokeMethod("navigation#onRouteSelectionChange", arguments);
+        methodChannel.invokeMethod("navigation#onRouteSelection", arguments);
       };
 
       customOnRouteFeaturesProcessedCallback = (routeFeatureCollections, routeLineStrings) -> {
@@ -420,28 +429,52 @@ final class MapboxMapController
       mapboxNavigation = new MapboxNavigation(context, getAccessToken(context));
       mapboxNavigation.addProgressChangeListener((location, routeProgress) -> {
         locationComponent.forceLocationUpdate(location);
+        if (routeProgress != null) {
+          RouteStepProgress currentStepProgress = routeProgress.currentLegProgress().currentStepProgress();
+          LegStep upComingStep = routeProgress.currentLegProgress().upComingStep();
+          final Map<String, Object> arguments = new HashMap<>(2);
+          arguments.put("distanceRemaining", currentStepProgress.distanceRemaining());
+          arguments.put("upComingStep", upComingStep.toJson());
+          methodChannel.invokeMethod("navigation#onNavigationProgressChange", arguments);
+        }
       });
       mapboxNavigation.addOffRouteListener(location -> {
-//        if (!mRefreshing) {
-//          mRefreshing = true;
-//          Point destination = mDirectionsRoute.routeOptions().coordinates().get(mDirectionsRoute.routeOptions().coordinates().size() - 1);
-//          getMapboxAPIRoute(new LatLng[]{new LatLng(location), new LatLng(destination.latitude(), destination.longitude())}, directionsResponse -> {
-//            mRefreshing = false;
-//            if (directionsResponse.routes().isEmpty() == false) {
-//              mDirectionsRoute = directionsResponse.routes().get(0);
-//              //
-//              if (mDirectionsRoutes != null) {
-//                mDirectionsRoutes.clear();
-//              } else {
-//                mDirectionsRoutes = new ArrayList<>();
-//              }
-//              mDirectionsRoutes.add(mDirectionsRoute);
-//              //
-//              mNavigationMapRoute.addRoute(mDirectionsRoute);
-//              mNavigation.startNavigation(mDirectionsRoute);
-//            }
-//          });
-//        }
+        if (!isRouteRefreshing) {
+          isRouteRefreshing = true;
+          Point destination = directionsRoute.routeOptions().coordinates().get(directionsRoute.routeOptions().coordinates().size() - 1);
+          getMapboxAPIRoute(new LatLng[]{new LatLng(location), new LatLng(destination.latitude(), destination.longitude())}, directionsResponse -> {
+            isRouteRefreshing = false;
+            if (directionsResponse.routes().isEmpty() == false) {
+              directionsRoute = directionsResponse.routes().get(0);
+              if (directionsRoutes != null) {
+                directionsRoutes.clear();
+              } else {
+                directionsRoutes = new ArrayList<>();
+              }
+              directionsRoutes.add(directionsRoute);
+              navigationMapRoute.addRoute(directionsRoute);
+              mapboxNavigation.startNavigation(directionsRoute);
+            }
+          });
+        }
+      });
+      mapboxNavigation.addNavigationEventListener(running -> {
+        if (running) {
+          locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
+          locationComponent.setRenderMode(RenderMode.GPS);
+          final Map<String, Object> arguments = new HashMap<>(1);
+          arguments.put("running", running);
+          methodChannel.invokeMethod("navigation#onNavigation", arguments);
+        } else {
+          locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
+          locationComponent.setRenderMode(RenderMode.COMPASS);
+          if (locationComponent.getLocationEngine() instanceof ReplayRouteLocationEngine) {
+            locationComponent.setLocationEngine(locationEngine);
+          }
+          final Map<String, Object> arguments = new HashMap<>(1);
+          arguments.put("running", running);
+          methodChannel.invokeMethod("navigation#onNavigation", arguments);
+        }
       });
 
       navigationMapRoute = new NavigationMapRoute(mapboxNavigation, mapView, mapboxMap);
@@ -879,17 +912,72 @@ final class MapboxMapController
         break;
       }
 
-      case "navigation#drawRoute": {
-        final Object options = call.argument("options");
+      case "navigation#addRoutesToMap": {
+        final ArrayList<String> options = call.argument("directionsRoutes");
         if (options != null) {
-          final List<LatLng> latLngs = Convert.toLatLngList(options);
-          getMapboxAPIRoute(latLngs, directionsResponse -> {
-            addRoutesToMap(directionsResponse.routes());
+          ArrayList<DirectionsRoute> routes = new ArrayList<>();
+          for(int i = 0; i < options.size(); i++) {
+            routes.add(DirectionsRoute.fromJson(options.get(i)));
+          }
+          addRoutesToMap(routes);
+          fitRoute(routes.get(0), () -> {
             result.success(null);
           });
         } else {
-          result.error("WAYPOINTS IS NULL", "", null);
+          result.error("ROUTES IS NULL", "", null);
         }
+        break;
+      }
+
+      case "navigation#clearDirectionsRoutes": {
+        clearRoutes();
+        result.success(null);
+        break;
+      }
+
+      case "navigation#selectRoute": {
+        final String directionsRouteJSON = call.argument("directionsRoute");
+        if (directionsRouteJSON != null && directionsRouteJSON.isEmpty() == false) {
+          DirectionsRoute route = DirectionsRoute.fromJson(directionsRouteJSON);
+          if (route != null) {
+            selectRoute(Integer.valueOf(route.routeIndex()));
+          }
+        } else {
+          result.error("ROUTES IS NULL", "", null);
+        }
+        break;
+      }
+
+      case "navigation#fitRoute": {
+        final String directionsRouteJSON = call.argument("directionsRoute");
+        if (directionsRouteJSON != null && directionsRouteJSON.isEmpty() == false) {
+          DirectionsRoute route = DirectionsRoute.fromJson(directionsRouteJSON);
+          if (route != null) {
+            fitRoute(route, () -> {
+              result.success(null);
+            });
+          }
+        } else {
+          result.error("ROUTES IS NULL", "", null);
+        }
+        break;
+      }
+
+      case "navigation#startNavigation": {
+        final String directionsRouteJSON = call.argument("directionsRoute");
+        final boolean isSimulation = call.argument("isSimulation");
+        if (directionsRouteJSON != null && directionsRouteJSON.isEmpty() == false) {
+          startNavigation(directionsRoutes.get(Integer.valueOf(DirectionsRoute.fromJson(directionsRouteJSON).routeIndex())), isSimulation);
+          result.success(null);
+        } else {
+          result.error("ROUTES IS NULL", "", null);
+        }
+        break;
+      }
+
+      case "navigation#stopNavigation": {
+        stopNavigation();
+        result.success(null);
         break;
       }
       default:
@@ -1315,6 +1403,29 @@ final class MapboxMapController
     }
   }
 
+  public void startNavigation(DirectionsRoute directionsRoute, boolean simulate) {
+    if (directionsRoute != null) {
+      //
+      if (simulate) {
+        ReplayRouteLocationEngine replayRouteLocationEngine = new ReplayRouteLocationEngine();
+        replayRouteLocationEngine.assign(directionsRoute);
+        replayRouteLocationEngine.updateSpeed(120);
+        //
+        mapboxNavigation.setLocationEngine(replayRouteLocationEngine);
+        locationComponent.setLocationEngine(replayRouteLocationEngine);
+      } else {
+        mapboxNavigation.setLocationEngine(locationEngine);
+        locationComponent.setLocationEngine(locationEngine);
+      }
+      //
+      mapboxNavigation.startNavigation(directionsRoute, DirectionsRouteType.NEW_ROUTE);
+    }
+  }
+
+  public void stopNavigation() {
+    mapboxNavigation.stopNavigation();
+  }
+
   public void getMapboxAPIRoute(LatLng[] latLngs, @NonNull final DirectionsResponseCallback callback) {
     this.getMapboxAPIRoute(Arrays.asList(latLngs), callback);
   }
@@ -1331,7 +1442,7 @@ final class MapboxMapController
             .bannerInstructions(true)
             .voiceInstructions(true)
             .voiceUnits(DirectionsCriteria.METRIC)
-            .language(Locale.ENGLISH)
+            .language(new Locale("vi", "VN"))
             .geometries(GEOMETRY_POLYLINE6)
             .post();
     for (int i = 0; i < latLngs.size(); i++) {
@@ -1361,28 +1472,14 @@ final class MapboxMapController
     });
   }
 
-  public void addRouteToMap(DirectionsRoute directionsRoute) {
-    navigationMapRoute.updateRouteVisibilityTo(false);
-    navigationMapRoute.addRoute(directionsRoute);
-  }
-
-  public void addTrackingRouteToMap(DirectionsRoute directionRoute) {
-    if (directionsRoutes != null) {
-      directionsRoutes.clear();
-    } else {
-      directionsRoutes = new ArrayList<>();
+  public void clearRoutes() {
+    if (navigationMapRoute != null) {
+      navigationMapRoute.updateRouteVisibilityTo(false);
+      navigationMapRoute.updateRouteArrowVisibilityTo(false);
     }
-    directionsRoutes.add(directionRoute);
-//        navigationMapRoute.updateRouteVisibilityTo(false);
-//        navigationMapRoute.updateRouteArrowVisibilityTo(false);
-    //
-//        navigationMapRoute.updateRouteVisibilityTo(true);
-//        navigationMapRoute.updateRouteArrowVisibilityTo(true);
-    //
-    navigationMapRoute.addRoute(directionsRoute);
-    navigationMapRoute.showAlternativeRoutes(false);
-    //
-    selectRoute(0);
+    if (directionsRoutes != null)
+      directionsRoutes.clear();
+    directionsRoutes = null;
   }
 
   public void addRoutesToMap(List<DirectionsRoute> directionRoutes) {
@@ -1392,18 +1489,12 @@ final class MapboxMapController
       directionsRoutes = new ArrayList<>();
     }
     directionsRoutes.addAll(directionRoutes);
-    //
     navigationMapRoute.updateRouteVisibilityTo(false);
     navigationMapRoute.updateRouteArrowVisibilityTo(false);
-    //
     navigationMapRoute.showAlternativeRoutes(true);
-    //
     navigationMapRoute.updateRouteVisibilityTo(true);
     navigationMapRoute.updateRouteArrowVisibilityTo(true);
-    //
     navigationMapRoute.addRoutes(directionsRoutes);
-    //
-    selectRoute(0);
   }
 
   public void selectRoute(int index) {
@@ -1418,23 +1509,29 @@ final class MapboxMapController
 
   public void fitPrimaryRoute() {
     if (directionsRoute != null) {
-      fitBounds(getRoutingPoints(directionsRoutes));
+      fitBounds(getRoutingPoints(directionsRoutes), null);
     }
   }
 
-  public void fitBounds(@NonNull final LatLng[] points) {
-    fitBounds(points, mapPaddings[0], mapPaddings[1], mapPaddings[2], mapPaddings[3]);
+  public void fitRoute(DirectionsRoute directionsRoute, @Nullable DoneCallback cb) {
+    if (directionsRoute != null) {
+      fitBounds(getRoutingPoints(directionsRoutes), cb);
+    }
   }
 
-  public void fitBounds(@NonNull LatLng p1, @NonNull LatLng p2, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
-    fitBounds(new LatLng[]{p1, p2}, paddingLeft, paddingTop, paddingRight, paddingBottom);
+  public void fitBounds(@NonNull final LatLng[] points, @Nullable DoneCallback cb) {
+    fitBounds(points, mapPaddings[0], mapPaddings[1], mapPaddings[2], mapPaddings[3], cb);
   }
 
-  public void fitBounds(@NonNull LatLng p1, @NonNull LatLng p2) {
-    fitBounds(p1, p2, mapPaddings[0], mapPaddings[1], mapPaddings[2], mapPaddings[3]);
+  public void fitBounds(@NonNull LatLng p1, @NonNull LatLng p2, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom, @Nullable DoneCallback cb) {
+    fitBounds(new LatLng[]{p1, p2}, paddingLeft, paddingTop, paddingRight, paddingBottom, cb);
   }
 
-  public void fitBounds(@NonNull final LatLng[] points, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
+  public void fitBounds(@NonNull LatLng p1, @NonNull LatLng p2, @Nullable DoneCallback cb) {
+    fitBounds(p1, p2, mapPaddings[0], mapPaddings[1], mapPaddings[2], mapPaddings[3], cb);
+  }
+
+  public void fitBounds(@NonNull final LatLng[] points, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom, @Nullable DoneCallback cb) {
     LatLngBounds latLngBounds = new LatLngBounds.Builder()
             .includes(Arrays.asList(points))
             .build();
@@ -1451,7 +1548,19 @@ final class MapboxMapController
                 paddingLeft,
                 paddingTop,
                 paddingRight,
-                paddingBottom), 1000);
+                paddingBottom), 1000, new MapboxMap.CancelableCallback() {
+          @Override
+          public void onCancel() {
+
+          }
+
+          @Override
+          public void onFinish() {
+            if (cb != null) {
+              cb.onDone();
+            }
+          }
+        });
       }
     });
   }
@@ -1461,6 +1570,20 @@ final class MapboxMapController
     mapPaddings[1] = paddingTop;
     mapPaddings[2] = paddingRight;
     mapPaddings[3] = paddingBottom;
+  }
+
+  public void setCameraPosition(LatLng latLng) {
+    setCameraPosition(latLng, mapboxMap.getCameraPosition().zoom);
+  }
+
+  public void setCameraPosition(LatLng latLng, double zoom) {
+    if (latLng == null)
+      return;
+    mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+  }
+
+  public void setCameraPosition(CameraPosition cameraPosition, @Nullable MapboxMap.CancelableCallback callback) {
+    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), callback);
   }
 
   public void setCameraMode(int mode) {
@@ -1583,5 +1706,9 @@ final class MapboxMapController
       }
       return features;
     }
+  }
+
+  public interface DoneCallback {
+    void onDone();
   }
 }

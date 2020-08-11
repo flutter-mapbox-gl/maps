@@ -61,6 +61,14 @@ abstract class MapboxGlPlatform {
 
   final ArgumentCallbacks<void> onMapIdlePlatform = ArgumentCallbacks<void>();
 
+  final ArgumentCallbacks<DirectionsRoute> onRouteSelectionPlatform =
+      ArgumentCallbacks<DirectionsRoute>();
+
+  final ArgumentCallbacks<bool> onNavigationPlatform = ArgumentCallbacks<bool>();
+
+  final ArgumentCallbacks<Map<String, dynamic>> onNavigationProgressChangePlatform =
+      ArgumentCallbacks<Map<String, dynamic>>();
+
   Future<void> initPlatform(int id) async {
     throw UnimplementedError('initPlatform() has not been implemented.');
   }
@@ -217,11 +225,36 @@ abstract class MapboxGlPlatform {
 
   Future<DirectionsResponse> getMapboxAPIRoute(List<LatLng> latLngs) async {
     throw UnimplementedError(
-        'getMapboxAPIRoute() hash not been implemented.');
+        'getMapboxAPIRoute() has not been implemented.');
   }
 
-  Future<void> drawRoute(List<LatLng> latLngs) async {
+  Future<void> addRoutesToMap(List<DirectionsRoute> routes) async {
     throw UnimplementedError(
-        'drawRoute() hash not been implemented.');
+        'addRoutesToMap() has not been implemented.');
+  }
+
+  Future<void> clearDirectionsRoutes() async {
+    throw UnimplementedError(
+        'clearDirectionsRoutes() has not been implemented.');
+  }
+
+  Future<void> selectRoute(DirectionsRoute directionsRoute) async {
+    throw UnimplementedError(
+        'selectRoute() has not been implemented.');
+  }
+
+  Future<void> fitRoute(DirectionsRoute directionsRoute) async {
+    throw UnimplementedError(
+        'fitRoute() has not been implemented.');
+  }
+
+  Future<void> startNavigation(DirectionsRoute directionsRoute, bool isSimulation) async {
+    throw UnimplementedError(
+        'startNavigation() has not been implemented.');
+  }
+
+  Future<void> stopNavigation() async {
+    throw UnimplementedError(
+        'stopNavigation() has not been implemented.');
   }
 }

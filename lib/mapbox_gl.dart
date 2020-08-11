@@ -34,6 +34,8 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         Line,
         LineOptions,
 
+        MapboxConstants,
+
         RouteLeg,
         RouteOptions,
         LegStep,

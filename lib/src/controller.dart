@@ -16,6 +16,12 @@ typedef void OnCameraIdleCallback();
 
 typedef void OnMapIdleCallback();
 
+typedef void OnNavigationCallback(bool running);
+
+typedef void OnRouteSelectionCallback(DirectionsRoute directionsRoute);
+
+typedef void OnNavigationProgressChangeCallback(double distanceRemaining, LegStep upComingStep);
+
 /// Controller for a single MapboxMap instance running on the host platform.
 ///
 /// Change listeners are notified upon changes to any of
@@ -39,7 +45,10 @@ class MapboxMapController extends ChangeNotifier {
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged,
       this.onCameraIdle,
-      this.onMapIdle})
+      this.onMapIdle,
+      this.onNavigation,
+      this.onNavigationProgressChange,
+      this.onRouteSelection})
       : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
 
@@ -132,6 +141,24 @@ class MapboxMapController extends ChangeNotifier {
         onMapIdle();
       }
     });
+
+    MapboxGlPlatform.getInstance(_id).onNavigationPlatform.add((running) {
+      if (onNavigation != null) {
+        onNavigation(running);
+      }
+    });
+
+    MapboxGlPlatform.getInstance(_id).onNavigationProgressChangePlatform.add((dict) {
+      if (onNavigationProgressChange != null) {
+        onNavigationProgressChange(dict['distanceRemaining'], dict['upComingStep']);
+      }
+    });
+
+    MapboxGlPlatform.getInstance(_id).onRouteSelectionPlatform.add((directionsRoute) {
+      if (onRouteSelection != null) {
+        onRouteSelection(directionsRoute);
+      }
+    });
   }
 
   static Future<MapboxMapController> init(
@@ -142,7 +169,10 @@ class MapboxMapController extends ChangeNotifier {
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
       OnCameraIdleCallback onCameraIdle,
-      OnMapIdleCallback onMapIdle}) async {
+      OnMapIdleCallback onMapIdle,
+      OnNavigationCallback onNavigation,
+      OnNavigationProgressChangeCallback onNavigationProgressChange,
+      OnRouteSelectionCallback onRouteSelection}) async {
     assert(id != null);
     await MapboxGlPlatform.getInstance(id).initPlatform(id);
     return MapboxMapController._(id, initialCameraPosition,
@@ -152,7 +182,10 @@ class MapboxMapController extends ChangeNotifier {
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
         onCameraIdle: onCameraIdle,
-        onMapIdle: onMapIdle);
+        onMapIdle: onMapIdle,
+        onNavigation: onNavigation,
+        onNavigationProgressChange: onNavigationProgressChange,
+        onRouteSelection: onRouteSelection);
   }
 
   final OnStyleLoadedCallback onStyleLoadedCallback;
@@ -166,6 +199,12 @@ class MapboxMapController extends ChangeNotifier {
   final OnCameraIdleCallback onCameraIdle;
 
   final OnMapIdleCallback onMapIdle;
+
+  final OnNavigationCallback onNavigation;
+
+  final OnNavigationProgressChangeCallback onNavigationProgressChange;
+
+  final OnRouteSelectionCallback onRouteSelection;
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Symbol> onSymbolTapped = ArgumentCallbacks<Symbol>();
@@ -682,9 +721,37 @@ class MapboxMapController extends ChangeNotifier {
         .getMapboxAPIRoute(latLngs);
   }
 
-  /// Draw navigation route
-  Future<void> drawRoute(List<LatLng> latLngs) async {
+  Future<void> addRoutesToMap(List<DirectionsRoute> routes) async {
+    return await MapboxGlPlatform.getInstance(_id)
+        .addRoutesToMap(routes);
+  }
+
+  Future<void> clearDirectionsRoutes() async {
+    return await MapboxGlPlatform.getInstance(_id)
+        .clearDirectionsRoutes();
+  }
+
+  /// Select Route
+  Future<void> selectRoute(DirectionsRoute directionsRoute) async {
     await MapboxGlPlatform.getInstance(_id)
-        .drawRoute(latLngs);
+        .selectRoute(directionsRoute);
+  }
+
+  /// Fit Route
+  Future<void> fitRoute(DirectionsRoute directionsRoute) async {
+    await MapboxGlPlatform.getInstance(_id)
+        .fitRoute(directionsRoute);
+  }
+
+  /// Start navigation
+  Future<void> startNavigation(DirectionsRoute directionsRoute, bool isSimulation) async {
+    await MapboxGlPlatform.getInstance(_id)
+        .startNavigation(directionsRoute, isSimulation);
+  }
+
+  /// Stop navigation
+  Future<void> stopNavigation() async {
+    await MapboxGlPlatform.getInstance(_id)
+        .stopNavigation();
   }
 }

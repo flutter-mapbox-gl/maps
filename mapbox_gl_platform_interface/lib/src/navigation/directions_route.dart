@@ -170,7 +170,7 @@ class LegStep {
   final Maneuver maneuver;
   final List<VoiceInstruction> voiceInstructions;
   final List<BannerInstruction> bannerInstructions;
-  final DrivingSide drivingSide;
+  final String drivingSide;
   final double weight;
   final List<Intersection> intersections;
 
@@ -183,7 +183,7 @@ class LegStep {
     Maneuver maneuver,
     List<VoiceInstruction> voiceInstructions,
     List<BannerInstruction> bannerInstructions,
-    DrivingSide drivingSide,
+    String drivingSide,
     double weight,
     List<Intersection> intersections,
   }) =>
@@ -208,9 +208,9 @@ class LegStep {
     name: json["name"],
     mode: profileValues.map[json["mode"]],
     maneuver: Maneuver.fromJson(json["maneuver"]),
-    voiceInstructions: List<VoiceInstruction>.from(json["voiceInstructions"].map((x) => VoiceInstruction.fromJson(x))),
-    bannerInstructions: List<BannerInstruction>.from(json["bannerInstructions"].map((x) => BannerInstruction.fromJson(x))),
-    drivingSide: drivingSideValues.map[json["driving_side"]],
+    voiceInstructions: json["voiceInstructions"] == null ? null : List<VoiceInstruction>.from(json["voiceInstructions"].map((x) => VoiceInstruction.fromJson(x))),
+    bannerInstructions: json["bannerInstructions"] == null ? null : List<BannerInstruction>.from(json["bannerInstructions"].map((x) => BannerInstruction.fromJson(x))),
+    drivingSide: json["driving_side"],
     weight: json["weight"].toDouble(),
     intersections: List<Intersection>.from(json["intersections"].map((x) => Intersection.fromJson(x))),
   );
@@ -222,9 +222,9 @@ class LegStep {
     "name": name,
     "mode": profileValues.reverse[mode],
     "maneuver": maneuver.toJson(),
-    "voiceInstructions": List<dynamic>.from(voiceInstructions.map((x) => x.toJson())),
-    "bannerInstructions": List<dynamic>.from(bannerInstructions.map((x) => x.toJson())),
-    "driving_side": drivingSideValues.reverse[drivingSide],
+    "voiceInstructions": voiceInstructions == null ? null : List<dynamic>.from(voiceInstructions.map((x) => x.toJson())),
+    "bannerInstructions": bannerInstructions == null ? null : List<dynamic>.from(bannerInstructions.map((x) => x.toJson())),
+    "driving_side": drivingSide,
     "weight": weight,
     "intersections": List<dynamic>.from(intersections.map((x) => x.toJson())),
   };
@@ -239,15 +239,15 @@ class BannerInstruction {
   });
 
   final double distanceAlongGeometry;
-  final Primary primary;
-  final Primary secondary;
-  final Primary sub;
+  final BannerText primary;
+  final BannerText secondary;
+  final BannerText sub;
 
   BannerInstruction copyWith({
     double distanceAlongGeometry,
-    Primary primary,
-    Primary secondary,
-    Primary sub,
+    BannerText primary,
+    BannerText secondary,
+    BannerText sub,
   }) =>
       BannerInstruction(
         distanceAlongGeometry: distanceAlongGeometry ?? this.distanceAlongGeometry,
@@ -258,9 +258,9 @@ class BannerInstruction {
 
   factory BannerInstruction.fromJson(Map<String, dynamic> json) => BannerInstruction(
     distanceAlongGeometry: json["distanceAlongGeometry"].toDouble(),
-    primary: Primary.fromJson(json["primary"]),
-    secondary: json["secondary"] == null ? null : Primary.fromJson(json["secondary"]),
-    sub: json["sub"] == null ? null : Primary.fromJson(json["sub"]),
+    primary: BannerText.fromJson(json["primary"]),
+    secondary: json["secondary"] == null ? null : BannerText.fromJson(json["secondary"]),
+    sub: json["sub"] == null ? null : BannerText.fromJson(json["sub"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -271,8 +271,8 @@ class BannerInstruction {
   };
 }
 
-class Primary {
-  Primary({
+class BannerText {
+  BannerText({
     this.text,
     this.components,
     this.type,
@@ -281,34 +281,34 @@ class Primary {
 
   final String text;
   final List<Component> components;
-  final PrimaryType type;
-  final DrivingSide modifier;
+  final String type;
+  final String modifier;
 
-  Primary copyWith({
+  BannerText copyWith({
     String text,
     List<Component> components,
-    PrimaryType type,
-    DrivingSide modifier,
+    String type,
+    String modifier,
   }) =>
-      Primary(
+      BannerText(
         text: text ?? this.text,
         components: components ?? this.components,
         type: type ?? this.type,
         modifier: modifier ?? this.modifier,
       );
 
-  factory Primary.fromJson(Map<String, dynamic> json) => Primary(
-    text: json["text"],
+  factory BannerText.fromJson(Map<String, dynamic> json) => BannerText(
+    text: json["text"] ?? "",
     components: List<Component>.from(json["components"].map((x) => Component.fromJson(x))),
-    type: primaryTypeValues.map[json["type"]],
-    modifier: drivingSideValues.map[json["modifier"]],
+    type: json["type"] ?? "",
+    modifier: json["modifier"],
   );
 
   Map<String, dynamic> toJson() => {
     "text": text,
     "components": List<dynamic>.from(components.map((x) => x.toJson())),
-    "type": primaryTypeValues.reverse[type],
-    "modifier": drivingSideValues.reverse[modifier],
+    "type": type,
+    "modifier": modifier,
   };
 }
 
@@ -319,11 +319,11 @@ class Component {
   });
 
   final String text;
-  final ComponentType type;
+  final String type;
 
   Component copyWith({
     String text,
-    ComponentType type,
+    String type,
   }) =>
       Component(
         text: text ?? this.text,
@@ -332,35 +332,14 @@ class Component {
 
   factory Component.fromJson(Map<String, dynamic> json) => Component(
     text: json["text"],
-    type: componentTypeValues.map[json["type"]],
+    type: json["type"],
   );
 
   Map<String, dynamic> toJson() => {
     "text": text,
-    "type": componentTypeValues.reverse[type],
+    "type": type,
   };
 }
-
-enum ComponentType { TEXT }
-
-final componentTypeValues = EnumValues({
-  "text": ComponentType.TEXT
-});
-
-enum DrivingSide { LEFT, RIGHT, SLIGHT_LEFT }
-
-final drivingSideValues = EnumValues({
-  "left": DrivingSide.LEFT,
-  "right": DrivingSide.RIGHT,
-  "slight left": DrivingSide.SLIGHT_LEFT
-});
-
-enum PrimaryType { TURN, ARRIVE }
-
-final primaryTypeValues = EnumValues({
-  "arrive": PrimaryType.ARRIVE,
-  "turn": PrimaryType.TURN
-});
 
 class Intersection {
   Intersection({
@@ -459,7 +438,7 @@ class Maneuver {
   final double bearingAfter;
   final String instruction;
   final String type;
-  final DrivingSide modifier;
+  final String modifier;
 
   Maneuver copyWith({
     List<double> location,
@@ -467,7 +446,7 @@ class Maneuver {
     double bearingAfter,
     String instruction,
     String type,
-    DrivingSide modifier,
+    String modifier,
   }) =>
       Maneuver(
         location: location ?? this.location,
@@ -484,7 +463,7 @@ class Maneuver {
     bearingAfter: json["bearing_after"],
     instruction: json["instruction"],
     type: json["type"],
-    modifier: json["modifier"] == null ? null : drivingSideValues.map[json["modifier"]],
+    modifier: json["modifier"] == null ? null : json["modifier"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -493,7 +472,7 @@ class Maneuver {
     "bearing_after": bearingAfter,
     "instruction": instruction,
     "type": type,
-    "modifier": modifier == null ? null : drivingSideValues.reverse[modifier],
+    "modifier": modifier == null ? null : modifier,
   };
 }
 

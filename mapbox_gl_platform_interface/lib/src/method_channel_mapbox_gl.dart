@@ -70,15 +70,19 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       case 'map#onIdle':
         onMapIdlePlatform(null);
         break;
-      case 'navigation#onRouteSelectionChange':
-        String directionsRouteRaw = call.arguments['directionsRoute'];
-        Map<String, dynamic> map = json.decode(directionsRouteRaw);
-        try {
-          DirectionsRoute directionsRoute = DirectionsRoute.fromJson(map);
-          String uuid = directionsRoute.routeIndex;
-        } catch (ex){
-         debugPrint(e.toString());
-        }
+      case 'navigation#onRouteSelection':
+        onRouteSelectionPlatform(DirectionsRoute.fromJson(json.decode(call.arguments['directionsRoute'])));
+        break;
+      case 'navigation#onNavigation':
+        onNavigationPlatform(call.arguments['running']);
+        break;
+      case 'navigation#onNavigationProgressChange':
+        final double distanceRemaining = call.arguments['distanceRemaining'];
+        final LegStep upComingStep = LegStep.fromJson(json.decode(call.arguments['upComingStep']));
+        onNavigationProgressChangePlatform({
+          'distanceRemaining': distanceRemaining,
+          'upComingStep': upComingStep,
+        });
         break;
       default:
         throw MissingPluginException();
@@ -481,19 +485,80 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           .invokeMethod('navigation#getMapboxAPIRoute', <String, dynamic>{
         'options': latLngs.map((e) => e.toJson()).toList()
       });
-      return DirectionsResponse.fromJson(json.decode(directionsResponseMap["directionsResponse"]));
+      try {
+        return DirectionsResponse.fromJson(json.decode(directionsResponseMap["directionsResponse"]));
+      } catch (e) {
+        debugPrint(e.toString());
+      }
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
   }
 
   @override
-  Future<void> drawRoute(List<LatLng> latLngs) async {
+  Future<void> addRoutesToMap(List<DirectionsRoute> routes) async {
     try {
       await _channel
-          .invokeMethod('navigation#drawRoute', <String, dynamic>{
-        'options': latLngs.map((e) => e.toJson()).toList()
+          .invokeMethod('navigation#addRoutesToMap', <String, dynamic>{
+        'directionsRoutes': routes.map((e) => json.encode(e.toJson())).toList()
       });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> clearDirectionsRoutes() async {
+    try {
+      await _channel
+          .invokeMethod('navigation#clearDirectionsRoutes');
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> selectRoute(DirectionsRoute directionsRoute) async {
+    try {
+      await _channel
+          .invokeMethod('navigation#selectRoute', <String, dynamic>{
+        'directionsRoute': json.encode(directionsRoute.toJson()),
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> fitRoute(DirectionsRoute directionsRoute) async {
+    try {
+      await _channel
+          .invokeMethod('navigation#fitRoute', <String, dynamic>{
+        'directionsRoute': json.encode(directionsRoute.toJson()),
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> startNavigation(DirectionsRoute directionsRoute, bool isSimulation) async {
+    try {
+      await _channel
+          .invokeMethod('navigation#startNavigation', <String, dynamic>{
+        'directionsRoute': json.encode(directionsRoute.toJson()),
+        'isSimulation': isSimulation
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> stopNavigation() async {
+    try {
+      await _channel
+          .invokeMethod('navigation#stopNavigation');
     } on PlatformException catch (e) {
       return new Future.error(e);
     }

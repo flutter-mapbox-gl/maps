@@ -35,6 +35,9 @@ class MapboxMap extends StatefulWidget {
     this.onCameraTrackingChanged,
     this.onCameraIdle,
     this.onMapIdle,
+    this.onNavigation,
+    this.onNavigationProgressChange,
+    this.onRouteSelection,
   }) : assert(initialCameraPosition != null);
 
 
@@ -163,6 +166,11 @@ class MapboxMap extends StatefulWidget {
   /// * All fade/transition animations have completed
   final OnMapIdleCallback onMapIdle;
 
+  final OnNavigationCallback onNavigation;
+  final OnNavigationProgressChangeCallback onNavigationProgressChange;
+
+  final OnRouteSelectionCallback onRouteSelection;
+
   @override
   State createState() => _MapboxMapState();
 }
@@ -219,7 +227,10 @@ class _MapboxMapState extends State<MapboxMap> {
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged,
         onCameraIdle: widget.onCameraIdle,
-        onMapIdle: widget.onMapIdle);
+        onMapIdle: widget.onMapIdle,
+        onNavigation: widget.onNavigation,
+        onNavigationProgressChange: widget.onNavigationProgressChange,
+        onRouteSelection: widget.onRouteSelection);
     _controller.complete(controller);
     if (widget.onMapCreated != null) {
       widget.onMapCreated(controller);
