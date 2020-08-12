@@ -29,7 +29,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                     result: result,
                     registrar: registrar
                 )
-            case "downloadListOfRegions":
+            case "getListOfRegions":
                 // Note: this does not download anything from internet, it only fetches data drom database
                 OfflineManagerUtils.regionsList(result: result)
             case "deleteOfflineRegion":

@@ -18,9 +18,9 @@ Future<void> installOfflineMapTiles(String tilesDb) async {
   );
 }
 
-Future<List<OfflineRegion>> downloadListOfRegions({String accessToken}) async {
+Future<List<OfflineRegion>> getListOfRegions({String accessToken}) async {
   String regionsJson = await _globalChannel.invokeMethod(
-    'downloadListOfRegions',
+    'getListOfRegions',
     <String, dynamic>{
       'accessToken': accessToken,
     },
@@ -38,14 +38,18 @@ Future<dynamic> deleteOfflineRegion(int id, {String accessToken}) =>
       },
     );
 
-Future<dynamic> downloadOfflineRegion(OfflineRegion region,
-        {String accessToken}) =>
-    _globalChannel.invokeMethod(
-      'downloadOfflineRegion',
-      json.encode(
-        region._toJson()..putIfAbsent('accessToken', () => accessToken),
-      ),
-    );
+Future<dynamic> downloadOfflineRegion(
+  OfflineRegion region, {
+  String accessToken,
+}) {
+  final Map<String, dynamic> jsonMap = region._toJson()
+    ..putIfAbsent('accessToken', () => accessToken);
+
+  return _globalChannel.invokeMethod(
+    'downloadOfflineRegion',
+    json.encode(jsonMap),
+  );
+}
 
 void downloadOfflineRegionStream(
   OfflineRegion region,
@@ -77,7 +81,18 @@ void downloadOfflineRegionStream(
         status = InProgress(0.0);
         break;
       case 'progress':
-        status = InProgress(jsonData['progress'] ?? 0.0);
+        final dynamic value = jsonData['progress'];
+        double progress = 0.0;
+
+        if (value is int) {
+          progress = value.toDouble();
+        }
+
+        if (value is double) {
+          progress = value;
+        }
+
+        status = InProgress(progress);
         break;
       case 'success':
         status = Success();

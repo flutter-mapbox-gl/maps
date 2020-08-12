@@ -40,14 +40,15 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 //Get download region arguments from caller
                 Gson gson = new Gson();
                 OfflineRegionData args = gson.fromJson(methodCall.arguments.toString(), OfflineRegionData.class);
+
                 //Start downloading
-                OfflineManagerUtils.downloadRegion(args, result, registrar, args.getAccessToken());
+                OfflineManagerUtils.downloadRegion(args, result, registrar, extractAccessToken(methodCall, args.getAccessToken()));
                 break;
-            case "downloadListOfRegions":
-                OfflineManagerUtils.regionsList(result, registrar.context(), (String) methodCall.argument("accessToken"));
+            case "getListOfRegions":
+                OfflineManagerUtils.regionsList(result, registrar.context(), extractAccessToken(methodCall, null));
                 break;
             case "deleteOfflineRegion":
-                OfflineManagerUtils.deleteRegion(result, registrar.context(), (int) methodCall.argument("id"), (String) methodCall.argument("accessToken"));
+                OfflineManagerUtils.deleteRegion(result, registrar.context(), (int) methodCall.argument("id"), extractAccessToken(methodCall, null));
                 break;
             default:
                 result.notImplemented();
@@ -72,6 +73,14 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
             final String assetKey = registrar.lookupKeyForAsset(tilesDb);
             return registrar.activeContext().getAssets().open(assetKey);
         }
+    }
+
+    private String extractAccessToken(MethodCall methodCall, String fallbackValue) {
+        if (methodCall.hasArgument("accessToken")) {
+            return methodCall.argument("accessToken");
+        }
+
+        return fallbackValue;
     }
 
     private static int copy(InputStream input, OutputStream output) throws IOException {
