@@ -613,9 +613,9 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  Future<Point<int>> toScreenLocation(LatLng latLng) async {
+  Future<Point> toScreenLocation(LatLng latLng) async {
     var screenPosition = _map.project(LngLat(latLng.longitude, latLng.latitude));
-    return Point<int>(screenPosition.x.round(), screenPosition.y.round());
+    return Point(screenPosition.x.round(), screenPosition.y.round());
   }
 
   @override
