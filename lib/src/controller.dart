@@ -672,6 +672,10 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Returns the point on the screen that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
+  /// 
+  /// Note: The resulting x and y coordinates are rounded to [int] on web, on other platforms they may differ very slightly (in the range of about 10^-10) from the actual nearest screen coordinate.
+  /// You therefore might want to round them appropriately, depending on your use case.
+  /// 
   /// Returns null if [latLng] is not currently visible on the map.
   Future<Point> toScreenLocation(LatLng latLng) async{
     return MapboxGlPlatform.getInstance(_id).toScreenLocation(latLng);
