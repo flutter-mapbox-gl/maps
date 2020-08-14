@@ -783,11 +783,12 @@ final class MapboxMapController
   }
 
   @Override
-  public void onAnnotationClick(Annotation annotation) {
+  public boolean onAnnotationClick(Annotation annotation) {
     if (annotation instanceof Symbol) {
       final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
       if (symbolController != null) {
         symbolController.onTap();
+        return true;
       }
     }
 
@@ -795,6 +796,7 @@ final class MapboxMapController
       final LineController lineController = lines.get(String.valueOf(annotation.getId()));
       if (lineController != null) {
         lineController.onTap();
+        return true;
       }
     }
 
@@ -802,8 +804,10 @@ final class MapboxMapController
       final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
       if (circleController != null) {
         circleController.onTap();
+        return true;
       }
     }
+    return false;
   }
 
   @Override
