@@ -211,7 +211,7 @@ abstract class MapboxGlPlatform {
         'setSymbolTextIgnorePlacement() has not been implemented.');
   }
 
-  Future<Point> toScreenLocation(LatLng latLng) async{
+  Future<Point<int>> toScreenLocation(LatLng latLng) async{
     throw UnimplementedError(
         'toScreenLocation() has not been implemented.');
   }
