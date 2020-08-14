@@ -173,7 +173,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             let returnVal = mapView.convert(latlng, toPointTo: mapView)
             var reply = [String: NSObject]()
             reply["x"] = returnVal.x as NSObject
-            reply["y"] = returnVal.y as NSObjects
+            reply["y"] = returnVal.y as NSObject
             result(reply)
         case "map#toLatLng":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
