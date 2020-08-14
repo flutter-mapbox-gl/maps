@@ -454,21 +454,21 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<ScreenLocation> toScreenLocation(LatLng latLng) async {
+  Future<Point> toScreenLocation(LatLng latLng) async {
     try {
       var screenPosMap = await _channel
           .invokeMethod('map#toScreenLocation', <String, dynamic>{
         'latitude': latLng.latitude,
         'longitude':latLng.longitude,
       });
-      return ScreenLocation(screenPosMap['x'], screenPosMap['y']);
+      return Point(screenPosMap['x'], screenPosMap['y']);
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
   }
 
   @override
-  Future<LatLng> toLatLng(ScreenLocation screenLocation) async {
+  Future<LatLng> toLatLng(Point screenLocation) async {
     try {
       var latLngMap = await _channel
           .invokeMethod('map#toLatLng', <String, dynamic>{

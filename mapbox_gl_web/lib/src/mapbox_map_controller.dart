@@ -611,4 +611,16 @@ class MapboxMapController extends MapboxGlPlatform
       _map.keyboard.disable();
     }
   }
+
+  @override
+  Future<Point> toScreenLocation(LatLng latLng) async {
+    var screenPosition = _map.project(LngLat(latLng.longitude, latLng.latitude));
+    return Point(screenPosition.x.round(), screenPosition.y.round());
+  }
+
+  @override
+  Future<LatLng> toLatLng(Point screenLocation) async {
+    var lngLat = _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
+    return LatLng(lngLat.lat, lngLat.lng);
+  }
 }
