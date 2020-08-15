@@ -1,3 +1,11 @@
+## 0.8.0? ???
+* Breaking change: CameraUpdate.newLatLngBounds() now supports setting
+ different padding values for left, top, right, bottom with
+ default of 0 for all. Implementations using the old
+ approach with only one padding value for all edges
+ have to be updated.
+* ...
+
 ## 0.7.0, June 6, 2020
 * Introduction of mapbox_gl_platform_interface library
 * Introduction of mapbox_gl_web library
