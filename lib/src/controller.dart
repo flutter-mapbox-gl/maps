@@ -424,7 +424,7 @@ class MapboxMapController extends ChangeNotifier {
     final LineOptions effectiveOptions =
         LineOptions.defaultOptions.copyWith(options);
     final line =
-        await MapboxGlPlatform.getInstance(_id).addLine(effectiveOptions);
+        await MapboxGlPlatform.getInstance(_id).addLine(effectiveOptions, data);
     _lines[line.id] = line;
     notifyListeners();
     return line;
@@ -508,7 +508,7 @@ class MapboxMapController extends ChangeNotifier {
     final CircleOptions effectiveOptions =
         CircleOptions.defaultOptions.copyWith(options);
     final circle =
-        await MapboxGlPlatform.getInstance(_id).addCircle(effectiveOptions);
+        await MapboxGlPlatform.getInstance(_id).addCircle(effectiveOptions, data);
     _circles[circle.id] = circle;
     notifyListeners();
     return circle;
