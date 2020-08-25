@@ -8,19 +8,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+import 'main.dart';
 import 'page.dart';
 
-class ScrollingMapPage extends Page {
+class ScrollingMapPage extends ExamplePage {
   ScrollingMapPage() : super(const Icon(Icons.map), 'Scrolling map');
 
   @override
   Widget build(BuildContext context) {
-    return const ScrollingMapBody();
+    return ScrollingMapBody();
   }
 }
 
-class ScrollingMapBody extends StatelessWidget {
-  const ScrollingMapBody();
+class ScrollingMapBody extends StatefulWidget {
+  ScrollingMapBody();
+
+  @override
+  _ScrollingMapBodyState createState() => _ScrollingMapBodyState();
+}
+
+class _ScrollingMapBodyState extends State<ScrollingMapBody> {
+  MapboxMapController controllerOne;
+  MapboxMapController controllerTwo;
 
   final LatLng center = const LatLng(32.080664, 34.9563837);
 
@@ -42,7 +51,9 @@ class ScrollingMapBody extends StatelessWidget {
                     width: 300.0,
                     height: 300.0,
                     child: MapboxMap(
-                      onMapCreated: onMapCreated,
+                      accessToken: MapsDemo.ACCESS_TOKEN,
+                      onMapCreated: onMapCreatedOne,
+                      onStyleLoadedCallback: () => onStyleLoaded(controllerOne),
                       initialCameraPosition: CameraPosition(
                         target: center,
                         zoom: 11.0,
@@ -76,7 +87,9 @@ class ScrollingMapBody extends StatelessWidget {
                     width: 300.0,
                     height: 300.0,
                     child: MapboxMap(
-                      onMapCreated: onMapCreated,
+                      accessToken: MapsDemo.ACCESS_TOKEN,
+                      onMapCreated: onMapCreatedTwo,
+                      onStyleLoadedCallback: () => onStyleLoaded(controllerTwo),
                       initialCameraPosition: CameraPosition(
                         target: center,
                         zoom: 11.0,
@@ -98,7 +111,15 @@ class ScrollingMapBody extends StatelessWidget {
     );
   }
 
-  void onMapCreated(MapboxMapController controller) {
+  void onMapCreatedOne(MapboxMapController controller) {
+    this.controllerOne = controller;
+  }
+
+  void onMapCreatedTwo(MapboxMapController controller) {
+    this.controllerTwo = controller;
+  }
+
+  void onStyleLoaded(MapboxMapController controller) {
     controller.addSymbol(SymbolOptions(
         geometry: LatLng(
           center.latitude,
