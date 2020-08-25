@@ -256,6 +256,10 @@ class Convert {
       final List logoViewMarginsData = toList(logoViewMargins);
       sink.setLogoViewMargins(toInt(logoViewMarginsData.get(0)), toInt(logoViewMarginsData.get(1)));
     }
+    final Object compassGravity = data.get("compassViewPosition");
+    if(compassGravity != null){
+      sink.setCompassGravity(toInt(compassGravity));
+    }
     final Object compassViewMargins = data.get("compassViewMargins");
     if(compassViewMargins != null){
       final List compassViewMarginsData = toList(compassViewMargins);
@@ -370,7 +374,7 @@ class Convert {
     if (geometry != null) {
       sink.setGeometry(toLatLng(geometry));
     }
-    final Object symbolSortKey = data.get("symbolSortKey");
+    final Object symbolSortKey = data.get("zIndex");
     if (symbolSortKey != null) {
       sink.setSymbolSortKey(toFloat(symbolSortKey));
     }

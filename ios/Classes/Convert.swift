@@ -4,8 +4,8 @@ import MapboxAnnotationExtension
 class Convert {
     class func interpretMapboxMapOptions(options: Any?, delegate: MapboxMapOptionsSink) {
         guard let options = options as? [String: Any] else { return }
-        if let cameraTargetBounds = options["cameraTargetBounds"] as? [[Double]] {
-            delegate.setCameraTargetBounds(bounds: MGLCoordinateBounds.fromArray(cameraTargetBounds))
+        if let cameraTargetBounds = options["cameraTargetBounds"] as? [[[Double]]] {
+            delegate.setCameraTargetBounds(bounds: MGLCoordinateBounds.fromArray(cameraTargetBounds[0]))
         }
         if let compassEnabled = options["compassEnabled"] as? Bool {
             delegate.setCompassEnabled(compassEnabled: compassEnabled)
@@ -37,8 +37,14 @@ class Convert {
         if let myLocationTrackingMode = options["myLocationTrackingMode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
             delegate.setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
         }
+        if let myLocationRenderMode = options["myLocationRenderMode"] as? Int, let renderMode = MyLocationRenderMode(rawValue: myLocationRenderMode) {
+            delegate.setMyLocationRenderMode(myLocationRenderMode: renderMode)
+        }
         if let logoViewMargins = options["logoViewMargins"] as? [Double] {
             delegate.setLogoViewMargins(x: logoViewMargins[0], y: logoViewMargins[1])
+        }
+        if let compassViewPosition = options["compassViewPosition"] as? UInt, let position = MGLOrnamentPosition(rawValue: compassViewPosition) {
+            delegate.setCompassViewPosition(position: position)
         }
         if let compassViewMargins = options["compassViewMargins"] as? [Double] {
             delegate.setCompassViewMargins(x: compassViewMargins[0], y: compassViewMargins[1])

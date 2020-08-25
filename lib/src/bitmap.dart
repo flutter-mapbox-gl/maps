@@ -45,5 +45,5 @@ class BitmapDescriptor {
 
   final dynamic _json;
 
-  dynamic _toJson() => _json;
+  dynamic _toJson() => _json; //ignore: unused_element
 }
