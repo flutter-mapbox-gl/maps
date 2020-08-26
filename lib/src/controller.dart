@@ -743,6 +743,12 @@ class MapboxMapController extends ChangeNotifier {
         .fitRoute(directionsRoute);
   }
 
+  /// Fit Route At Index
+  Future<void> fitRouteAt(int index) async {
+    await MapboxGlPlatform.getInstance(_id)
+        .fitRouteAt(index);
+  }
+
   /// Start navigation
   Future<void> startNavigation(DirectionsRoute directionsRoute, bool isSimulation) async {
     await MapboxGlPlatform.getInstance(_id)

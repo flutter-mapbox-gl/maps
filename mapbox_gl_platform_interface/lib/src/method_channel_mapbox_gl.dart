@@ -542,6 +542,18 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> fitRouteAt(int index) async {
+    try {
+      await _channel
+          .invokeMethod('navigation#fitRouteAt', <String, dynamic>{
+        'index': index,
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
   Future<void> startNavigation(DirectionsRoute directionsRoute, bool isSimulation) async {
     try {
       await _channel

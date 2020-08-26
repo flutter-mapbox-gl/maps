@@ -248,6 +248,11 @@ abstract class MapboxGlPlatform {
         'fitRoute() has not been implemented.');
   }
 
+  Future<void> fitRouteAt(int index) async {
+    throw UnimplementedError(
+        'fitRouteAt() has not been implemented.');
+  }
+
   Future<void> startNavigation(DirectionsRoute directionsRoute, bool isSimulation) async {
     throw UnimplementedError(
         'startNavigation() has not been implemented.');

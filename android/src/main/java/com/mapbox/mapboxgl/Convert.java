@@ -74,6 +74,16 @@ class Convert {
         return CameraUpdateFactory.newCameraPosition(toCameraPosition(data.get(1)));
       case "newLatLng":
         return CameraUpdateFactory.newLatLng(toLatLng(data.get(1)));
+      case "newLatLngs":
+        LatLngBounds bounds = new LatLngBounds.Builder()
+                .includes(toLatLngList(data.get(1)))
+                .build();
+        return CameraUpdateFactory.newLatLngBounds(bounds,
+                toPixels(data.get(2), density),
+                toPixels(data.get(3), density),
+                toPixels(data.get(4), density),
+                toPixels(data.get(5), density)
+        );
       case "newLatLngBounds":
         return CameraUpdateFactory.newLatLngBounds(
           toLatLngBounds(data.get(1)), toPixels(data.get(2), density));

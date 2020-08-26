@@ -403,7 +403,7 @@ final class MapboxMapController
       }
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
-//      mapboxMap.addOnMapClickListener(MapboxMapController.this);
+      mapboxMap.addOnMapClickListener(MapboxMapController.this);
       mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
 
 	  localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
@@ -431,43 +431,43 @@ final class MapboxMapController
         locationComponent.forceLocationUpdate(location);
         if (routeProgress != null) {
           RouteStepProgress currentStepProgress = routeProgress.currentLegProgress().currentStepProgress();
-          LegStep upComingStep = routeProgress.currentLegProgress().upComingStep();
-          final Map<String, Object> arguments = new HashMap<>(2);
-          arguments.put("distanceRemaining", currentStepProgress.distanceRemaining());
-          arguments.put("upComingStep", upComingStep.toJson());
-          methodChannel.invokeMethod("navigation#onNavigationProgressChange", arguments);
-        }
-      });
-      mapboxNavigation.addOffRouteListener(location -> {
-        if (!isRouteRefreshing) {
-          isRouteRefreshing = true;
-          Point destination = directionsRoute.routeOptions().coordinates().get(directionsRoute.routeOptions().coordinates().size() - 1);
-          getMapboxAPIRoute(new LatLng[]{new LatLng(location), new LatLng(destination.latitude(), destination.longitude())}, directionsResponse -> {
-            isRouteRefreshing = false;
-            if (directionsResponse.routes().isEmpty() == false) {
-              directionsRoute = directionsResponse.routes().get(0);
-              if (directionsRoutes != null) {
-                directionsRoutes.clear();
-              } else {
-                directionsRoutes = new ArrayList<>();
-              }
-              directionsRoutes.add(directionsRoute);
-              navigationMapRoute.addRoute(directionsRoute);
-              mapboxNavigation.startNavigation(directionsRoute);
+          if (currentStepProgress != null){
+            LegStep upComingStep = routeProgress.currentLegProgress().upComingStep();
+            if (upComingStep != null) {
+              final Map<String, Object> arguments = new HashMap<>(2);
+              arguments.put("distanceRemaining", currentStepProgress.distanceRemaining());
+              arguments.put("upComingStep", upComingStep.toJson());
+              methodChannel.invokeMethod("navigation#onNavigationProgressChange", arguments);
             }
-          });
+          }
         }
       });
+//      mapboxNavigation.addOffRouteListener(location -> {
+//        if (!isRouteRefreshing) {
+//          isRouteRefreshing = true;
+//          Point destination = directionsRoute.routeOptions().coordinates().get(directionsRoute.routeOptions().coordinates().size() - 1);
+//          getMapboxAPIRoute(new LatLng[]{new LatLng(location), new LatLng(destination.latitude(), destination.longitude())}, directionsResponse -> {
+//            isRouteRefreshing = false;
+//            if (directionsResponse.routes().isEmpty() == false) {
+//              directionsRoute = directionsResponse.routes().get(0);
+//              if (directionsRoutes != null) {
+//                directionsRoutes.clear();
+//              } else {
+//                directionsRoutes = new ArrayList<>();
+//              }
+//              directionsRoutes.add(directionsRoute);
+//              navigationMapRoute.addRoute(directionsRoute);
+//              mapboxNavigation.startNavigation(directionsRoute);
+//            }
+//          });
+//        }
+//      });
       mapboxNavigation.addNavigationEventListener(running -> {
         if (running) {
-          locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
-          locationComponent.setRenderMode(RenderMode.GPS);
           final Map<String, Object> arguments = new HashMap<>(1);
           arguments.put("running", running);
           methodChannel.invokeMethod("navigation#onNavigation", arguments);
         } else {
-          locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
-          locationComponent.setRenderMode(RenderMode.COMPASS);
           if (locationComponent.getLocationEngine() instanceof ReplayRouteLocationEngine) {
             locationComponent.setLocationEngine(locationEngine);
           }
@@ -920,9 +920,7 @@ final class MapboxMapController
             routes.add(DirectionsRoute.fromJson(options.get(i)));
           }
           addRoutesToMap(routes);
-          fitRoute(routes.get(0), () -> {
-            result.success(null);
-          });
+          result.success(null);
         } else {
           result.error("ROUTES IS NULL", "", null);
         }
@@ -960,6 +958,14 @@ final class MapboxMapController
         } else {
           result.error("ROUTES IS NULL", "", null);
         }
+        break;
+      }
+
+      case "navigation#fitRouteAt": {
+        final int index = call.argument("index");
+        fitRouteAt(index, () -> {
+          result.success(null);
+        });
         break;
       }
 
@@ -1515,7 +1521,13 @@ final class MapboxMapController
 
   public void fitRoute(DirectionsRoute directionsRoute, @Nullable DoneCallback cb) {
     if (directionsRoute != null) {
-      fitBounds(getRoutingPoints(directionsRoutes), cb);
+      fitBounds(getRoutingPoints(directionsRoute), cb);
+    }
+  }
+
+  public void fitRouteAt(int index, @Nullable DoneCallback cb) {
+    if (index < directionsRoutes.size()) {
+      fitBounds(getRoutingPoints(directionsRoutes.get(index)), cb);
     }
   }
 
@@ -1536,7 +1548,11 @@ final class MapboxMapController
             .includes(Arrays.asList(points))
             .build();
 
-    setTilt(MINIMUM_TILT, new MapboxMap.CancelableCallback() {
+    mapboxMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds,
+            paddingLeft,
+            paddingTop,
+            paddingRight,
+            paddingBottom), 500, new MapboxMap.CancelableCallback() {
       @Override
       public void onCancel() {
 
@@ -1544,23 +1560,9 @@ final class MapboxMapController
 
       @Override
       public void onFinish() {
-        mapboxMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds,
-                paddingLeft,
-                paddingTop,
-                paddingRight,
-                paddingBottom), 1000, new MapboxMap.CancelableCallback() {
-          @Override
-          public void onCancel() {
-
-          }
-
-          @Override
-          public void onFinish() {
-            if (cb != null) {
-              cb.onDone();
-            }
-          }
-        });
+        if (cb != null) {
+          cb.onDone();
+        }
       }
     });
   }
@@ -1605,6 +1607,20 @@ final class MapboxMapController
         for (Point p : points) {
           latLngs.add(new LatLng(p.latitude(), p.longitude()));
         }
+      }
+      //
+      return latLngs.toArray(new LatLng[latLngs.size()]);
+    }
+    return new LatLng[]{};
+  }
+
+  public LatLng[] getRoutingPoints(DirectionsRoute directionsRoute) {
+    if (directionsRoute != null) {
+      ArrayList<LatLng> latLngs = new ArrayList<>();
+      //
+      List<Point> points = LineString.fromPolyline(directionsRoute.geometry(), PRECISION_6).coordinates();
+      for (Point p : points) {
+        latLngs.add(new LatLng(p.latitude(), p.longitude()));
       }
       //
       return latLngs.toArray(new LatLng[latLngs.size()]);

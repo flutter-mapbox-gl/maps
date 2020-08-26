@@ -17,7 +17,10 @@ part 'src/location.dart';
 part 'src/method_channel_mapbox_gl.dart';
 part 'src/symbol.dart';
 part 'src/ui.dart';
+
 part 'src/navigation/directions_route.dart';
 part 'src/navigation/directions_response.dart';
+
 part 'src/constants/mapbox_constants.dart';
+
 part 'src/mapbox_gl_platform_interface.dart';
