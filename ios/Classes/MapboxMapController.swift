@@ -31,7 +31,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     init(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, registrar: FlutterPluginRegistrar) {
         if let args = args as? [String: Any] {
-            if let token = args["accessToken"] as? String {
+            if let token = args["accessToken"] as? String? {
                 MGLAccountManager.accessToken = token
             }
         }
@@ -971,7 +971,26 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
         }
     }
-    
+
+    func addSource(sourceId: String, geojson: String) {
+        do {
+            let parsed = try MGLShape.init(data: geojson.data(using: .utf8)!, encoding: String.Encoding.utf8.rawValue)
+            let source = MGLShapeSource(identifier: sourceId, shape: parsed, options: [:])
+            mapView.style?.addSource(source)
+        } catch {
+        }
+    }
+
+    func addLineLayer(sourceId: String, layerId: String, properties: [String: String]) {
+        if let style = mapView.style {
+            if let source = style.source(withIdentifier: sourceId) {
+                let layer = MGLLineStyleLayer(identifier: layerId, source: source)
+                Convert.addLineProperties(lineLayer: layer, properties: properties)
+                style.addLayer(layer)
+            }
+        }
+    }
+
     func mapViewDidBecomeIdle(_ mapView: MGLMapView) {
         if let channel = channel {
             channel.invokeMethod("map#onIdle", arguments: []);

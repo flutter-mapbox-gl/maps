@@ -278,4 +278,13 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError(
         'getMetersPerPixelAtLatitude() has not been implemented.');
   }
+  Future<void> addSource(String sourceId, String geojson) async {
+    throw UnimplementedError(
+        'setSymbolTextIgnorePlacement() has not been implemented.');
+  }
+
+  Future<void> addLineLayer(String sourceId, String layerId, Map<String, String> properties) async {
+    throw UnimplementedError(
+        'setSymbolTextIgnorePlacement() has not been implemented.');
+  }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl_example/page.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:mapbox_gl_example/main.dart';
+import 'package:mapbox_gl_example/page.dart';
 
-class LayerPage extends Page {
+class LayerPage extends ExamplePage {
 
   LayerPage() : super(const Icon(Icons.share), 'Layer');
 
@@ -33,7 +34,7 @@ class LayerState extends State {
             -33.87112820031405
           ],
           [
-            151.21770858764648,
+            151.4770858764648,
             -33.853737857223145
           ]
         ]
@@ -56,6 +57,7 @@ class LayerState extends State {
             width: 300.0,
             height: 500.0,
             child: MapboxMap(
+              accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
               onStyleLoadedCallback: _onStyleLoadedCallback,
               initialCameraPosition: CameraPosition(
@@ -76,8 +78,7 @@ class LayerState extends State {
   void _onStyleLoadedCallback() {
     controller.addSource("source_1", geojson);
     controller.addLineLayer("source_1", "layer_1", {
-      'line-color': "[\"rgb\", 171, 72, 33]",
-      'line-width': "[\"to-number\", 5]"
+      'line-width': "[\"interpolate\", [\"linear\"], [\"zoom\"], 15.0, 1.0, 23.0, 10.0]"
     });
   }
 }
