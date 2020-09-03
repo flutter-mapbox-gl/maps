@@ -670,4 +670,9 @@ class MapboxMapController extends ChangeNotifier {
     await MapboxGlPlatform.getInstance(_id)
         .setSymbolTextIgnorePlacement(enable);
   }
+
+  /// Adds an image source to the style currently displayed in the map, so that it can later be referred to by the provided name.
+  Future<void> addSource(String name, Uint8List bytes, LatLngQuad coordinates) {
+    return MapboxGlPlatform.getInstance(_id).addSource(name, bytes, coordinates);
+  }
 }

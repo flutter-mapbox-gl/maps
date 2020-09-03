@@ -210,4 +210,9 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError(
         'setSymbolTextIgnorePlacement() has not been implemented.');
   }
+
+  Future<void> addSource(String name, Uint8List bytes,
+      LatLngQuad coordinates) async {
+    throw UnimplementedError('addSource() has not been implemented.');
+  }
 }
