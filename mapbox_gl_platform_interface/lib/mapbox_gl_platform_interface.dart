@@ -2,6 +2,7 @@ library mapbox_gl_platform_interface;
 
 import 'dart:math';
 import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,8 @@ part 'src/camera.dart';
 part 'src/circle.dart';
 part 'src/line.dart';
 part 'src/location.dart';
+part 'src/mapbox_gl_platform_interface.dart';
 part 'src/method_channel_mapbox_gl.dart';
+part 'src/neo_ranges.dart'; // CUSTOM
 part 'src/symbol.dart';
 part 'src/ui.dart';
-part 'src/mapbox_gl_platform_interface.dart';
