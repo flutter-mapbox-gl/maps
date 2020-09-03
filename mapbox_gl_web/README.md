@@ -1,1 +1,0 @@
-Contains the web interfaces for the [Flutter Mapbox GL plugin](https://github.com/tobrun/flutter-mapbox-gl).
