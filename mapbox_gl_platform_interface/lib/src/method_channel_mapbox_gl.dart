@@ -453,4 +453,19 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       return new Future.error(e);
     }
   }
+
+  @override
+  Future<void> addSource(String name, Uint8List bytes,
+      LatLngQuad coordinates) async {
+    try {
+      return await _channel.invokeMethod('style#addSource', <String, Object>{
+        "name": name,
+        "bytes": bytes,
+        "length": bytes.length,
+        "coordinates": coordinates.toList()
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
 }
