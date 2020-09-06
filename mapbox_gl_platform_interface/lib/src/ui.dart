@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of mapbox_gl;
+part of mapbox_gl_platform_interface;
 
 class MapboxStyles {
   static const String MAPBOX_STREETS = "mapbox://styles/mapbox/streets-v11";
@@ -26,7 +26,8 @@ class MapboxStyles {
   /// Satellite Streets: Global satellite and aerial imagery with unobtrusive labels. Using this
   /// constant means your map style will always use the latest version and may change as we
   /// improve the style.
-  static const String SATELLITE_STREETS = "mapbox://styles/mapbox/satellite-streets-v11";
+  static const String SATELLITE_STREETS =
+      "mapbox://styles/mapbox/satellite-streets-v11";
 
   /// Traffic Day: Color-coded roads based on live traffic congestion data. Traffic data is currently
   /// available in
@@ -83,7 +84,7 @@ class CameraTargetBounds {
   /// Unbounded camera target.
   static const CameraTargetBounds unbounded = CameraTargetBounds(null);
 
-  dynamic _toJson() => <dynamic>[bounds?._toList()];
+  dynamic toJson() => <dynamic>[bounds?.toList()];
 
   @override
   bool operator ==(dynamic other) {
@@ -120,7 +121,7 @@ class MinMaxZoomPreference {
   static const MinMaxZoomPreference unbounded =
       MinMaxZoomPreference(null, null);
 
-  dynamic _toJson() => <dynamic>[minZoom, maxZoom];
+  dynamic toJson() => <dynamic>[minZoom, maxZoom];
 
   @override
   bool operator ==(dynamic other) {

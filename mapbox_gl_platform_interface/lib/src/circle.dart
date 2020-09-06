@@ -4,29 +4,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of mapbox_gl;
+part of mapbox_gl_platform_interface;
 
 class Circle {
-  @visibleForTesting
-  Circle(this._id, this._options, [this._data]);
+  Circle(this._id, this.options, [this._data]);
 
   /// A unique identifier for this circle.
   ///
   /// The identifier is an arbitrary unique string.
   final String _id;
   String get id => _id;
-  
-
-  CircleOptions _options;
 
   final Map _data;
   Map get data => _data;
+
   /// The circle configuration options most recently applied programmatically
   /// via the map controller.
   ///
   /// The returned value does not reflect any changes made to the circle through
   /// touch events. Add listeners to the owning map controller to track those.
-  CircleOptions get options => _options;
+  CircleOptions options;
 }
 
 /// Configuration options for [Circle] instances.
@@ -79,7 +76,7 @@ class CircleOptions {
     );
   }
 
-  dynamic _toJson() {
+  dynamic toJson() {
     final Map<String, dynamic> json = <String, dynamic>{};
 
     void addIfPresent(String fieldName, dynamic value) {
@@ -95,7 +92,7 @@ class CircleOptions {
     addIfPresent('circleStrokeWidth', circleStrokeWidth);
     addIfPresent('circleStrokeColor', circleStrokeColor);
     addIfPresent('circleStrokeOpacity', circleStrokeOpacity);
-    addIfPresent('geometry', geometry?._toJson());
+    addIfPresent('geometry', geometry?.toJson());
     addIfPresent('draggable', draggable);
     return json;
   }
