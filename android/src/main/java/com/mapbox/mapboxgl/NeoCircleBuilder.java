@@ -9,6 +9,9 @@ import java.util.Map;
 
 class NeoCircleBuilder {
 
+    static final int STROKE_WIDTH_MULTIPLIER = 18;
+    static final int RADIUS_MULTIPLIER = 75;
+
     static Feature createNeoCircleFeature(Map<?, ?> options, float radius) {
 
         final LatLng latLng = Convert.toLatLng(options.get("geometry"));
@@ -26,7 +29,7 @@ class NeoCircleBuilder {
 
         if (options.get("circleStrokeWidth") != null) {
             final float circleStrokeWidth = Convert.toFloat(options.get("circleStrokeWidth"));
-            feature.addNumberProperty("circle-stroke-width", circleStrokeWidth * 18);
+            feature.addNumberProperty("circle-stroke-width", circleStrokeWidth * STROKE_WIDTH_MULTIPLIER);
         }
 
         if (options.get("circleStrokeColor") != null) {
@@ -39,7 +42,7 @@ class NeoCircleBuilder {
             feature.addNumberProperty("circle-stroke-opacity", circleStrokeOpacity);
         }
 
-        feature.addNumberProperty("radius", radius * 75);
+        feature.addNumberProperty("radius", radius * RADIUS_MULTIPLIER);
 
         return feature;
     }
