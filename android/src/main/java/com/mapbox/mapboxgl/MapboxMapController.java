@@ -477,8 +477,8 @@ final class MapboxMapController
         }
       });
 
-      navigationMapRoute = new NavigationMapRoute(mapboxNavigation, mapView, mapboxMap);
-      navigationMapRoute.setOnRouteSelectionChangeListener(onRouteSelectionChangeListener);
+//      navigationMapRoute = new NavigationMapRoute(mapboxNavigation, mapView, mapboxMap);
+//      navigationMapRoute.setOnRouteSelectionChangeListener(onRouteSelectionChangeListener);
 
       routeRefresh = new RouteRefresh(getAccessToken(context));
 
@@ -864,9 +864,9 @@ final class MapboxMapController
       }
       case "locationComponent#getLastLocation": {
         Log.e(TAG, "location component: getLastLocation");
-        if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
+        if (this.myLocationEnabled && locationComponent != null) {
           Map<String, Object> reply = new HashMap<>();
-          locationEngine.getLastLocation(new LocationEngineCallback<LocationEngineResult>() {
+          locationComponent.getLocationEngine().getLastLocation(new LocationEngineCallback<LocationEngineResult>() {
             @Override
             public void onSuccess(LocationEngineResult locationEngineResult) {
               Location lastLocation = locationEngineResult.getLastLocation();
@@ -973,7 +973,7 @@ final class MapboxMapController
         final String directionsRouteJSON = call.argument("directionsRoute");
         final boolean isSimulation = call.argument("isSimulation");
         if (directionsRouteJSON != null && directionsRouteJSON.isEmpty() == false) {
-          startNavigation(directionsRoutes.get(Integer.valueOf(DirectionsRoute.fromJson(directionsRouteJSON).routeIndex())), isSimulation);
+          startNavigation(DirectionsRoute.fromJson(directionsRouteJSON), isSimulation);
           result.success(null);
         } else {
           result.error("ROUTES IS NULL", "", null);
@@ -1411,20 +1411,17 @@ final class MapboxMapController
 
   public void startNavigation(DirectionsRoute directionsRoute, boolean simulate) {
     if (directionsRoute != null) {
-      //
       if (simulate) {
         ReplayRouteLocationEngine replayRouteLocationEngine = new ReplayRouteLocationEngine();
         replayRouteLocationEngine.assign(directionsRoute);
         replayRouteLocationEngine.updateSpeed(120);
-        //
         mapboxNavigation.setLocationEngine(replayRouteLocationEngine);
         locationComponent.setLocationEngine(replayRouteLocationEngine);
       } else {
         mapboxNavigation.setLocationEngine(locationEngine);
         locationComponent.setLocationEngine(locationEngine);
       }
-      //
-      mapboxNavigation.startNavigation(directionsRoute, DirectionsRouteType.NEW_ROUTE);
+      mapboxNavigation.startNavigation(directionsRoute);
     }
   }
 
@@ -1453,7 +1450,6 @@ final class MapboxMapController
             .post();
     for (int i = 0; i < latLngs.size(); i++) {
       LatLng latLng = latLngs.get(i);
-      //
       if (i == 0) {
         builder.origin(Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude(), latLng.getAltitude()));
       } else if (i == latLngs.size() - 1) {
@@ -1462,7 +1458,6 @@ final class MapboxMapController
         builder.addWaypoint(Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude(), latLng.getAltitude()));
       }
     }
-    //
     builder.build().enqueueCall(new Callback<DirectionsResponse>() {
       @Override
       public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {

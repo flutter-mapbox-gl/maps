@@ -20,7 +20,8 @@ typedef void OnNavigationCallback(bool running);
 
 typedef void OnRouteSelectionCallback(DirectionsRoute directionsRoute);
 
-typedef void OnNavigationProgressChangeCallback(double distanceRemaining, LegStep upComingStep);
+typedef void OnNavigationProgressChangeCallback(
+    double distanceRemaining, LegStep upComingStep);
 
 /// Controller for a single MapboxMap instance running on the host platform.
 ///
@@ -148,13 +149,18 @@ class MapboxMapController extends ChangeNotifier {
       }
     });
 
-    MapboxGlPlatform.getInstance(_id).onNavigationProgressChangePlatform.add((dict) {
+    MapboxGlPlatform.getInstance(_id)
+        .onNavigationProgressChangePlatform
+        .add((dict) {
       if (onNavigationProgressChange != null) {
-        onNavigationProgressChange(dict['distanceRemaining'], dict['upComingStep']);
+        onNavigationProgressChange(
+            dict['distanceRemaining'], dict['upComingStep']);
       }
     });
 
-    MapboxGlPlatform.getInstance(_id).onRouteSelectionPlatform.add((directionsRoute) {
+    MapboxGlPlatform.getInstance(_id)
+        .onRouteSelectionPlatform
+        .add((directionsRoute) {
       if (onRouteSelection != null) {
         onRouteSelection(directionsRoute);
       }
@@ -338,7 +344,8 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Update map padding when fitbounds
   Future<void> setMapPadding(int left, int top, int right, int bottom) async {
-    return MapboxGlPlatform.getInstance(_id).setMapPadding(left, top, right, bottom);
+    return MapboxGlPlatform.getInstance(_id)
+        .setMapPadding(left, top, right, bottom);
   }
 
   /// Enables or disables the collection of anonymized telemetry data.
@@ -366,17 +373,17 @@ class MapboxMapController extends ChangeNotifier {
   /// been notified.
   Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
     List<Symbol> result = await addSymbols([options], [data]);
-  
+
     return result.first;
   }
 
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
+      [List<Map> data]) async {
+    final List<SymbolOptions> effectiveOptions =
+        options.map((o) => SymbolOptions.defaultOptions.copyWith(o)).toList();
 
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
-    final List<SymbolOptions> effectiveOptions = options.map(
-          (o) => SymbolOptions.defaultOptions.copyWith(o)
-    ).toList();
-
-    final symbols = await MapboxGlPlatform.getInstance(_id).addSymbols(effectiveOptions, data);
+    final symbols = await MapboxGlPlatform.getInstance(_id)
+        .addSymbols(effectiveOptions, data);
     symbols.forEach((s) => _symbols[s.id] = s);
     notifyListeners();
     return symbols;
@@ -429,7 +436,7 @@ class MapboxMapController extends ChangeNotifier {
     symbols.forEach((s) {
       assert(_symbols[s.id] == s);
     });
-  
+
     await _removeSymbols(symbols.map((s) => s.id));
     notifyListeners();
   }
@@ -468,7 +475,7 @@ class MapboxMapController extends ChangeNotifier {
     final LineOptions effectiveOptions =
         LineOptions.defaultOptions.copyWith(options);
     final line =
-        await MapboxGlPlatform.getInstance(_id).addLine(effectiveOptions);
+        await MapboxGlPlatform.getInstance(_id).addLine(effectiveOptions, data);
     _lines[line.id] = line;
     notifyListeners();
     return line;
@@ -552,7 +559,7 @@ class MapboxMapController extends ChangeNotifier {
     final CircleOptions effectiveOptions =
         CircleOptions.defaultOptions.copyWith(options);
     final circle =
-        await MapboxGlPlatform.getInstance(_id).addCircle(effectiveOptions);
+        await MapboxGlPlatform.getInstance(_id).addCircle(effectiveOptions, data);
     _circles[circle.id] = circle;
     notifyListeners();
     return circle;
@@ -717,47 +724,41 @@ class MapboxMapController extends ChangeNotifier {
 
   /// get Route
   Future<DirectionsResponse> getMapboxAPIRoute(List<LatLng> latLngs) async {
-    return await MapboxGlPlatform.getInstance(_id)
-        .getMapboxAPIRoute(latLngs);
+    return await MapboxGlPlatform.getInstance(_id).getMapboxAPIRoute(latLngs);
   }
 
   Future<void> addRoutesToMap(List<DirectionsRoute> routes) async {
-    return await MapboxGlPlatform.getInstance(_id)
-        .addRoutesToMap(routes);
+    return await MapboxGlPlatform.getInstance(_id).addRoutesToMap(routes);
   }
 
   Future<void> clearDirectionsRoutes() async {
-    return await MapboxGlPlatform.getInstance(_id)
-        .clearDirectionsRoutes();
+    return await MapboxGlPlatform.getInstance(_id).clearDirectionsRoutes();
   }
 
   /// Select Route
   Future<void> selectRoute(DirectionsRoute directionsRoute) async {
-    await MapboxGlPlatform.getInstance(_id)
-        .selectRoute(directionsRoute);
+    await MapboxGlPlatform.getInstance(_id).selectRoute(directionsRoute);
   }
 
   /// Fit Route
   Future<void> fitRoute(DirectionsRoute directionsRoute) async {
-    await MapboxGlPlatform.getInstance(_id)
-        .fitRoute(directionsRoute);
+    await MapboxGlPlatform.getInstance(_id).fitRoute(directionsRoute);
   }
 
   /// Fit Route At Index
   Future<void> fitRouteAt(int index) async {
-    await MapboxGlPlatform.getInstance(_id)
-        .fitRouteAt(index);
+    await MapboxGlPlatform.getInstance(_id).fitRouteAt(index);
   }
 
   /// Start navigation
-  Future<void> startNavigation(DirectionsRoute directionsRoute, bool isSimulation) async {
+  Future<void> startNavigation(
+      DirectionsRoute directionsRoute, bool isSimulation) async {
     await MapboxGlPlatform.getInstance(_id)
         .startNavigation(directionsRoute, isSimulation);
   }
 
   /// Stop navigation
   Future<void> stopNavigation() async {
-    await MapboxGlPlatform.getInstance(_id)
-        .stopNavigation();
+    await MapboxGlPlatform.getInstance(_id).stopNavigation();
   }
 }
