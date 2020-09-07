@@ -24,8 +24,8 @@ packages:
     dependency: "direct main"
     description:
       path: mapbox_gl_platform_interface
-      ref: "feature/adapte_plugin_for_neopolis"
-      resolved-ref: "151311c3c62cd7aacb9a51f248b0f9697c35c35d"
+      ref: HEAD
+      resolved-ref: "1e83e1e3c6f2d46ac83700c30d785ecfc97f3137"
       url: "https://github.com/revoltgames/neopolis_mapbox"
     source: git
     version: "0.8.0"

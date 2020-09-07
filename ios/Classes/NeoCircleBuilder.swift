@@ -4,6 +4,9 @@ import MapboxAnnotationExtension
 
 class NeoCircleBuilder {
     
+    static let STROKE_WIDTH_MULTIPLIER: Double = 18
+    static let RADIUS_MULTIPLIER: Double = 75
+    
     static func createNeoCircleFeature (options: [String: Any], radius: Double) -> MGLPointFeature {
         
         let newFeature = MGLPointFeature()
@@ -20,11 +23,11 @@ class NeoCircleBuilder {
         newFeature.coordinate = CLLocationCoordinate2DMake(lat, lon)
         
         newFeature.attributes = [
-            "radius": radius * 75,
+            "radius": radius * RADIUS_MULTIPLIER,
             "circle-color": circleColor,
             "circle-opacity": circleOpacity,
             "circle-stroke-color": circleStrokeColor,
-            "circle-stroke-width": circleStrokeWidth * 18,
+            "circle-stroke-width": circleStrokeWidth * STROKE_WIDTH_MULTIPLIER,
             "circle-stroke-opacity": circleStrokeOpacity
         ]
         
