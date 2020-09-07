@@ -396,9 +396,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let coordinates = arguments["coordinates"] as? [[Double]] else { return };
             let quad = MGLCoordinateQuad(
                 topLeft: CLLocationCoordinate2D(latitude: coordinates[0][0], longitude: coordinates[0][1]),
-                topRight: CLLocationCoordinate2D(latitude: coordinates[1][0], longitude: coordinates[1][1]),
+                bottomLeft: CLLocationCoordinate2D(latitude: coordinates[3][0], longitude: coordinates[3][1]),
                 bottomRight: CLLocationCoordinate2D(latitude: coordinates[2][0], longitude: coordinates[2][1]),
-                bottomLeft: CLLocationCoordinate2D(latitude: coordinates[3][0], longitude: coordinates[3][1])
+                topRight: CLLocationCoordinate2D(latitude: coordinates[1][0], longitude: coordinates[1][1])
             )
             
             let source = MGLImageSource(identifier: name, coordinateQuad: quad, image: image)
