@@ -9,8 +9,7 @@ abstract class MapboxGlPlatform {
   ///
   /// Platform-specific plugins should set this with their own platform-specific
   /// class that extends [MapboxGlPlatform] when they register themselves.
-  static MapboxGlPlatform Function() createInstance =
-      () => MethodChannelMapboxGl();
+  static MapboxGlPlatform Function() createInstance = () => MethodChannelMapboxGl();
 
   static Map<int, MapboxGlPlatform> _instances = {};
 
@@ -22,42 +21,30 @@ abstract class MapboxGlPlatform {
     return _instances[id];
   }
 
-  final ArgumentCallbacks<String> onInfoWindowTappedPlatform =
-      ArgumentCallbacks<String>();
+  final ArgumentCallbacks<String> onInfoWindowTappedPlatform = ArgumentCallbacks<String>();
 
-  final ArgumentCallbacks<String> onSymbolTappedPlatform =
-      ArgumentCallbacks<String>();
+  final ArgumentCallbacks<String> onSymbolTappedPlatform = ArgumentCallbacks<String>();
 
-  final ArgumentCallbacks<String> onLineTappedPlatform =
-      ArgumentCallbacks<String>();
+  final ArgumentCallbacks<String> onLineTappedPlatform = ArgumentCallbacks<String>();
 
-  final ArgumentCallbacks<String> onCircleTappedPlatform =
-      ArgumentCallbacks<String>();
+  final ArgumentCallbacks<String> onCircleTappedPlatform = ArgumentCallbacks<String>();
 
-  final ArgumentCallbacks<void> onCameraMoveStartedPlatform =
-      ArgumentCallbacks<void>();
+  final ArgumentCallbacks<void> onCameraMoveStartedPlatform = ArgumentCallbacks<void>();
 
-  final ArgumentCallbacks<CameraPosition> onCameraMovePlatform =
-      ArgumentCallbacks<CameraPosition>();
+  final ArgumentCallbacks<CameraPosition> onCameraMovePlatform = ArgumentCallbacks<CameraPosition>();
 
-  final ArgumentCallbacks<void> onCameraIdlePlatform =
-      ArgumentCallbacks<void>();
+  final ArgumentCallbacks<void> onCameraIdlePlatform = ArgumentCallbacks<void>();
 
-  final ArgumentCallbacks<void> onMapStyleLoadedPlatform =
-      ArgumentCallbacks<void>();
+  final ArgumentCallbacks<void> onMapStyleLoadedPlatform = ArgumentCallbacks<void>();
 
-  final ArgumentCallbacks<Map<String, dynamic>> onMapClickPlatform =
-      ArgumentCallbacks<Map<String, dynamic>>();
+  final ArgumentCallbacks<Map<String, dynamic>> onMapClickPlatform = ArgumentCallbacks<Map<String, dynamic>>();
 
-  final ArgumentCallbacks<Map<String, dynamic>> onMapLongClickPlatform =
-      ArgumentCallbacks<Map<String, dynamic>>();
+  final ArgumentCallbacks<Map<String, dynamic>> onMapLongClickPlatform = ArgumentCallbacks<Map<String, dynamic>>();
 
-  final ArgumentCallbacks<MyLocationTrackingMode>
-      onCameraTrackingChangedPlatform =
+  final ArgumentCallbacks<MyLocationTrackingMode> onCameraTrackingChangedPlatform =
       ArgumentCallbacks<MyLocationTrackingMode>();
 
-  final ArgumentCallbacks<void> onCameraTrackingDismissedPlatform =
-      ArgumentCallbacks<void>();
+  final ArgumentCallbacks<void> onCameraTrackingDismissedPlatform = ArgumentCallbacks<void>();
 
   final ArgumentCallbacks<void> onMapIdlePlatform = ArgumentCallbacks<void>();
 
@@ -65,15 +52,12 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('initPlatform() has not been implemented.');
   }
 
-  Widget buildView(
-      Map<String, dynamic> creationParams,
-      Function onPlatformViewCreated,
+  Widget buildView(Map<String, dynamic> creationParams, Function onPlatformViewCreated,
       Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers) {
     throw UnimplementedError('buildView() has not been implemented.');
   }
 
-  Future<CameraPosition> updateMapOptions(
-      Map<String, dynamic> optionsUpdate) async {
+  Future<CameraPosition> updateMapOptions(Map<String, dynamic> optionsUpdate) async {
     throw UnimplementedError('updateMapOptions() has not been implemented.');
   }
 
@@ -85,15 +69,12 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('moveCamera() has not been implemented.');
   }
 
-  Future<void> updateMyLocationTrackingMode(
-      MyLocationTrackingMode myLocationTrackingMode) async {
-    throw UnimplementedError(
-        'updateMyLocationTrackingMode() has not been implemented.');
+  Future<void> updateMyLocationTrackingMode(MyLocationTrackingMode myLocationTrackingMode) async {
+    throw UnimplementedError('updateMyLocationTrackingMode() has not been implemented.');
   }
 
   Future<void> matchMapLanguageWithDeviceDefault() async {
-    throw UnimplementedError(
-        'matchMapLanguageWithDeviceDefault() has not been implemented.');
+    throw UnimplementedError('matchMapLanguageWithDeviceDefault() has not been implemented.');
   }
 
   Future<void> updateContentInsets(EdgeInsets insets, bool animated) async {
@@ -111,7 +92,7 @@ abstract class MapboxGlPlatform {
   Future<bool> getTelemetryEnabled() async {
     throw UnimplementedError('getTelemetryEnabled() has not been implemented.');
   }
-  
+
   Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
     throw UnimplementedError('addSymbols() has not been implemented.');
   }
@@ -134,6 +115,11 @@ abstract class MapboxGlPlatform {
 
   Future<void> removeLine(String lineId) async {
     throw UnimplementedError('removeLine() has not been implemented.');
+  }
+
+  // CUSTOM
+  Future<void> updateNeoRanges(NeoRanges neoRange) async {
+    throw UnimplementedError('addCircle() has not been implemented.');
   }
 
   Future<Circle> addCircle(CircleOptions options, [Map data]) async {
@@ -160,54 +146,43 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('removeCircle() has not been implemented.');
   }
 
-  Future<List> queryRenderedFeatures(
-      Point<double> point, List<String> layerIds, List<Object> filter) async {
-    throw UnimplementedError(
-        'queryRenderedFeatures() has not been implemented.');
+  Future<List> queryRenderedFeatures(Point<double> point, List<String> layerIds, List<Object> filter) async {
+    throw UnimplementedError('queryRenderedFeatures() has not been implemented.');
   }
 
-  Future<List> queryRenderedFeaturesInRect(
-      Rect rect, List<String> layerIds, String filter) async {
-    throw UnimplementedError(
-        'queryRenderedFeaturesInRect() has not been implemented.');
+  Future<List> queryRenderedFeaturesInRect(Rect rect, List<String> layerIds, String filter) async {
+    throw UnimplementedError('queryRenderedFeaturesInRect() has not been implemented.');
   }
 
   Future invalidateAmbientCache() async {
-    throw UnimplementedError(
-        'invalidateAmbientCache() has not been implemented.');
+    throw UnimplementedError('invalidateAmbientCache() has not been implemented.');
   }
 
   Future<LatLng> requestMyLocationLatLng() async {
-    throw UnimplementedError(
-        'requestMyLocationLatLng() has not been implemented.');
+    throw UnimplementedError('requestMyLocationLatLng() has not been implemented.');
   }
 
   Future<LatLngBounds> getVisibleRegion() async {
     throw UnimplementedError('getVisibleRegion() has not been implemented.');
   }
 
-  Future<void> addImage(String name, Uint8List bytes,
-      [bool sdf = false]) async {
+  Future<void> addImage(String name, Uint8List bytes, [bool sdf = false]) async {
     throw UnimplementedError('addImage() has not been implemented.');
   }
 
   Future<void> setSymbolIconAllowOverlap(bool enable) async {
-    throw UnimplementedError(
-        'setSymbolIconAllowOverlap() has not been implemented.');
+    throw UnimplementedError('setSymbolIconAllowOverlap() has not been implemented.');
   }
 
   Future<void> setSymbolIconIgnorePlacement(bool enable) async {
-    throw UnimplementedError(
-        'setSymbolIconIgnorePlacement() has not been implemented.');
+    throw UnimplementedError('setSymbolIconIgnorePlacement() has not been implemented.');
   }
 
   Future<void> setSymbolTextAllowOverlap(bool enable) async {
-    throw UnimplementedError(
-        'setSymbolTextAllowOverlap() has not been implemented.');
+    throw UnimplementedError('setSymbolTextAllowOverlap() has not been implemented.');
   }
 
   Future<void> setSymbolTextIgnorePlacement(bool enable) async {
-    throw UnimplementedError(
-        'setSymbolTextIgnorePlacement() has not been implemented.');
+    throw UnimplementedError('setSymbolTextIgnorePlacement() has not been implemented.');
   }
 }

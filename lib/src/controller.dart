@@ -471,6 +471,12 @@ class MapboxMapController extends ChangeNotifier {
     _lines.remove(id);
   }
 
+  // CUSTOM
+  Future<void> updateNeoRanges(NeoRanges neoRanges) async {
+    await MapboxGlPlatform.getInstance(_id).updateNeoRanges(neoRanges);
+    return notifyListeners();
+  }
+
   /// Adds a circle to the map, configured using the specified custom [options].
   ///
   /// Change listeners are notified once the circle has been added on the
