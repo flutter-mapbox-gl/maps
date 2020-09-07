@@ -155,7 +155,7 @@ class Convert {
     return builder.build();
   }
 
-  private static List<LatLng> toLatLngList(Object o) {
+  static List<LatLng> toLatLngList(Object o) {
     if (o == null) {
       return null;
     }

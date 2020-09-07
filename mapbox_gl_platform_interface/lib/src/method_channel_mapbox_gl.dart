@@ -455,14 +455,46 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addSource(String name, Uint8List bytes,
+  Future<void> addImageSource(String name, Uint8List bytes,
       LatLngQuad coordinates) async {
     try {
-      return await _channel.invokeMethod('style#addSource', <String, Object>{
+      return await _channel.invokeMethod('style#addImageSource', <String, Object>{
         "name": name,
         "bytes": bytes,
         "length": bytes.length,
         "coordinates": coordinates.toList()
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> removeImageSource(String name) async {
+    try {
+      return await _channel.invokeMethod('style#removeImageSource', <String, Object>{
+        "name": name
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+  @override
+  Future<void> addLayer(String name, String sourceId) async {
+    try {
+      return await _channel.invokeMethod('style#addLayer', <String, Object>{
+        "name": name,
+        "sourceId": sourceId
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+  @override
+  Future<void> removeLayer(String name) async {
+    try {
+      return await _channel.invokeMethod('style#removeLayer', <String, Object>{
+        "name": name
       });
     } on PlatformException catch (e) {
       return new Future.error(e);
