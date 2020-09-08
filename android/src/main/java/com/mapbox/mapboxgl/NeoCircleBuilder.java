@@ -10,7 +10,7 @@ import java.util.Map;
 class NeoCircleBuilder {
 
     static final int STROKE_WIDTH_MULTIPLIER = 18;
-    static final int RADIUS_MULTIPLIER = 75;
+    static final int RADIUS_MULTIPLIER = 65;
 
     static Feature createNeoCircleFeature(Map<?, ?> options, float radius) {
 

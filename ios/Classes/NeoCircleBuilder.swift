@@ -5,7 +5,7 @@ import MapboxAnnotationExtension
 class NeoCircleBuilder {
     
     static let STROKE_WIDTH_MULTIPLIER: Double = 18
-    static let RADIUS_MULTIPLIER: Double = 75
+    static let RADIUS_MULTIPLIER: Double = 65
     
     static func createNeoCircleFeature (options: [String: Any], radius: Double) -> MGLPointFeature {
         
