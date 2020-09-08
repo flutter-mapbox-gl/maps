@@ -283,6 +283,11 @@ abstract class MapboxGlPlatform {
         'setSymbolTextIgnorePlacement() has not been implemented.');
   }
 
+  Future<void> addSymbolLayer(String sourceId, String layerId, Map<String, String> properties) async {
+    throw UnimplementedError(
+        'setSymbolTextIgnorePlacement() has not been implemented.');
+  }
+
   Future<void> addLineLayer(String sourceId, String layerId, Map<String, String> properties) async {
     throw UnimplementedError(
         'setSymbolTextIgnorePlacement() has not been implemented.');

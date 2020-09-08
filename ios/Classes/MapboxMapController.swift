@@ -499,6 +499,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             removeAllForController(controller:lineAnnotationController, ids:ids)
             result(nil)
+        case "symbolLayer#add":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+
+            addSymbolLayer(sourceId: sourceId, layerId: layerId, properties: properties)
+        case "lineLayer#add":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
 
         case "line#getGeometry":
             guard let lineAnnotationController = lineAnnotationController else { return }
@@ -978,6 +990,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             let source = MGLShapeSource(identifier: sourceId, shape: parsed, options: [:])
             mapView.style?.addSource(source)
         } catch {
+        }
+    }
+
+    func addSymbolLayer(sourceId: String, layerId: String, properties: [String: String]) {
+        if let style = mapView.style {
+            if let source = style.source(withIdentifier: sourceId) {
+                let layer = MGLSymbolStyleLayer(identifier: layerId, source: source)
+                Convert.addSymbolProperties(symbolLayer: layer, properties: properties)
+                style.addLayer(layer)
+            }
         }
     }
 
