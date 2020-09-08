@@ -45,6 +45,7 @@ class Convert {
       sink.setMyLocationEnabled(options['myLocationEnabled']);
     }
     if (options.containsKey('myLocationTrackingMode')) {
+      //Should not be invoked before sink.setMyLocationEnabled()
       sink.setMyLocationTrackingMode(options['myLocationTrackingMode']);
     }
     if (options.containsKey('myLocationRenderMode')) {

@@ -114,7 +114,8 @@ class MapboxMap extends StatefulWidget {
   /// when the map tries to turn on the My Location layer.
   final bool myLocationEnabled;
 
-  /// The mode used to let the map's camera follow the device's physical location
+  /// The mode used to let the map's camera follow the device's physical location. 
+  /// `myLocationEnabled` needs to be true for values other than `MyLocationTrackingMode.None` to work.
   final MyLocationTrackingMode myLocationTrackingMode;
 
   /// The mode to render the user location symbol
