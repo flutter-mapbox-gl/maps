@@ -191,8 +191,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
     }
 
     _updateSelectedCircle(
-      CircleOptions(
-          circleColor: "#FFFF00"),
+      CircleOptions(circleColor: "#FFFF00"),
     );
   }
 
@@ -202,6 +201,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
       // default value
       current = 0;
     }
+
     _updateSelectedCircle(
       CircleOptions(circleBlur: current == 0.75 ? 0 : 0.75),
     );
@@ -250,59 +250,43 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
                       children: <Widget>[
                         FlatButton(
                           child: const Text('change circle-opacity'),
-                          onPressed:
-                              (_selectedCircle == null) ? null : _changeCircleOpacity,
+                          onPressed: (_selectedCircle == null) ? null : _changeCircleOpacity,
                         ),
                         FlatButton(
                           child: const Text('change circle-radius'),
-                          onPressed: (_selectedCircle == null)
-                              ? null
-                              : _changeCircleRadius,
+                          onPressed: (_selectedCircle == null) ? null : _changeCircleRadius,
                         ),
                         FlatButton(
                           child: const Text('change circle-color'),
-                          onPressed:
-                          (_selectedCircle == null) ? null : _changeCircleColor,
+                          onPressed: (_selectedCircle == null) ? null : _changeCircleColor,
                         ),
                         FlatButton(
                           child: const Text('change circle-blur'),
-                          onPressed:
-                          (_selectedCircle == null) ? null : _changeCircleBlur,
+                          onPressed: (_selectedCircle == null) ? null : _changeCircleBlur,
                         ),
                         FlatButton(
                           child: const Text('change circle-stroke-width'),
-                          onPressed:
-                              (_selectedCircle == null) ? null : _changeCircleStrokeWidth,
+                          onPressed: (_selectedCircle == null) ? null : _changeCircleStrokeWidth,
                         ),
                         FlatButton(
                           child: const Text('change circle-stroke-color'),
-                          onPressed: (_selectedCircle == null)
-                              ? null
-                              : _changeCircleStrokeColor,
+                          onPressed: (_selectedCircle == null) ? null : _changeCircleStrokeColor,
                         ),
                         FlatButton(
                           child: const Text('change circle-stroke-opacity'),
-                          onPressed: (_selectedCircle == null)
-                              ? null
-                              : _changeCircleStrokeOpacity,
+                          onPressed: (_selectedCircle == null) ? null : _changeCircleStrokeOpacity,
                         ),
                         FlatButton(
                           child: const Text('change position'),
-                          onPressed: (_selectedCircle == null)
-                              ? null
-                              : _changePosition,
+                          onPressed: (_selectedCircle == null) ? null : _changePosition,
                         ),
                         FlatButton(
                           child: const Text('toggle draggable'),
-                          onPressed: (_selectedCircle == null)
-                              ? null
-                              : _changeDraggable,
+                          onPressed: (_selectedCircle == null) ? null : _changeDraggable,
                         ),
                         FlatButton(
                           child: const Text('get current LatLng'),
-                          onPressed: (_selectedCircle == null)
-                              ? null
-                              : _getLatLng,
+                          onPressed: (_selectedCircle == null) ? null : _getLatLng,
                         ),
                       ],
                     ),

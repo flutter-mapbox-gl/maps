@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl_example/full_map.dart';
+import 'package:mapbox_gl_example/place_neo_ranges.dart';
 
 import 'animate_camera.dart';
 import 'full_map.dart';
@@ -26,11 +27,11 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   LinePage(),
   PlaceCirclePage(),
   ScrollingMapPage(),
+  PlaceNeoRangesPage(),
 ];
 
 class MapsDemo extends StatelessWidget {
-  //FIXME: Add your Mapbox access token here
-  static const String ACCESS_TOKEN = "YOUR_TOKEN_HERE";
+  static const String ACCESS_TOKEN = "";
 
   void _pushPage(BuildContext context, ExamplePage page) async {
     if (!kIsWeb) {
