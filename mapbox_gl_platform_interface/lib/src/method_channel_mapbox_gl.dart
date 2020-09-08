@@ -463,6 +463,15 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> addSymbolLayer(String sourceId, String layerId, Map<String, String> properties) async {
+    await _channel.invokeMethod('symbolLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'properties': properties
+    });
+  }
+
+  @override
   Future<void> addLineLayer(String sourceId, String layerId, Map<String, String> properties) async {
     await _channel.invokeMethod('lineLayer#add', <String, dynamic>{
       'sourceId': sourceId,

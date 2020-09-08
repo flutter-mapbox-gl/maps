@@ -256,6 +256,10 @@ class MapboxMapController extends ChangeNotifier {
     await MapboxGlPlatform.getInstance(_id).addSource(sourceId, geojson);
   }
 
+  Future<void> addSymbolLayer(String sourceId, String layerId, Map<String, String> properties) async {
+    await MapboxGlPlatform.getInstance(_id).addSymbolLayer(sourceId, layerId, properties);
+  }
+
   Future<void> addLineLayer(String sourceId, String layerId, Map<String, String> properties) async {
     await MapboxGlPlatform.getInstance(_id).addLineLayer(sourceId, layerId, properties);
   }
