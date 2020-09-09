@@ -73,8 +73,8 @@ class PlaceNeoRangeBodyState extends State<PlaceNeoRangeBody> {
     );
     controller.addCircle(
       CircleOptions(
-        circleColor: "#FFFFFF",
-        circleRadius: 1,
+        circleColor: "#FF0000",
+        circleRadius: 3,
         geometry: LatLng(
           -33.86891,
           151.1947171,
@@ -83,8 +83,8 @@ class PlaceNeoRangeBodyState extends State<PlaceNeoRangeBody> {
     );
     controller.addCircle(
       CircleOptions(
-        circleColor: "#FFFFFF",
-        circleRadius: 1,
+        circleColor: "#FF0000",
+        circleRadius: 3,
         geometry: LatLng(
           -33.86981,
           151.1947171,
@@ -93,8 +93,8 @@ class PlaceNeoRangeBodyState extends State<PlaceNeoRangeBody> {
     );
     controller.addCircle(
       CircleOptions(
-        circleColor: "#FFFFFF",
-        circleRadius: 1,
+        circleColor: "#FF0000",
+        circleRadius: 3,
         geometry: LatLng(
           -33.87071,
           151.1947171,
