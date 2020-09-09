@@ -362,7 +362,7 @@ final class MapboxMapController
             enableCircleManager(style);
 
             // CUSTOM PART BEGIN
-            Layer symbolLayer = style.getLayer("mapbox-android-symbol-layer-1");
+            Layer symbolLayer = style.getLayer(symbolManager.getLayerId());
             symbolLayer.setProperties(
                     PropertyFactory.iconSize(Expression.interpolate(
                             exponential(1.4), zoom(),
