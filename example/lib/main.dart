@@ -31,7 +31,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
 ];
 
 class MapsDemo extends StatelessWidget {
-  static const String ACCESS_TOKEN = "";
+  static const String ACCESS_TOKEN = "pk.eyJ1IjoibmVvamdyYW5kY2hhdmluIiwiYSI6ImNrZG9pdnd3YTB4MjAyd3FuZTNmb3NwYTYifQ.G7TVHW7p6A5J70aoYYUK6Q";
 
   void _pushPage(BuildContext context, ExamplePage page) async {
     if (!kIsWeb) {
@@ -42,7 +42,8 @@ class MapsDemo extends StatelessWidget {
       }
     }
     Navigator.of(context).push(MaterialPageRoute<void>(
-        builder: (_) => Scaffold(
+        builder: (_) =>
+            Scaffold(
               appBar: AppBar(title: Text(page.title)),
               body: page,
             )));
@@ -54,11 +55,12 @@ class MapsDemo extends StatelessWidget {
       appBar: AppBar(title: const Text('MapboxMaps examples')),
       body: ListView.builder(
         itemCount: _allPages.length,
-        itemBuilder: (_, int index) => ListTile(
-          leading: _allPages[index].leading,
-          title: Text(_allPages[index].title),
-          onTap: () => _pushPage(context, _allPages[index]),
-        ),
+        itemBuilder: (_, int index) =>
+            ListTile(
+              leading: _allPages[index].leading,
+              title: Text(_allPages[index].title),
+              onTap: () => _pushPage(context, _allPages[index]),
+            ),
       ),
     );
   }

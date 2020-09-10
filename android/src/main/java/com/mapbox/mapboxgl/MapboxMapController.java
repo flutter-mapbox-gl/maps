@@ -14,6 +14,7 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
@@ -38,6 +39,9 @@ import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.telemetry.TelemetryEnabler;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.Point;
+import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
@@ -87,16 +91,26 @@ import static com.mapbox.mapboxgl.MapboxMapsPlugin.PAUSED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.RESUMED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STARTED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STOPPED;
+import static com.mapbox.mapboxgl.NeoCircleBuilder.getTurfPolygon;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillOpacity;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillOutlineColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
+import static com.mapbox.turf.TurfConstants.UNIT_KILOMETERS;
 
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
+import com.mapbox.mapboxsdk.style.layers.FillLayer;
 import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.turf.TurfMeta;
 
 /**
  * Controller of a single MapboxMaps MapView instance.
@@ -342,19 +356,22 @@ final class MapboxMapController
             // CUSTOM PART BEGIN
             style.addSource(new GeoJsonSource("neo_ranges_source"));
 
-            Layer circleLayer = new CircleLayer("neo_ranges_layer", "neo_ranges_source").withProperties(
-                    PropertyFactory.circleColor(get("circle-color")),
-                    PropertyFactory.circleOpacity(get("circle-opacity")),
-                    PropertyFactory.circleStrokeOpacity(get("circle-stroke-opacity")),
-                    PropertyFactory.circleStrokeColor(get("circle-stroke-color")),
-                    PropertyFactory.circlePitchAlignment(Expression.literal("map")),
-                    PropertyFactory.circleStrokeWidth(Expression.interpolate(exponential(2), zoom(),
-                            literal(0.0f), literal(0.0f),
-                            literal(22), get("circle-stroke-width"))),
-                    PropertyFactory.circleRadius(Expression.interpolate(exponential(2), zoom(),
-                            literal(0.0f), literal(0.0f),
-                            literal(22), get("radius"))));
-            style.addLayer(circleLayer);
+            FillLayer rangesLayer = new FillLayer("neo_ranges_fill_layer", "neo_ranges_source");
+
+            LineLayer lineLayer = new LineLayer("neo_ranges_line_layer", "neo_ranges_source");
+
+            lineLayer.setProperties(lineWidth(Expression.interpolate(
+                    exponential(1.3), zoom(),
+                    literal(0.0f), literal(0),
+                    literal(20.0f), literal(20))), lineColor(Color.parseColor("#FFFFFF")));
+
+            rangesLayer.setProperties(
+                    fillColor(Color.parseColor("#f5425d")),
+                    fillOpacity(.7f));
+
+
+            style.addLayer(rangesLayer);
+            style.addLayer(lineLayer);
             // CUSTOM PART END
 
             enableLineManager(style);
@@ -688,41 +705,60 @@ final class MapboxMapController
             }
             // CUSTOM PART BEGIN
             case "neoRanges#update": {
+
                 Object visionRangeOptionsO = call.argument("visionRangeOptions");
                 final Map<?, ?> visionRangeOptions = toMap(visionRangeOptionsO);
 
-                Object adRangeOptionsO = call.argument("adRangeOptions");
-                final Map<?, ?> adRangeOptions = toMap(adRangeOptionsO);
+                final LatLng latLng = Convert.toLatLng(visionRangeOptions.get("geometry"));
 
-                Object actionRangeOptionsO = call.argument("actionRangeOptions");
-                final Map<?, ?> actionRangeOptions = toMap(actionRangeOptionsO);
+                Polygon polygonArea = getTurfPolygon(Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude()), 0.4, 500, UNIT_KILOMETERS);
+                GeoJsonSource polygonCircleSource = style.getSourceAs("neo_ranges_source");
+                Polygon finalPolygon = Polygon.fromOuterInner(
+                        LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false)));
 
-                final int visionRangeRadius = toInt(call.argument("visionRangeRadius"));
-                final int adRangeRadius = toInt(call.argument("adRangeRadius"));
-                final int actionRangeRadius = toInt(call.argument("actionRangeRadius"));
+                Feature feature = Feature.fromGeometry(finalPolygon);
 
-                Style currentStyle = mapboxMap.getStyle();
-
-
-                if (visionRangeOptions != null &&
-                        adRangeOptions != null &&
-                        actionRangeOptions != null && currentStyle != null
-                ) {
-
-                    GeoJsonSource currentSource = (GeoJsonSource) currentStyle.getSource("neo_ranges_source");
-
-                    if (currentSource != null) {
-                        Feature visionFeature = NeoCircleBuilder.createNeoCircleFeature(visionRangeOptions, visionRangeRadius);
-                        Feature adFeature = NeoCircleBuilder.createNeoCircleFeature(adRangeOptions, adRangeRadius);
-                        Feature actionFeature = NeoCircleBuilder.createNeoCircleFeature(actionRangeOptions, actionRangeRadius);
-
-                        List<Feature> featureList = Arrays.asList(visionFeature, adFeature, actionFeature);
-
-                        FeatureCollection featureCollection = FeatureCollection.fromFeatures(featureList);
-
-                        currentSource.setGeoJson(featureCollection);
-                    }
+                List<Feature> featureList = Arrays.asList(feature);
+//
+                FeatureCollection featureCollection = FeatureCollection.fromFeatures(featureList);
+                if (polygonCircleSource != null) {
+                    polygonCircleSource.setGeoJson(featureCollection);
                 }
+//                Object visionRangeOptionsO = call.argument("visionRangeOptions");
+//                final Map<?, ?> visionRangeOptions = toMap(visionRangeOptionsO);
+//
+//                Object adRangeOptionsO = call.argument("adRangeOptions");
+//                final Map<?, ?> adRangeOptions = toMap(adRangeOptionsO);
+//
+//                Object actionRangeOptionsO = call.argument("actionRangeOptions");
+//                final Map<?, ?> actionRangeOptions = toMap(actionRangeOptionsO);
+//
+//                final int visionRangeRadius = toInt(call.argument("visionRangeRadius"));
+//                final int adRangeRadius = toInt(call.argument("adRangeRadius"));
+//                final int actionRangeRadius = toInt(call.argument("actionRangeRadius"));
+//
+//                Style currentStyle = mapboxMap.getStyle();
+//
+//
+//                if (visionRangeOptions != null &&
+//                        adRangeOptions != null &&
+//                        actionRangeOptions != null && currentStyle != null
+//                ) {
+//
+//                    GeoJsonSource currentSource = (GeoJsonSource) currentStyle.getSource("neo_ranges_source");
+//
+//                    if (currentSource != null) {
+//                        Feature visionFeature = NeoCircleBuilder.createNeoCircleFeature(visionRangeOptions, visionRangeRadius);
+//                        Feature adFeature = NeoCircleBuilder.createNeoCircleFeature(adRangeOptions, adRangeRadius);
+//                        Feature actionFeature = NeoCircleBuilder.createNeoCircleFeature(actionRangeOptions, actionRangeRadius);
+//
+//                        List<Feature> featureList = Arrays.asList(visionFeature, adFeature, actionFeature);
+//
+//                        FeatureCollection featureCollection = FeatureCollection.fromFeatures(featureList);
+//
+//                        currentSource.setGeoJson(featureCollection);
+//                    }
+//                }
                 break;
             }
             // CUSTOM PART END

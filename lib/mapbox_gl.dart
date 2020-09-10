@@ -33,7 +33,8 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         CircleOptions,
         Line,
         LineOptions,
-        NeoRanges; // CUSTOM
+        NeoRanges,
+        NeoRangeOptions; // CUSTOM
 
 part 'src/bitmap.dart';
 part 'src/controller.dart';
