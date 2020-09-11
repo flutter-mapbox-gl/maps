@@ -7,6 +7,7 @@ import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.turf.TurfMeta;
 import com.mapbox.turf.TurfTransformation;
 
@@ -20,31 +21,39 @@ import static com.mapbox.turf.TurfConstants.UNIT_KILOMETERS;
 class NeoCircleBuilder {
 
 
-    static Feature createNeoCircleFeature(Map<?, ?> options, float radius) {
+    static Feature createNeoCircleFeature(Map<?, ?> options, LatLng geometry, int circlePrecision) {
 
-        final LatLng latLng = Convert.toLatLng(options.get("geometry"));
+        final float radiusInKm = Convert.toFloat(options.get("radius")) / 1000;
 
-        Polygon basePolygon = createCirclePolygon(latLng, (int) radius);
-
-        Polygon finalPolygon = Polygon.fromOuterInner(LineString.fromLngLats(TurfMeta.coordAll(basePolygon, false)));
+        Polygon polygonArea = getTurfPolygon(Point.fromLngLat(geometry.getLongitude(), geometry.getLatitude()), radiusInKm, circlePrecision, UNIT_KILOMETERS);
+        Polygon finalPolygon = Polygon.fromOuterInner(
+                LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false)));
 
         Feature feature = Feature.fromGeometry(finalPolygon);
 
-        if (options.get("circleColor") != null) {
-            final String circleColor = Convert.toString(options.get("circleColor"));
-            feature.addStringProperty("fill-color", circleColor);
+        if (options.get("fill-color") != null) {
+            final String fillColor = Convert.toString(options.get("fill-color"));
+            feature.addStringProperty("fill-color", fillColor);
         }
-        if (options.get("circleOpacity") != null) {
-            final float circleOpacity = Convert.toFloat(options.get("circleOpacity"));
-            feature.addNumberProperty("fill-opacity", circleOpacity);
+        if (options.get("fill-opacity") != null) {
+            final float fillOpacity = Convert.toFloat(options.get("fill-opacity"));
+            feature.addNumberProperty("fill-opacity", fillOpacity);
         }
 
-//        if (options.get("circleColor") != null) {
-//            final float circleColor = Convert.toFloat(options.get("circleColor"));
-//            feature.addNumberProperty("fill-outline-color", circleColor);
-//        }
+        if (options.get("border-opacity") != null) {
+            final float borderOpacity = Convert.toFloat(options.get("border-opacity"));
+            feature.addNumberProperty("border-opacity", borderOpacity);
+        }
 
-//        feature.addNumberProperty("maxzoom", 22);
+        if (options.get("border-color") != null) {
+            final String borderColor = Convert.toString(options.get("border-color"));
+            feature.addStringProperty("border-color", borderColor);
+        }
+
+        if (options.get("border-width") != null) {
+            final float borderWidth = Convert.toFloat(options.get("border-width"));
+            feature.addNumberProperty("border-width", borderWidth);
+        }
 
         return feature;
     }
