@@ -119,7 +119,7 @@ abstract class MapboxGlPlatform {
 
   // CUSTOM
   Future<void> updateNeoRanges(NeoRanges neoRange) async {
-    throw UnimplementedError('addCircle() has not been implemented.');
+    throw UnimplementedError('updateNeoRanges() has not been implemented.');
   }
 
   Future<Circle> addCircle(CircleOptions options, [Map data]) async {

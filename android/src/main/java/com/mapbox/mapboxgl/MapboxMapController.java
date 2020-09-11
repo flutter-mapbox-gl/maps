@@ -91,6 +91,7 @@ import static com.mapbox.mapboxgl.MapboxMapsPlugin.PAUSED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.RESUMED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STARTED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STOPPED;
+import static com.mapbox.mapboxgl.NeoCircleBuilder.createNeoCircleFeature;
 import static com.mapbox.mapboxgl.NeoCircleBuilder.getTurfPolygon;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
@@ -100,6 +101,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillOutlineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 import static com.mapbox.turf.TurfConstants.UNIT_KILOMETERS;
 
@@ -363,11 +365,11 @@ final class MapboxMapController
             lineLayer.setProperties(lineWidth(Expression.interpolate(
                     exponential(1.3), zoom(),
                     literal(0.0f), literal(0),
-                    literal(20.0f), literal(20))), lineColor(Color.parseColor("#FFFFFF")));
+                    literal(20.0f), get("border-width"))), lineColor(get("border-color")), lineOpacity(get("border-opacity")));
 
             rangesLayer.setProperties(
-                    fillColor(Color.parseColor("#f5425d")),
-                    fillOpacity(.7f));
+                    fillColor(get("fill-color")),
+                    fillOpacity(get("fill-opacity")));
 
 
             style.addLayer(rangesLayer);
@@ -706,59 +708,32 @@ final class MapboxMapController
             // CUSTOM PART BEGIN
             case "neoRanges#update": {
 
-                Object visionRangeOptionsO = call.argument("visionRangeOptions");
+                Object visionRangeOptionsO = call.argument("vision_range_options");
                 final Map<?, ?> visionRangeOptions = toMap(visionRangeOptionsO);
 
-                final LatLng latLng = Convert.toLatLng(visionRangeOptions.get("geometry"));
+                Object adRangeOptionsO = call.argument("ad_range_options");
+                final Map<?, ?> adRangeOptions = toMap(adRangeOptionsO);
 
-                Polygon polygonArea = getTurfPolygon(Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude()), 0.4, 500, UNIT_KILOMETERS);
-                GeoJsonSource polygonCircleSource = style.getSourceAs("neo_ranges_source");
-                Polygon finalPolygon = Polygon.fromOuterInner(
-                        LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false)));
+                Object actionRangeOptionsO = call.argument("action_range_options");
+                final Map<?, ?> actionRangeOptions = toMap(actionRangeOptionsO);
 
-                Feature feature = Feature.fromGeometry(finalPolygon);
+                final LatLng latLng = Convert.toLatLng(call.argument("geometry"));
 
-                List<Feature> featureList = Arrays.asList(feature);
-//
+                final int circlePrecision = Convert.toInt(call.argument("circle_precision"));
+
+                Feature actionRangeFeature = createNeoCircleFeature(actionRangeOptions, latLng, circlePrecision);
+                Feature adRangeFeature = createNeoCircleFeature(adRangeOptions, latLng, circlePrecision);
+                Feature visionRangeFeature = createNeoCircleFeature(visionRangeOptions, latLng, circlePrecision);
+
+                List<Feature> featureList = Arrays.asList(actionRangeFeature, adRangeFeature, visionRangeFeature);
+
                 FeatureCollection featureCollection = FeatureCollection.fromFeatures(featureList);
+
+                GeoJsonSource polygonCircleSource = style.getSourceAs("neo_ranges_source");
                 if (polygonCircleSource != null) {
                     polygonCircleSource.setGeoJson(featureCollection);
                 }
-//                Object visionRangeOptionsO = call.argument("visionRangeOptions");
-//                final Map<?, ?> visionRangeOptions = toMap(visionRangeOptionsO);
-//
-//                Object adRangeOptionsO = call.argument("adRangeOptions");
-//                final Map<?, ?> adRangeOptions = toMap(adRangeOptionsO);
-//
-//                Object actionRangeOptionsO = call.argument("actionRangeOptions");
-//                final Map<?, ?> actionRangeOptions = toMap(actionRangeOptionsO);
-//
-//                final int visionRangeRadius = toInt(call.argument("visionRangeRadius"));
-//                final int adRangeRadius = toInt(call.argument("adRangeRadius"));
-//                final int actionRangeRadius = toInt(call.argument("actionRangeRadius"));
-//
-//                Style currentStyle = mapboxMap.getStyle();
-//
-//
-//                if (visionRangeOptions != null &&
-//                        adRangeOptions != null &&
-//                        actionRangeOptions != null && currentStyle != null
-//                ) {
-//
-//                    GeoJsonSource currentSource = (GeoJsonSource) currentStyle.getSource("neo_ranges_source");
-//
-//                    if (currentSource != null) {
-//                        Feature visionFeature = NeoCircleBuilder.createNeoCircleFeature(visionRangeOptions, visionRangeRadius);
-//                        Feature adFeature = NeoCircleBuilder.createNeoCircleFeature(adRangeOptions, adRangeRadius);
-//                        Feature actionFeature = NeoCircleBuilder.createNeoCircleFeature(actionRangeOptions, actionRangeRadius);
-//
-//                        List<Feature> featureList = Arrays.asList(visionFeature, adFeature, actionFeature);
-//
-//                        FeatureCollection featureCollection = FeatureCollection.fromFeatures(featureList);
-//
-//                        currentSource.setGeoJson(featureCollection);
-//                    }
-//                }
+                result.success(null);
                 break;
             }
             // CUSTOM PART END
