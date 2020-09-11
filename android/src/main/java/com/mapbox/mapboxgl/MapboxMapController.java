@@ -365,7 +365,7 @@ final class MapboxMapController
             lineLayer.setProperties(lineWidth(Expression.interpolate(
                     exponential(1.3), zoom(),
                     literal(0.0f), literal(0),
-                    literal(20.0f), get("border-width"))), lineColor(get("border-color")), lineOpacity(get("border-opacity")));
+                    literal(22.0f), get("border-width"))), lineColor(get("border-color")), lineOpacity(get("border-opacity")));
 
             rangesLayer.setProperties(
                     fillColor(get("fill-color")),

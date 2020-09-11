@@ -62,12 +62,4 @@ class NeoCircleBuilder {
                                   @NonNull int steps, @NonNull String units) {
         return TurfTransformation.circle(centerPoint, radius, steps, units);
     }
-
-
-    private static Polygon createCirclePolygon(LatLng center, int radiusInMeters) {
-        Point point = Point.fromLngLat(center.getLongitude(), center.getLatitude());
-        int radiusInKm = radiusInMeters / 1000;
-        return getTurfPolygon(point, radiusInKm, 180, UNIT_KILOMETERS);
-    }
-
 }
