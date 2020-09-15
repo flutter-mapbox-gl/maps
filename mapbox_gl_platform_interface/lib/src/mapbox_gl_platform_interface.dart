@@ -105,6 +105,21 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('removeSymbol() has not been implemented.');
   }
 
+  // CUSTOM
+  Future<List<Symbol>> addNeoClusterSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    throw UnimplementedError('addNeoClusterSymbols() has not been implemented.');
+  }
+
+  // CUSTOM
+  Future<void> updateNeoClusterSymbols(Symbol symbol, SymbolOptions changes) async {
+    throw UnimplementedError('updateNeoClusterSymbols() has not been implemented.');
+  }
+
+  // CUSTOM
+  Future<void> removeNeoClusterSymbols(Iterable<String> symbolsIds) async {
+    throw UnimplementedError('removeNeoClusterSymbols() has not been implemented.');
+  }
+
   Future<Line> addLine(LineOptions options, [Map data]) async {
     throw UnimplementedError('addLine() has not been implemented.');
   }

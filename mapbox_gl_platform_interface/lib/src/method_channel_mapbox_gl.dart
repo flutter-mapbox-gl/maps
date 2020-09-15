@@ -199,6 +199,32 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    final List<dynamic> symbolIds = await _channel.invokeMethod(
+      'symbols#addAll',
+      <String, dynamic>{
+        'options': options.map((o) => o.toJson()).toList(),
+      },
+    );
+    final List<Symbol> symbols = symbolIds
+        .asMap()
+        .map((i, id) =>
+            MapEntry(i, Symbol(id, options.elementAt(i), data != null && data.length > i ? data.elementAt(i) : null)))
+        .values
+        .toList();
+
+    return symbols;
+  }
+
+  @override
+  Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
+    await _channel.invokeMethod('symbol#update', <String, dynamic>{
+      'symbol': symbol.id,
+      'options': changes.toJson(),
+    });
+  }
+
+  @override
   Future<LatLng> getSymbolLatLng(Symbol symbol) async {
     Map mapLatLng = await _channel.invokeMethod('symbol#getGeometry', <String, dynamic>{
       'symbol': symbol._id,
