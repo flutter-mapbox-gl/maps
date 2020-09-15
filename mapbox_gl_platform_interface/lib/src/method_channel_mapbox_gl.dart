@@ -256,14 +256,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   Future<void> updateNeoRanges(NeoRanges neoRanges) async {
     return _channel.invokeMethod(
       'neoRanges#update',
-      <String, dynamic>{
-        'visionRangeOptions': neoRanges.visionRangeCircleOptions.toJson(),
-        'adRangeOptions': neoRanges.adRangeCircleOptions.toJson(),
-        'actionRangeOptions': neoRanges.actionRangeCircleOptions.toJson(),
-        'visionRangeRadius': neoRanges.visionRangeRadius,
-        'adRangeRadius': neoRanges.adRangeRadius,
-        'actionRangeRadius': neoRanges.actionRangeRadius,
-      },
+      neoRanges.toJson(),
     );
   }
 

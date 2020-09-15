@@ -30,28 +30,31 @@ class PlaceNeoRangeBodyState extends State<PlaceNeoRangeBody> {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
   static final NeoRanges neoRanges = NeoRanges(
-    visionRangeRadius: 400,
-    adRangeRadius: 300,
-    actionRangeRadius: 200,
-    visionRangeCircleOptions: CircleOptions(
-      geometry: center,
-      circleOpacity: 0,
-      circleStrokeColor: "#2AA2D2",
-      circleStrokeWidth: 25,
+    geometry: center,
+    circlePrecision: 180,
+    actionRangeOptions: NeoRangeOptions(
+      radius: 200,
+      borderWidth: 10,
+      borderOpacity: 1,
+      borderColor: Colors.white,
+      fillColor: Colors.blue,
+      fillOpacity: 0.5,
     ),
-    actionRangeCircleOptions: CircleOptions(
-      geometry: center,
-      circleOpacity: 0.5,
-      circleColor: "#2AA2D2",
-      circleStrokeColor: "#FFFFFF",
-      circleStrokeWidth: 20,
+    adRangeOptions: NeoRangeOptions(
+      radius: 300,
+      borderWidth: 10,
+      borderOpacity: 1,
+      borderColor: Colors.white,
+      fillColor: Colors.blue,
+      fillOpacity: 0.25,
     ),
-    adRangeCircleOptions: CircleOptions(
-      geometry: center,
-      circleOpacity: 0.15,
-      circleColor: "#2AA2D2",
-      circleStrokeColor: "#FFFFFF",
-      circleStrokeWidth: 15,
+    visionRangeOptions: NeoRangeOptions(
+      radius: 400,
+      borderWidth: 10,
+      borderOpacity: 1,
+      borderColor: Colors.blue,
+      fillColor: Colors.blue,
+      fillOpacity: 0,
     ),
   );
 
