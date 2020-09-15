@@ -111,7 +111,7 @@ abstract class MapboxGlPlatform {
   }
 
   // CUSTOM
-  Future<void> updateNeoClusterSymbols(Symbol symbol, SymbolOptions changes) async {
+  Future<void> updateNeoClusterSymbol(Symbol symbol, SymbolOptions changes) async {
     throw UnimplementedError('updateNeoClusterSymbols() has not been implemented.');
   }
 

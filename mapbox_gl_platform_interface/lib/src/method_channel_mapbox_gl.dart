@@ -199,9 +199,25 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
+    Map mapLatLng = await _channel.invokeMethod('symbol#getGeometry', <String, dynamic>{
+      'symbol': symbol._id,
+    });
+    LatLng symbolLatLng = new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
+    return symbolLatLng;
+  }
+
+  @override
+  Future<void> removeSymbols(Iterable<String> ids) async {
+    await _channel.invokeMethod('symbols#removeAll', <String, dynamic>{
+      'symbols': ids.toList(),
+    });
+  }
+
+  @override
+  Future<List<Symbol>> addNeoClusterSymbols(List<SymbolOptions> options, [List<Map> data]) async {
     final List<dynamic> symbolIds = await _channel.invokeMethod(
-      'symbols#addAll',
+      'neoClusterSymbols#addAll',
       <String, dynamic>{
         'options': options.map((o) => o.toJson()).toList(),
       },
@@ -217,25 +233,16 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
-    await _channel.invokeMethod('symbol#update', <String, dynamic>{
+  Future<void> updateNeoClusterSymbol(Symbol symbol, SymbolOptions changes) async {
+    await _channel.invokeMethod('neoClusterSymbols#update', <String, dynamic>{
       'symbol': symbol.id,
       'options': changes.toJson(),
     });
   }
 
   @override
-  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
-    Map mapLatLng = await _channel.invokeMethod('symbol#getGeometry', <String, dynamic>{
-      'symbol': symbol._id,
-    });
-    LatLng symbolLatLng = new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
-    return symbolLatLng;
-  }
-
-  @override
-  Future<void> removeSymbols(Iterable<String> ids) async {
-    await _channel.invokeMethod('symbols#removeAll', <String, dynamic>{
+  Future<void> removeNeoClusterSymbols(Iterable<String> ids) async {
+    await _channel.invokeMethod('neoClusterSymbols#removeAll', <String, dynamic>{
       'symbols': ids.toList(),
     });
   }
