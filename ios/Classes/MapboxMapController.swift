@@ -418,6 +418,17 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             currentSource.shape = MGLShapeCollectionFeature.init(shapes: features)
             
             result(nil)
+            
+        case "neoRanges#remove":
+        
+            let style = mapView.style;
+            guard let currentSource = style?.source(withIdentifier: "neo_ranges_sources") as? MGLShapeSource else {return}
+            
+            let features = [MGLPolygonFeature]()
+            currentSource.shape = MGLShapeCollectionFeature.init(shapes: features)
+            
+            result(nil)
+            
         // CUSTOM PART END
         default:
             result(FlutterMethodNotImplemented)

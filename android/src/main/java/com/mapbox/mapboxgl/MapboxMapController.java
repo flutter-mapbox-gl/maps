@@ -729,9 +729,19 @@ final class MapboxMapController
 
                 FeatureCollection featureCollection = FeatureCollection.fromFeatures(featureList);
 
-                GeoJsonSource polygonCircleSource = style.getSourceAs("neo_ranges_source");
-                if (polygonCircleSource != null) {
-                    polygonCircleSource.setGeoJson(featureCollection);
+                GeoJsonSource neoRangesSource = style.getSourceAs("neo_ranges_source");
+                if (neoRangesSource != null) {
+                    neoRangesSource.setGeoJson(featureCollection);
+                }
+                result.success(null);
+                break;
+            }
+            case "neoRanges#remove": {
+                FeatureCollection featureCollection = FeatureCollection.fromJson("");
+
+                GeoJsonSource neoRangesSource = style.getSourceAs("neo_ranges_source");
+                if (neoRangesSource != null) {
+                    neoRangesSource.setGeoJson(featureCollection);
                 }
                 result.success(null);
                 break;

@@ -122,6 +122,11 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('updateNeoRanges() has not been implemented.');
   }
 
+  // CUSTOM
+  Future<void> removeNeoRanges() async {
+    throw UnimplementedError('removeNeoRanges() has not been implemented.');
+  }
+
   Future<Circle> addCircle(CircleOptions options, [Map data]) async {
     throw UnimplementedError('addCircle() has not been implemented.');
   }
