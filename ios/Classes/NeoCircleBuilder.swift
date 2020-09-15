@@ -1,40 +1,29 @@
 import Mapbox
 import MapboxAnnotationExtension
-import Turf
-
 
 class NeoCircleBuilder {
     
     static let STROKE_WIDTH_MULTIPLIER: Double = 18
     static let RADIUS_MULTIPLIER: Double = 65
     
-    static func createNeoCircleFeature (options: [String: Any], radius: Double) -> MGLPolygonFeature {
+    static func createNeoCircleFeature (options: [String: Any], geometry : CLLocationCoordinate2D, circlePrecision: Int) -> MGLPolygonFeature {
         
+        let radiusInMeters : Double = options["radius"] as? Double ?? 0
         
-        
-        let geometry : [Double] = options["geometry"] as? [Double] ?? [0,0]
-        let lat : Double = geometry[0]
-        let lon : Double = geometry[1]
-        
-        
-        let polygon : MGLPolygon = polygonCircleForCoordinate(coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon), withMeterRadius: radius)
-        
+        let polygon : MGLPolygon = polygonCircleForCoordinate(coordinate: geometry, withMeterRadius: radiusInMeters, circlePrecision: circlePrecision)
         
         let newFeature = MGLPolygonFeature(coordinates: polygon.coordinates, count: polygon.pointCount)
         
-        
         let fillColor : String = options["fill-color"] as? String ?? "#FFFFFF"
-        let fillOpacity : Double = options["fill-opacity"] as? Double ?? 0
+        let fillOpacity : Float = options["fill-opacity"] as? Float ?? 0.2
         let borderWidth : Double = options["border-width"] as? Double ?? 0
         let borderColor : String = options["border-color"] as? String ?? "#FFFFFF"
-        let borderOpacity : Double = options["border-opacity"] as? Double ?? 0
-        
+        let borderOpacity : Float = options["border-opacity"] as? Float ?? 0
         
         newFeature.attributes = [
-            "radius": radius,
-            "fill-color": fillColor,
+            "fill-color":  fillColor,
             "fill-opacity": fillOpacity,
-            "border-color": "#FFFFFF",
+            "border-color": borderColor,
             "border-width": borderWidth,
             "border-opacity": borderOpacity
         ]
@@ -43,10 +32,10 @@ class NeoCircleBuilder {
     }
     
     
-    static func polygonCircleForCoordinate(coordinate: CLLocationCoordinate2D, withMeterRadius: Double) -> MGLPolygon {
-        let degreesBetweenPoints = 8.0
+    static func polygonCircleForCoordinate(coordinate: CLLocationCoordinate2D, withMeterRadius: Double, circlePrecision: Int) -> MGLPolygon {
+        let degreesBetweenPoints = 8.0 * (100 / Double(circlePrecision))
         //45 sides
-        let numberOfPoints = floor(360.0 / degreesBetweenPoints)
+        let numberOfPoints = floor(360 / degreesBetweenPoints)
         let distRadians: Double = withMeterRadius / 6371000.0
         // earth radius in meters
         let centerLatRadians: Double = coordinate.latitude * Double.pi / 180
