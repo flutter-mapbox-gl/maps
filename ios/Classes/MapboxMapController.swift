@@ -27,7 +27,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     init(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, registrar: FlutterPluginRegistrar) {
         if let args = args as? [String: Any] {
-            if let token = args["accessToken"] as? NSString{
+            if let token = args["accessToken"] as? String{
                 MGLAccountManager.accessToken = token
             }
         }
@@ -391,34 +391,31 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "neoRanges#update":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             
-            guard let visionRangeOptions = arguments["visionRangeOptions"] as? [String: Any] else {return}
-            guard let adRangeOptions = arguments["adRangeOptions"] as? [String: Any] else {return}
-            guard let actionRangeOptions = arguments["actionRangeOptions"] as? [String: Any] else {return}
+            guard let visionRangeOptions = arguments["vision_range_options"] as? [String: Any] else {return}
+            guard let adRangeOptions = arguments["ad_range_options"] as? [String: Any] else {return}
+            guard let actionRangeOptions = arguments["action_range_options"] as? [String: Any] else {return}
             
-            guard let visionRangeRadius = arguments["visionRangeRadius"] as? Double else {return}
-            guard let adRangeRadius = arguments["adRangeRadius"] as? Double else {return}
-            guard let actionRangeRadius = arguments["actionRangeRadius"] as? Double else {return}
+            guard let geometryInDouble : [Double] = arguments["geometry"] as? [Double] else {return}
+            let geometry : CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: geometryInDouble[0], longitude: geometryInDouble[1])
+            
+            guard let circlePrecision : Int = arguments["circle_precision"] as? Int else {return}
             
             
             let style = mapView.style;
             
             
-            if (!visionRangeOptions.isEmpty &&  !adRangeOptions.isEmpty && !actionRangeOptions.isEmpty && style != nil) {
-                
-                guard let currentSource = style?.source(withIdentifier: "neo_ranges_sources") as? MGLShapeSource else {return}
-                
-                let visionFeature = NeoCircleBuilder.createNeoCircleFeature(options: visionRangeOptions, radius: visionRangeRadius)
-                let adFeature =  NeoCircleBuilder.createNeoCircleFeature(options: adRangeOptions, radius: adRangeRadius)
-                let actionFeature =  NeoCircleBuilder.createNeoCircleFeature(options: actionRangeOptions, radius: actionRangeRadius)
-                
-                var features = [MGLPolygonFeature]()
-                features.append(visionFeature)
-                features.append(adFeature)
-                features.append(actionFeature)
-                
-                currentSource.shape = MGLShapeCollectionFeature.init(shapes: features)
-            }
+            guard let currentSource = style?.source(withIdentifier: "neo_ranges_sources") as? MGLShapeSource else {return}
             
+            let visionFeature = NeoCircleBuilder.createNeoCircleFeature(options: visionRangeOptions,geometry: geometry, circlePrecision: circlePrecision )
+            let adFeature =  NeoCircleBuilder.createNeoCircleFeature(options: adRangeOptions, geometry: geometry, circlePrecision: circlePrecision )
+            let actionFeature =  NeoCircleBuilder.createNeoCircleFeature(options: actionRangeOptions,geometry: geometry, circlePrecision: circlePrecision)
+            
+            var features = [MGLPolygonFeature]()
+            features.append(visionFeature)
+            features.append(adFeature)
+            features.append(actionFeature)
+            
+            currentSource.shape = MGLShapeCollectionFeature.init(shapes: features)
             
             result(nil)
         // CUSTOM PART END
@@ -547,28 +544,32 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
         // CUSTOM PART BEGIN
         // Create and add to the map a Source for NeoRanges with empty Features
-        let neoRangesSource = MGLShapeSource(identifier: "neo_ranges_sources", features: [MGLPointFeature]())
+        let neoRangesSource = MGLShapeSource(identifier: "neo_ranges_sources", features: [MGLPolygonFeature]())
         style.addSource(neoRangesSource)
         
         // Create and add to the map the NeoRanges FillLayer and LineLayer with some properties
         let neoRangesFillLayer = MGLFillStyleLayer.init(identifier: "neo_ranges_fill_layer", source: neoRangesSource);
         let neoRangesLineLayer = MGLLineStyleLayer.init(identifier: "neo_ranges_line_layer", source: neoRangesSource);
         
-        let lineWidthStops = [
+        neoRangesFillLayer.sourceLayerIdentifier = "neo_ranges_sources"
+        
+         let lineWidthStops = [
             0: NSExpression(forConstantValue: 0),
             22: NSExpression(forKeyPath: "border-width"),
         ]
         
-        neoRangesLineLayer.lineWidth = NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'exponential', 1.3, %@)", lineWidthStops)
-        neoRangesLineLayer.lineColor = NSExpression(forKeyPath: "border-color")
-        neoRangesLineLayer.lineOpacity = NSExpression(forKeyPath: "border-opacity")
+       neoRangesLineLayer.lineWidth = NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'exponential', 1.3, %@)", lineWidthStops)
+       neoRangesLineLayer.lineColor = NSExpression(forKeyPath: "border-color")
+       neoRangesLineLayer.lineOpacity = NSExpression(forKeyPath: "border-opacity")
+                
         
         neoRangesFillLayer.fillColor = NSExpression(forKeyPath: "fill-color")
-        neoRangesFillLayer.fillOpacity = NSExpression(forKeyPath: "fill-opacity")
+        neoRangesFillLayer.fillOpacity =  NSExpression(forKeyPath: "fill-opacity")
         
         style.addLayer(neoRangesFillLayer)
         style.addLayer(neoRangesLineLayer)
         // CUSTOM PART END
+        
         
         lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
         lineAnnotationController!.annotationsInteractionEnabled = true
