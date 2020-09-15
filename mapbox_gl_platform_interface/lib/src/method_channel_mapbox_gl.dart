@@ -260,6 +260,13 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     );
   }
 
+  // CUSTOM
+  Future<void> removeNeoRanges() async {
+    return _channel.invokeMethod(
+      'neoRanges#remove',
+    );
+  }
+
   @override
   Future<Circle> addCircle(CircleOptions options, [Map data]) async {
     final String circleId = await _channel.invokeMethod(

@@ -9,7 +9,7 @@ import 'main.dart';
 import 'page.dart';
 
 class PlaceNeoRangesPage extends ExamplePage {
-  PlaceNeoRangesPage() : super(const Icon(Icons.check_circle), 'Place circle');
+  PlaceNeoRangesPage() : super(const Icon(Icons.check_circle), 'Place NeoRanges');
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +106,10 @@ class PlaceNeoRangeBodyState extends State<PlaceNeoRangeBody> {
     );
   }
 
+  void _removeNeoRanges() {
+    controller.removeNeoRanges();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -138,6 +142,10 @@ class PlaceNeoRangeBodyState extends State<PlaceNeoRangeBody> {
                         FlatButton(
                           child: const Text('Update NeoRanges'),
                           onPressed: () => _updateNeoRanges(),
+                        ),
+                        FlatButton(
+                          child: const Text('Remove NeoRanges'),
+                          onPressed: () => _removeNeoRanges(),
                         ),
                       ],
                     ),
