@@ -1,11 +1,7 @@
 import Mapbox
 import MapboxAnnotationExtension
 
-class NeoCircleBuilder {
-    
-    static let STROKE_WIDTH_MULTIPLIER: Double = 18
-    static let RADIUS_MULTIPLIER: Double = 65
-    
+class NeoCircleBuilder {    
     static func createNeoCircleFeature (options: [String: Any], geometry : CLLocationCoordinate2D, circlePrecision: Int) -> MGLPolygonFeature {
         
         let radiusInMeters : Double = options["radius"] as? Double ?? 0
