@@ -51,7 +51,13 @@ class MapboxMapController extends ChangeNotifier {
     });
 
     MapboxGlPlatform.getInstance(_id).onSymbolTappedPlatform.add((symbolId) {
-      final Symbol symbol = _symbols[symbolId];
+      Symbol symbol = null;
+      if (_symbols.containsKey(symbolId)) {
+        symbol = _symbols[symbolId];
+      } else if (_neoClusterSymbols.containsKey(symbolId)) {
+        symbol = _neoClusterSymbols[symbolId];
+      }
+
       if (symbol != null) {
         onSymbolTapped(symbol);
       }
@@ -172,6 +178,9 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned set will be a detached snapshot of the symbols collection.
   Set<Symbol> get symbols => Set<Symbol>.from(_symbols.values);
   final Map<String, Symbol> _symbols = <String, Symbol>{};
+
+  Set<Symbol> get neoClusterSymbols => Set<Symbol>.from(_symbols.values);
+  final Map<String, Symbol> _neoClusterSymbols = <String, Symbol>{};
 
   /// Callbacks to receive tap events for lines placed on this map.
   final ArgumentCallbacks<Line> onLineTapped = ArgumentCallbacks<Line>();
@@ -388,6 +397,59 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> _removeSymbols(Iterable<String> ids) async {
     await MapboxGlPlatform.getInstance(_id).removeSymbols(ids);
     _symbols.removeWhere((k, s) => ids.contains(k));
+  }
+
+  Future<Symbol> addNeoClusterSymbol(SymbolOptions options, [Map data]) async {
+    List<Symbol> result = await addNeoClusterSymbols([options], [data]);
+
+    return result.first;
+  }
+
+  Future<List<Symbol>> addNeoClusterSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    final List<SymbolOptions> effectiveOptions = options.map((o) => SymbolOptions.defaultOptions.copyWith(o)).toList();
+
+    final symbols = await MapboxGlPlatform.getInstance(_id).addNeoClusterSymbols(effectiveOptions, data);
+    symbols.forEach((s) => _neoClusterSymbols[s.id] = s);
+    notifyListeners();
+    return symbols;
+  }
+
+  Future<void> updateNeoClusterSymbol(Symbol symbol, SymbolOptions changes) async {
+    assert(symbol != null);
+    assert(_neoClusterSymbols[symbol.id] == symbol);
+    assert(changes != null);
+    await MapboxGlPlatform.getInstance(_id).updateNeoClusterSymbol(symbol, changes);
+    symbol.options = symbol.options.copyWith(changes);
+    notifyListeners();
+  }
+
+  Future<void> removeNeoClusterSymbol(Symbol symbol) async {
+    assert(symbol != null);
+    assert(_neoClusterSymbols[symbol.id] == symbol);
+    await _removeSymbols([symbol.id]);
+    notifyListeners();
+  }
+
+  Future<void> removeNeoClusterSymbols(Iterable<Symbol> symbols) async {
+    assert(symbols.length > 0);
+    symbols.forEach((s) {
+      assert(_neoClusterSymbols[s.id] == s);
+    });
+
+    await _removeNeoClusterSymbols(symbols.map((s) => s.id));
+    notifyListeners();
+  }
+
+  Future<void> _removeNeoClusterSymbols(Iterable<String> ids) async {
+    await MapboxGlPlatform.getInstance(_id).removeNeoClusterSymbols(ids);
+    _neoClusterSymbols.removeWhere((k, s) => ids.contains(k));
+  }
+
+  Future<void> clearNeoClusterSymbols() async {
+    assert(_neoClusterSymbols != null);
+    final List<String> symbolIds = List<String>.from(_neoClusterSymbols.keys);
+    _removeNeoClusterSymbols(symbolIds);
+    notifyListeners();
   }
 
   /// Adds a line to the map, configured using the specified custom [options].

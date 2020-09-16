@@ -141,9 +141,11 @@ final class MapboxMapController
     private final MapView mapView;
     private MapboxMap mapboxMap;
     private final Map<String, SymbolController> symbols;
+    private final Map<String, SymbolController> neoClusterSymbols;
     private final Map<String, LineController> lines;
     private final Map<String, CircleController> circles;
     private SymbolManager symbolManager;
+    private SymbolManager neoClusterSymbolManager;
     private LineManager lineManager;
     private CircleManager circleManager;
     private boolean trackCameraPosition = false;
@@ -177,6 +179,7 @@ final class MapboxMapController
         this.styleStringInitial = styleStringInitial;
         this.mapView = new MapView(context, options);
         this.symbols = new HashMap<>();
+        this.neoClusterSymbols = new HashMap<>();
         this.lines = new HashMap<>();
         this.circles = new HashMap<>();
         this.density = context.getResources().getDisplayMetrics().density;
@@ -263,6 +266,14 @@ final class MapboxMapController
 
     private SymbolController symbol(String symbolId) {
         final SymbolController symbol = symbols.get(symbolId);
+        if (symbol == null) {
+            throw new IllegalArgumentException("Unknown symbol: " + symbolId);
+        }
+        return symbol;
+    }
+
+    private SymbolController neoClusterSymbol(String symbolId) {
+        final SymbolController symbol = neoClusterSymbols.get(symbolId);
         if (symbol == null) {
             throw new IllegalArgumentException("Unknown symbol: " + symbolId);
         }
@@ -379,6 +390,7 @@ final class MapboxMapController
             enableLineManager(style);
             enableSymbolManager(style);
             enableCircleManager(style);
+            enableNeoClusterSymbolManager(style);
 
             // CUSTOM PART BEGIN
             Layer symbolLayer = style.getLayer(symbolManager.getLayerId());
@@ -394,6 +406,11 @@ final class MapboxMapController
                             literal(15.6f), literal(10),
                             literal(20.0f), literal(15))),
                     PropertyFactory.textFont(Expression.literal(new String[]{"Averta Semibold"}))
+            );
+
+            Layer neoClusterSymbolLayer = style.getLayer(neoClusterSymbolManager.getLayerId());
+            neoClusterSymbolLayer.setProperties(
+                    PropertyFactory.textFont(Expression.literal(new String[]{"Averta Bold"}))
             );
             // CUSTOM PART END
 
@@ -442,6 +459,17 @@ final class MapboxMapController
             symbolManager.setTextAllowOverlap(true);
             symbolManager.setTextIgnorePlacement(true);
             symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
+        }
+    }
+
+    private void enableNeoClusterSymbolManager(@NonNull Style style) {
+        if (neoClusterSymbolManager == null) {
+            neoClusterSymbolManager = new SymbolManager(mapView, mapboxMap, style);
+            neoClusterSymbolManager.setIconAllowOverlap(true);
+            neoClusterSymbolManager.setIconIgnorePlacement(true);
+            neoClusterSymbolManager.setTextAllowOverlap(true);
+            neoClusterSymbolManager.setTextIgnorePlacement(true);
+            neoClusterSymbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
         }
     }
 
@@ -681,6 +709,55 @@ final class MapboxMapController
                 hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
                 result.success(hashMapLatLng);
             }
+            case "neoClusterSymbols#addAll": {
+                List<String> newSymbolIds = new ArrayList<String>();
+                final List<Object> options = call.argument("options");
+                List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
+                if (options != null) {
+                    SymbolBuilder symbolBuilder;
+                    for (Object o : options) {
+                        symbolBuilder = new SymbolBuilder();
+                        Convert.interpretSymbolOptions(o, symbolBuilder);
+                        symbolOptionsList.add(symbolBuilder.getSymbolOptions());
+                    }
+                    if (!symbolOptionsList.isEmpty()) {
+                        List<Symbol> newSymbols = neoClusterSymbolManager.create(symbolOptionsList);
+                        String symbolId;
+                        for (Symbol symbol : newSymbols) {
+                            symbolId = String.valueOf(symbol.getId());
+                            newSymbolIds.add(symbolId);
+                            neoClusterSymbols.put(symbolId, new SymbolController(symbol, true, this));
+                        }
+                    }
+                }
+                result.success(newSymbolIds);
+                break;
+            }
+            case "neoClusterSymbols#removeAll": {
+                final ArrayList<String> symbolIds = call.argument("symbols");
+                SymbolController symbolController;
+
+                List<Symbol> symbolList = new ArrayList<Symbol>();
+                for (String symbolId : symbolIds) {
+                    symbolController = neoClusterSymbols.remove(symbolId);
+                    if (symbolController != null) {
+                        symbolList.add(symbolController.getSymbol());
+                    }
+                }
+                if (!symbolList.isEmpty()) {
+                    neoClusterSymbolManager.delete(symbolList);
+                }
+                result.success(null);
+                break;
+            }
+            case "neoClusterSymbol#update": {
+                final String symbolId = call.argument("symbol");
+                final SymbolController symbol = neoClusterSymbol(symbolId);
+                Convert.interpretSymbolOptions(call.argument("options"), symbol);
+                symbol.update(neoClusterSymbolManager);
+                result.success(null);
+                break;
+            }
             case "symbolManager#iconAllowOverlap": {
                 final Boolean value = call.argument("iconAllowOverlap");
                 symbolManager.setIconAllowOverlap(value);
@@ -896,7 +973,14 @@ final class MapboxMapController
     @Override
     public void onAnnotationClick(Annotation annotation) {
         if (annotation instanceof Symbol) {
-            final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
+            SymbolController symbolController = null;
+
+            if (symbols.containsKey(String.valueOf(annotation.getId()))) {
+                symbolController = symbols.get(String.valueOf(annotation.getId()));
+            } else if (neoClusterSymbols.containsKey(String.valueOf(annotation.getId()))) {
+                symbolController = neoClusterSymbols.get(String.valueOf(annotation.getId()));
+            }
+
             if (symbolController != null) {
                 symbolController.onTap();
             }

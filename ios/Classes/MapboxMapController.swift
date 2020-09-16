@@ -20,6 +20,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var symbolAnnotationController: MGLSymbolAnnotationController?
     private var circleAnnotationController: MGLCircleAnnotationController?
     private var lineAnnotationController: MGLLineAnnotationController?
+    private var neoClusterSymbolAnnotationController: MGLSymbolAnnotationController?
+
     
     func view() -> UIView {
         return mapView
@@ -250,6 +252,57 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(reply)
+            
+        case "neoClusterSymbols#addAll":
+            guard let neoClusterSymbolAnnotationController = neoClusterSymbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            
+            if let options = arguments["options"] as? [[String: Any]] {
+                var symbols: [MGLSymbolStyleAnnotation] = [];
+                for o in options {
+                    if let symbol = getSymbolForOptions(options: o)  {
+                        symbols.append(symbol)
+                    }
+                }
+                if !symbols.isEmpty {
+                    neoClusterSymbolAnnotationController.addStyleAnnotations(symbols)
+                }
+                
+                result(symbols.map { $0.identifier })
+            } else {
+                result(nil)
+            }
+        case "neoClusterSymbol#update":
+            guard let neoClusterSymbolAnnotationController = neoClusterSymbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolId = arguments["symbol"] as? String else { return }
+            
+            for symbol in neoClusterSymbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolId {
+                    Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol as! MGLSymbolStyleAnnotation)
+                    // Load (updated) icon image from asset if an icon name is supplied.
+                    if let options = arguments["options"] as? [String: Any],
+                        let iconImage = options["iconImage"] as? String {
+                        addIconImageToMap(iconImageName: iconImage)
+                    }
+                    neoClusterSymbolAnnotationController.updateStyleAnnotation(symbol)
+                    break;
+                }
+            }
+            result(nil)
+        case "neoClusterSymbols#removeAll":
+            guard let neoClusterSymbolAnnotationController = neoClusterSymbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIds = arguments["symbols"] as? [String] else { return }
+            var symbols: [MGLSymbolStyleAnnotation] = [];
+            
+            for symbol in neoClusterSymbolAnnotationController.styleAnnotations(){
+                if symbolIds.contains(symbol.identifier) {
+                    symbols.append(symbol as! MGLSymbolStyleAnnotation)
+                }
+            }
+            neoClusterSymbolAnnotationController.removeStyleAnnotations(symbols)
+            result(nil)
         case "symbolManager#iconAllowOverlap":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
@@ -595,6 +648,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         circleAnnotationController?.delegate = self
         
         // CUSTOM PART BEGIN
+        neoClusterSymbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
+        neoClusterSymbolAnnotationController!.annotationsInteractionEnabled = true
+        neoClusterSymbolAnnotationController?.delegate = self
+        neoClusterSymbolAnnotationController!.iconAllowsOverlap = true
+        neoClusterSymbolAnnotationController!.textAllowsOverlap = true
+        neoClusterSymbolAnnotationController!.iconIgnoresPlacement = true
+        // CUSTOM PART END
+        
+        // CUSTOM PART BEGIN
         // It make symbols scale with zoom when no iconSize specified and add a CircleLayer for NeoRanges
         
         // Get symbol layer
@@ -618,6 +680,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         symbolLayer.setValue(NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'exponential', 1.4, %@)", iconScaleStops), forKey: "iconScale")
         symbolLayer.setValue(NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'exponential', 1.4, %@)", textSizeStops), forKey: "textFontSize")
         symbolLayer.setValue(NSExpression(forConstantValue: ["Averta Semibold"]), forKey: "textFontNames")
+        
+        
+        let neoClusterSymbolLayer = neoClusterSymbolAnnotationController!.layer;
+        neoClusterSymbolLayer.setValue(NSExpression(forConstantValue: ["Averta Bold"]), forKey: "textFontNames")
         // CUSTOM PART END
         
         mapReadyResult?(nil)

@@ -215,6 +215,39 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<List<Symbol>> addNeoClusterSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    final List<dynamic> symbolIds = await _channel.invokeMethod(
+      'neoClusterSymbols#addAll',
+      <String, dynamic>{
+        'options': options.map((o) => o.toJson()).toList(),
+      },
+    );
+    final List<Symbol> symbols = symbolIds
+        .asMap()
+        .map((i, id) =>
+            MapEntry(i, Symbol(id, options.elementAt(i), data != null && data.length > i ? data.elementAt(i) : null)))
+        .values
+        .toList();
+
+    return symbols;
+  }
+
+  @override
+  Future<void> updateNeoClusterSymbol(Symbol symbol, SymbolOptions changes) async {
+    await _channel.invokeMethod('neoClusterSymbols#update', <String, dynamic>{
+      'symbol': symbol.id,
+      'options': changes.toJson(),
+    });
+  }
+
+  @override
+  Future<void> removeNeoClusterSymbols(Iterable<String> ids) async {
+    await _channel.invokeMethod('neoClusterSymbols#removeAll', <String, dynamic>{
+      'symbols': ids.toList(),
+    });
+  }
+
+  @override
   Future<Line> addLine(LineOptions options, [Map data]) async {
     final String lineId = await _channel.invokeMethod(
       'line#add',
