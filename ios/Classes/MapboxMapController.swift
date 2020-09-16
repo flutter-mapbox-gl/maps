@@ -680,6 +680,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         symbolLayer.setValue(NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'exponential', 1.4, %@)", iconScaleStops), forKey: "iconScale")
         symbolLayer.setValue(NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'exponential', 1.4, %@)", textSizeStops), forKey: "textFontSize")
         symbolLayer.setValue(NSExpression(forConstantValue: ["Averta Semibold"]), forKey: "textFontNames")
+        
+        
+        let neoClusterSymbolLayer = neoClusterSymbolAnnotationController!.layer;
+        neoClusterSymbolLayer.setValue(NSExpression(forConstantValue: ["Averta Bold"]), forKey: "textFontNames")
         // CUSTOM PART END
         
         mapReadyResult?(nil)

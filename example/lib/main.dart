@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl_example/full_map.dart';
+import 'package:mapbox_gl_example/place_neo_cluster_symbol.dart';
 import 'package:mapbox_gl_example/place_neo_ranges.dart';
 
 import 'animate_camera.dart';
@@ -28,6 +29,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   PlaceCirclePage(),
   ScrollingMapPage(),
   PlaceNeoRangesPage(),
+  PlaceNeoClusterSymbolPage(),
 ];
 
 class MapsDemo extends StatelessWidget {

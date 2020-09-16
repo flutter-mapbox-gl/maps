@@ -407,6 +407,11 @@ final class MapboxMapController
                             literal(20.0f), literal(15))),
                     PropertyFactory.textFont(Expression.literal(new String[]{"Averta Semibold"}))
             );
+
+            Layer neoClusterSymbolLayer = style.getLayer(neoClusterSymbolManager.getLayerId());
+            neoClusterSymbolLayer.setProperties(
+                    PropertyFactory.textFont(Expression.literal(new String[]{"Averta Bold"}))
+            );
             // CUSTOM PART END
 
             if (myLocationEnabled) {
@@ -968,7 +973,14 @@ final class MapboxMapController
     @Override
     public void onAnnotationClick(Annotation annotation) {
         if (annotation instanceof Symbol) {
-            final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
+            SymbolController symbolController = null;
+
+            if (symbols.containsKey(String.valueOf(annotation.getId()))) {
+                symbolController = symbols.get(String.valueOf(annotation.getId()));
+            } else if (neoClusterSymbols.containsKey(String.valueOf(annotation.getId()))) {
+                symbolController = neoClusterSymbols.get(String.valueOf(annotation.getId()));
+            }
+
             if (symbolController != null) {
                 symbolController.onTap();
             }

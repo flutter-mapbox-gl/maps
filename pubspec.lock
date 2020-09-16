@@ -24,8 +24,10 @@ packages:
     dependency: "direct main"
     description:
       path: mapbox_gl_platform_interface
-      relative: true
-    source: path
+      ref: HEAD
+      resolved-ref: fc291f031dd8e0502039e9a2083ca39b0128e3c5
+      url: "https://github.com/revoltgames/neopolis_mapbox"
+    source: git
     version: "0.8.7"
   meta:
     dependency: transitive
