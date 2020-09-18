@@ -66,14 +66,14 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.13"
+    version: "2.1.14"
   js:
     dependency: transitive
     description:
       name: js
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.1+1"
+    version: "0.6.2"
   mapbox_gl_dart:
     dependency: transitive
     description:
@@ -86,7 +86,7 @@ packages:
     description:
       path: mapbox_gl_platform_interface
       ref: HEAD
-      resolved-ref: b6bba9ac9a59521e6d759fc02bb3a88385835abc
+      resolved-ref: "4c4806dbbda02899c6c1b7873bb0e69799be8494"
       url: "https://github.com/gulertolga/flutter-mapbox-gl.git"
     source: git
     version: "0.8.0"
@@ -95,7 +95,7 @@ packages:
     description:
       path: mapbox_gl_web
       ref: HEAD
-      resolved-ref: b6bba9ac9a59521e6d759fc02bb3a88385835abc
+      resolved-ref: "4c4806dbbda02899c6c1b7873bb0e69799be8494"
       url: "https://github.com/gulertolga/flutter-mapbox-gl.git"
     source: git
     version: "0.8.0"
@@ -145,7 +145,7 @@ packages:
       name: xml
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.7.0"
+    version: "4.5.1"
 sdks:
   dart: ">=2.9.0-14.0.dev <3.0.0"
   flutter: ">=1.12.13+hotfix.4 <2.0.0"

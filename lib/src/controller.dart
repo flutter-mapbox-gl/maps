@@ -686,5 +686,10 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxGlPlatform.getInstance(_id).toLatLng(screenLocation);
   }
 
+
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async{
+    return MapboxGlPlatform.getInstance(_id).getMetersPerPixelAtLatitude(latitude);
+  }
+
   
 }
