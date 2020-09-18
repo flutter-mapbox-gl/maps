@@ -434,6 +434,7 @@ final class MapboxMapController
             locationEngine = LocationEngineProvider.getBestLocationEngine(context);
             LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(context)
                     .trackingGesturesManagement(true)
+                    .accuracyAlpha(.0f)
                     .build();
             locationComponent = mapboxMap.getLocationComponent();
             locationComponent.activateLocationComponent(context, style, locationComponentOptions);
