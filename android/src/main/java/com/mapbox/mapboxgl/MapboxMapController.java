@@ -460,7 +460,7 @@ final class MapboxMapController
       case "map#getMetersPerPixelAtLatitude": {
         Map<String, Object> reply = new HashMap<>();
         Double retVal = mapboxMap.getProjection().getMetersPerPixelAtLatitude((Double)call.argument("latitude"));
-        reply.put("meters", retVal);
+        reply.put("metersperpixel", retVal);
         result.success(reply);
         break;
       }

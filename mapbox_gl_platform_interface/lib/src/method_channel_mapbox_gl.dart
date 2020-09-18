@@ -483,8 +483,15 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
 
   @override
   Future<double> getMetersPerPixelAtLatitude(double latitude) async{
-    throw UnimplementedError(
-        'getMetersPerPixelAtLatitude() has not been implemented.');
+    try {
+      var latLngMap = await _channel
+          .invokeMethod('map#getMetersPerPixelAtLatitude', <String, dynamic>{
+        'latitude': latitude,
+      });
+      return latLngMap['metersperpixel'];
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
   }
 
 }
