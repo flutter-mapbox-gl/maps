@@ -687,6 +687,8 @@ class MapboxMapController extends ChangeNotifier {
   }
 
 
+  /// Returns the distance spanned by one pixel at the specified [latitude] and current zoom level.
+  /// The distance between pixels decreases as the latitude approaches the poles. This relationship parallels the relationship between longitudinal coordinates at different latitudes.
   Future<double> getMetersPerPixelAtLatitude(double latitude) async{
     return MapboxGlPlatform.getInstance(_id).getMetersPerPixelAtLatitude(latitude);
   }
