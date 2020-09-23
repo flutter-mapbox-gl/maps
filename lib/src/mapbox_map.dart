@@ -212,14 +212,22 @@ class _MapboxMapState extends State<MapboxMap> {
   Future<void> onPlatformViewCreated(int id) async {
     MapboxGlPlatform.addInstance(id, _mapboxGlPlatform);
     final MapboxMapController controller = MapboxMapController.init(
-        id, widget.initialCameraPosition,
-        onStyleLoadedCallback: widget.onStyleLoadedCallback,
-        onMapClick: widget.onMapClick,
-        onMapLongClick: widget.onMapLongClick,
-        onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
-        onCameraTrackingChanged: widget.onCameraTrackingChanged,
-        onCameraIdle: widget.onCameraIdle,
-        onMapIdle: widget.onMapIdle);
+      id,
+      widget.initialCameraPosition,
+      onStyleLoadedCallback: () {
+        if (_controller.isCompleted) {
+          widget.onStyleLoadedCallback();
+        } else {
+          _controller.future.then((_) => widget.onStyleLoadedCallback());
+        }
+      },
+      onMapClick: widget.onMapClick,
+      onMapLongClick: widget.onMapLongClick,
+      onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
+      onCameraTrackingChanged: widget.onCameraTrackingChanged,
+      onCameraIdle: widget.onCameraIdle,
+      onMapIdle: widget.onMapIdle,
+    );
     await MapboxMapController.initPlatform(id);
     _controller.complete(controller);
     if (widget.onMapCreated != null) {
