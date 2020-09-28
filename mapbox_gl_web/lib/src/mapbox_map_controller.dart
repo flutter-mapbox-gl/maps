@@ -542,6 +542,10 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   void setMyLocationTrackingMode(int myLocationTrackingMode) {
+    if(_geolocateControl==null){
+      //myLocationEnabled is false, ignore myLocationTrackingMode
+      return;
+    }
     if (myLocationTrackingMode == 0) {
       _addGeolocateControl(trackUserLocation: false);
     } else {
@@ -610,5 +614,17 @@ class MapboxMapController extends MapboxGlPlatform
       _map.touchZoomRotate.disable();
       _map.keyboard.disable();
     }
+  }
+
+  @override
+  Future<Point> toScreenLocation(LatLng latLng) async {
+    var screenPosition = _map.project(LngLat(latLng.longitude, latLng.latitude));
+    return Point(screenPosition.x.round(), screenPosition.y.round());
+  }
+
+  @override
+  Future<LatLng> toLatLng(Point screenLocation) async {
+    var lngLat = _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
+    return LatLng(lngLat.lat, lngLat.lng);
   }
 }

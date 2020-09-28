@@ -558,8 +558,8 @@ class MapboxMapController extends ChangeNotifier {
   Future<Circle> addCircle(CircleOptions options, [Map data]) async {
     final CircleOptions effectiveOptions =
         CircleOptions.defaultOptions.copyWith(options);
-    final circle =
-        await MapboxGlPlatform.getInstance(_id).addCircle(effectiveOptions, data);
+    final circle = await MapboxGlPlatform.getInstance(_id)
+        .addCircle(effectiveOptions, data);
     _circles[circle.id] = circle;
     notifyListeners();
     return circle;
@@ -760,5 +760,20 @@ class MapboxMapController extends ChangeNotifier {
   /// Stop navigation
   Future<void> stopNavigation() async {
     await MapboxGlPlatform.getInstance(_id).stopNavigation();
+  }
+
+  /// Returns the point on the screen that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
+  ///
+  /// Note: The resulting x and y coordinates are rounded to [int] on web, on other platforms they may differ very slightly (in the range of about 10^-10) from the actual nearest screen coordinate.
+  /// You therefore might want to round them appropriately, depending on your use case.
+  ///
+  /// Returns null if [latLng] is not currently visible on the map.
+  Future<Point> toScreenLocation(LatLng latLng) async {
+    return MapboxGlPlatform.getInstance(_id).toScreenLocation(latLng);
+  }
+
+  /// Returns the geographic location (as [LatLng]) that corresponds to a point on the screen. The screen location is specified in screen pixels (not display pixels) relative to the top left of the map (not the top left of the whole screen).
+  Future<LatLng> toLatLng(Point screenLocation) async {
+    return MapboxGlPlatform.getInstance(_id).toLatLng(screenLocation);
   }
 }

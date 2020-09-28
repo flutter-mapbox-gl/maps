@@ -71,14 +71,16 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         onMapIdlePlatform(null);
         break;
       case 'navigation#onRouteSelection':
-        onRouteSelectionPlatform(DirectionsRoute.fromJson(json.decode(call.arguments['directionsRoute'])));
+        onRouteSelectionPlatform(DirectionsRoute.fromJson(
+            json.decode(call.arguments['directionsRoute'])));
         break;
       case 'navigation#onNavigation':
         onNavigationPlatform(call.arguments['running']);
         break;
       case 'navigation#onNavigationProgressChange':
         final double distanceRemaining = call.arguments['distanceRemaining'];
-        final LegStep upComingStep = LegStep.fromJson(json.decode(call.arguments['upComingStep']));
+        final LegStep upComingStep =
+            LegStep.fromJson(json.decode(call.arguments['upComingStep']));
         onNavigationProgressChangePlatform({
           'distanceRemaining': distanceRemaining,
           'upComingStep': upComingStep,
@@ -206,23 +208,22 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
+      [List<Map> data]) async {
     final List<dynamic> symbolIds = await _channel.invokeMethod(
       'symbols#addAll',
       <String, dynamic>{
         'options': options.map((o) => o.toJson()).toList(),
       },
     );
-    final List<Symbol> symbols = symbolIds.asMap().map(
-            (i, id) => MapEntry(
+    final List<Symbol> symbols = symbolIds
+        .asMap()
+        .map((i, id) => MapEntry(
             i,
-            Symbol(
-                id,
-                options.elementAt(i),
-                data != null && data.length > i ? data.elementAt(i) : null
-            )
-        )
-    ).values.toList();
+            Symbol(id, options.elementAt(i),
+                data != null && data.length > i ? data.elementAt(i) : null)))
+        .values
+        .toList();
 
     return symbols;
   }
@@ -236,7 +237,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<LatLng> getSymbolLatLng(Symbol symbol) async{
+  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
     Map mapLatLng =
         await _channel.invokeMethod('symbol#getGeometry', <String, dynamic>{
       'symbol': symbol._id,
@@ -273,7 +274,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<List<LatLng>> getLineLatLngs(Line line) async{
+  Future<List<LatLng>> getLineLatLngs(Line line) async {
     List latLngList =
         await _channel.invokeMethod('line#getGeometry', <String, dynamic>{
       'line': line._id,
@@ -481,15 +482,26 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<DirectionsResponse> getMapboxAPIRoute(List<LatLng> latLngs) async {
     try {
-      Map directionsResponseMap = await _channel
-          .invokeMethod('navigation#getMapboxAPIRoute', <String, dynamic>{
+      Map directionsResponseMap = await _channel.invokeMethod(
+          'navigation#getMapboxAPIRoute', <String, dynamic>{
         'options': latLngs.map((e) => e.toJson()).toList()
       });
-      try {
-        return DirectionsResponse.fromJson(json.decode(directionsResponseMap["directionsResponse"]));
-      } catch (e) {
-        debugPrint(e.toString());
-      }
+      return DirectionsResponse.fromJson(
+          json.decode(directionsResponseMap["directionsResponse"]));
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  @override
+  Future<Point> toScreenLocation(LatLng latLng) async {
+    try {
+      var screenPosMap =
+          await _channel.invokeMethod('map#toScreenLocation', <String, dynamic>{
+        'latitude': latLng.latitude,
+        'longitude': latLng.longitude,
+      });
+      return Point(screenPosMap['x'], screenPosMap['y']);
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
@@ -498,8 +510,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> addRoutesToMap(List<DirectionsRoute> routes) async {
     try {
-      await _channel
-          .invokeMethod('navigation#addRoutesToMap', <String, dynamic>{
+      await _channel.invokeMethod(
+          'navigation#addRoutesToMap', <String, dynamic>{
         'directionsRoutes': routes.map((e) => json.encode(e.toJson())).toList()
       });
     } on PlatformException catch (e) {
@@ -510,8 +522,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> clearDirectionsRoutes() async {
     try {
-      await _channel
-          .invokeMethod('navigation#clearDirectionsRoutes');
+      await _channel.invokeMethod('navigation#clearDirectionsRoutes');
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
@@ -520,8 +531,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> selectRoute(DirectionsRoute directionsRoute) async {
     try {
-      await _channel
-          .invokeMethod('navigation#selectRoute', <String, dynamic>{
+      await _channel.invokeMethod('navigation#selectRoute', <String, dynamic>{
         'directionsRoute': json.encode(directionsRoute.toJson()),
       });
     } on PlatformException catch (e) {
@@ -532,8 +542,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> fitRoute(DirectionsRoute directionsRoute) async {
     try {
-      await _channel
-          .invokeMethod('navigation#fitRoute', <String, dynamic>{
+      await _channel.invokeMethod('navigation#fitRoute', <String, dynamic>{
         'directionsRoute': json.encode(directionsRoute.toJson()),
       });
     } on PlatformException catch (e) {
@@ -544,8 +553,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> fitRouteAt(int index) async {
     try {
-      await _channel
-          .invokeMethod('navigation#fitRouteAt', <String, dynamic>{
+      await _channel.invokeMethod('navigation#fitRouteAt', <String, dynamic>{
         'index': index,
       });
     } on PlatformException catch (e) {
@@ -554,7 +562,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> startNavigation(DirectionsRoute directionsRoute, bool isSimulation) async {
+  Future<void> startNavigation(
+      DirectionsRoute directionsRoute, bool isSimulation) async {
     try {
       await _channel
           .invokeMethod('navigation#startNavigation', <String, dynamic>{
@@ -569,8 +578,20 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> stopNavigation() async {
     try {
-      await _channel
-          .invokeMethod('navigation#stopNavigation');
+      await _channel.invokeMethod('navigation#stopNavigation');
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  Future<LatLng> toLatLng(Point screenLocation) async {
+    try {
+      var latLngMap =
+          await _channel.invokeMethod('map#toLatLng', <String, dynamic>{
+        'x': screenLocation.x,
+        'y': screenLocation.y,
+      });
+      return LatLng(latLngMap['latitude'], latLngMap['longitude']);
     } on PlatformException catch (e) {
       return new Future.error(e);
     }

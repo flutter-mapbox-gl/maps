@@ -110,7 +110,8 @@ class CameraUpdate {
 
   /// Returns a camera update that moves the camera target to the specified
   /// set of geographical location.
-  static CameraUpdate newLatLngs(List<LatLng> latLngs, double paddingLeft, double paddingTop, double paddingRight, double paddingBottom) {
+  static CameraUpdate newLatLngs(List<LatLng> latLngs, double paddingLeft,
+      double paddingTop, double paddingRight, double paddingBottom) {
     return CameraUpdate._(<dynamic>[
       'newLatLngs',
       latLngs.map((latlng) => latlng.toJson()).toList(),
@@ -123,13 +124,18 @@ class CameraUpdate {
 
   /// Returns a camera update that transforms the camera so that the specified
   /// geographical bounding box is centered in the map view at the greatest
-  /// possible zoom level. A non-zero [padding] insets the bounding box from the
-  /// map view's edges. The camera's new tilt and bearing will both be 0.0.
-  static CameraUpdate newLatLngBounds(LatLngBounds bounds, double padding) {
+  /// possible zoom level. A non-zero [left], [top], [right] and [bottom] padding
+  /// insets the bounding box from the map view's edges.
+  /// The camera's new tilt and bearing will both be 0.0.
+  static CameraUpdate newLatLngBounds(LatLngBounds bounds,
+      {double left = 0, double top = 0, double right = 0, double bottom = 0}) {
     return CameraUpdate._(<dynamic>[
       'newLatLngBounds',
       bounds.toList(),
-      padding,
+      left,
+      top,
+      right,
+      bottom,
     ]);
   }
 

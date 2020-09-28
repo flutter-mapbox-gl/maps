@@ -85,8 +85,8 @@ class Convert {
                 toPixels(data.get(5), density)
         );
       case "newLatLngBounds":
-        return CameraUpdateFactory.newLatLngBounds(
-          toLatLngBounds(data.get(1)), toPixels(data.get(2), density));
+        return CameraUpdateFactory.newLatLngBounds(toLatLngBounds(data.get(1)), toPixels(data.get(2), density),
+            toPixels(data.get(3), density), toPixels(data.get(4), density), toPixels(data.get(5), density));
       case "newLatLngZoom":
         return CameraUpdateFactory.newLatLngZoom(toLatLng(data.get(1)), toFloat(data.get(2)));
       case "scrollBy":

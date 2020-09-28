@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
@@ -266,6 +268,10 @@ class MapUiBodyState extends State<MapUiBody> {
       },
       onMapLongClick: (point, latLng) async {
         print("Map long press: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
+        Point convertedPoint = await mapController.toScreenLocation(latLng);
+        LatLng convertedLatLng = await mapController.toLatLng(point);
+        print("Map long press converted: ${convertedPoint.x},${convertedPoint.y}   ${convertedLatLng.latitude}/${convertedLatLng.longitude}");
+
         List features = await mapController.queryRenderedFeatures(point, [], null);
         if (features.length>0) {
           print(features[0]);
