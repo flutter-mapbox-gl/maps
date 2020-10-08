@@ -1049,7 +1049,7 @@ final class MapboxMapController
 
     @Override
     public void dispose() {
-        if (disposed) {
+        if (disposed || registrar.activity() == null) { // CUSTOM: registrar.activity() == null https://github.com/tobrun/flutter-mapbox-gl/issues/265
             return;
         }
         disposed = true;
