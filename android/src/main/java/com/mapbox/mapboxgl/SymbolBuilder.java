@@ -13,17 +13,15 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 
 class SymbolBuilder implements SymbolOptionsSink {
-  private final SymbolManager symbolManager;
   private final SymbolOptions symbolOptions;
   private static boolean customImage;
 
-  SymbolBuilder(SymbolManager symbolManager) {
-    this.symbolManager = symbolManager;
+  SymbolBuilder() {
     this.symbolOptions = new SymbolOptions();
   }
 
-  Symbol build() {
-    return symbolManager.create(symbolOptions);
+  public SymbolOptions getSymbolOptions(){
+    return this.symbolOptions;
   }
 
   @Override

@@ -1,3 +1,32 @@
+## 0.9.0, 
+* Breaking change: CameraUpdate.newLatLngBounds() now supports setting different padding values for left, top, right, bottom with default of 0 for all. Implementations using the old approach with only one padding value for all edges have to be updated. [#382](https://github.com/tobrun/flutter-mapbox-gl/pull/382)
+ 
+## 0.8.0, August 22, 2020
+- implementation of feature querying [#177](https://github.com/tobrun/flutter-mapbox-gl/pull/177)
+- Batch create/delete of symbols [#279](https://github.com/tobrun/flutter-mapbox-gl/pull/279)
+- Add multi map support [#315](https://github.com/tobrun/flutter-mapbox-gl/pull/315)
+- Fix OnCameraIdle not being invoked [#313](https://github.com/tobrun/flutter-mapbox-gl/pull/313)
+- Fix android zIndex symbol option [#312](https://github.com/tobrun/flutter-mapbox-gl/pull/312)
+- Set dependencies from git [#319](https://github.com/tobrun/flutter-mapbox-gl/pull/319)
+- Add line#getGeometry and symbol#getGeometry [#281](https://github.com/tobrun/flutter-mapbox-gl/pull/281)
+
+## 0.7.0, June 6, 2020
+* Introduction of mapbox_gl_platform_interface library
+* Introduction of mapbox_gl_web library
+* Integrate web support through mapbox-gl-js
+* Add icon-allow-overlap configurations
+
+## 0.0.6, May 31, 2020
+* Update mapbox depdendency to 9.2.0 (android) and 5.6.0 (iOS)
+* Long press handlers for both iOS as Android
+* Change default location tracking to none
+* OnCameraIdle listener support 
+* Add image to style 
+* Add animation duration to animateCamera
+* Content insets
+* Visible region support on iOS
+* Numerous bug fixes 
+
 ## 0.0.5, December 21, 2019
 * iOS support for annotation extensions (circle, symbol, line)
 * Update SDK to 8.5.0 (Android) and 5.5.0 (iOS)
