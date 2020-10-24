@@ -17,6 +17,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
@@ -134,6 +135,7 @@ final class MapboxMapController
   private final String styleStringInitial;
   private LocationComponent locationComponent = null;
   private LocationEngine locationEngine = null;
+  private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
 
@@ -389,6 +391,24 @@ final class MapboxMapController
     } else {
       Log.e(TAG, "missing location permissions");
     }
+  }
+
+  private void onUserLocationUpdate(Location location){
+    if(location==null){
+      return;
+    }
+
+    final Map<String, Object> userLocation = new HashMap<>(6);
+    userLocation.put("position", new double[]{location.getLatitude(), location.getLongitude()});
+    userLocation.put("altitude", location.getAltitude());
+    userLocation.put("bearing", location.getBearing());
+    userLocation.put("horizontalAccuracy", location.getAccuracy());
+    userLocation.put("verticalAccuracy", (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ? location.getVerticalAccuracyMeters() : null);
+    userLocation.put("timestamp", location.getTime());
+
+    final Map<String, Object> arguments = new HashMap<>(1);
+    arguments.put("userLocation", userLocation);
+    methodChannel.invokeMethod("map#onUserLocationUpdated", arguments);
   }
 
   private void enableSymbolManager(@NonNull Style style) {
@@ -964,7 +984,7 @@ final class MapboxMapController
     if (fillManager != null) {
       fillManager.onDestroy();
     }
-
+    stopListeningForLocationUpdates();
     mapView.onDestroy();
     registrar.activity().getApplication().unregisterActivityLifecycleCallbacks(this);
   }
@@ -991,6 +1011,9 @@ final class MapboxMapController
       return;
     }
     mapView.onResume();
+    if(myLocationEnabled){
+      startListeningForLocationUpdates();
+    }
   }
 
   @Override
@@ -999,6 +1022,7 @@ final class MapboxMapController
       return;
     }
     mapView.onPause();
+    stopListeningForLocationUpdates();
   }
 
   @Override
@@ -1155,11 +1179,40 @@ final class MapboxMapController
   }
 
   private void updateMyLocationEnabled() {
-    if(this.locationComponent == null && myLocationEnabled == true){
+    if(this.locationComponent == null && myLocationEnabled){
       enableLocationComponent(mapboxMap.getStyle());
     }
 
+    if(myLocationEnabled){
+      startListeningForLocationUpdates();
+    }else {
+      stopListeningForLocationUpdates();
+    }
+
     locationComponent.setLocationComponentEnabled(myLocationEnabled);
+  }
+
+  private void startListeningForLocationUpdates(){
+    if(locationEngineCallback == null && locationComponent!=null && locationComponent.getLocationEngine()!=null){
+      locationEngineCallback = new LocationEngineCallback<LocationEngineResult>() {
+        @Override
+        public void onSuccess(LocationEngineResult result) {
+          onUserLocationUpdate(result.getLastLocation());
+        }
+
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+        }
+      };
+      locationComponent.getLocationEngine().requestLocationUpdates(locationComponent.getLocationEngineRequest(), locationEngineCallback , null);
+    }
+  }
+
+  private void stopListeningForLocationUpdates(){
+    if(locationEngineCallback != null && locationComponent!=null && locationComponent.getLocationEngine()!=null){
+      locationComponent.getLocationEngine().removeLocationUpdates(locationEngineCallback);
+      locationEngineCallback = null;
+    }
   }
 
   private void updateMyLocationTrackingMode() {

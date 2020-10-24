@@ -9,6 +9,8 @@ typedef void OnMapLongClickCallback(Point<double> point, LatLng coordinates);
 
 typedef void OnStyleLoadedCallback();
 
+typedef void OnUserLocationUpdated(UserLocation location);
+
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
@@ -38,8 +40,9 @@ class MapboxMapController extends ChangeNotifier {
       this.onMapLongClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged,
-      this.onCameraIdle,
-      this.onMapIdle})
+      this.onMapIdle,
+      this.onUserLocationUpdated,
+      this.onCameraIdle})
       : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
 
@@ -139,12 +142,16 @@ class MapboxMapController extends ChangeNotifier {
         onMapIdle();
       }
     });
+    MapboxGlPlatform.getInstance(_id).onUserLocationUpdatedPlatform.add((location) { 
+      onUserLocationUpdated?.call(location);
+    });
   }
 
   static Future<MapboxMapController> init(
       int id, CameraPosition initialCameraPosition,
       {OnStyleLoadedCallback onStyleLoadedCallback,
       OnMapClickCallback onMapClick,
+      OnUserLocationUpdated onUserLocationUpdated,
       OnMapLongClickCallback onMapLongClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
@@ -155,6 +162,7 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxMapController._(id, initialCameraPosition,
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
+        onUserLocationUpdated: onUserLocationUpdated,
         onMapLongClick: onMapLongClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
@@ -166,6 +174,8 @@ class MapboxMapController extends ChangeNotifier {
 
   final OnMapClickCallback onMapClick;
   final OnMapLongClickCallback onMapLongClick;
+
+  final OnUserLocationUpdated onUserLocationUpdated;
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
@@ -338,17 +348,17 @@ class MapboxMapController extends ChangeNotifier {
   /// been notified.
   Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
     List<Symbol> result = await addSymbols([options], [data]);
-  
+
     return result.first;
   }
 
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
+      [List<Map> data]) async {
+    final List<SymbolOptions> effectiveOptions =
+        options.map((o) => SymbolOptions.defaultOptions.copyWith(o)).toList();
 
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
-    final List<SymbolOptions> effectiveOptions = options.map(
-          (o) => SymbolOptions.defaultOptions.copyWith(o)
-    ).toList();
-
-    final symbols = await MapboxGlPlatform.getInstance(_id).addSymbols(effectiveOptions, data);
+    final symbols = await MapboxGlPlatform.getInstance(_id)
+        .addSymbols(effectiveOptions, data);
     symbols.forEach((s) => _symbols[s.id] = s);
     notifyListeners();
     return symbols;
@@ -401,7 +411,7 @@ class MapboxMapController extends ChangeNotifier {
     symbols.forEach((s) {
       assert(_symbols[s.id] == s);
     });
-  
+
     await _removeSymbols(symbols.map((s) => s.id));
     notifyListeners();
   }

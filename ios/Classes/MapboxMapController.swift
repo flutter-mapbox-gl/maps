@@ -657,6 +657,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func mapView(_ mapView: MGLMapView, annotationCanShowCallout annotation: MGLAnnotation) -> Bool {
         return true
     }
+
+    func mapView(_ mapView: MGLMapView, didUpdate userLocation: MGLUserLocation?) {
+        if let channel = channel, let userLocation = userLocation, let location = userLocation.location {
+            channel.invokeMethod("map#onUserLocationUpdated", arguments: [
+                "userLocation": location.toDict()
+            ]);
+       }
+   }
    
     func mapView(_ mapView: MGLMapView, didChange mode: MGLUserTrackingMode, animated: Bool) {
         if let channel = channel {

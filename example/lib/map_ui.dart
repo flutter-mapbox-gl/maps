@@ -319,7 +319,10 @@ class MapUiBodyState extends State<MapUiBody> {
         this.setState(() {
           _myLocationTrackingMode = MyLocationTrackingMode.None;
         });
-      }
+      },
+      onUserLocationUpdated:(location){
+        print("new location: ${location.position}, alt.: ${location.altitude}, bearing: ${location.bearing}, speed: ${location.speed}, horiz. accuracy: ${location.horizontalAccuracy}, vert. accuracy: ${location.verticalAccuracy}");
+      },
     );
 
     final List<Widget> columnChildren = <Widget>[
