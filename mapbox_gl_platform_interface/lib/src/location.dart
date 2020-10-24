@@ -103,3 +103,4 @@ class LatLngBounds {
   @override
   int get hashCode => hashValues(southwest, northeast);
 }
+

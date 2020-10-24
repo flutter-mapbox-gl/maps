@@ -166,6 +166,26 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             reply["sw"] = [visibleRegion.sw.latitude, visibleRegion.sw.longitude] as NSObject
             reply["ne"] = [visibleRegion.ne.latitude, visibleRegion.ne.longitude] as NSObject
             result(reply)
+        case "map#toScreenLocation":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let latitude = arguments["latitude"] as? Double else { return }
+            guard let longitude = arguments["longitude"] as? Double else { return }
+            let latlng = CLLocationCoordinate2DMake(latitude, longitude)
+            let returnVal = mapView.convert(latlng, toPointTo: mapView)
+            var reply = [String: NSObject]()
+            reply["x"] = returnVal.x as NSObject
+            reply["y"] = returnVal.y as NSObject
+            result(reply)
+        case "map#toLatLng":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let x = arguments["x"] as? Double else { return }
+            guard let y = arguments["y"] as? Double else { return }
+            let screenPoint: CGPoint = CGPoint(x: y, y:y)
+            let coordinates: CLLocationCoordinate2D = mapView.convert(screenPoint, toCoordinateFrom: mapView)
+            var reply = [String: NSObject]()
+            reply["latitude"] = coordinates.latitude as NSObject
+            reply["longitude"] = coordinates.longitude as NSObject
+            result(reply)
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
@@ -500,8 +520,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     *  After a long press invoke the map#onMapLongClick callback.
     */
     @objc @IBAction func handleMapLongPress(sender: UILongPressGestureRecognizer) {
-        //Only fire at the end of the long press
-        if (sender.state == .ended) {
+        //Fire when the long press starts
+        if (sender.state == .began) {
           // Get the CGPoint where the user tapped.
             let point = sender.location(in: mapView)
             let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
@@ -730,6 +750,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     func setMyLocationTrackingMode(myLocationTrackingMode: MGLUserTrackingMode) {
         mapView.userTrackingMode = myLocationTrackingMode
+    }
+    func setMyLocationRenderMode(myLocationRenderMode: MyLocationRenderMode) {
+        switch myLocationRenderMode {
+        case .Normal:
+            mapView.showsUserHeadingIndicator = false
+        case .Compass:
+            mapView.showsUserHeadingIndicator = true
+        case .Gps:
+            NSLog("RenderMode.GPS currently not supported")
+        }
     }
     func setLogoViewMargins(x: Double, y: Double) {
         mapView.logoViewMargins = CGPoint(x: x, y: y)

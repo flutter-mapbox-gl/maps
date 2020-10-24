@@ -475,6 +475,22 @@ final class MapboxMapController
         result.success(reply);
         break;
       }
+      case "map#toScreenLocation": {
+        Map<String, Object> reply = new HashMap<>();
+        PointF pointf = mapboxMap.getProjection().toScreenLocation(new LatLng(call.argument("latitude"),call.argument("longitude")));
+        reply.put("x", pointf.x);
+        reply.put("y", pointf.y);
+        result.success(reply);
+        break;
+      }
+      case "map#toLatLng": {
+        Map<String, Object> reply = new HashMap<>();
+        LatLng latlng = mapboxMap.getProjection().fromScreenLocation(new PointF( ((Double) call.argument("x")).floatValue(), ((Double) call.argument("y")).floatValue()));
+        reply.put("latitude", latlng.getLatitude());
+        reply.put("longitude", latlng.getLongitude());
+        result.success(reply);
+        break;
+      }
       case "camera#move": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
         if (cameraUpdate != null) {
@@ -841,11 +857,12 @@ final class MapboxMapController
   }
 
   @Override
-  public void onAnnotationClick(Annotation annotation) {
+  public boolean onAnnotationClick(Annotation annotation) {
     if (annotation instanceof Symbol) {
       final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
       if (symbolController != null) {
         symbolController.onTap();
+        return true;
       }
     }
 
@@ -853,6 +870,7 @@ final class MapboxMapController
       final LineController lineController = lines.get(String.valueOf(annotation.getId()));
       if (lineController != null) {
         lineController.onTap();
+        return true;
       }
     }
 
@@ -860,15 +878,17 @@ final class MapboxMapController
       final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
       if (circleController != null) {
         circleController.onTap();
+        return true;
       }
     }
-
     if (annotation instanceof Fill) {
       final FillController fillController = fills.get(String.valueOf(annotation.getId()));
       if (fillController != null) {
         fillController.onTap();
+        return true;
       }
     }
+    return false;
   }
 
   @Override
@@ -1174,7 +1194,7 @@ final class MapboxMapController
    * @return
    */
   private Bitmap getScaledImage(String imageId, float density) {
-    AssetManager assetManager = registrar.context().getAssets();
+    AssetManager assetManager = registrar.context().getAssets();:white_check_mark: 
     AssetFileDescriptor assetFileDescriptor = null;
 
     // Split image path into parts.
