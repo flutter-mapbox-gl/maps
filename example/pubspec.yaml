@@ -1,6 +1,7 @@
 name: mapbox_gl_example
 description: Demonstrates how to use the mapbox_gl plugin.
 publish_to: 'none'
+version: 1.0.0+1
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -48,10 +49,12 @@ flutter:
   # https://flutter.io/assets-and-images/#resolution-aware.
 
   assets:
+    - assets/fill/cat_silhouette_pattern.png
     - assets/symbols/custom-icon.png
     - assets/symbols/2.0x/custom-icon.png
     - assets/symbols/3.0x/custom-icon.png
     - assets/style.json
+    - assets/sydney.png
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.io/assets-and-images/#from-packages

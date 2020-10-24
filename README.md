@@ -40,7 +40,7 @@ This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), foll
 | Symbol | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Circle | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Line | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-| Fill |   |  |  |
+| Fill | :white_check_mark:   | :white_check_mark: |  |
 
 ## Map Styles
 

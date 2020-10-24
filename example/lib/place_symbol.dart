@@ -106,13 +106,28 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   SymbolOptions _getSymbolOptions(String iconImage, int symbolCount){
-    return SymbolOptions(
-      geometry: LatLng(
-        center.latitude + sin(symbolCount * pi / 6.0) / 20.0,
-        center.longitude + cos(symbolCount * pi / 6.0) / 20.0,
-      ),
-      iconImage: iconImage,
+    LatLng geometry = LatLng(
+      center.latitude + sin(symbolCount * pi / 6.0) / 20.0,
+      center.longitude + cos(symbolCount * pi / 6.0) / 20.0,
     );
+    return iconImage == 'customFont'
+        ? SymbolOptions(
+            geometry: geometry,
+            iconImage: 'airport-15',
+            fontNames: ['DIN Offc Pro Bold', 'Arial Unicode MS Regular'],
+            textField: 'Airport',
+            textSize: 12.5,
+            textOffset: Offset(0, 0.8),
+            textAnchor: 'top',
+            textColor: '#000000',
+            textHaloBlur: 1,
+            textHaloColor: '#ffffff',
+            textHaloWidth: 0.8,
+          )
+        : SymbolOptions(
+            geometry: geometry,
+            iconImage: iconImage,
+          );
   }
 
   Future<void> _addAll(String iconImage) async {
@@ -334,6 +349,10 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           onPressed: () =>
                               (_symbolCount == 12) ? null : _add("networkImage"), //networkImage added to the style in _onStyleLoaded
                         ),
+                        FlatButton(
+                          child: const Text('add (custom font)'),
+                          onPressed: () => (_symbolCount == 12) ? null : _add("customFont"),
+                        )
                       ],
                     ),
                     Column(

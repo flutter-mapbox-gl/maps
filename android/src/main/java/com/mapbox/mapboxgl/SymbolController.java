@@ -68,6 +68,9 @@ class SymbolController implements SymbolOptionsSink {
   }
 
   @Override
+  public void setFontNames(String[] fontNames) { symbol.setTextFont(fontNames); }
+
+  @Override
   public void setTextField(String textField) {
     symbol.setTextField(textField);
   }
