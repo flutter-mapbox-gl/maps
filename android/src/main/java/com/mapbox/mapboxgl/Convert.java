@@ -319,6 +319,10 @@ class Convert {
     if (iconAnchor != null) {
       sink.setIconAnchor(toString(iconAnchor));
     }
+    final ArrayList fontNames = (ArrayList) data.get("fontNames");
+    if (fontNames != null) {
+      sink.setFontNames((String[]) fontNames.toArray(new String[0]));
+    }
     final Object textField = data.get("textField");
     if (textField != null) {
       sink.setTextField(toString(textField));

@@ -179,6 +179,9 @@ class Convert {
         if let iconHaloBlur = options["iconHaloBlur"] as? CGFloat {
             delegate.iconHaloBlur = iconHaloBlur
         }
+        if let fontNames = options["fontNames"] as? [String] {
+            delegate.fontNames = fontNames
+        }
         if let textField = options["textField"] as? String {
             delegate.text = textField
         }
