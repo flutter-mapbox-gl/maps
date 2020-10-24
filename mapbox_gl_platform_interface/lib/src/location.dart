@@ -104,6 +104,59 @@ class LatLngBounds {
   int get hashCode => hashValues(southwest, northeast);
 }
 
+/// A geographical area representing a non-aligned quadrilateral
+/// This class does not wrap values to the world bounds
+class LatLngQuad {
+  LatLngQuad({@required this.topLeft, @required this.topRight, @required this.bottomRight, @required this.bottomLeft})
+      : assert(topLeft != null),
+        assert(topRight != null),
+        assert(bottomRight != null),
+        assert(bottomLeft != null);
+
+  final LatLng topLeft;
+
+  final LatLng topRight;
+
+  final LatLng bottomRight;
+
+  final LatLng bottomLeft;
+
+  dynamic toList() {
+    return <dynamic>[topLeft.toJson(), topRight.toJson(), bottomRight.toJson(), bottomLeft.toJson()];
+  }
+
+  @visibleForTesting
+  static LatLngQuad fromList(dynamic json) {
+    if (json == null) {
+      return null;
+    }
+    return LatLngQuad(
+      topLeft: LatLng._fromJson(json[0]),
+      topRight: LatLng._fromJson(json[1]),
+      bottomRight: LatLng._fromJson(json[2]),
+      bottomLeft: LatLng._fromJson(json[3]),
+    );
+  }
+
+  @override
+  String toString() {
+    return '$runtimeType($topLeft, $topRight, $bottomRight, $bottomLeft)';
+  }
+
+  @override
+  bool operator ==(Object o) {
+    return o is LatLngQuad &&
+        o.topLeft == topLeft &&
+        o.topRight == topRight &&
+        o.bottomRight == bottomRight &&
+        o.bottomLeft == bottomLeft;
+  }
+
+  @override
+  int get hashCode => hashValues(topLeft, topRight, bottomRight, bottomLeft);
+  
+}
+
 /// User's observed location
 class UserLocation {
   /// User's position in latitude and longitude

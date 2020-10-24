@@ -452,6 +452,46 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 self.mapView.style?.setImage(image, forName: name)
             }
             result(nil)
+        case "style#addImageSource":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let name = arguments["name"] as? String else { return }
+            guard let bytes = arguments["bytes"] as? FlutterStandardTypedData else { return }
+            guard let data = bytes.data as? Data else { return }
+            guard let image = UIImage(data: data) else { return }
+            
+            guard let coordinates = arguments["coordinates"] as? [[Double]] else { return };
+            let quad = MGLCoordinateQuad(
+                topLeft: CLLocationCoordinate2D(latitude: coordinates[0][0], longitude: coordinates[0][1]),
+                bottomLeft: CLLocationCoordinate2D(latitude: coordinates[3][0], longitude: coordinates[3][1]),
+                bottomRight: CLLocationCoordinate2D(latitude: coordinates[2][0], longitude: coordinates[2][1]),
+                topRight: CLLocationCoordinate2D(latitude: coordinates[1][0], longitude: coordinates[1][1])
+            )
+            
+            let source = MGLImageSource(identifier: name, coordinateQuad: quad, image: image)
+            self.mapView.style?.addSource(source)
+            
+            result(nil)
+        case "style#removeImageSource":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let name = arguments["name"] as? String else { return }
+            guard let source = self.mapView.style?.source(withIdentifier: name) else { return }
+            self.mapView.style?.removeSource(source)
+            result(nil)
+        case "style#addLayer":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let name = arguments["name"] as? String else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            
+            guard let source = self.mapView.style?.source(withIdentifier: sourceId) else { return }
+            let layer = MGLRasterStyleLayer(identifier: name, source: source)
+            self.mapView.style?.addLayer(layer)
+            result(nil)
+        case "style#removeLayer":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let name = arguments["name"] as? String else { return }
+            guard let layer = self.mapView.style?.layer(withIdentifier: name) else { return }
+            self.mapView.style?.removeLayer(layer)
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }

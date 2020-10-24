@@ -42,6 +42,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdate;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.geometry.LatLngQuad;
 import com.mapbox.mapboxsdk.geometry.VisibleRegion;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
@@ -87,6 +88,8 @@ import static com.mapbox.mapboxgl.MapboxMapsPlugin.STARTED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STOPPED;
 
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
+import com.mapbox.mapboxsdk.style.layers.RasterLayer;
+import com.mapbox.mapboxsdk.style.sources.ImageSource;
 
 /**
  * Controller of a single MapboxMaps MapView instance.
@@ -831,6 +834,39 @@ final class MapboxMapController
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
         style.addImage(call.argument("name"), BitmapFactory.decodeByteArray(call.argument("bytes"),0,call.argument("length")), call.argument("sdf"));
+        result.success(null);
+        break;
+      }
+      case "style#addImageSource": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+        List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"));
+        style.addSource(new ImageSource(call.argument("name"), new LatLngQuad(coordinates.get(0), coordinates.get(1), coordinates.get(2), coordinates.get(3)), BitmapFactory.decodeByteArray(call.argument("bytes"), 0, call.argument("length"))));
+        result.success(null);
+        break;
+      }
+      case "style#removeImageSource": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+        style.removeSource((String) call.argument("name"));
+        result.success(null);
+        break;
+      }
+      case "style#addLayer": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+        style.addLayer(new RasterLayer(call.argument("name"), call.argument("sourceId")));
+        result.success(null);
+        break;
+      }
+      case "style#removeLayer": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+        style.removeLayer((String) call.argument("name"));
         result.success(null);
         break;
       }

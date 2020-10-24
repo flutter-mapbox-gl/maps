@@ -754,6 +754,27 @@ class MapboxMapController extends ChangeNotifier {
         .setSymbolTextIgnorePlacement(enable);
   }
 
+  /// Adds an image source to the style currently displayed in the map, so that it can later be referred to by the provided name.
+  Future<void> addImageSource(String name, Uint8List bytes, LatLngQuad coordinates) {
+    return MapboxGlPlatform.getInstance(_id)
+        .addImageSource(name, bytes, coordinates);
+  }
+
+  /// Removes previously added image source by name
+  Future<void> removeImageSource(String name) {
+    return MapboxGlPlatform.getInstance(_id).removeImageSource(name);
+  }
+
+  /// Adds layer with name
+  Future<void> addLayer(String name, String sourceId) {
+    return MapboxGlPlatform.getInstance(_id).addLayer(name, sourceId);
+  }
+
+  /// Removes layer by name
+  Future<void> removeLayer(String name) {
+    return MapboxGlPlatform.getInstance(_id).removeLayer(name);
+  }
+
   /// Returns the point on the screen that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
   /// 
   /// Note: The resulting x and y coordinates are rounded to [int] on web, on other platforms they may differ very slightly (in the range of about 10^-10) from the actual nearest screen coordinate.
@@ -769,5 +790,4 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxGlPlatform.getInstance(_id).toLatLng(screenLocation);
   }
 
-  
 }
