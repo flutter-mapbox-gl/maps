@@ -34,6 +34,9 @@ abstract class MapboxGlPlatform {
   final ArgumentCallbacks<String> onCircleTappedPlatform =
       ArgumentCallbacks<String>();
 
+  final ArgumentCallbacks<String> onFillTappedPlatform =
+      ArgumentCallbacks<String>();
+
   final ArgumentCallbacks<void> onCameraMoveStartedPlatform =
       ArgumentCallbacks<void>();
 
@@ -158,6 +161,18 @@ abstract class MapboxGlPlatform {
 
   Future<void> removeCircle(String circleId) async {
     throw UnimplementedError('removeCircle() has not been implemented.');
+  }
+
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    throw UnimplementedError('addFill() has not been implemented.');
+  }
+
+  Future<void>updateFill(Fill fill, FillOptions changes) async {
+    throw UnimplementedError('updateFill() has not been implemented.');
+  }
+
+  Future<void> removeFill(String fillId) async {
+    throw UnimplementedError('removeFill() has not been implemented.');
   }
 
   Future<List> queryRenderedFeatures(

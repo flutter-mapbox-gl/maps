@@ -29,6 +29,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           onCircleTappedPlatform(circleId);
         }
         break;
+      case 'fill#onTap':
+        final String fillId = call.arguments['fill'];
+        if (fillId != null) {
+          onFillTappedPlatform(fillId);
+        }
+        break;
       case 'camera#onMoveStarted':
         onCameraMoveStartedPlatform(null);
         break;
@@ -299,6 +305,32 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   Future<void> removeCircle(String circleId) async {
     await _channel.invokeMethod('circle#remove', <String, dynamic>{
       'circle': circleId,
+    });
+  }
+
+  @override
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    final String fillId = await _channel.invokeMethod(
+      'fill#add',
+      <String, dynamic>{
+        'options': options.toJson(),
+      },
+    );
+    return Fill(fillId, options, data);
+  }
+
+  @override
+  Future<void> updateFill(Fill fill, FillOptions changes) async {
+    await _channel.invokeMethod('fill#update', <String, dynamic>{
+      'fill': fill.id,
+      'options': changes.toJson(),
+    });
+  }
+
+  @override
+  Future<void> removeFill(String fillId) async {
+    await _channel.invokeMethod('fill#remove', <String, dynamic>{
+      'fill': fillId,
     });
   }
 

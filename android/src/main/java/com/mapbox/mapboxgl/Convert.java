@@ -5,7 +5,7 @@
 package com.mapbox.mapboxgl;
 
 import android.graphics.Point;
-
+import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -100,7 +100,7 @@ class Convert {
       case "bearingTo":
         return CameraUpdateFactory.bearingTo(toFloat(data.get(1)));
       case "tiltTo":
-        return CameraUpdateFactory.tiltTo(toFloat(data.get(1))); 
+        return CameraUpdateFactory.tiltTo(toFloat(data.get(1)));
       default:
         throw new IllegalArgumentException("Cannot interpret " + o + " as CameraUpdate");
     }
@@ -166,6 +166,31 @@ class Convert {
       latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
     }
     return latLngList;
+  }
+
+  private static List<List<LatLng>> toLatLngListList(Object o) {
+    if (o == null) {
+      return null;
+    }
+    final List<?> data = toList(o);
+    List<List<LatLng>> latLngListList = new ArrayList<>();
+    for (int i = 0; i < data.size(); i++) {
+      List<LatLng> latLngList = toLatLngList(data.get(i));
+      latLngListList.add(latLngList);
+    }
+    return latLngListList;
+  }
+
+  static Polygon interpretListLatLng(List<List<LatLng>> geometry) {
+    List<List<com.mapbox.geojson.Point>> points = new ArrayList<>(geometry.size());
+    for (List<LatLng> innerGeometry : geometry) {
+      List<com.mapbox.geojson.Point> innerPoints = new ArrayList<>(innerGeometry.size());
+      for (LatLng latLng : innerGeometry) {
+        innerPoints.add(com.mapbox.geojson.Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude()));
+      }
+      points.add(innerPoints);
+    }
+    return Polygon.fromLngLats(points);
   }
 
   private static List<?> toList(Object o) {
@@ -423,7 +448,6 @@ class Convert {
       sink.setDraggable(toBoolean(draggable));
     }
   }
-
   static void interpretLineOptions(Object o, LineOptionsSink sink) {
     final Map<?, ?> data = toMap(o);
     final Object lineJoin = data.get("lineJoin");
@@ -474,6 +498,34 @@ class Convert {
     final Object draggable = data.get("draggable");
     if (draggable != null) {
       Logger.e(TAG, "SetDraggable");
+      sink.setDraggable(toBoolean(draggable));
+    }
+  }
+
+  static void interpretFillOptions(Object o, FillOptionsSink sink) {
+    final Map<?, ?> data = toMap(o);
+    final Object fillOpacity = data.get("fillOpacity");
+    if (fillOpacity != null) {
+      sink.setFillOpacity(toFloat(fillOpacity));
+    }
+    final Object fillColor = data.get("fillColor");
+    if (fillColor != null) {
+      sink.setFillColor(toString(fillColor));
+    }
+    final Object fillOutlineColor = data.get("fillOutlineColor");
+    if (fillOutlineColor != null) {
+      sink.setFillOutlineColor(toString(fillOutlineColor));
+    }
+    final Object fillPattern = data.get("fillPattern");
+    if (fillPattern != null) {
+      sink.setFillPattern(toString(fillPattern));
+    }
+    final Object geometry = data.get("geometry");
+    if (geometry != null) {
+      sink.setGeometry(toLatLngListList(geometry));
+    }
+    final Object draggable = data.get("draggable");
+    if (draggable != null) {
       sink.setDraggable(toBoolean(draggable));
     }
   }

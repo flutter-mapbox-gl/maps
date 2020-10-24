@@ -73,6 +73,13 @@ class MapboxMapController extends ChangeNotifier {
       }
     });
 
+    MapboxGlPlatform.getInstance(_id).onFillTappedPlatform.add((fillId) {
+      final Fill fill = _fills[fillId];
+      if (fill != null) {
+        onFillTapped(fill);
+      }
+    });
+
     MapboxGlPlatform.getInstance(_id).onCameraMoveStartedPlatform.add((_) {
       _isCameraMoving = true;
       notifyListeners();
@@ -173,6 +180,9 @@ class MapboxMapController extends ChangeNotifier {
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Circle> onCircleTapped = ArgumentCallbacks<Circle>();
 
+  /// Callbacks to receive tap events for fills placed on this map.
+  final ArgumentCallbacks<Fill> onFillTapped = ArgumentCallbacks<Fill>();
+
   /// Callbacks to receive tap events for info windows on symbols
   final ArgumentCallbacks<Symbol> onInfoWindowTapped =
       ArgumentCallbacks<Symbol>();
@@ -194,9 +204,15 @@ class MapboxMapController extends ChangeNotifier {
 
   /// The current set of circles on this map.
   ///
-  /// The returned set will be a detached snapshot of the symbols collection.
+  /// The returned set will be a detached snapshot of the circles collection.
   Set<Circle> get circles => Set<Circle>.from(_circles.values);
   final Map<String, Circle> _circles = <String, Circle>{};
+
+  /// The current set of fills on this map.
+  ///
+  /// The returned set will be a detached snapshot of the fills collection.
+  Set<Fill> get fills => Set<Fill>.from(_fills.values);
+  final Map<String, Fill> _fills = <String, Fill>{};
 
   /// True if the map camera is currently moving.
   bool get isCameraMoving => _isCameraMoving;
@@ -580,6 +596,63 @@ class MapboxMapController extends ChangeNotifier {
     await MapboxGlPlatform.getInstance(_id).removeCircle(id);
 
     _circles.remove(id);
+  }
+
+  /// Adds a fill to the map, configured using the specified custom [options].
+  ///
+  /// Change listeners are notified once the fill has been added on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes with the added fill once listeners have
+  /// been notified.
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    final FillOptions effectiveOptions =
+        FillOptions.defaultOptions.copyWith(options);
+    final fill = await MapboxGlPlatform.getInstance(_id).addFill(effectiveOptions);
+    _fills[fill.id] = fill;
+    notifyListeners();
+    return fill;
+  }
+
+  /// Updates the specified [fill] with the given [changes]. The fill must
+  /// be a current member of the [fills] set.
+  ///
+  /// Change listeners are notified once the fill has been updated on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> updateFill(Fill fill, FillOptions changes) async {
+    assert(fill != null);
+    assert(_fills[fill.id] == fill);
+    assert(changes != null);
+    await MapboxGlPlatform.getInstance(_id).updateFill(fill, changes);
+    fill.options = fill.options.copyWith(changes);
+    notifyListeners();
+  }
+
+  /// Removes the specified [fill] from the map. The fill must be a current
+  /// member of the [fills] set.
+  ///
+  /// Change listeners are notified once the fill has been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> removeFill(Fill fill) async {
+    assert(fill != null);
+    assert(_fills[fill.id] == fill);
+    await _removeFill(fill.id);
+    notifyListeners();
+  }
+
+  /// Helper method to remove a single fill from the map. Consumed by
+  /// [removeFill] and [clearFills].
+  ///
+  /// The returned [Future] completes once the fill has been removed from
+  /// [_fills].
+  Future<void> _removeFill(String id) async {
+    await MapboxGlPlatform.getInstance(_id).removeFill(id);
+
+    _fills.remove(id);
   }
 
   Future<List> queryRenderedFeatures(

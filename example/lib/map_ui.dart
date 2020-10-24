@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -56,8 +57,9 @@ class MapUiBodyState extends State<MapUiBody> {
   bool _zoomGesturesEnabled = true;
   bool _myLocationEnabled = true;
   bool _telemetryEnabled = true;
-  MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
+  MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.None;
   List<Object> _featureQueryFilter;
+  Fill _selectedFill;
 
   @override
   void initState() {
@@ -240,6 +242,38 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  _clearFill() {
+    if (_selectedFill != null) {
+      mapController.removeFill(_selectedFill);
+      setState(() {
+        _selectedFill = null;
+      });
+    }
+  }
+
+  _drawFill(features) async {
+    Map<String, dynamic> feature = jsonDecode(features[0]);
+    if (feature['geometry']['type'] == 'Polygon') {
+      var coordinates = feature['geometry']['coordinates'];
+      List<List<LatLng>> geometry = coordinates.map(
+        (ll) => ll.map(
+          (l) => LatLng(l[1],l[0])
+        ).toList().cast<LatLng>()
+      ).toList().cast<List<LatLng>>();
+      Fill fill = await mapController.addFill(
+        FillOptions(
+          geometry: geometry,
+          fillColor: "#FF0000",
+          fillOutlineColor: "#FF0000",
+          fillOpacity: 0.6,
+        )
+      );
+      setState(() {
+        _selectedFill = fill;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final MapboxMap mapboxMap = MapboxMap(
@@ -262,9 +296,13 @@ class MapUiBodyState extends State<MapUiBody> {
         print("Map click: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
         print("Filter $_featureQueryFilter");
         List features = await mapController.queryRenderedFeatures(point, [], _featureQueryFilter);
-        if (features.length>0) {
-          print(features[0]);
-        }
+        print('# features: ${features.length}');
+        _clearFill();
+        if (features.length == 0 && _featureQueryFilter != null) {
+          Scaffold.of(context).showSnackBar(SnackBar(content: Text('QueryRenderedFeatures: No features found!')));
+        } else {
+          _drawFill(features);
+        } 
       },
       onMapLongClick: (point, latLng) async {
         print("Map long press: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
