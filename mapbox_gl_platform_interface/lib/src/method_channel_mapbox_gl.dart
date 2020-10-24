@@ -29,6 +29,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           onCircleTappedPlatform(circleId);
         }
         break;
+      case 'fill#onTap':
+        final String fillId = call.arguments['fill'];
+        if (fillId != null) {
+          onFillTappedPlatform(fillId);
+        }
+        break;
       case 'camera#onMoveStarted':
         onCameraMoveStartedPlatform(null);
         break;
@@ -196,23 +202,22 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
+      [List<Map> data]) async {
     final List<dynamic> symbolIds = await _channel.invokeMethod(
       'symbols#addAll',
       <String, dynamic>{
         'options': options.map((o) => o.toJson()).toList(),
       },
     );
-    final List<Symbol> symbols = symbolIds.asMap().map(
-            (i, id) => MapEntry(
+    final List<Symbol> symbols = symbolIds
+        .asMap()
+        .map((i, id) => MapEntry(
             i,
-            Symbol(
-                id,
-                options.elementAt(i),
-                data != null && data.length > i ? data.elementAt(i) : null
-            )
-        )
-    ).values.toList();
+            Symbol(id, options.elementAt(i),
+                data != null && data.length > i ? data.elementAt(i) : null)))
+        .values
+        .toList();
 
     return symbols;
   }
@@ -226,7 +231,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<LatLng> getSymbolLatLng(Symbol symbol) async{
+  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
     Map mapLatLng =
         await _channel.invokeMethod('symbol#getGeometry', <String, dynamic>{
       'symbol': symbol._id,
@@ -263,7 +268,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<List<LatLng>> getLineLatLngs(Line line) async{
+  Future<List<LatLng>> getLineLatLngs(Line line) async {
     List latLngList =
         await _channel.invokeMethod('line#getGeometry', <String, dynamic>{
       'line': line._id,
@@ -314,6 +319,32 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   Future<void> removeCircle(String circleId) async {
     await _channel.invokeMethod('circle#remove', <String, dynamic>{
       'circle': circleId,
+    });
+  }
+
+  @override
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    final String fillId = await _channel.invokeMethod(
+      'fill#add',
+      <String, dynamic>{
+        'options': options.toJson(),
+      },
+    );
+    return Fill(fillId, options, data);
+  }
+
+  @override
+  Future<void> updateFill(Fill fill, FillOptions changes) async {
+    await _channel.invokeMethod('fill#update', <String, dynamic>{
+      'fill': fill.id,
+      'options': changes.toJson(),
+    });
+  }
+
+  @override
+  Future<void> removeFill(String fillId) async {
+    await _channel.invokeMethod('fill#remove', <String, dynamic>{
+      'fill': fillId,
     });
   }
 
@@ -463,6 +494,34 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           .invokeMethod('symbolManager#textIgnorePlacement', <String, dynamic>{
         'textIgnorePlacement': enable,
       });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<Point> toScreenLocation(LatLng latLng) async {
+    try {
+      var screenPosMap = await _channel
+          .invokeMethod('map#toScreenLocation', <String, dynamic>{
+        'latitude': latLng.latitude,
+        'longitude':latLng.longitude,
+      });
+      return Point(screenPosMap['x'], screenPosMap['y']);
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<LatLng> toLatLng(Point screenLocation) async {
+    try {
+      var latLngMap = await _channel
+          .invokeMethod('map#toLatLng', <String, dynamic>{
+        'x': screenLocation.x,
+        'y':screenLocation.y,
+      });
+      return LatLng(latLngMap['latitude'], latLngMap['longitude']);
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
