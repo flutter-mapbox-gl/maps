@@ -1194,7 +1194,7 @@ final class MapboxMapController
    * @return
    */
   private Bitmap getScaledImage(String imageId, float density) {
-    AssetManager assetManager = registrar.context().getAssets();:white_check_mark: 
+    AssetManager assetManager = registrar.context().getAssets();
     AssetFileDescriptor assetFileDescriptor = null;
 
     // Split image path into parts.
