@@ -400,6 +400,7 @@ class MapboxMapController extends MapboxGlPlatform
     );
     _geolocateControl.on('geolocate', (e) {
       _myLastLocation = LatLng(e.coords.latitude, e.coords.longitude);
+      onUserLocationUpdatedPlatform(UserLocation(position: LatLng(e.coords.latitude, e.coords.longitude), altitude: e.coords.altitude, bearing: e.coords.heading, speed: e.coords.speed, horizontalAccuracy: e.coords.accuracy, verticalAccuracy: e.coords.altitudeAccuracy, timestamp: DateTime.fromMillisecondsSinceEpoch(e.timestamp)));
     });
     _geolocateControl.on('trackuserlocationstart', (_) {
       _onCameraTrackingChanged(true);
@@ -626,5 +627,13 @@ class MapboxMapController extends MapboxGlPlatform
   Future<LatLng> toLatLng(Point screenLocation) async {
     var lngLat = _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
     return LatLng(lngLat.lat, lngLat.lng);
+  }
+
+  @override
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async{
+    //https://wiki.openstreetmap.org/wiki/Zoom_levels
+    var circumference = 40075017.686;
+    var zoom = _map.getZoom();
+    return circumference * cos(latitude * (pi/180)) / pow(2, zoom + 9);
   }
 }

@@ -179,6 +179,9 @@ class Convert {
         if let iconHaloBlur = options["iconHaloBlur"] as? CGFloat {
             delegate.iconHaloBlur = iconHaloBlur
         }
+        if let fontNames = options["fontNames"] as? [String] {
+            delegate.fontNames = fontNames
+        }
         if let textField = options["textField"] as? String {
             delegate.text = textField
         }
@@ -319,5 +322,37 @@ class Convert {
         if let draggable = options["draggable"] as? Bool {
             delegate.isDraggable = draggable
         }
+    }
+    
+    class func interpretFillOptions(options: Any?, delegate: MGLPolygonStyleAnnotation) {
+        guard let options = options as? [String: Any] else { return }
+        if let fillOpacity = options["fillOpacity"] as? CGFloat {
+            delegate.fillOpacity = fillOpacity
+        }
+        if let fillColor = options["fillColor"] as? String {
+            delegate.fillColor = UIColor(hexString: fillColor) ?? UIColor.black
+        }
+        if let fillOutlineColor = options["fillOutlineColor"] as? String {
+            delegate.fillOutlineColor = UIColor(hexString: fillOutlineColor) ?? UIColor.black
+        }
+        if let fillPattern = options["fillPattern"] as? String {
+            delegate.fillPattern = fillPattern
+        }
+        if let draggable = options["draggable"] as? Bool {
+            delegate.isDraggable = draggable
+        }
+    }
+
+    class func toPolygons(geometry: [[[Double]]]) -> [MGLPolygonFeature] {
+        var polygons:[MGLPolygonFeature] = []
+        for lineString in geometry {
+            var linearRing: [CLLocationCoordinate2D] = []
+            for coordinate in lineString {
+                linearRing.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
+            }
+            let polygon = MGLPolygonFeature(coordinates: linearRing, count: UInt(linearRing.count))
+            polygons.append(polygon)
+        }
+        return polygons
     }
 }

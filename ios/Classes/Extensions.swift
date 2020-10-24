@@ -19,6 +19,19 @@ extension MGLMapCamera {
     }
 }
 
+extension CLLocation {
+    func toDict() -> [String: Any]? {
+        return ["position": self.coordinate.toArray(),
+                "altitude": self.altitude,
+                "bearing": self.course,
+                "speed": self.speed,
+                "horizontalAccuracy": self.horizontalAccuracy,
+                "verticalAccuracy": self.verticalAccuracy,
+                "timestamp": Int(self.timestamp.timeIntervalSince1970 * 1000)
+        ]
+    }
+}
+
 extension CLLocationCoordinate2D {
     func toArray()  -> [Double] {
         return [self.latitude, self.longitude]
@@ -87,5 +100,12 @@ extension UIColor {
         }
         
         return nil
+    }
+}
+
+
+extension Array {
+    var tail: Array {
+        return Array(self.dropFirst())
     }
 }
