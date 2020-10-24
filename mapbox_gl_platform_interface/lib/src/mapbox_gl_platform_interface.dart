@@ -254,4 +254,9 @@ abstract class MapboxGlPlatform {
       throw UnimplementedError(
         'toLatLng() has not been implemented.');
   }
+
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async{
+    throw UnimplementedError(
+        'getMetersPerPixelAtLatitude() has not been implemented.');
+  }
 }

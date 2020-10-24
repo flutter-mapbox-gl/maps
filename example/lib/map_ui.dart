@@ -309,6 +309,10 @@ class MapUiBodyState extends State<MapUiBody> {
         Point convertedPoint = await mapController.toScreenLocation(latLng);
         LatLng convertedLatLng = await mapController.toLatLng(point);
         print("Map long press converted: ${convertedPoint.x},${convertedPoint.y}   ${convertedLatLng.latitude}/${convertedLatLng.longitude}");
+        double metersPerPixel = await mapController.getMetersPerPixelAtLatitude(latLng.latitude);
+
+        print ("Map long press The distance measured in meters at latitude ${latLng.latitude} is $metersPerPixel m");
+
 
         List features = await mapController.queryRenderedFeatures(point, [], null);
         if (features.length>0) {

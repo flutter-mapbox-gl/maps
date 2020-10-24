@@ -513,6 +513,13 @@ final class MapboxMapController
         result.success(reply);
         break;
       }
+      case "map#getMetersPerPixelAtLatitude": {
+        Map<String, Object> reply = new HashMap<>();
+        Double retVal = mapboxMap.getProjection().getMetersPerPixelAtLatitude((Double)call.argument("latitude"));
+        reply.put("metersperpixel", retVal);
+        result.success(reply);
+        break;
+      }
       case "camera#move": {
         final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
         if (cameraUpdate != null) {

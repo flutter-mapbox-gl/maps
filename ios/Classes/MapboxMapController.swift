@@ -176,6 +176,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             reply["x"] = returnVal.x as NSObject
             reply["y"] = returnVal.y as NSObject
             result(reply)
+        case "map#getMetersPerPixelAtLatitude":
+             guard let arguments = methodCall.arguments as? [String: Any] else { return }
+             var reply = [String: NSObject]()
+             guard let latitude = arguments["latitude"] as? Double else { return }
+             let returnVal = mapView.metersPerPoint(atLatitude:latitude)
+             reply["metersperpixel"] = returnVal as NSObject
+             result(reply)
         case "map#toLatLng":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let x = arguments["x"] as? Double else { return }

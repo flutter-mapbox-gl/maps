@@ -628,4 +628,12 @@ class MapboxMapController extends MapboxGlPlatform
     var lngLat = _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
     return LatLng(lngLat.lat, lngLat.lng);
   }
+
+  @override
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async{
+    //https://wiki.openstreetmap.org/wiki/Zoom_levels
+    var circumference = 40075017.686;
+    var zoom = _map.getZoom();
+    return circumference * cos(latitude * (pi/180)) / pow(2, zoom + 9);
+  }
 }
