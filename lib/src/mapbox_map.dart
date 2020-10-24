@@ -30,6 +30,7 @@ class MapboxMap extends StatefulWidget {
     this.compassViewMargins,
     this.attributionButtonMargins,
     this.onMapClick,
+    this.onUserLocationUpdated,
     this.onMapLongClick,
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
@@ -114,7 +115,8 @@ class MapboxMap extends StatefulWidget {
   /// when the map tries to turn on the My Location layer.
   final bool myLocationEnabled;
 
-  /// The mode used to let the map's camera follow the device's physical location
+  /// The mode used to let the map's camera follow the device's physical location. 
+  /// `myLocationEnabled` needs to be true for values other than `MyLocationTrackingMode.None` to work.
   final MyLocationTrackingMode myLocationTrackingMode;
 
   /// The mode to render the user location symbol
@@ -145,6 +147,10 @@ class MapboxMap extends StatefulWidget {
 
   final OnMapClickCallback onMapClick;
   final OnMapClickCallback onMapLongClick;
+
+  /// While the `myLocationEnabled` property is set to `true`, this method is
+  /// called whenever a new location update is received by the map view.
+  final OnUserLocationUpdated onUserLocationUpdated;
 
   /// Called when the map's camera no longer follows the physical device location, e.g. because the user moved the map
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
@@ -215,6 +221,7 @@ class _MapboxMapState extends State<MapboxMap> {
         id, widget.initialCameraPosition,
         onStyleLoadedCallback: widget.onStyleLoadedCallback,
         onMapClick: widget.onMapClick,
+        onUserLocationUpdated: widget.onUserLocationUpdated,
         onMapLongClick: widget.onMapLongClick,
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged,

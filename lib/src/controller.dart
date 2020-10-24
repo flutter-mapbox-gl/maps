@@ -9,6 +9,8 @@ typedef void OnMapLongClickCallback(Point<double> point, LatLng coordinates);
 
 typedef void OnStyleLoadedCallback();
 
+typedef void OnUserLocationUpdated(UserLocation location);
+
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
@@ -38,8 +40,9 @@ class MapboxMapController extends ChangeNotifier {
       this.onMapLongClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged,
-      this.onCameraIdle,
-      this.onMapIdle})
+      this.onMapIdle,
+      this.onUserLocationUpdated,
+      this.onCameraIdle})
       : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
 
@@ -70,6 +73,13 @@ class MapboxMapController extends ChangeNotifier {
       final Circle circle = _circles[circleId];
       if (circle != null) {
         onCircleTapped(circle);
+      }
+    });
+
+    MapboxGlPlatform.getInstance(_id).onFillTappedPlatform.add((fillId) {
+      final Fill fill = _fills[fillId];
+      if (fill != null) {
+        onFillTapped(fill);
       }
     });
 
@@ -132,12 +142,16 @@ class MapboxMapController extends ChangeNotifier {
         onMapIdle();
       }
     });
+    MapboxGlPlatform.getInstance(_id).onUserLocationUpdatedPlatform.add((location) { 
+      onUserLocationUpdated?.call(location);
+    });
   }
 
   static Future<MapboxMapController> init(
       int id, CameraPosition initialCameraPosition,
       {OnStyleLoadedCallback onStyleLoadedCallback,
       OnMapClickCallback onMapClick,
+      OnUserLocationUpdated onUserLocationUpdated,
       OnMapLongClickCallback onMapLongClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
@@ -148,6 +162,7 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxMapController._(id, initialCameraPosition,
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
+        onUserLocationUpdated: onUserLocationUpdated,
         onMapLongClick: onMapLongClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
@@ -159,6 +174,8 @@ class MapboxMapController extends ChangeNotifier {
 
   final OnMapClickCallback onMapClick;
   final OnMapLongClickCallback onMapLongClick;
+
+  final OnUserLocationUpdated onUserLocationUpdated;
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
@@ -172,6 +189,9 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Circle> onCircleTapped = ArgumentCallbacks<Circle>();
+
+  /// Callbacks to receive tap events for fills placed on this map.
+  final ArgumentCallbacks<Fill> onFillTapped = ArgumentCallbacks<Fill>();
 
   /// Callbacks to receive tap events for info windows on symbols
   final ArgumentCallbacks<Symbol> onInfoWindowTapped =
@@ -194,9 +214,15 @@ class MapboxMapController extends ChangeNotifier {
 
   /// The current set of circles on this map.
   ///
-  /// The returned set will be a detached snapshot of the symbols collection.
+  /// The returned set will be a detached snapshot of the circles collection.
   Set<Circle> get circles => Set<Circle>.from(_circles.values);
   final Map<String, Circle> _circles = <String, Circle>{};
+
+  /// The current set of fills on this map.
+  ///
+  /// The returned set will be a detached snapshot of the fills collection.
+  Set<Fill> get fills => Set<Fill>.from(_fills.values);
+  final Map<String, Fill> _fills = <String, Fill>{};
 
   /// True if the map camera is currently moving.
   bool get isCameraMoving => _isCameraMoving;
@@ -322,17 +348,17 @@ class MapboxMapController extends ChangeNotifier {
   /// been notified.
   Future<Symbol> addSymbol(SymbolOptions options, [Map data]) async {
     List<Symbol> result = await addSymbols([options], [data]);
-  
+
     return result.first;
   }
 
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
+      [List<Map> data]) async {
+    final List<SymbolOptions> effectiveOptions =
+        options.map((o) => SymbolOptions.defaultOptions.copyWith(o)).toList();
 
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
-    final List<SymbolOptions> effectiveOptions = options.map(
-          (o) => SymbolOptions.defaultOptions.copyWith(o)
-    ).toList();
-
-    final symbols = await MapboxGlPlatform.getInstance(_id).addSymbols(effectiveOptions, data);
+    final symbols = await MapboxGlPlatform.getInstance(_id)
+        .addSymbols(effectiveOptions, data);
     symbols.forEach((s) => _symbols[s.id] = s);
     notifyListeners();
     return symbols;
@@ -385,7 +411,7 @@ class MapboxMapController extends ChangeNotifier {
     symbols.forEach((s) {
       assert(_symbols[s.id] == s);
     });
-  
+
     await _removeSymbols(symbols.map((s) => s.id));
     notifyListeners();
   }
@@ -424,7 +450,7 @@ class MapboxMapController extends ChangeNotifier {
     final LineOptions effectiveOptions =
         LineOptions.defaultOptions.copyWith(options);
     final line =
-        await MapboxGlPlatform.getInstance(_id).addLine(effectiveOptions);
+        await MapboxGlPlatform.getInstance(_id).addLine(effectiveOptions, data);
     _lines[line.id] = line;
     notifyListeners();
     return line;
@@ -508,7 +534,7 @@ class MapboxMapController extends ChangeNotifier {
     final CircleOptions effectiveOptions =
         CircleOptions.defaultOptions.copyWith(options);
     final circle =
-        await MapboxGlPlatform.getInstance(_id).addCircle(effectiveOptions);
+        await MapboxGlPlatform.getInstance(_id).addCircle(effectiveOptions, data);
     _circles[circle.id] = circle;
     notifyListeners();
     return circle;
@@ -580,6 +606,63 @@ class MapboxMapController extends ChangeNotifier {
     await MapboxGlPlatform.getInstance(_id).removeCircle(id);
 
     _circles.remove(id);
+  }
+
+  /// Adds a fill to the map, configured using the specified custom [options].
+  ///
+  /// Change listeners are notified once the fill has been added on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes with the added fill once listeners have
+  /// been notified.
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    final FillOptions effectiveOptions =
+        FillOptions.defaultOptions.copyWith(options);
+    final fill = await MapboxGlPlatform.getInstance(_id).addFill(effectiveOptions);
+    _fills[fill.id] = fill;
+    notifyListeners();
+    return fill;
+  }
+
+  /// Updates the specified [fill] with the given [changes]. The fill must
+  /// be a current member of the [fills] set.
+  ///
+  /// Change listeners are notified once the fill has been updated on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> updateFill(Fill fill, FillOptions changes) async {
+    assert(fill != null);
+    assert(_fills[fill.id] == fill);
+    assert(changes != null);
+    await MapboxGlPlatform.getInstance(_id).updateFill(fill, changes);
+    fill.options = fill.options.copyWith(changes);
+    notifyListeners();
+  }
+
+  /// Removes the specified [fill] from the map. The fill must be a current
+  /// member of the [fills] set.
+  ///
+  /// Change listeners are notified once the fill has been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> removeFill(Fill fill) async {
+    assert(fill != null);
+    assert(_fills[fill.id] == fill);
+    await _removeFill(fill.id);
+    notifyListeners();
+  }
+
+  /// Helper method to remove a single fill from the map. Consumed by
+  /// [removeFill] and [clearFills].
+  ///
+  /// The returned [Future] completes once the fill has been removed from
+  /// [_fills].
+  Future<void> _removeFill(String id) async {
+    await MapboxGlPlatform.getInstance(_id).removeFill(id);
+
+    _fills.remove(id);
   }
 
   Future<List> queryRenderedFeatures(
@@ -691,4 +774,20 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> removeLayer(String name) {
     return MapboxGlPlatform.getInstance(_id).removeLayer(name);
   }
+
+  /// Returns the point on the screen that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
+  /// 
+  /// Note: The resulting x and y coordinates are rounded to [int] on web, on other platforms they may differ very slightly (in the range of about 10^-10) from the actual nearest screen coordinate.
+  /// You therefore might want to round them appropriately, depending on your use case.
+  /// 
+  /// Returns null if [latLng] is not currently visible on the map.
+  Future<Point> toScreenLocation(LatLng latLng) async{
+    return MapboxGlPlatform.getInstance(_id).toScreenLocation(latLng);
+  }
+
+  /// Returns the geographic location (as [LatLng]) that corresponds to a point on the screen. The screen location is specified in screen pixels (not display pixels) relative to the top left of the map (not the top left of the whole screen).
+  Future<LatLng> toLatLng(Point screenLocation) async{
+    return MapboxGlPlatform.getInstance(_id).toLatLng(screenLocation);
+  }
+
 }

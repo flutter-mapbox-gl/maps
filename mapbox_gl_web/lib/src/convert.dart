@@ -45,6 +45,7 @@ class Convert {
       sink.setMyLocationEnabled(options['myLocationEnabled']);
     }
     if (options.containsKey('myLocationTrackingMode')) {
+      //Should not be invoked before sink.setMyLocationEnabled()
       sink.setMyLocationTrackingMode(options['myLocationTrackingMode']);
     }
     if (options.containsKey('myLocationRenderMode')) {
@@ -90,7 +91,10 @@ class Convert {
         );
       case 'newLatLngBounds':
         final bounds = json[1];
-        final padding = json[2];
+        final left = json[2];
+        final top = json[3];
+        final right = json[4];
+        final bottom = json[5];
         final camera = mapboxMap.cameraForBounds(
             LngLatBounds(
               LngLat(bounds[0][1], bounds[0][0]),
@@ -98,10 +102,10 @@ class Convert {
             ),
             {
               'padding': {
-                'top': padding,
-                'bottom': padding,
-                'left': padding,
-                'right': padding
+                'top': top,
+                'bottom': bottom,
+                'left': left,
+                'right': right,
               }
             });
         return camera;

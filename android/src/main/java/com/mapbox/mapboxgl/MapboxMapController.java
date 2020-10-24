@@ -17,6 +17,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
@@ -54,10 +55,13 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.Projection;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Annotation;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
+import com.mapbox.mapboxsdk.plugins.annotation.Fill;
+import com.mapbox.mapboxsdk.plugins.annotation.FillManager;
 import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
@@ -100,11 +104,12 @@ final class MapboxMapController
   MapboxMap.OnMapLongClickListener,
   MapboxMapOptionsSink,
   MethodChannel.MethodCallHandler,
-  com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
+  OnMapReadyCallback,
   OnCameraTrackingChangedListener,
   OnSymbolTappedListener,
   OnLineTappedListener,
   OnCircleTappedListener,
+  OnFillTappedListener,
   PlatformView {
   private static final String TAG = "MapboxMapController";
   private final int id;
@@ -116,9 +121,11 @@ final class MapboxMapController
   private final Map<String, SymbolController> symbols;
   private final Map<String, LineController> lines;
   private final Map<String, CircleController> circles;
+  private final Map<String, FillController> fills;
   private SymbolManager symbolManager;
   private LineManager lineManager;
   private CircleManager circleManager;
+  private FillManager fillManager;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
   private int myLocationTrackingMode = 0;
@@ -131,6 +138,7 @@ final class MapboxMapController
   private final String styleStringInitial;
   private LocationComponent locationComponent = null;
   private LocationEngine locationEngine = null;
+  private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
 
@@ -152,6 +160,7 @@ final class MapboxMapController
     this.symbols = new HashMap<>();
     this.lines = new HashMap<>();
     this.circles = new HashMap<>();
+    this.fills = new HashMap<>();
     this.density = context.getResources().getDisplayMetrics().density;
     methodChannel =
       new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_maps_" + id);
@@ -275,9 +284,28 @@ final class MapboxMapController
   private CircleController circle(String circleId) {
     final CircleController circle = circles.get(circleId);
     if (circle == null) {
-      throw new IllegalArgumentException("Unknown symbol: " + circleId);
+      throw new IllegalArgumentException("Unknown circle: " + circleId);
     }
     return circle;
+  }
+
+  private FillBuilder newFillBuilder() {
+    return new FillBuilder(fillManager);
+  }
+
+  private void removeFill(String fillId) {
+    final FillController fillController = fills.remove(fillId);
+    if (fillController != null) {
+      fillController.remove(fillManager);
+    }
+  }
+
+  private FillController fill(String fillId) {
+    final FillController fill = fills.get(fillId);
+    if (fill == null) {
+      throw new IllegalArgumentException("Unknown fill: " + fillId);
+    }
+    return fill;
   }
 
   @Override
@@ -330,6 +358,7 @@ final class MapboxMapController
       enableLineManager(style);
       enableSymbolManager(style);
       enableCircleManager(style);
+      enableFillManager(style);
       if (myLocationEnabled) {
         enableLocationComponent(style);
       }
@@ -337,8 +366,7 @@ final class MapboxMapController
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
       mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
-	  
-	  localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
+	    localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
     }
@@ -367,6 +395,24 @@ final class MapboxMapController
     }
   }
 
+  private void onUserLocationUpdate(Location location){
+    if(location==null){
+      return;
+    }
+
+    final Map<String, Object> userLocation = new HashMap<>(6);
+    userLocation.put("position", new double[]{location.getLatitude(), location.getLongitude()});
+    userLocation.put("altitude", location.getAltitude());
+    userLocation.put("bearing", location.getBearing());
+    userLocation.put("horizontalAccuracy", location.getAccuracy());
+    userLocation.put("verticalAccuracy", (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ? location.getVerticalAccuracyMeters() : null);
+    userLocation.put("timestamp", location.getTime());
+
+    final Map<String, Object> arguments = new HashMap<>(1);
+    arguments.put("userLocation", userLocation);
+    methodChannel.invokeMethod("map#onUserLocationUpdated", arguments);
+  }
+
   private void enableSymbolManager(@NonNull Style style) {
     if (symbolManager == null) {
       symbolManager = new SymbolManager(mapView, mapboxMap, style);
@@ -391,6 +437,13 @@ final class MapboxMapController
     if (circleManager == null) {
       circleManager = new CircleManager(mapView, mapboxMap, style);
       circleManager.addClickListener(MapboxMapController.this::onAnnotationClick);
+    }
+  }
+
+  private void enableFillManager(@NonNull Style style) {
+    if (fillManager ==  null) {
+      fillManager = new FillManager(mapView, mapboxMap, style);
+      fillManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
 
@@ -441,6 +494,22 @@ final class MapboxMapController
         VisibleRegion visibleRegion = mapboxMap.getProjection().getVisibleRegion();
         reply.put("sw", Arrays.asList(visibleRegion.nearLeft.getLatitude(), visibleRegion.nearLeft.getLongitude()));
         reply.put("ne", Arrays.asList(visibleRegion.farRight.getLatitude(), visibleRegion.farRight.getLongitude()));
+        result.success(reply);
+        break;
+      }
+      case "map#toScreenLocation": {
+        Map<String, Object> reply = new HashMap<>();
+        PointF pointf = mapboxMap.getProjection().toScreenLocation(new LatLng(call.argument("latitude"),call.argument("longitude")));
+        reply.put("x", pointf.x);
+        reply.put("y", pointf.y);
+        result.success(reply);
+        break;
+      }
+      case "map#toLatLng": {
+        Map<String, Object> reply = new HashMap<>();
+        LatLng latlng = mapboxMap.getProjection().fromScreenLocation(new PointF( ((Double) call.argument("x")).floatValue(), ((Double) call.argument("y")).floatValue()));
+        reply.put("latitude", latlng.getLatitude());
+        reply.put("longitude", latlng.getLongitude());
         result.success(reply);
         break;
       }
@@ -530,12 +599,12 @@ final class MapboxMapController
         result.success(reply);
         break;
       }
-	  case "map#setTelemetryEnabled": {
+      case "map#setTelemetryEnabled": {
         final boolean enabled = call.argument("enabled");
         Mapbox.getTelemetry().setUserTelemetryRequestState(enabled);
         result.success(null);
         break;
-	  }
+      }
       case "map#getTelemetryEnabled": {
         final TelemetryEnabler.State telemetryState = TelemetryEnabler.retrieveTelemetryStateFromPreferences();
         result.success(telemetryState == TelemetryEnabler.State.ENABLED);
@@ -710,6 +779,30 @@ final class MapboxMapController
         result.success(hashMapLatLng);
         break;
       }
+      case "fill#add": {
+        final FillBuilder fillBuilder = newFillBuilder();
+        Convert.interpretFillOptions(call.argument("options"), fillBuilder);
+        final Fill fill = fillBuilder.build();
+        final String fillId = String.valueOf(fill.getId());
+        fills.put(fillId, new FillController(fill, true, this));
+        result.success(fillId);
+        break;
+      }
+      case "fill#remove": {
+        final String fillId = call.argument("fill");
+        removeFill(fillId);
+        result.success(null);
+        break;
+      }
+      case "fill#update": {
+        Log.e(TAG, "update fill");
+        final String fillId = call.argument("fill");
+        final FillController fill = fill(fillId);
+        Convert.interpretFillOptions(call.argument("options"), fill);
+        fill.update(fillManager);
+        result.success(null);
+        break;
+      }
       case "locationComponent#getLastLocation": {
         Log.e(TAG, "location component: getLastLocation");
         if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
@@ -736,8 +829,8 @@ final class MapboxMapController
         }
         break;
       }
-      case "style#addImage":{
-        if(style==null){
+      case "style#addImage": {
+        if(style==null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
         style.addImage(call.argument("name"), BitmapFactory.decodeByteArray(call.argument("bytes"),0,call.argument("length")), call.argument("sdf"));
@@ -819,11 +912,12 @@ final class MapboxMapController
   }
 
   @Override
-  public void onAnnotationClick(Annotation annotation) {
+  public boolean onAnnotationClick(Annotation annotation) {
     if (annotation instanceof Symbol) {
       final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
       if (symbolController != null) {
         symbolController.onTap();
+        return true;
       }
     }
 
@@ -831,6 +925,7 @@ final class MapboxMapController
       final LineController lineController = lines.get(String.valueOf(annotation.getId()));
       if (lineController != null) {
         lineController.onTap();
+        return true;
       }
     }
 
@@ -838,8 +933,17 @@ final class MapboxMapController
       final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
       if (circleController != null) {
         circleController.onTap();
+        return true;
       }
     }
+    if (annotation instanceof Fill) {
+      final FillController fillController = fills.get(String.valueOf(annotation.getId()));
+      if (fillController != null) {
+        fillController.onTap();
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
@@ -861,6 +965,13 @@ final class MapboxMapController
     final Map<String, Object> arguments = new HashMap<>(2);
     arguments.put("circle", String.valueOf(circle.getId()));
     methodChannel.invokeMethod("circle#onTap", arguments);
+  }
+
+  @Override
+  public void onFillTapped(Fill fill) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+    arguments.put("fill", String.valueOf(fill.getId()));
+    methodChannel.invokeMethod("fill#onTap", arguments);
   }
 
   @Override
@@ -889,7 +1000,7 @@ final class MapboxMapController
 
   @Override
   public void dispose() {
-    if (disposed) {
+    if (disposed || registrar.activity() == null) {
       return;
     }
     disposed = true;
@@ -905,7 +1016,10 @@ final class MapboxMapController
     if (circleManager != null) {
       circleManager.onDestroy();
     }
-
+    if (fillManager != null) {
+      fillManager.onDestroy();
+    }
+    stopListeningForLocationUpdates();
     mapView.onDestroy();
     registrar.activity().getApplication().unregisterActivityLifecycleCallbacks(this);
   }
@@ -932,6 +1046,9 @@ final class MapboxMapController
       return;
     }
     mapView.onResume();
+    if(myLocationEnabled){
+      startListeningForLocationUpdates();
+    }
   }
 
   @Override
@@ -940,6 +1057,7 @@ final class MapboxMapController
       return;
     }
     mapView.onPause();
+    stopListeningForLocationUpdates();
   }
 
   @Override
@@ -1096,11 +1214,40 @@ final class MapboxMapController
   }
 
   private void updateMyLocationEnabled() {
-    if(this.locationComponent == null && myLocationEnabled == true){
+    if(this.locationComponent == null && myLocationEnabled){
       enableLocationComponent(mapboxMap.getStyle());
     }
 
+    if(myLocationEnabled){
+      startListeningForLocationUpdates();
+    }else {
+      stopListeningForLocationUpdates();
+    }
+
     locationComponent.setLocationComponentEnabled(myLocationEnabled);
+  }
+
+  private void startListeningForLocationUpdates(){
+    if(locationEngineCallback == null && locationComponent!=null && locationComponent.getLocationEngine()!=null){
+      locationEngineCallback = new LocationEngineCallback<LocationEngineResult>() {
+        @Override
+        public void onSuccess(LocationEngineResult result) {
+          onUserLocationUpdate(result.getLastLocation());
+        }
+
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+        }
+      };
+      locationComponent.getLocationEngine().requestLocationUpdates(locationComponent.getLocationEngineRequest(), locationEngineCallback , null);
+    }
+  }
+
+  private void stopListeningForLocationUpdates(){
+    if(locationEngineCallback != null && locationComponent!=null && locationComponent.getLocationEngine()!=null){
+      locationComponent.getLocationEngine().removeLocationUpdates(locationEngineCallback);
+      locationEngineCallback = null;
+    }
   }
 
   private void updateMyLocationTrackingMode() {
