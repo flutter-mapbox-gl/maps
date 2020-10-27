@@ -588,6 +588,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
      *  MGLAnnotationControllerDelegate
      */
     func annotationController(_ annotationController: MGLAnnotationController, didSelect styleAnnotation: MGLStyleAnnotation) {
+        annotationController.deselectStyleAnnotation(styleAnnotation)
         guard let channel = channel else {
             return
         }
