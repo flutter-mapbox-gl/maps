@@ -24,8 +24,8 @@ final OfflineRegion hawaiiRegion = OfflineRegion(
   id: 0,
   bounds: hawaii,
   metadata: null,
-  minZoom: 3,
-  maxZoom: 8,
+  minZoom: 3.0,
+  maxZoom: 8.0,
   mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
 );
 
@@ -33,8 +33,8 @@ final OfflineRegion santiagoRegion = OfflineRegion(
   id: 1,
   bounds: santiago,
   metadata: null,
-  minZoom: 10,
-  maxZoom: 16,
+  minZoom: 10.0,
+  maxZoom: 16.0,
   mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
 );
 
@@ -42,8 +42,8 @@ final OfflineRegion aucklandRegion = OfflineRegion(
   id: 2,
   bounds: auckland,
   metadata: null,
-  minZoom: 13,
-  maxZoom: 16,
+  minZoom: 13.0,
+  maxZoom: 16.0,
   mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
 );
 
