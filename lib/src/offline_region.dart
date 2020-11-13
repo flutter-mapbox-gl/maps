@@ -31,8 +31,8 @@ class OfflineRegion {
           : null,
       metadata: json['metadata'],
       mapStyleUrl: json['mapStyleUrl'],
-      minZoom: json['minZoom'],
-      maxZoom: json['maxZoom'],
+      minZoom: json['minZoom'].toDouble(),
+      maxZoom: json['maxZoom'].toDouble(),
     );
   }
 

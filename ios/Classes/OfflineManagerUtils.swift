@@ -46,9 +46,8 @@ class OfflineManagerUtils {
     
     static func regionsList(result: @escaping FlutterResult) {
         let offlineStorage = MGLOfflineStorage.shared
-        observationToken = offlineStorage.observe(\.packs, options: .new) { (storage, change) in
-            guard let packs = storage.packs else {
-                result(FlutterError(code: "RegionListError", message: nil, details: nil))
+            guard let packs = offlineStorage.packs else {
+                result("[]")
                 observationToken?.invalidate()
                 return
             }
@@ -71,7 +70,7 @@ class OfflineManagerUtils {
             result(regionsArgsJsonString)
             // Invalidating observation so this block is not called when downloading new packs
             observationToken?.invalidate()
-        }
+        
     }
     
     static func deleteRegion(result: @escaping FlutterResult, id: Int) {
