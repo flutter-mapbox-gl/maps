@@ -3,6 +3,7 @@ package com.mapbox.mapboxgl;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.mapbox.mapboxgl.models.OfflineRegionData;
 
 import java.io.BufferedInputStream;
@@ -42,13 +43,13 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 OfflineRegionData args = gson.fromJson(methodCall.arguments.toString(), OfflineRegionData.class);
 
                 //Start downloading
-                OfflineManagerUtils.downloadRegion(args, result, registrar, extractAccessToken(methodCall, args.getAccessToken()));
+                OfflineManagerUtils.downloadRegion(args, result, registrar, gson.fromJson(methodCall.arguments.toString(), JsonObject.class).get("accessToken").getAsString());
                 break;
             case "getListOfRegions":
-                OfflineManagerUtils.regionsList(result, registrar.context(), extractAccessToken(methodCall, null));
+                OfflineManagerUtils.regionsList(result, registrar.context(), new Gson().fromJson(methodCall.arguments.toString(), JsonObject.class).get("accessToken").getAsString());
                 break;
             case "deleteOfflineRegion":
-                OfflineManagerUtils.deleteRegion(result, registrar.context(), (int) methodCall.argument("id"), extractAccessToken(methodCall, null));
+                OfflineManagerUtils.deleteRegion(result, registrar.context(), (int) methodCall.argument("id"), new Gson().fromJson(methodCall.arguments.toString(), JsonObject.class).get("accessToken").getAsString());
                 break;
             default:
                 result.notImplemented();

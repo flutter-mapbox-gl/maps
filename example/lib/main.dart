@@ -15,7 +15,9 @@ import 'map_ui.dart';
 import 'move_camera.dart';
 import 'page.dart';
 import 'place_circle.dart';
+import 'place_source.dart';
 import 'place_symbol.dart';
+import 'place_fill.dart';
 import 'scrolling_map.dart';
 
 final List<ExamplePage> _allPages = <ExamplePage>[
@@ -24,8 +26,10 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   AnimateCameraPage(),
   MoveCameraPage(),
   PlaceSymbolPage(),
+  PlaceSourcePage(),
   LinePage(),
   PlaceCirclePage(),
+  PlaceFillPage(),
   ScrollingMapPage(),
   OfflineRegionsPage(),
 ];

@@ -29,9 +29,6 @@ public class OfflineRegionData {
     private double minZoom;
     @SerializedName("maxZoom")
     private double maxZoom;
-    @Expose(serialize = false)
-    @SerializedName("accessToken")
-    private String accessToken;
 
     public OfflineRegionData(int id, List<List<Double>> bounds, Map<String, Object> metadata, String mapStyleUrl, double minZoom, double maxZoom) {
         this.id = id;
@@ -67,10 +64,6 @@ public class OfflineRegionData {
 
     public double getMaxZoom() {
         return maxZoom;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
     }
 
     @Nullable

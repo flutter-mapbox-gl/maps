@@ -12,8 +12,6 @@ import Mapbox
 class OfflineManagerUtils {
     static var activeDownloaders: [Int: OfflinePackDownloader] = [:]
     
-    static var observationToken: NSKeyValueObservation?
-    
     static func downloadRegion(
         regionData: OfflineRegionData,
         result: @escaping FlutterResult,
@@ -46,32 +44,26 @@ class OfflineManagerUtils {
     
     static func regionsList(result: @escaping FlutterResult) {
         let offlineStorage = MGLOfflineStorage.shared
-        observationToken = offlineStorage.observe(\.packs, options: .new) { (storage, change) in
-            guard let packs = storage.packs else {
-                result(FlutterError(code: "RegionListError", message: nil, details: nil))
-                observationToken?.invalidate()
-                return
-            }
-            let regionsArgs = packs.compactMap { pack -> [String: Any]? in
-                guard let definition = pack.region as? MGLTilePyramidOfflineRegion,
-                    let regionArgs = OfflineRegionData.fromOfflineRegion(definition, metadata: pack.context),
-                    let jsonData = regionArgs.toJsonString().data(using: .utf8),
-                    let jsonObject = try? JSONSerialization.jsonObject(with: jsonData),
-                    let jsonDict = jsonObject as? [String: Any]
-                    else { return nil }
-                return jsonDict
-            }
-            guard let regionsArgsJsonData = try? JSONSerialization.data(withJSONObject: regionsArgs),
-                let regionsArgsJsonString = String(data: regionsArgsJsonData, encoding: .utf8)
-                else {
-                    result(FlutterError(code: "RegionListError", message: nil, details: nil))
-                    observationToken?.invalidate()
-                    return
-            }
-            result(regionsArgsJsonString)
-            // Invalidating observation so this block is not called when downloading new packs
-            observationToken?.invalidate()
+        guard let packs = offlineStorage.packs else {
+            result("[]")
+            return
         }
+        let regionsArgs = packs.compactMap { pack -> [String: Any]? in
+            guard let definition = pack.region as? MGLTilePyramidOfflineRegion,
+                let regionArgs = OfflineRegionData.fromOfflineRegion(definition, metadata: pack.context),
+                let jsonData = regionArgs.toJsonString().data(using: .utf8),
+                let jsonObject = try? JSONSerialization.jsonObject(with: jsonData),
+                let jsonDict = jsonObject as? [String: Any]
+                else { return nil }
+            return jsonDict
+        }
+        guard let regionsArgsJsonData = try? JSONSerialization.data(withJSONObject: regionsArgs),
+            let regionsArgsJsonString = String(data: regionsArgsJsonData, encoding: .utf8)
+            else {
+                result(FlutterError(code: "RegionListError", message: nil, details: nil))
+                return
+        }
+        result(regionsArgsJsonString)
     }
     
     static func deleteRegion(result: @escaping FlutterResult, id: Int) {
