@@ -758,24 +758,24 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Adds an image source to the style currently displayed in the map, so that it can later be referred to by the provided name.
-  Future<void> addImageSource(String name, Uint8List bytes, LatLngQuad coordinates) {
+  Future<void> addImageSource(String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
     return MapboxGlPlatform.getInstance(_id)
-        .addImageSource(name, bytes, coordinates);
+        .addImageSource(imageSourceId, bytes, coordinates);
   }
 
   /// Removes previously added image source by name
-  Future<void> removeImageSource(String name) {
-    return MapboxGlPlatform.getInstance(_id).removeImageSource(name);
+  Future<void> removeImageSource(String imageSourceId) {
+    return MapboxGlPlatform.getInstance(_id).removeImageSource(imageSourceId);
   }
 
   /// Adds layer with name
-  Future<void> addLayer(String name, String sourceId) {
-    return MapboxGlPlatform.getInstance(_id).addLayer(name, sourceId);
+  Future<void> addLayer(String imageLayerId, String imageSourceId) {
+    return MapboxGlPlatform.getInstance(_id).addLayer(imageLayerId, imageSourceId);
   }
 
   /// Removes layer by name
-  Future<void> removeLayer(String name) {
-    return MapboxGlPlatform.getInstance(_id).removeLayer(name);
+  Future<void> removeLayer(String imageLayerId) {
+    return MapboxGlPlatform.getInstance(_id).removeLayer(imageLayerId);
   }
 
   /// Returns the point on the screen that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
