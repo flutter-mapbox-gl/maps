@@ -757,23 +757,23 @@ class MapboxMapController extends ChangeNotifier {
         .setSymbolTextIgnorePlacement(enable);
   }
 
-  /// Adds an image source to the style currently displayed in the map, so that it can later be referred to by the provided name.
+  /// Adds an image source to the style currently displayed in the map, so that it can later be referred to by the provided id.
   Future<void> addImageSource(String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
     return MapboxGlPlatform.getInstance(_id)
         .addImageSource(imageSourceId, bytes, coordinates);
   }
 
-  /// Removes previously added image source by name
+  /// Removes previously added image source by id
   Future<void> removeImageSource(String imageSourceId) {
     return MapboxGlPlatform.getInstance(_id).removeImageSource(imageSourceId);
   }
 
-  /// Adds layer with name
+  /// Adds layer with id
   Future<void> addLayer(String imageLayerId, String imageSourceId) {
     return MapboxGlPlatform.getInstance(_id).addLayer(imageLayerId, imageSourceId);
   }
 
-  /// Removes layer by name
+  /// Removes layer by id
   Future<void> removeLayer(String imageLayerId) {
     return MapboxGlPlatform.getInstance(_id).removeLayer(imageLayerId);
   }
