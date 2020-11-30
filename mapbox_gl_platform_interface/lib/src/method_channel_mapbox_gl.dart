@@ -550,6 +550,19 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       return new Future.error(e);
     }
   }
+
+  @override
+  Future<void> addLayerBelow(String imageLayerId, String imageSourceId, String belowLayerId) async {
+    try {
+      return await _channel.invokeMethod('style#addLayerBelow', <String, Object>{
+        'imageLayerId': imageLayerId,
+        'imageSourceId': imageSourceId,
+        'belowLayerId': belowLayerId
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
   
   @override
   Future<void> removeLayer(String imageLayerId) async {

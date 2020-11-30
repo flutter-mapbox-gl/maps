@@ -869,6 +869,14 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "style#addLayerBelow": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+        style.addLayerBelow(new RasterLayer(call.argument("imageLayerId"), call.argument("imageSourceId")), call.argument("belowLayerId"));
+        result.success(null);
+        break;
+      }
       case "style#removeLayer": {
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
