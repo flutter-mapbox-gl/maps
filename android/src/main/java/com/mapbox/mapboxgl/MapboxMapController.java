@@ -141,6 +141,7 @@ final class MapboxMapController
   private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
+  private LatLngBounds bounds = null;
 
   MapboxMapController(
     int id,
@@ -329,6 +330,9 @@ final class MapboxMapController
 
     setStyleString(styleStringInitial);
     // updateMyLocationEnabled();
+
+    if(null != bounds)
+      mapboxMap.setLatLngBoundsForCameraTarget(bounds);
   }
 
   @Override
@@ -1095,7 +1099,8 @@ final class MapboxMapController
 
   @Override
   public void setCameraTargetBounds(LatLngBounds bounds) {
-    mapboxMap.setLatLngBoundsForCameraTarget(bounds);
+    this.bounds = bounds;
+//    mapboxMap.setLatLngBoundsForCameraTarget(bounds);
   }
 
   @Override
