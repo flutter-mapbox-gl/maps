@@ -73,6 +73,41 @@ Support for offline maps is available by *"side loading"* the required map tiles
     }
 ```
 
+## Downloading Offline Regions
+
+An offline region is a defined region of a map that is available for use in conditions with limited or no network connection. Tiles for selected region, style and precision are downloaded from Mapbox using proper SDK methods and stored in application's cache. 
+
+* Beware of selecting big regions, as size might be significant. Here is an online estimator https://docs.mapbox.com/playground/offline-estimator/.
+
+* Call `downloadOfflineRegionStream` with predefined `OfflineRegion` and optionally track progress in the callback function.
+
+```      
+    final Function(DownloadRegionStatus event) onEvent = (DownloadRegionStatus status) {
+      if (status.runtimeType == Success) {
+        // ...
+      } else if (status.runtimeType == InProgress) {
+        int progress = (status as InProgress).progress.round();
+        // ...
+      } else if (status.runtimeType == Error) {
+        // ...
+      }
+    };
+
+    final OfflineRegion offlineRegion = OfflineRegion(
+      bounds: LatLngBounds(
+        northeast: LatLng(52.5050648, 13.3915634),
+        southwest: LatLng(52.4943073, 13.4055383),
+      ),
+      id: 1,
+      minZoom: 6,
+      maxZoom: 18,
+      mapStyleUrl: 'mapbox://styles/mapbox/streets-v11',
+    );
+
+    downloadOfflineRegionStream(offlineRegion, onEvent);
+```
+
+
 ## Location features
 To enable location features in an **Android** application:
 
