@@ -341,6 +341,19 @@ class MapboxMapController extends MapboxGlPlatform
     _map.on('movestart', _onCameraMoveStarted);
     _map.on('move', _onCameraMove);
     _map.on('moveend', _onCameraIdle);
+    _map.on('resize', _onMapResize);
+  }
+
+  void _onMapResize(Event e) {
+    Timer(Duration(microseconds: 10), () {
+      var container = _map.getContainer();
+      var canvas = _map.getCanvas();
+      var widthMismatch = canvas.clientWidth != container.clientWidth;
+      var heightMismatch = canvas.clientHeight != container.clientHeight;
+      if (widthMismatch || heightMismatch) {
+        _map.resize();
+      }
+    });
   }
 
   void _onMapClick(e) {

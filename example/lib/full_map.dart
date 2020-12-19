@@ -32,11 +32,12 @@ class FullMapState extends State<FullMap> {
   Widget build(BuildContext context) {
     return new Scaffold(
         body: MapboxMap(
-          accessToken: MapsDemo.ACCESS_TOKEN,
-          onMapCreated: _onMapCreated,
-          initialCameraPosition:
-          const CameraPosition(target: LatLng(0.0, 0.0)),
-        )
-    );
+      accessToken: MapsDemo.ACCESS_TOKEN,
+      onMapCreated: _onMapCreated,
+      initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
+      onStyleLoadedCallback: onStyleLoadedCallback,
+    ));
   }
+
+  void onStyleLoadedCallback() {}
 }
