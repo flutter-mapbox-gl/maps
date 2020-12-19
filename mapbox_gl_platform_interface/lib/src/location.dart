@@ -107,7 +107,7 @@ class LatLngBounds {
 /// A geographical area representing a non-aligned quadrilateral
 /// This class does not wrap values to the world bounds
 class LatLngQuad {
-  LatLngQuad({@required this.topLeft, @required this.topRight, @required this.bottomRight, @required this.bottomLeft})
+  const LatLngQuad({@required this.topLeft, @required this.topRight, @required this.bottomRight, @required this.bottomLeft})
       : assert(topLeft != null),
         assert(topRight != null),
         assert(bottomRight != null),

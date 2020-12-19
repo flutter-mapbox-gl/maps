@@ -461,7 +461,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             result(nil)
         case "style#addImageSource":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let name = arguments["name"] as? String else { return }
+            guard let imageSourceId = arguments["imageSourceId"] as? String else { return }
             guard let bytes = arguments["bytes"] as? FlutterStandardTypedData else { return }
             guard let data = bytes.data as? Data else { return }
             guard let image = UIImage(data: data) else { return }
@@ -474,29 +474,69 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 topRight: CLLocationCoordinate2D(latitude: coordinates[1][0], longitude: coordinates[1][1])
             )
             
-            let source = MGLImageSource(identifier: name, coordinateQuad: quad, image: image)
+            //Check for duplicateSource error
+            if (self.mapView.style?.source(withIdentifier:  imageSourceId) != nil) {
+                result(FlutterError(code: "duplicateSource", message: "Source with imageSourceId \(imageSourceId) already exists", details: "Can't add duplicate source with imageSourceId: \(imageSourceId)" ))
+                return
+            }
+            
+            let source = MGLImageSource(identifier: imageSourceId, coordinateQuad: quad, image: image)
             self.mapView.style?.addSource(source)
             
             result(nil)
         case "style#removeImageSource":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let name = arguments["name"] as? String else { return }
-            guard let source = self.mapView.style?.source(withIdentifier: name) else { return }
+            guard let imageSourceId = arguments["imageSourceId"] as? String else { return }
+            guard let source = self.mapView.style?.source(withIdentifier: imageSourceId) else { return }
             self.mapView.style?.removeSource(source)
             result(nil)
         case "style#addLayer":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let name = arguments["name"] as? String else { return }
-            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
+            guard let imageSourceId = arguments["imageSourceId"] as? String else { return }
             
-            guard let source = self.mapView.style?.source(withIdentifier: sourceId) else { return }
-            let layer = MGLRasterStyleLayer(identifier: name, source: source)
+            //Check for duplicateLayer error
+            if (self.mapView.style?.layer(withIdentifier: imageLayerId)) != nil {
+                result(FlutterError(code: "duplicateLayer", message: "Layer already exists", details: "Can't add duplicate layer with imageLayerId: \(imageLayerId)" ))
+                return
+            }
+            //Check for noSuchSource error
+            guard let source = self.mapView.style?.source(withIdentifier: imageSourceId) else {
+                result(FlutterError(code: "noSuchSource", message: "No source found with imageSourceId \(imageSourceId)", details: "Can't add add layer for imageSourceId \(imageLayerId), as the source does not exist." ))
+                return
+            }
+            
+            let layer = MGLRasterStyleLayer(identifier: imageLayerId, source: source)
             self.mapView.style?.addLayer(layer)
+            result(nil)
+        case "style#addLayerBelow":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
+            guard let imageSourceId = arguments["imageSourceId"] as? String else { return }
+            guard let belowLayerId = arguments["belowLayerId"] as? String else { return }
+            
+            //Check for duplicateLayer error
+            if (self.mapView.style?.layer(withIdentifier: imageLayerId)) != nil {
+                result(FlutterError(code: "duplicateLayer", message: "Layer already exists", details: "Can't add duplicate layer with imageLayerId: \(imageLayerId)" ))
+                return
+            }
+            //Check for noSuchSource error
+            guard let source = self.mapView.style?.source(withIdentifier: imageSourceId) else {
+                result(FlutterError(code: "noSuchSource", message: "No source found with imageSourceId \(imageSourceId)", details: "Can't add add layer for imageSourceId \(imageLayerId), as the source does not exist." ))
+                return
+            }
+            //Check for noSuchLayer error
+            guard let belowLayer = self.mapView.style?.layer(withIdentifier: belowLayerId) else {
+                result(FlutterError(code: "noSuchLayer", message: "No layer found with layerId \(belowLayerId)", details: "Can't insert layer below layer with id \(belowLayerId), as no such layer exists." ))
+                return
+            }
+            let layer = MGLRasterStyleLayer(identifier: imageLayerId, source: source)
+            self.mapView.style?.insertLayer(layer, below: belowLayer)
             result(nil)
         case "style#removeLayer":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let name = arguments["name"] as? String else { return }
-            guard let layer = self.mapView.style?.layer(withIdentifier: name) else { return }
+            guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
+            guard let layer = self.mapView.style?.layer(withIdentifier: imageLayerId) else { return }
             self.mapView.style?.removeLayer(layer)
             result(nil)
         default:

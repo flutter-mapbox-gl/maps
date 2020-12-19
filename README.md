@@ -25,6 +25,21 @@ The **recommended** way to provide your access token is through the `MapboxMap` 
 
 An alternative method to provide access tokens that was required until the v0.7 release is described in [this wiki article](https://github.com/tobrun/flutter-mapbox-gl/wiki/Mapbox-access-tokens).
 
+## Avoid Android UnsatisfiedLinkError
+
+Update buildTypes in `android\app\build.gradle`
+
+```gradle
+buildTypes {
+    release {
+        // other configs
+        ndk {
+            abiFilters 'armeabi-v7a','arm64-v8a','x86_64', 'x86'
+        }
+    }
+}
+```
+
 ## Using the SDK in your project
 
 This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to integrate a package into your flutter application. For platform specific integration, use the flutter application under the example folder as reference. 
