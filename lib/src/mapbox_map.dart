@@ -8,6 +8,7 @@ typedef void MapCreatedCallback(MapboxMapController controller);
 
 class MapboxMap extends StatefulWidget {
   const MapboxMap({
+    Key key,
     @required this.initialCameraPosition,
     this.accessToken,
     this.onMapCreated,
@@ -36,7 +37,8 @@ class MapboxMap extends StatefulWidget {
     this.onCameraTrackingChanged,
     this.onCameraIdle,
     this.onMapIdle,
-  }) : assert(initialCameraPosition != null);
+  })  : assert(initialCameraPosition != null),
+        super(key: key);
 
   /// If you want to use Mapbox hosted styles and map tiles, you need to provide a Mapbox access token.
   /// Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
