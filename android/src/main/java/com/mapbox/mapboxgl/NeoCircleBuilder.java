@@ -7,12 +7,9 @@ import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.turf.TurfMeta;
 import com.mapbox.turf.TurfTransformation;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static com.mapbox.turf.TurfConstants.UNIT_KILOMETERS;
@@ -20,12 +17,11 @@ import static com.mapbox.turf.TurfConstants.UNIT_KILOMETERS;
 
 class NeoCircleBuilder {
 
-
     static Feature createNeoCircleFeature(Map<?, ?> options, LatLng geometry, int circlePrecision) {
 
         final float radiusInKm = Convert.toFloat(options.get("radius")) / 1000;
 
-        Polygon polygonArea = getTurfPolygon(Point.fromLngLat(geometry.getLongitude(), geometry.getLatitude()), radiusInKm, circlePrecision, UNIT_KILOMETERS);
+        Polygon polygonArea = getTurfPolygon(Point.fromLngLat(geometry.getLongitude(), geometry.getLatitude()), radiusInKm, circlePrecision);
         Polygon finalPolygon = Polygon.fromOuterInner(
                 LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false)));
 
@@ -58,8 +54,8 @@ class NeoCircleBuilder {
         return feature;
     }
 
-    static Polygon getTurfPolygon(@NonNull Point centerPoint, @NonNull double radius,
-                                  @NonNull int steps, @NonNull String units) {
-        return TurfTransformation.circle(centerPoint, radius, steps, units);
+    static Polygon getTurfPolygon(@NonNull Point centerPoint, double radius,
+                                  int steps) {
+        return TurfTransformation.circle(centerPoint, radius, steps, UNIT_KILOMETERS);
     }
 }
