@@ -41,23 +41,19 @@ Future<dynamic> deleteOfflineRegion(int id, {String accessToken}) =>
 Future<dynamic> downloadOfflineRegion(
   OfflineRegion region, {
   String accessToken,
+  Function(DownloadRegionStatus event) onEvent,
 }) {
-  final Map<String, dynamic> jsonMap = region._toJson()
-    ..putIfAbsent('accessToken', () => accessToken);
+  String channelName = 'downloadOfflineRegion_${DateTime.now().microsecondsSinceEpoch}';
 
-  return _globalChannel.invokeMethod(
-    'downloadOfflineRegion',
-    json.encode(jsonMap),
-  );
-}
+  final result =
+      _globalChannel.invokeMethod('downloadOfflineRegion', <String, dynamic>{
+    'accessToken': accessToken,
+    'channelName': channelName,
+    'region': json.encode(region._toJson())
+  });
 
-void downloadOfflineRegionStream(
-  OfflineRegion region,
-  Function(DownloadRegionStatus event) onEvent, {
-  String accessToken,
-}) async {
-  downloadOfflineRegion(region, accessToken: accessToken);
-  String channelName = 'downloadOfflineRegion_${region.id}';
+if (onEvent != null) {
+
   EventChannel(channelName).receiveBroadcastStream().handleError((error) {
     if (error is PlatformException) {
       onEvent(Error(error));
@@ -100,4 +96,7 @@ void downloadOfflineRegionStream(
     }
     onEvent(status ?? (throw 'Invalid event status ${jsonData['status']}'));
   });
+}
+
+  return result;
 }
