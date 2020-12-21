@@ -86,10 +86,11 @@ public class OfflineRegionData {
         OfflineRegionDefinition definition = region.getDefinition();
         byte[] metadataBytes = region.getMetadata();
 
-        Map<String, Object> metadata = new HashMap<>();
+        Map<String, Object> metadata = null;
         if (metadataBytes != null) {
-            metadata.putAll(new Gson().fromJson(new String(metadataBytes), metadata.getClass()));
+            metadata = new Gson().fromJson(new String(metadataBytes), HashMap.class);
         }
+        metadata = (metadata == null) ? new HashMap() : metadata;
 
         return new OfflineRegionData(
                 region.getID(),

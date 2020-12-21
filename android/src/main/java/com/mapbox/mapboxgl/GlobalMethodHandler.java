@@ -1,5 +1,6 @@
 package com.mapbox.mapboxgl;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -42,13 +43,13 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 result.success(null);
                 break;
             case "downloadOfflineRegion":
-                //Get download region arguments from caller
+                // Get download region arguments from caller
                 OfflineRegionData regionData = new Gson().fromJson(methodCall.argument("region").toString(), OfflineRegionData.class);
-                //Prepare channel
+                // Prepare channel
                 String channelName = methodCall.argument("channelName");
                 OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(registrar.messenger(), channelName);
 
-                //Start downloading
+                // Start downloading
                 OfflineManagerUtils.downloadRegion(result, context, regionData, channelHandler);
                 break;
             case "getListOfRegions":

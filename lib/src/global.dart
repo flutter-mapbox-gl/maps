@@ -43,7 +43,8 @@ Future<dynamic> downloadOfflineRegion(
   String accessToken,
   Function(DownloadRegionStatus event) onEvent,
 }) {
-  String channelName = 'downloadOfflineRegion_${DateTime.now().microsecondsSinceEpoch}';
+  String channelName =
+      'downloadOfflineRegion_${DateTime.now().microsecondsSinceEpoch}';
 
   final result =
       _globalChannel.invokeMethod('downloadOfflineRegion', <String, dynamic>{
@@ -52,51 +53,50 @@ Future<dynamic> downloadOfflineRegion(
     'region': json.encode(region._toJson())
   });
 
-if (onEvent != null) {
+  if (onEvent != null) {
+    EventChannel(channelName).receiveBroadcastStream().handleError((error) {
+      if (error is PlatformException) {
+        onEvent(Error(error));
+        return Error(error);
+      }
+      var unknownError = Error(
+        PlatformException(
+          code: 'UnknowException',
+          message:
+              'This error is unhandled by plugin. Please contact us if needed.',
+          details: error,
+        ),
+      );
+      onEvent(unknownError);
+      return unknownError;
+    }).listen((data) {
+      final Map<String, dynamic> jsonData = json.decode(data);
+      DownloadRegionStatus status;
+      switch (jsonData['status']) {
+        case 'start':
+          status = InProgress(0.0);
+          break;
+        case 'progress':
+          final dynamic value = jsonData['progress'];
+          double progress = 0.0;
 
-  EventChannel(channelName).receiveBroadcastStream().handleError((error) {
-    if (error is PlatformException) {
-      onEvent(Error(error));
-      return Error(error);
-    }
-    var unknownError = Error(
-      PlatformException(
-        code: 'UnknowException',
-        message:
-            'This error is unhandled by plugin. Please contact us if needed.',
-        details: error,
-      ),
-    );
-    onEvent(unknownError);
-    return unknownError;
-  }).listen((data) {
-    final Map<String, dynamic> jsonData = json.decode(data);
-    DownloadRegionStatus status;
-    switch (jsonData['status']) {
-      case 'start':
-        status = InProgress(0.0);
-        break;
-      case 'progress':
-        final dynamic value = jsonData['progress'];
-        double progress = 0.0;
+          if (value is int) {
+            progress = value.toDouble();
+          }
 
-        if (value is int) {
-          progress = value.toDouble();
-        }
+          if (value is double) {
+            progress = value;
+          }
 
-        if (value is double) {
-          progress = value;
-        }
-
-        status = InProgress(progress);
-        break;
-      case 'success':
-        status = Success();
-        break;
-    }
-    onEvent(status ?? (throw 'Invalid event status ${jsonData['status']}'));
-  });
-}
+          status = InProgress(progress);
+          break;
+        case 'success':
+          status = Success();
+          break;
+      }
+      onEvent(status ?? (throw 'Invalid event status ${jsonData['status']}'));
+    });
+  }
 
   return result;
 }
