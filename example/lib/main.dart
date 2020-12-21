@@ -33,7 +33,8 @@ final List<ExamplePage> _allPages = <ExamplePage>[
 ];
 
 class MapsDemo extends StatelessWidget {
-  static const String ACCESS_TOKEN = "";
+  static const String ACCESS_TOKEN =
+      "pk.eyJ1IjoiamdyYW5kY2hhdmluIiwiYSI6ImNqbWpmNHNobDBmM2EzcG56cnZ0d2t5OHUifQ.dTywOBGhAeBeH3UgDVBEjQ";
 
   void _pushPage(BuildContext context, ExamplePage page) async {
     if (!kIsWeb) {

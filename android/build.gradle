@@ -37,10 +37,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     dependencies {
-        implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:9.1.0" // CUSTOM
-        implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.8.0"
-        implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-localization-v9:0.12.0"
-        implementation 'com.mapbox.mapboxsdk:mapbox-sdk-turf:5.5.0'
+        implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.5.0'
+        implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.9.0'
+        implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-localization-v9:0.12.0'
+        implementation 'com.mapbox.mapboxsdk:mapbox-sdk-turf:5.6.0'
     }
     compileOptions {
         sourceCompatibility 1.8

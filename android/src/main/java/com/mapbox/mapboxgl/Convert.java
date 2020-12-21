@@ -6,6 +6,7 @@ package com.mapbox.mapboxgl;
 
 import android.graphics.Point;
 
+import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -75,8 +76,8 @@ class Convert {
             case "newLatLng":
                 return CameraUpdateFactory.newLatLng(toLatLng(data.get(1)));
             case "newLatLngBounds":
-                return CameraUpdateFactory.newLatLngBounds(
-                        toLatLngBounds(data.get(1)), toPixels(data.get(2), density));
+                return CameraUpdateFactory.newLatLngBounds(toLatLngBounds(data.get(1)), toPixels(data.get(2), density),
+                        toPixels(data.get(3), density), toPixels(data.get(4), density), toPixels(data.get(5), density));
             case "newLatLngZoom":
                 return CameraUpdateFactory.newLatLngZoom(toLatLng(data.get(1)), toFloat(data.get(2)));
             case "scrollBy":
@@ -138,7 +139,7 @@ class Convert {
         return Arrays.asList(latLng.getLatitude(), latLng.getLongitude());
     }
 
-    static LatLng toLatLng(Object o) {
+     static LatLng toLatLng(Object o) {
         final List<?> data = toList(o);
         return new LatLng(toDouble(data.get(0)), toDouble(data.get(1)));
     }
@@ -155,7 +156,7 @@ class Convert {
         return builder.build();
     }
 
-    private static List<LatLng> toLatLngList(Object o) {
+    static List<LatLng> toLatLngList(Object o) {
         if (o == null) {
             return null;
         }
@@ -166,6 +167,31 @@ class Convert {
             latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
         }
         return latLngList;
+    }
+
+    private static List<List<LatLng>> toLatLngListList(Object o) {
+        if (o == null) {
+            return null;
+        }
+        final List<?> data = toList(o);
+        List<List<LatLng>> latLngListList = new ArrayList<>();
+        for (int i = 0; i < data.size(); i++) {
+            List<LatLng> latLngList = toLatLngList(data.get(i));
+            latLngListList.add(latLngList);
+        }
+        return latLngListList;
+    }
+
+    static Polygon interpretListLatLng(List<List<LatLng>> geometry) {
+        List<List<com.mapbox.geojson.Point>> points = new ArrayList<>(geometry.size());
+        for (List<LatLng> innerGeometry : geometry) {
+            List<com.mapbox.geojson.Point> innerPoints = new ArrayList<>(innerGeometry.size());
+            for (LatLng latLng : innerGeometry) {
+                innerPoints.add(com.mapbox.geojson.Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude()));
+            }
+            points.add(innerPoints);
+        }
+        return Polygon.fromLngLats(points);
     }
 
     private static List<?> toList(Object o) {
@@ -188,7 +214,7 @@ class Convert {
         return (int) toFractionalPixels(o, density);
     }
 
-    static Point toPoint(Object o, float density) {
+    private static Point toPoint(Object o, float density) {
         final List<?> data = toList(o);
         return new Point(toPixels(data.get(0), density), toPixels(data.get(1), density));
     }
@@ -293,6 +319,10 @@ class Convert {
         final Object iconAnchor = data.get("iconAnchor");
         if (iconAnchor != null) {
             sink.setIconAnchor(toString(iconAnchor));
+        }
+        final ArrayList fontNames = (ArrayList) data.get("fontNames");
+        if (fontNames != null) {
+            sink.setFontNames((String[]) fontNames.toArray(new String[0]));
         }
         final Object textField = data.get("textField");
         if (textField != null) {
@@ -476,8 +506,33 @@ class Convert {
             Logger.e(TAG, "SetDraggable");
             sink.setDraggable(toBoolean(draggable));
         }
-
     }
 
-
+    static void interpretFillOptions(Object o, FillOptionsSink sink) {
+        final Map<?, ?> data = toMap(o);
+        final Object fillOpacity = data.get("fillOpacity");
+        if (fillOpacity != null) {
+            sink.setFillOpacity(toFloat(fillOpacity));
+        }
+        final Object fillColor = data.get("fillColor");
+        if (fillColor != null) {
+            sink.setFillColor(toString(fillColor));
+        }
+        final Object fillOutlineColor = data.get("fillOutlineColor");
+        if (fillOutlineColor != null) {
+            sink.setFillOutlineColor(toString(fillOutlineColor));
+        }
+        final Object fillPattern = data.get("fillPattern");
+        if (fillPattern != null) {
+            sink.setFillPattern(toString(fillPattern));
+        }
+        final Object geometry = data.get("geometry");
+        if (geometry != null) {
+            sink.setGeometry(toLatLngListList(geometry));
+        }
+        final Object draggable = data.get("draggable");
+        if (draggable != null) {
+            sink.setDraggable(toBoolean(draggable));
+        }
+    }
 }

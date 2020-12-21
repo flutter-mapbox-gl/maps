@@ -10,7 +10,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 
 /** Receiver of Circle configuration options. */
 interface CircleOptionsSink {
-
+      
   void setCircleRadius(float circleRadius);
           
   void setCircleColor(String circleColor);

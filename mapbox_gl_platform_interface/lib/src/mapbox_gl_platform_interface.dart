@@ -29,6 +29,8 @@ abstract class MapboxGlPlatform {
 
   final ArgumentCallbacks<String> onCircleTappedPlatform = ArgumentCallbacks<String>();
 
+  final ArgumentCallbacks<String> onFillTappedPlatform = ArgumentCallbacks<String>();
+
   final ArgumentCallbacks<void> onCameraMoveStartedPlatform = ArgumentCallbacks<void>();
 
   final ArgumentCallbacks<CameraPosition> onCameraMovePlatform = ArgumentCallbacks<CameraPosition>();
@@ -47,6 +49,8 @@ abstract class MapboxGlPlatform {
   final ArgumentCallbacks<void> onCameraTrackingDismissedPlatform = ArgumentCallbacks<void>();
 
   final ArgumentCallbacks<void> onMapIdlePlatform = ArgumentCallbacks<void>();
+
+  final ArgumentCallbacks<UserLocation> onUserLocationUpdatedPlatform = ArgumentCallbacks<UserLocation>();
 
   Future<void> initPlatform(int id) async {
     throw UnimplementedError('initPlatform() has not been implemented.');
@@ -105,21 +109,6 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('removeSymbol() has not been implemented.');
   }
 
-  // CUSTOM
-  Future<List<Symbol>> addNeoClusterSymbols(List<SymbolOptions> options, [List<Map> data]) async {
-    throw UnimplementedError('addNeoClusterSymbols() has not been implemented.');
-  }
-
-  // CUSTOM
-  Future<void> updateNeoClusterSymbol(Symbol symbol, SymbolOptions changes) async {
-    throw UnimplementedError('updateNeoClusterSymbols() has not been implemented.');
-  }
-
-  // CUSTOM
-  Future<void> removeNeoClusterSymbols(Iterable<String> symbolsIds) async {
-    throw UnimplementedError('removeNeoClusterSymbols() has not been implemented.');
-  }
-
   Future<Line> addLine(LineOptions options, [Map data]) async {
     throw UnimplementedError('addLine() has not been implemented.');
   }
@@ -130,16 +119,6 @@ abstract class MapboxGlPlatform {
 
   Future<void> removeLine(String lineId) async {
     throw UnimplementedError('removeLine() has not been implemented.');
-  }
-
-  // CUSTOM
-  Future<void> updateNeoRanges(NeoRanges neoRange) async {
-    throw UnimplementedError('updateNeoRanges() has not been implemented.');
-  }
-
-  // CUSTOM
-  Future<void> removeNeoRanges() async {
-    throw UnimplementedError('removeNeoRanges() has not been implemented.');
   }
 
   Future<Circle> addCircle(CircleOptions options, [Map data]) async {
@@ -164,6 +143,18 @@ abstract class MapboxGlPlatform {
 
   Future<void> removeCircle(String circleId) async {
     throw UnimplementedError('removeCircle() has not been implemented.');
+  }
+
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    throw UnimplementedError('addFill() has not been implemented.');
+  }
+
+  Future<void> updateFill(Fill fill, FillOptions changes) async {
+    throw UnimplementedError('updateFill() has not been implemented.');
+  }
+
+  Future<void> removeFill(String fillId) async {
+    throw UnimplementedError('removeFill() has not been implemented.');
   }
 
   Future<List> queryRenderedFeatures(Point<double> point, List<String> layerIds, List<Object> filter) async {
@@ -204,5 +195,58 @@ abstract class MapboxGlPlatform {
 
   Future<void> setSymbolTextIgnorePlacement(bool enable) async {
     throw UnimplementedError('setSymbolTextIgnorePlacement() has not been implemented.');
+  }
+
+  Future<void> addImageSource(String name, Uint8List bytes, LatLngQuad coordinates) async {
+    throw UnimplementedError('addImageSource() has not been implemented.');
+  }
+
+  Future<void> removeImageSource(String name) async {
+    throw UnimplementedError('removeImageSource() has not been implemented.');
+  }
+
+  Future<void> addLayer(String name, String sourceId) async {
+    throw UnimplementedError('addLayer() has not been implemented.');
+  }
+
+  Future<void> removeLayer(String name) async {
+    throw UnimplementedError('removeLayer() has not been implemented.');
+  }
+
+  Future<Point> toScreenLocation(LatLng latLng) async {
+    throw UnimplementedError('toScreenLocation() has not been implemented.');
+  }
+
+  Future<LatLng> toLatLng(Point screenLocation) async {
+    throw UnimplementedError('toLatLng() has not been implemented.');
+  }
+
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async {
+    throw UnimplementedError('getMetersPerPixelAtLatitude() has not been implemented.');
+  }
+
+  // CUSTOM
+  Future<List<Symbol>> addNeoClusterSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    throw UnimplementedError('addNeoClusterSymbols() has not been implemented.');
+  }
+
+  // CUSTOM
+  Future<void> updateNeoClusterSymbol(Symbol symbol, SymbolOptions changes) async {
+    throw UnimplementedError('updateNeoClusterSymbols() has not been implemented.');
+  }
+
+  // CUSTOM
+  Future<void> removeNeoClusterSymbols(Iterable<String> symbolsIds) async {
+    throw UnimplementedError('removeNeoClusterSymbols() has not been implemented.');
+  }
+
+  // CUSTOM
+  Future<void> updateNeoRanges(NeoRanges neoRanges) async {
+    throw UnimplementedError('updateNeoRanges() has not been implemented.');
+  }
+
+  // CUSTOM
+  Future<void> removeNeoRanges() async {
+    throw UnimplementedError('removeNeoRanges() has not been implemented.');
   }
 }

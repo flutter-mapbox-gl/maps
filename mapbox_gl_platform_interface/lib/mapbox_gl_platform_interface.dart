@@ -12,10 +12,11 @@ import 'package:meta/meta.dart' show required, visibleForTesting;
 part 'src/callbacks.dart';
 part 'src/camera.dart';
 part 'src/circle.dart';
+part 'src/fill.dart';
 part 'src/line.dart';
 part 'src/location.dart';
 part 'src/mapbox_gl_platform_interface.dart';
 part 'src/method_channel_mapbox_gl.dart';
-part 'src/neo_ranges.dart'; // CUSTOM
+part 'src/neo_ranges.dart'; // Custom
 part 'src/symbol.dart';
 part 'src/ui.dart';

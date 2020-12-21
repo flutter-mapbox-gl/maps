@@ -19,6 +19,7 @@ class MoveCameraPage extends ExamplePage {
 
 class MoveCamera extends StatefulWidget {
   const MoveCamera();
+
   @override
   State createState() => MoveCameraState();
 }
@@ -43,9 +44,8 @@ class MoveCameraState extends State<MoveCamera> {
             child: MapboxMap(
               accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
-              onCameraIdle: ()=>print("onCameraIdle"),
-              initialCameraPosition:
-                  const CameraPosition(target: LatLng(0.0, 0.0)),
+              onCameraIdle: () => print("onCameraIdle"),
+              initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
             ),
           ),
         ),
@@ -87,7 +87,6 @@ class MoveCameraState extends State<MoveCamera> {
                           southwest: const LatLng(-38.483935, 113.248673),
                           northeast: const LatLng(-8.982446, 153.823821),
                         ),
-                        10.0,
                       ),
                     );
                   },

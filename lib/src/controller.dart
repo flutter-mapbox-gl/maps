@@ -9,6 +9,8 @@ typedef void OnMapLongClickCallback(Point<double> point, LatLng coordinates);
 
 typedef void OnStyleLoadedCallback();
 
+typedef void OnUserLocationUpdated(UserLocation location);
+
 typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
@@ -38,8 +40,9 @@ class MapboxMapController extends ChangeNotifier {
       this.onMapLongClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged,
-      this.onCameraIdle,
-      this.onMapIdle})
+      this.onMapIdle,
+      this.onUserLocationUpdated,
+      this.onCameraIdle})
       : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
 
@@ -51,7 +54,7 @@ class MapboxMapController extends ChangeNotifier {
     });
 
     MapboxGlPlatform.getInstance(_id).onSymbolTappedPlatform.add((symbolId) {
-      Symbol symbol = null;
+      Symbol symbol;
       if (_symbols.containsKey(symbolId)) {
         symbol = _symbols[symbolId];
       } else if (_neoClusterSymbols.containsKey(symbolId)) {
@@ -74,6 +77,13 @@ class MapboxMapController extends ChangeNotifier {
       final Circle circle = _circles[circleId];
       if (circle != null) {
         onCircleTapped(circle);
+      }
+    });
+
+    MapboxGlPlatform.getInstance(_id).onFillTappedPlatform.add((fillId) {
+      final Fill fill = _fills[fillId];
+      if (fill != null) {
+        onFillTapped(fill);
       }
     });
 
@@ -130,21 +140,25 @@ class MapboxMapController extends ChangeNotifier {
         onMapIdle();
       }
     });
+    MapboxGlPlatform.getInstance(_id).onUserLocationUpdatedPlatform.add((location) {
+      onUserLocationUpdated?.call(location);
+    });
   }
 
-  static Future<MapboxMapController> init(int id, CameraPosition initialCameraPosition,
+  static MapboxMapController init(int id, CameraPosition initialCameraPosition,
       {OnStyleLoadedCallback onStyleLoadedCallback,
       OnMapClickCallback onMapClick,
+      OnUserLocationUpdated onUserLocationUpdated,
       OnMapLongClickCallback onMapLongClick,
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
       OnCameraIdleCallback onCameraIdle,
-      OnMapIdleCallback onMapIdle}) async {
+      OnMapIdleCallback onMapIdle}) {
     assert(id != null);
-    await MapboxGlPlatform.getInstance(id).initPlatform(id);
     return MapboxMapController._(id, initialCameraPosition,
         onStyleLoadedCallback: onStyleLoadedCallback,
         onMapClick: onMapClick,
+        onUserLocationUpdated: onUserLocationUpdated,
         onMapLongClick: onMapLongClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
@@ -152,10 +166,17 @@ class MapboxMapController extends ChangeNotifier {
         onMapIdle: onMapIdle);
   }
 
+  static Future<void> initPlatform(int id) async {
+    assert(id != null);
+    await MapboxGlPlatform.getInstance(id).initPlatform(id);
+  }
+
   final OnStyleLoadedCallback onStyleLoadedCallback;
 
   final OnMapClickCallback onMapClick;
   final OnMapLongClickCallback onMapLongClick;
+
+  final OnUserLocationUpdated onUserLocationUpdated;
 
   final OnCameraTrackingDismissedCallback onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
@@ -169,6 +190,9 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Circle> onCircleTapped = ArgumentCallbacks<Circle>();
+
+  /// Callbacks to receive tap events for fills placed on this map.
+  final ArgumentCallbacks<Fill> onFillTapped = ArgumentCallbacks<Fill>();
 
   /// Callbacks to receive tap events for info windows on symbols
   final ArgumentCallbacks<Symbol> onInfoWindowTapped = ArgumentCallbacks<Symbol>();
@@ -193,9 +217,15 @@ class MapboxMapController extends ChangeNotifier {
 
   /// The current set of circles on this map.
   ///
-  /// The returned set will be a detached snapshot of the symbols collection.
+  /// The returned set will be a detached snapshot of the circles collection.
   Set<Circle> get circles => Set<Circle>.from(_circles.values);
   final Map<String, Circle> _circles = <String, Circle>{};
+
+  /// The current set of fills on this map.
+  ///
+  /// The returned set will be a detached snapshot of the fills collection.
+  Set<Fill> get fills => Set<Fill>.from(_fills.values);
+  final Map<String, Fill> _fills = <String, Fill>{};
 
   /// True if the map camera is currently moving.
   bool get isCameraMoving => _isCameraMoving;
@@ -399,59 +429,6 @@ class MapboxMapController extends ChangeNotifier {
     _symbols.removeWhere((k, s) => ids.contains(k));
   }
 
-  Future<Symbol> addNeoClusterSymbol(SymbolOptions options, [Map data]) async {
-    List<Symbol> result = await addNeoClusterSymbols([options], [data]);
-
-    return result.first;
-  }
-
-  Future<List<Symbol>> addNeoClusterSymbols(List<SymbolOptions> options, [List<Map> data]) async {
-    final List<SymbolOptions> effectiveOptions = options.map((o) => SymbolOptions.defaultOptions.copyWith(o)).toList();
-
-    final symbols = await MapboxGlPlatform.getInstance(_id).addNeoClusterSymbols(effectiveOptions, data);
-    symbols.forEach((s) => _neoClusterSymbols[s.id] = s);
-    notifyListeners();
-    return symbols;
-  }
-
-  Future<void> updateNeoClusterSymbol(Symbol symbol, SymbolOptions changes) async {
-    assert(symbol != null);
-    assert(_neoClusterSymbols[symbol.id] == symbol);
-    assert(changes != null);
-    await MapboxGlPlatform.getInstance(_id).updateNeoClusterSymbol(symbol, changes);
-    symbol.options = symbol.options.copyWith(changes);
-    notifyListeners();
-  }
-
-  Future<void> removeNeoClusterSymbol(Symbol symbol) async {
-    assert(symbol != null);
-    assert(_neoClusterSymbols[symbol.id] == symbol);
-    await _removeSymbols([symbol.id]);
-    notifyListeners();
-  }
-
-  Future<void> removeNeoClusterSymbols(Iterable<Symbol> symbols) async {
-    assert(symbols.length > 0);
-    symbols.forEach((s) {
-      assert(_neoClusterSymbols[s.id] == s);
-    });
-
-    await _removeNeoClusterSymbols(symbols.map((s) => s.id));
-    notifyListeners();
-  }
-
-  Future<void> _removeNeoClusterSymbols(Iterable<String> ids) async {
-    await MapboxGlPlatform.getInstance(_id).removeNeoClusterSymbols(ids);
-    _neoClusterSymbols.removeWhere((k, s) => ids.contains(k));
-  }
-
-  Future<void> clearNeoClusterSymbols() async {
-    assert(_neoClusterSymbols != null);
-    final List<String> symbolIds = List<String>.from(_neoClusterSymbols.keys);
-    _removeNeoClusterSymbols(symbolIds);
-    notifyListeners();
-  }
-
   /// Adds a line to the map, configured using the specified custom [options].
   ///
   /// Change listeners are notified once the line has been added on the
@@ -461,7 +438,7 @@ class MapboxMapController extends ChangeNotifier {
   /// been notified.
   Future<Line> addLine(LineOptions options, [Map data]) async {
     final LineOptions effectiveOptions = LineOptions.defaultOptions.copyWith(options);
-    final line = await MapboxGlPlatform.getInstance(_id).addLine(effectiveOptions);
+    final line = await MapboxGlPlatform.getInstance(_id).addLine(effectiveOptions, data);
     _lines[line.id] = line;
     notifyListeners();
     return line;
@@ -533,18 +510,6 @@ class MapboxMapController extends ChangeNotifier {
     _lines.remove(id);
   }
 
-  // CUSTOM
-  Future<void> updateNeoRanges(NeoRanges neoRanges) async {
-    await MapboxGlPlatform.getInstance(_id).updateNeoRanges(neoRanges);
-    return notifyListeners();
-  }
-
-  // CUSTOM
-  Future<void> removeNeoRanges() async {
-    await MapboxGlPlatform.getInstance(_id).removeNeoRanges();
-    return notifyListeners();
-  }
-
   /// Adds a circle to the map, configured using the specified custom [options].
   ///
   /// Change listeners are notified once the circle has been added on the
@@ -554,7 +519,7 @@ class MapboxMapController extends ChangeNotifier {
   /// been notified.
   Future<Circle> addCircle(CircleOptions options, [Map data]) async {
     final CircleOptions effectiveOptions = CircleOptions.defaultOptions.copyWith(options);
-    final circle = await MapboxGlPlatform.getInstance(_id).addCircle(effectiveOptions);
+    final circle = await MapboxGlPlatform.getInstance(_id).addCircle(effectiveOptions, data);
     _circles[circle.id] = circle;
     notifyListeners();
     return circle;
@@ -627,6 +592,62 @@ class MapboxMapController extends ChangeNotifier {
     _circles.remove(id);
   }
 
+  /// Adds a fill to the map, configured using the specified custom [options].
+  ///
+  /// Change listeners are notified once the fill has been added on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes with the added fill once listeners have
+  /// been notified.
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    final FillOptions effectiveOptions = FillOptions.defaultOptions.copyWith(options);
+    final fill = await MapboxGlPlatform.getInstance(_id).addFill(effectiveOptions);
+    _fills[fill.id] = fill;
+    notifyListeners();
+    return fill;
+  }
+
+  /// Updates the specified [fill] with the given [changes]. The fill must
+  /// be a current member of the [fills] set.
+  ///
+  /// Change listeners are notified once the fill has been updated on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> updateFill(Fill fill, FillOptions changes) async {
+    assert(fill != null);
+    assert(_fills[fill.id] == fill);
+    assert(changes != null);
+    await MapboxGlPlatform.getInstance(_id).updateFill(fill, changes);
+    fill.options = fill.options.copyWith(changes);
+    notifyListeners();
+  }
+
+  /// Removes the specified [fill] from the map. The fill must be a current
+  /// member of the [fills] set.
+  ///
+  /// Change listeners are notified once the fill has been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> removeFill(Fill fill) async {
+    assert(fill != null);
+    assert(_fills[fill.id] == fill);
+    await _removeFill(fill.id);
+    notifyListeners();
+  }
+
+  /// Helper method to remove a single fill from the map. Consumed by
+  /// [removeFill] and [clearFills].
+  ///
+  /// The returned [Future] completes once the fill has been removed from
+  /// [_fills].
+  Future<void> _removeFill(String id) async {
+    await MapboxGlPlatform.getInstance(_id).removeFill(id);
+
+    _fills.remove(id);
+  }
+
   Future<List> queryRenderedFeatures(Point<double> point, List<String> layerIds, List<Object> filter) async {
     return MapboxGlPlatform.getInstance(_id).queryRenderedFeatures(point, layerIds, filter);
   }
@@ -649,6 +670,78 @@ class MapboxMapController extends ChangeNotifier {
   /// This method returns the boundaries of the region currently displayed in the map.
   Future<LatLngBounds> getVisibleRegion() async {
     return MapboxGlPlatform.getInstance(_id).getVisibleRegion();
+  }
+
+  // CUSTOM
+  Future<Symbol> addNeoClusterSymbol(SymbolOptions options, [Map data]) async {
+    List<Symbol> result = await addNeoClusterSymbols([options], [data]);
+
+    return result.first;
+  }
+
+  // CUSTOM
+  Future<List<Symbol>> addNeoClusterSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+    final List<SymbolOptions> effectiveOptions = options.map((o) => SymbolOptions.defaultOptions.copyWith(o)).toList();
+
+    final symbols = await MapboxGlPlatform.getInstance(_id).addNeoClusterSymbols(effectiveOptions, data);
+    symbols.forEach((s) => _neoClusterSymbols[s.id] = s);
+    notifyListeners();
+    return symbols;
+  }
+
+  // CUSTOM
+  Future<void> updateNeoClusterSymbol(Symbol symbol, SymbolOptions changes) async {
+    assert(symbol != null);
+    assert(_neoClusterSymbols[symbol.id] == symbol);
+    assert(changes != null);
+    await MapboxGlPlatform.getInstance(_id).updateNeoClusterSymbol(symbol, changes);
+    symbol.options = symbol.options.copyWith(changes);
+    notifyListeners();
+  }
+
+  // CUSTOM
+  Future<void> removeNeoClusterSymbol(Symbol symbol) async {
+    assert(symbol != null);
+    assert(_neoClusterSymbols[symbol.id] == symbol);
+    await _removeSymbols([symbol.id]);
+    notifyListeners();
+  }
+
+  // CUSTOM
+  Future<void> removeNeoClusterSymbols(Iterable<Symbol> symbols) async {
+    assert(symbols.length > 0);
+    symbols.forEach((s) {
+      assert(_neoClusterSymbols[s.id] == s);
+    });
+
+    await _removeNeoClusterSymbols(symbols.map((s) => s.id));
+    notifyListeners();
+  }
+
+  // CUSTOM
+  Future<void> _removeNeoClusterSymbols(Iterable<String> ids) async {
+    await MapboxGlPlatform.getInstance(_id).removeNeoClusterSymbols(ids);
+    _neoClusterSymbols.removeWhere((k, s) => ids.contains(k));
+  }
+
+  // CUSTOM
+  Future<void> clearNeoClusterSymbols() async {
+    assert(_neoClusterSymbols != null);
+    final List<String> symbolIds = List<String>.from(_neoClusterSymbols.keys);
+    _removeNeoClusterSymbols(symbolIds);
+    notifyListeners();
+  }
+
+  // CUSTOM
+  Future<void> updateNeoRanges(NeoRanges neoRanges) async {
+    await MapboxGlPlatform.getInstance(_id).updateNeoRanges(neoRanges);
+    return notifyListeners();
+  }
+
+  // CUSTOM
+  Future<void> removeNeoRanges() async {
+    await MapboxGlPlatform.getInstance(_id).removeNeoRanges();
+    return notifyListeners();
   }
 
   /// Adds an image to the style currently displayed in the map, so that it can later be referred to by the provided name.
@@ -708,5 +801,46 @@ class MapboxMapController extends ChangeNotifier {
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolTextIgnorePlacement(bool enable) async {
     await MapboxGlPlatform.getInstance(_id).setSymbolTextIgnorePlacement(enable);
+  }
+
+  /// Adds an image source to the style currently displayed in the map, so that it can later be referred to by the provided name.
+  Future<void> addImageSource(String name, Uint8List bytes, LatLngQuad coordinates) {
+    return MapboxGlPlatform.getInstance(_id).addImageSource(name, bytes, coordinates);
+  }
+
+  /// Removes previously added image source by name
+  Future<void> removeImageSource(String name) {
+    return MapboxGlPlatform.getInstance(_id).removeImageSource(name);
+  }
+
+  /// Adds layer with name
+  Future<void> addLayer(String name, String sourceId) {
+    return MapboxGlPlatform.getInstance(_id).addLayer(name, sourceId);
+  }
+
+  /// Removes layer by name
+  Future<void> removeLayer(String name) {
+    return MapboxGlPlatform.getInstance(_id).removeLayer(name);
+  }
+
+  /// Returns the point on the screen that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
+  ///
+  /// Note: The resulting x and y coordinates are rounded to [int] on web, on other platforms they may differ very slightly (in the range of about 10^-10) from the actual nearest screen coordinate.
+  /// You therefore might want to round them appropriately, depending on your use case.
+  ///
+  /// Returns null if [latLng] is not currently visible on the map.
+  Future<Point> toScreenLocation(LatLng latLng) async {
+    return MapboxGlPlatform.getInstance(_id).toScreenLocation(latLng);
+  }
+
+  /// Returns the geographic location (as [LatLng]) that corresponds to a point on the screen. The screen location is specified in screen pixels (not display pixels) relative to the top left of the map (not the top left of the whole screen).
+  Future<LatLng> toLatLng(Point screenLocation) async {
+    return MapboxGlPlatform.getInstance(_id).toLatLng(screenLocation);
+  }
+
+  /// Returns the distance spanned by one pixel at the specified [latitude] and current zoom level.
+  /// The distance between pixels decreases as the latitude approaches the poles. This relationship parallels the relationship between longitudinal coordinates at different latitudes.
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async {
+    return MapboxGlPlatform.getInstance(_id).getMetersPerPixelAtLatitude(latitude);
   }
 }

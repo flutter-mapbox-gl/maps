@@ -18,6 +18,7 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
     show
         LatLng,
         LatLngBounds,
+        LatLngQuad,
         CameraPosition,
         CameraUpdate,
         ArgumentCallbacks,
@@ -33,10 +34,11 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         CircleOptions,
         Line,
         LineOptions,
-        NeoRanges,
-        NeoRangeOptions; // CUSTOM
+        Fill,
+        FillOptions,
+        NeoRanges, // Custom
+        NeoRangeOptions; // Custom
 
-part 'src/bitmap.dart';
 part 'src/controller.dart';
 part 'src/global.dart';
 part 'src/mapbox_map.dart';

@@ -9,8 +9,7 @@ import 'main.dart';
 import 'page.dart';
 
 class AnimateCameraPage extends ExamplePage {
-  AnimateCameraPage()
-      : super(const Icon(Icons.map), 'Camera control, animated');
+  AnimateCameraPage() : super(const Icon(Icons.map), 'Camera control, animated');
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +19,7 @@ class AnimateCameraPage extends ExamplePage {
 
 class AnimateCamera extends StatefulWidget {
   const AnimateCamera();
+
   @override
   State createState() => AnimateCameraState();
 }
@@ -44,8 +44,7 @@ class AnimateCameraState extends State<AnimateCamera> {
             child: MapboxMap(
               accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
-              initialCameraPosition:
-                  const CameraPosition(target: LatLng(0.0, 0.0)),
+              initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
             ),
           ),
         ),
@@ -56,26 +55,30 @@ class AnimateCameraState extends State<AnimateCamera> {
               children: <Widget>[
                 FlatButton(
                   onPressed: () {
-                    mapController.animateCamera(
-                      CameraUpdate.newCameraPosition(
-                        const CameraPosition(
-                          bearing: 270.0,
-                          target: LatLng(51.5160895, -0.1294527),
-                          tilt: 30.0,
-                          zoom: 17.0,
-                        ),
-                      ),
-                    ).then((result)=>print("mapController.animateCamera() returned $result"));
+                    mapController
+                        .animateCamera(
+                          CameraUpdate.newCameraPosition(
+                            const CameraPosition(
+                              bearing: 270.0,
+                              target: LatLng(51.5160895, -0.1294527),
+                              tilt: 30.0,
+                              zoom: 17.0,
+                            ),
+                          ),
+                        )
+                        .then((result) => print("mapController.animateCamera() returned $result"));
                   },
                   child: const Text('newCameraPosition'),
                 ),
                 FlatButton(
                   onPressed: () {
-                    mapController.animateCamera(
-                      CameraUpdate.newLatLng(
-                        const LatLng(56.1725505, 10.1850512),
-                      ),
-                    ).then((result)=>print("mapController.animateCamera() returned $result"));
+                    mapController
+                        .animateCamera(
+                          CameraUpdate.newLatLng(
+                            const LatLng(56.1725505, 10.1850512),
+                          ),
+                        )
+                        .then((result) => print("mapController.animateCamera() returned $result"));
                   },
                   child: const Text('newLatLng'),
                 ),
@@ -87,7 +90,6 @@ class AnimateCameraState extends State<AnimateCamera> {
                           southwest: const LatLng(-38.483935, 113.248673),
                           northeast: const LatLng(-8.982446, 153.823821),
                         ),
-                        10.0,
                       ),
                     );
                   },

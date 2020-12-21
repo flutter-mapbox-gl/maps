@@ -14,20 +14,18 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-
-import androidx.annotation.NonNull;
-
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -39,51 +37,60 @@ import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.telemetry.TelemetryEnabler;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.LineString;
-import com.mapbox.geojson.Point;
-import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
-
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.geometry.LatLngQuad;
 import com.mapbox.mapboxsdk.geometry.VisibleRegion;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
-import com.mapbox.mapboxsdk.maps.Projection;
-import com.mapbox.mapboxsdk.offline.OfflineManager;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.plugins.annotation.Annotation;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
+import com.mapbox.mapboxsdk.plugins.annotation.Fill;
+import com.mapbox.mapboxsdk.plugins.annotation.FillManager;
+import com.mapbox.mapboxsdk.plugins.annotation.Line;
+import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
-import com.mapbox.mapboxsdk.plugins.annotation.Line;
-import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
-import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
+import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
+import com.mapbox.mapboxsdk.style.layers.FillLayer;
+import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.RasterLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.mapboxsdk.style.sources.ImageSource;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.platform.PlatformView;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.mapbox.mapboxgl.Convert.toInt;
 import static com.mapbox.mapboxgl.Convert.toMap;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.CREATED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.DESTROYED;
@@ -92,27 +99,15 @@ import static com.mapbox.mapboxgl.MapboxMapsPlugin.RESUMED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STARTED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.STOPPED;
 import static com.mapbox.mapboxgl.NeoCircleBuilder.createNeoCircleFeature;
-import static com.mapbox.mapboxgl.NeoCircleBuilder.getTurfPolygon;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillOpacity;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillOutlineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
-import static com.mapbox.turf.TurfConstants.UNIT_KILOMETERS;
-
-import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
-import com.mapbox.mapboxsdk.style.layers.CircleLayer;
-import com.mapbox.mapboxsdk.style.layers.FillLayer;
-import com.mapbox.mapboxsdk.style.layers.Layer;
-import com.mapbox.mapboxsdk.style.layers.LineLayer;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.turf.TurfMeta;
 
 /**
  * Controller of a single MapboxMaps MapView instance.
@@ -127,11 +122,12 @@ final class MapboxMapController
         MapboxMap.OnMapLongClickListener,
         MapboxMapOptionsSink,
         MethodChannel.MethodCallHandler,
-        com.mapbox.mapboxsdk.maps.OnMapReadyCallback,
+        OnMapReadyCallback,
         OnCameraTrackingChangedListener,
         OnSymbolTappedListener,
         OnLineTappedListener,
         OnCircleTappedListener,
+        OnFillTappedListener,
         PlatformView {
     private static final String TAG = "MapboxMapController";
     private final int id;
@@ -144,10 +140,12 @@ final class MapboxMapController
     private final Map<String, SymbolController> neoClusterSymbols;
     private final Map<String, LineController> lines;
     private final Map<String, CircleController> circles;
+    private final Map<String, FillController> fills;
     private SymbolManager symbolManager;
     private SymbolManager neoClusterSymbolManager;
     private LineManager lineManager;
     private CircleManager circleManager;
+    private FillManager fillManager;
     private boolean trackCameraPosition = false;
     private boolean myLocationEnabled = false;
     private int myLocationTrackingMode = 0;
@@ -160,6 +158,7 @@ final class MapboxMapController
     private final String styleStringInitial;
     private LocationComponent locationComponent = null;
     private LocationEngine locationEngine = null;
+    private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
     private LocalizationPlugin localizationPlugin;
     private Style style;
 
@@ -182,6 +181,7 @@ final class MapboxMapController
         this.neoClusterSymbols = new HashMap<>();
         this.lines = new HashMap<>();
         this.circles = new HashMap<>();
+        this.fills = new HashMap<>();
         this.density = context.getResources().getDisplayMetrics().density;
         methodChannel =
                 new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_maps_" + id);
@@ -206,7 +206,6 @@ final class MapboxMapController
         return null;
     }
 
-    @Override
     public View getView() {
         return mapView;
     }
@@ -313,9 +312,28 @@ final class MapboxMapController
     private CircleController circle(String circleId) {
         final CircleController circle = circles.get(circleId);
         if (circle == null) {
-            throw new IllegalArgumentException("Unknown symbol: " + circleId);
+            throw new IllegalArgumentException("Unknown circle: " + circleId);
         }
         return circle;
+    }
+
+    private FillBuilder newFillBuilder() {
+        return new FillBuilder(fillManager);
+    }
+
+    private void removeFill(String fillId) {
+        final FillController fillController = fills.remove(fillId);
+        if (fillController != null) {
+            fillController.remove(fillManager);
+        }
+    }
+
+    private FillController fill(String fillId) {
+        final FillController fill = fills.get(fillId);
+        if (fill == null) {
+            throw new IllegalArgumentException("Unknown fill: " + fillId);
+        }
+        return fill;
     }
 
     @Override
@@ -385,15 +403,16 @@ final class MapboxMapController
 
             style.addLayer(rangesLayer);
             style.addLayer(lineLayer);
-            // CUSTOM PART END
 
             enableLineManager(style);
             enableSymbolManager(style);
             enableCircleManager(style);
+            enableFillManager(style);
             enableNeoClusterSymbolManager(style);
 
-            // CUSTOM PART BEGIN
             Layer symbolLayer = style.getLayer(symbolManager.getLayerId());
+
+//            if (symbolLayer != null) {
             symbolLayer.setProperties(
                     PropertyFactory.iconSize(Expression.interpolate(
                             exponential(1.4), zoom(),
@@ -405,14 +424,16 @@ final class MapboxMapController
                             literal(15.5f), literal(0.0f),
                             literal(15.6f), literal(10),
                             literal(20.0f), literal(15))),
-                    PropertyFactory.textFont(Expression.literal(new String[]{"Averta Semibold"}))
+                    PropertyFactory.textFont(literal(new String[]{"Averta Semibold"}))
             );
+//            }
 
             Layer neoClusterSymbolLayer = style.getLayer(neoClusterSymbolManager.getLayerId());
             neoClusterSymbolLayer.setProperties(
-                    PropertyFactory.textFont(Expression.literal(new String[]{"Averta Bold"}))
+                    PropertyFactory.textFont(literal(new String[]{"Averta Bold"}))
             );
             // CUSTOM PART END
+
 
             if (myLocationEnabled) {
                 enableLocationComponent(style);
@@ -421,7 +442,6 @@ final class MapboxMapController
             // is fixed with 0.6.0 of annotations plugin
             mapboxMap.addOnMapClickListener(MapboxMapController.this);
             mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
-
             localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
             methodChannel.invokeMethod("map#onStyleLoaded", null);
@@ -434,7 +454,6 @@ final class MapboxMapController
             locationEngine = LocationEngineProvider.getBestLocationEngine(context);
             LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(context)
                     .trackingGesturesManagement(true)
-                    .accuracyAlpha(.0f)
                     .build();
             locationComponent = mapboxMap.getLocationComponent();
             locationComponent.activateLocationComponent(context, style, locationComponentOptions);
@@ -452,6 +471,25 @@ final class MapboxMapController
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void onUserLocationUpdate(Location location) {
+        if (location == null) {
+            return;
+        }
+
+        final Map<String, Object> userLocation = new HashMap<>(6);
+        userLocation.put("position", new double[]{location.getLatitude(), location.getLongitude()});
+        userLocation.put("altitude", location.getAltitude());
+        userLocation.put("bearing", location.getBearing());
+        userLocation.put("horizontalAccuracy", location.getAccuracy());
+        userLocation.put("verticalAccuracy", (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ? location.getVerticalAccuracyMeters() : null);
+        userLocation.put("timestamp", location.getTime());
+
+        final Map<String, Object> arguments = new HashMap<>(1);
+        arguments.put("userLocation", userLocation);
+        methodChannel.invokeMethod("map#onUserLocationUpdated", arguments);
+    }
+
     private void enableSymbolManager(@NonNull Style style) {
         if (symbolManager == null) {
             symbolManager = new SymbolManager(mapView, mapboxMap, style);
@@ -460,17 +498,6 @@ final class MapboxMapController
             symbolManager.setTextAllowOverlap(true);
             symbolManager.setTextIgnorePlacement(true);
             symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-        }
-    }
-
-    private void enableNeoClusterSymbolManager(@NonNull Style style) {
-        if (neoClusterSymbolManager == null) {
-            neoClusterSymbolManager = new SymbolManager(mapView, mapboxMap, style);
-            neoClusterSymbolManager.setIconAllowOverlap(true);
-            neoClusterSymbolManager.setIconIgnorePlacement(true);
-            neoClusterSymbolManager.setTextAllowOverlap(true);
-            neoClusterSymbolManager.setTextIgnorePlacement(true);
-            neoClusterSymbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
         }
     }
 
@@ -486,6 +513,24 @@ final class MapboxMapController
         if (circleManager == null) {
             circleManager = new CircleManager(mapView, mapboxMap, style);
             circleManager.addClickListener(MapboxMapController.this::onAnnotationClick);
+        }
+    }
+
+    private void enableFillManager(@NonNull Style style) {
+        if (fillManager == null) {
+            fillManager = new FillManager(mapView, mapboxMap, style);
+            fillManager.addClickListener(MapboxMapController.this::onAnnotationClick);
+        }
+    }
+
+    private void enableNeoClusterSymbolManager(@NonNull Style style) {
+        if (neoClusterSymbolManager == null) {
+            neoClusterSymbolManager = new SymbolManager(mapView, mapboxMap, style);
+            neoClusterSymbolManager.setIconAllowOverlap(true);
+            neoClusterSymbolManager.setIconIgnorePlacement(true);
+            neoClusterSymbolManager.setTextAllowOverlap(true);
+            neoClusterSymbolManager.setTextIgnorePlacement(true);
+            neoClusterSymbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
         }
     }
 
@@ -536,6 +581,29 @@ final class MapboxMapController
                 VisibleRegion visibleRegion = mapboxMap.getProjection().getVisibleRegion();
                 reply.put("sw", Arrays.asList(visibleRegion.nearLeft.getLatitude(), visibleRegion.nearLeft.getLongitude()));
                 reply.put("ne", Arrays.asList(visibleRegion.farRight.getLatitude(), visibleRegion.farRight.getLongitude()));
+                result.success(reply);
+                break;
+            }
+            case "map#toScreenLocation": {
+                Map<String, Object> reply = new HashMap<>();
+                PointF pointf = mapboxMap.getProjection().toScreenLocation(new LatLng(call.argument("latitude"), call.argument("longitude")));
+                reply.put("x", pointf.x);
+                reply.put("y", pointf.y);
+                result.success(reply);
+                break;
+            }
+            case "map#toLatLng": {
+                Map<String, Object> reply = new HashMap<>();
+                LatLng latlng = mapboxMap.getProjection().fromScreenLocation(new PointF(((Double) call.argument("x")).floatValue(), ((Double) call.argument("y")).floatValue()));
+                reply.put("latitude", latlng.getLatitude());
+                reply.put("longitude", latlng.getLongitude());
+                result.success(reply);
+                break;
+            }
+            case "map#getMetersPerPixelAtLatitude": {
+                Map<String, Object> reply = new HashMap<>();
+                Double retVal = mapboxMap.getProjection().getMetersPerPixelAtLatitude((Double) call.argument("latitude"));
+                reply.put("metersperpixel", retVal);
                 result.success(reply);
                 break;
             }
@@ -652,6 +720,57 @@ final class MapboxMapController
                 });
                 break;
             }
+            // CUSTOM PART BEGIN
+            case "neoClusterSymbols#addAll": {
+                List<String> newSymbolIds = new ArrayList<String>();
+                final List<Object> options = call.argument("options");
+                List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
+                if (options != null) {
+                    SymbolBuilder symbolBuilder;
+                    for (Object o : options) {
+                        symbolBuilder = new SymbolBuilder();
+                        Convert.interpretSymbolOptions(o, symbolBuilder);
+                        symbolOptionsList.add(symbolBuilder.getSymbolOptions());
+                    }
+                    if (!symbolOptionsList.isEmpty()) {
+                        List<Symbol> newSymbols = neoClusterSymbolManager.create(symbolOptionsList);
+                        String symbolId;
+                        for (Symbol symbol : newSymbols) {
+                            symbolId = String.valueOf(symbol.getId());
+                            newSymbolIds.add(symbolId);
+                            neoClusterSymbols.put(symbolId, new SymbolController(symbol, true, this));
+                        }
+                    }
+                }
+                result.success(newSymbolIds);
+                break;
+            }
+            case "neoClusterSymbols#removeAll": {
+                final ArrayList<String> symbolIds = call.argument("symbols");
+                SymbolController symbolController;
+
+                List<Symbol> symbolList = new ArrayList<Symbol>();
+                for (String symbolId : symbolIds) {
+                    symbolController = neoClusterSymbols.remove(symbolId);
+                    if (symbolController != null) {
+                        symbolList.add(symbolController.getSymbol());
+                    }
+                }
+                if (!symbolList.isEmpty()) {
+                    neoClusterSymbolManager.delete(symbolList);
+                }
+                result.success(null);
+                break;
+            }
+            case "neoClusterSymbol#update": {
+                final String symbolId = call.argument("symbol");
+                final SymbolController symbol = neoClusterSymbol(symbolId);
+                Convert.interpretSymbolOptions(call.argument("options"), symbol);
+                symbol.update(neoClusterSymbolManager);
+                result.success(null);
+                break;
+            }
+            // CUSTOM PART END
             case "symbols#addAll": {
                 List<String> newSymbolIds = new ArrayList<String>();
                 final List<Object> options = call.argument("options");
@@ -710,55 +829,6 @@ final class MapboxMapController
                 hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
                 result.success(hashMapLatLng);
             }
-            case "neoClusterSymbols#addAll": {
-                List<String> newSymbolIds = new ArrayList<String>();
-                final List<Object> options = call.argument("options");
-                List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
-                if (options != null) {
-                    SymbolBuilder symbolBuilder;
-                    for (Object o : options) {
-                        symbolBuilder = new SymbolBuilder();
-                        Convert.interpretSymbolOptions(o, symbolBuilder);
-                        symbolOptionsList.add(symbolBuilder.getSymbolOptions());
-                    }
-                    if (!symbolOptionsList.isEmpty()) {
-                        List<Symbol> newSymbols = neoClusterSymbolManager.create(symbolOptionsList);
-                        String symbolId;
-                        for (Symbol symbol : newSymbols) {
-                            symbolId = String.valueOf(symbol.getId());
-                            newSymbolIds.add(symbolId);
-                            neoClusterSymbols.put(symbolId, new SymbolController(symbol, true, this));
-                        }
-                    }
-                }
-                result.success(newSymbolIds);
-                break;
-            }
-            case "neoClusterSymbols#removeAll": {
-                final ArrayList<String> symbolIds = call.argument("symbols");
-                SymbolController symbolController;
-
-                List<Symbol> symbolList = new ArrayList<Symbol>();
-                for (String symbolId : symbolIds) {
-                    symbolController = neoClusterSymbols.remove(symbolId);
-                    if (symbolController != null) {
-                        symbolList.add(symbolController.getSymbol());
-                    }
-                }
-                if (!symbolList.isEmpty()) {
-                    neoClusterSymbolManager.delete(symbolList);
-                }
-                result.success(null);
-                break;
-            }
-            case "neoClusterSymbol#update": {
-                final String symbolId = call.argument("symbol");
-                final SymbolController symbol = neoClusterSymbol(symbolId);
-                Convert.interpretSymbolOptions(call.argument("options"), symbol);
-                symbol.update(neoClusterSymbolManager);
-                result.success(null);
-                break;
-            }
             case "symbolManager#iconAllowOverlap": {
                 final Boolean value = call.argument("iconAllowOverlap");
                 symbolManager.setIconAllowOverlap(value);
@@ -785,7 +855,6 @@ final class MapboxMapController
             }
             // CUSTOM PART BEGIN
             case "neoRanges#update": {
-
                 Object visionRangeOptionsO = call.argument("vision_range_options");
                 final Map<?, ?> visionRangeOptions = toMap(visionRangeOptionsO);
 
@@ -799,9 +868,18 @@ final class MapboxMapController
 
                 final int circlePrecision = Convert.toInt(call.argument("circle_precision"));
 
-                Feature actionRangeFeature = createNeoCircleFeature(actionRangeOptions, latLng, circlePrecision);
-                Feature adRangeFeature = createNeoCircleFeature(adRangeOptions, latLng, circlePrecision);
-                Feature visionRangeFeature = createNeoCircleFeature(visionRangeOptions, latLng, circlePrecision);
+                Feature actionRangeFeature = null;
+                if (actionRangeOptions != null) {
+                    actionRangeFeature = createNeoCircleFeature(actionRangeOptions, latLng, circlePrecision);
+                }
+                Feature adRangeFeature = null;
+                if (adRangeOptions != null) {
+                    adRangeFeature = createNeoCircleFeature(adRangeOptions, latLng, circlePrecision);
+                }
+                Feature visionRangeFeature = null;
+                if (visionRangeOptions != null) {
+                    visionRangeFeature = createNeoCircleFeature(visionRangeOptions, latLng, circlePrecision);
+                }
 
                 List<Feature> featureList = Arrays.asList(actionRangeFeature, adRangeFeature, visionRangeFeature);
 
@@ -896,6 +974,30 @@ final class MapboxMapController
                 result.success(hashMapLatLng);
                 break;
             }
+            case "fill#add": {
+                final FillBuilder fillBuilder = newFillBuilder();
+                Convert.interpretFillOptions(call.argument("options"), fillBuilder);
+                final Fill fill = fillBuilder.build();
+                final String fillId = String.valueOf(fill.getId());
+                fills.put(fillId, new FillController(fill, true, this));
+                result.success(fillId);
+                break;
+            }
+            case "fill#remove": {
+                final String fillId = call.argument("fill");
+                removeFill(fillId);
+                result.success(null);
+                break;
+            }
+            case "fill#update": {
+                Log.e(TAG, "update fill");
+                final String fillId = call.argument("fill");
+                final FillController fill = fill(fillId);
+                Convert.interpretFillOptions(call.argument("options"), fill);
+                fill.update(fillManager);
+                result.success(null);
+                break;
+            }
             case "locationComponent#getLastLocation": {
                 Log.e(TAG, "location component: getLastLocation");
                 if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
@@ -927,6 +1029,39 @@ final class MapboxMapController
                     result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
                 }
                 style.addImage(call.argument("name"), BitmapFactory.decodeByteArray(call.argument("bytes"), 0, call.argument("length")), call.argument("sdf"));
+                result.success(null);
+                break;
+            }
+            case "style#addImageSource": {
+                if (style == null) {
+                    result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+                }
+                List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"));
+                style.addSource(new ImageSource(call.argument("name"), new LatLngQuad(coordinates.get(0), coordinates.get(1), coordinates.get(2), coordinates.get(3)), BitmapFactory.decodeByteArray(call.argument("bytes"), 0, call.argument("length"))));
+                result.success(null);
+                break;
+            }
+            case "style#removeImageSource": {
+                if (style == null) {
+                    result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+                }
+                style.removeSource((String) call.argument("name"));
+                result.success(null);
+                break;
+            }
+            case "style#addLayer": {
+                if (style == null) {
+                    result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+                }
+                style.addLayer(new RasterLayer(call.argument("name"), call.argument("sourceId")));
+                result.success(null);
+                break;
+            }
+            case "style#removeLayer": {
+                if (style == null) {
+                    result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+                }
+                style.removeLayer((String) call.argument("name"));
                 result.success(null);
                 break;
             }
@@ -972,18 +1107,12 @@ final class MapboxMapController
     }
 
     @Override
-    public void onAnnotationClick(Annotation annotation) {
+    public boolean onAnnotationClick(Annotation annotation) {
         if (annotation instanceof Symbol) {
-            SymbolController symbolController = null;
-
-            if (symbols.containsKey(String.valueOf(annotation.getId()))) {
-                symbolController = symbols.get(String.valueOf(annotation.getId()));
-            } else if (neoClusterSymbols.containsKey(String.valueOf(annotation.getId()))) {
-                symbolController = neoClusterSymbols.get(String.valueOf(annotation.getId()));
-            }
-
+            final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
             if (symbolController != null) {
                 symbolController.onTap();
+                return true;
             }
         }
 
@@ -991,6 +1120,7 @@ final class MapboxMapController
             final LineController lineController = lines.get(String.valueOf(annotation.getId()));
             if (lineController != null) {
                 lineController.onTap();
+                return true;
             }
         }
 
@@ -998,8 +1128,17 @@ final class MapboxMapController
             final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
             if (circleController != null) {
                 circleController.onTap();
+                return true;
             }
         }
+        if (annotation instanceof Fill) {
+            final FillController fillController = fills.get(String.valueOf(annotation.getId()));
+            if (fillController != null) {
+                fillController.onTap();
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -1021,6 +1160,13 @@ final class MapboxMapController
         final Map<String, Object> arguments = new HashMap<>(2);
         arguments.put("circle", String.valueOf(circle.getId()));
         methodChannel.invokeMethod("circle#onTap", arguments);
+    }
+
+    @Override
+    public void onFillTapped(Fill fill) {
+        final Map<String, Object> arguments = new HashMap<>(2);
+        arguments.put("fill", String.valueOf(fill.getId()));
+        methodChannel.invokeMethod("fill#onTap", arguments);
     }
 
     @Override
@@ -1049,7 +1195,7 @@ final class MapboxMapController
 
     @Override
     public void dispose() {
-        if (disposed || registrar.activity() == null) { // CUSTOM: registrar.activity() == null https://github.com/tobrun/flutter-mapbox-gl/issues/265
+        if (disposed || registrar.activity() == null) {
             return;
         }
         disposed = true;
@@ -1065,7 +1211,10 @@ final class MapboxMapController
         if (circleManager != null) {
             circleManager.onDestroy();
         }
-
+        if (fillManager != null) {
+            fillManager.onDestroy();
+        }
+        stopListeningForLocationUpdates();
         mapView.onDestroy();
         registrar.activity().getApplication().unregisterActivityLifecycleCallbacks(this);
     }
@@ -1092,6 +1241,9 @@ final class MapboxMapController
             return;
         }
         mapView.onResume();
+        if (myLocationEnabled) {
+            startListeningForLocationUpdates();
+        }
     }
 
     @Override
@@ -1100,6 +1252,7 @@ final class MapboxMapController
             return;
         }
         mapView.onPause();
+        stopListeningForLocationUpdates();
     }
 
     @Override
@@ -1255,11 +1408,41 @@ final class MapboxMapController
     }
 
     private void updateMyLocationEnabled() {
-        if (this.locationComponent == null && myLocationEnabled == true) {
+        if (this.locationComponent == null && myLocationEnabled) {
             enableLocationComponent(mapboxMap.getStyle());
         }
 
+        if (myLocationEnabled) {
+            startListeningForLocationUpdates();
+        } else {
+            stopListeningForLocationUpdates();
+        }
+
         locationComponent.setLocationComponentEnabled(myLocationEnabled);
+    }
+
+    private void startListeningForLocationUpdates() {
+        if (locationEngineCallback == null && locationComponent != null && locationComponent.getLocationEngine() != null) {
+            locationEngineCallback = new LocationEngineCallback<LocationEngineResult>() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void onSuccess(LocationEngineResult result) {
+                    onUserLocationUpdate(result.getLastLocation());
+                }
+
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                }
+            };
+            locationComponent.getLocationEngine().requestLocationUpdates(locationComponent.getLocationEngineRequest(), locationEngineCallback, null);
+        }
+    }
+
+    private void stopListeningForLocationUpdates() {
+        if (locationEngineCallback != null && locationComponent != null && locationComponent.getLocationEngine() != null) {
+            locationComponent.getLocationEngine().removeLocationUpdates(locationEngineCallback);
+            locationEngineCallback = null;
+        }
     }
 
     private void updateMyLocationTrackingMode() {
