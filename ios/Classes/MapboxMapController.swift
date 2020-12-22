@@ -21,6 +21,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var circleAnnotationController: MGLCircleAnnotationController?
     private var lineAnnotationController: MGLLineAnnotationController?
     private var fillAnnotationController: MGLPolygonAnnotationController?
+    private var neoClusterSymbolAnnotationController: MGLSymbolAnnotationController?
+
 
     func view() -> UIView {
         return mapView
@@ -28,7 +30,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     init(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, registrar: FlutterPluginRegistrar) {
         if let args = args as? [String: Any] {
-            if let token = args["accessToken"] as? NSString{
+            if let token = args["accessToken"] as? String{
                 MGLAccountManager.accessToken = token
             }
         }
@@ -278,11 +280,63 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(reply)
+        // CUSTOM PART BEGIN
+        case "neoClusterSymbols#addAll":
+            guard let neoClusterSymbolAnnotationController = neoClusterSymbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            
+            if let options = arguments["options"] as? [[String: Any]] {
+                var symbols: [MGLSymbolStyleAnnotation] = [];
+                for o in options {
+                    if let symbol = getSymbolForOptions(options: o)  {
+                        symbols.append(symbol)
+                    }
+                }
+                if !symbols.isEmpty {
+                    neoClusterSymbolAnnotationController.addStyleAnnotations(symbols)
+                }
+                
+                result(symbols.map { $0.identifier })
+            } else {
+                result(nil)
+            }
+        case "neoClusterSymbol#update":
+            guard let neoClusterSymbolAnnotationController = neoClusterSymbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolId = arguments["symbol"] as? String else { return }
+            
+            for symbol in neoClusterSymbolAnnotationController.styleAnnotations(){
+                if symbol.identifier == symbolId {
+                    Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol as! MGLSymbolStyleAnnotation)
+                    // Load (updated) icon image from asset if an icon name is supplied.
+                    if let options = arguments["options"] as? [String: Any],
+                       let iconImage = options["iconImage"] as? String {
+                        addIconImageToMap(iconImageName: iconImage)
+                    }
+                    neoClusterSymbolAnnotationController.updateStyleAnnotation(symbol)
+                    break;
+                }
+            }
+            result(nil)
+        case "neoClusterSymbols#removeAll":
+            guard let neoClusterSymbolAnnotationController = neoClusterSymbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIds = arguments["symbols"] as? [String] else { return }
+            var symbols: [MGLSymbolStyleAnnotation] = [];
+            
+            for symbol in neoClusterSymbolAnnotationController.styleAnnotations(){
+                if symbolIds.contains(symbol.identifier) {
+                    symbols.append(symbol as! MGLSymbolStyleAnnotation)
+                }
+            }
+            neoClusterSymbolAnnotationController.removeStyleAnnotations(symbols)
+            result(nil)
+        // CUSTOM PART END
         case "symbolManager#iconAllowOverlap":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let iconAllowOverlap = arguments["iconAllowOverlap"] as? Bool else { return }
-
+            
             symbolAnnotationController.iconAllowsOverlap = iconAllowOverlap
             result(nil)
         case "symbolManager#iconIgnorePlacement":
@@ -499,6 +553,50 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layer = self.mapView.style?.layer(withIdentifier: name) else { return }
             self.mapView.style?.removeLayer(layer)
             result(nil)
+            
+        // CUSTOM PART BEGIN
+        case "neoRanges#update":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            
+            guard let visionRangeOptions = arguments["vision_range_options"] as? [String: Any] else {return}
+            guard let adRangeOptions = arguments["ad_range_options"] as? [String: Any] else {return}
+            guard let actionRangeOptions = arguments["action_range_options"] as? [String: Any] else {return}
+            
+            guard let geometryInDouble : [Double] = arguments["geometry"] as? [Double] else {return}
+            let geometry : CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: geometryInDouble[0], longitude: geometryInDouble[1])
+            
+            guard let circlePrecision : Int = arguments["circle_precision"] as? Int else {return}
+            
+            
+            let style = mapView.style;
+            
+            
+            guard let currentSource = style?.source(withIdentifier: "neo_ranges_sources") as? MGLShapeSource else {return}
+            
+            let visionFeature = NeoCircleBuilder.createNeoCircleFeature(options: visionRangeOptions,geometry: geometry, circlePrecision: circlePrecision )
+            let adFeature =  NeoCircleBuilder.createNeoCircleFeature(options: adRangeOptions, geometry: geometry, circlePrecision: circlePrecision )
+            let actionFeature =  NeoCircleBuilder.createNeoCircleFeature(options: actionRangeOptions,geometry: geometry, circlePrecision: circlePrecision)
+            
+            var features = [MGLPolygonFeature]()
+            features.append(visionFeature)
+            features.append(adFeature)
+            features.append(actionFeature)
+            
+            currentSource.shape = MGLShapeCollectionFeature.init(shapes: features)
+            
+            result(nil)
+            
+        case "neoRanges#remove":
+            
+            let style = mapView.style;
+            guard let currentSource = style?.source(withIdentifier: "neo_ranges_sources") as? MGLShapeSource else {return}
+            
+            let features = [MGLPolygonFeature]()
+            currentSource.shape = MGLShapeCollectionFeature.init(shapes: features)
+            
+            result(nil)
+            
+        // CUSTOM PART END
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -623,6 +721,34 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             camera.pitch = initialTilt
             mapView.setCamera(camera, animated: false)
         }
+        
+        // CUSTOM PART BEGIN
+        // Create and add to the map a Source for NeoRanges with empty Features
+        let neoRangesSource = MGLShapeSource(identifier: "neo_ranges_sources", features: [MGLPolygonFeature]())
+        style.addSource(neoRangesSource)
+        
+        // Create and add to the map the NeoRanges FillLayer and LineLayer with some properties
+        let neoRangesFillLayer = MGLFillStyleLayer.init(identifier: "neo_ranges_fill_layer", source: neoRangesSource);
+        let neoRangesLineLayer = MGLLineStyleLayer.init(identifier: "neo_ranges_line_layer", source: neoRangesSource);
+        
+        neoRangesFillLayer.sourceLayerIdentifier = "neo_ranges_sources"
+        
+        let lineWidthStops = [
+            0: NSExpression(forConstantValue: 0),
+            22: NSExpression(forKeyPath: "border-width"),
+        ]
+        
+        neoRangesLineLayer.lineWidth = NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'exponential', 1.3, %@)", lineWidthStops)
+        neoRangesLineLayer.lineColor = NSExpression(forKeyPath: "border-color")
+        neoRangesLineLayer.lineOpacity = NSExpression(forKeyPath: "border-opacity")
+        
+        
+        neoRangesFillLayer.fillColor = NSExpression(forKeyPath: "fill-color")
+        neoRangesFillLayer.fillOpacity =  NSExpression(forKeyPath: "fill-opacity")
+        
+        style.addLayer(neoRangesFillLayer)
+        style.addLayer(neoRangesLineLayer)
+        // CUSTOM PART END
 
         lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
         lineAnnotationController!.annotationsInteractionEnabled = true
@@ -639,6 +765,43 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         fillAnnotationController = MGLPolygonAnnotationController(mapView: self.mapView)
         fillAnnotationController!.annotationsInteractionEnabled = true
         fillAnnotationController?.delegate = self
+        
+        // CUSTOM PART BEGIN
+        neoClusterSymbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
+        neoClusterSymbolAnnotationController!.annotationsInteractionEnabled = true
+        neoClusterSymbolAnnotationController?.delegate = self
+        neoClusterSymbolAnnotationController!.iconAllowsOverlap = true
+        neoClusterSymbolAnnotationController!.textAllowsOverlap = true
+        neoClusterSymbolAnnotationController!.iconIgnoresPlacement = true
+        
+        // It make symbols scale with zoom when no iconSize specified and add a CircleLayer for NeoRanges
+        
+        // Get symbol layer
+        let symbolLayer = symbolAnnotationController!.layer;
+        
+        // Icon scale stops
+        let iconScaleStops = [
+            0:0,
+            20:2
+        ]
+        
+        // Icon scale stops
+        let textSizeStops = [
+            0:0,
+            15.5:0,
+            15.6:10,
+            20:15
+        ]
+        
+        // Update iconScale value with an expression
+        symbolLayer.setValue(NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'exponential', 1.4, %@)", iconScaleStops), forKey: "iconScale")
+        symbolLayer.setValue(NSExpression(format: "mgl_interpolate:withCurveType:parameters:stops:($zoomLevel, 'exponential', 1.4, %@)", textSizeStops), forKey: "textFontSize")
+        symbolLayer.setValue(NSExpression(forConstantValue: ["Averta Semibold"]), forKey: "textFontNames")
+        
+        
+        let neoClusterSymbolLayer = neoClusterSymbolAnnotationController!.layer;
+        neoClusterSymbolLayer.setValue(NSExpression(forConstantValue: ["Averta Bold"]), forKey: "textFontNames")
+        // CUSTOM PART END
         
         mapReadyResult?(nil)
         if let channel = channel {
