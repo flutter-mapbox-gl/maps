@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
@@ -71,6 +72,11 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 break;
             case "getListOfRegions":
                 OfflineManagerUtils.regionsList(result, context);
+                break;
+            case "updateOfflineRegionMetadata":
+                // Get download region arguments from caller
+                Map<String, Object> metadata = (Map<String, Object>) methodCall.<Map>argument("metadata");
+                OfflineManagerUtils.updateRegionMetadata(result, context, methodCall.<Number>argument("id").longValue(), metadata);
                 break;
             case "deleteOfflineRegion":
                 OfflineManagerUtils.deleteRegion(result, context, methodCall.<Number>argument("id").longValue());
