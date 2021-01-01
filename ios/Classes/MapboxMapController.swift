@@ -187,7 +187,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let x = arguments["x"] as? Double else { return }
             guard let y = arguments["y"] as? Double else { return }
-            let screenPoint: CGPoint = CGPoint(x: y, y:y)
+            let screenPoint: CGPoint = CGPoint(x: x, y:y)
             let coordinates: CLLocationCoordinate2D = mapView.convert(screenPoint, toCoordinateFrom: mapView)
             var reply = [String: NSObject]()
             reply["latitude"] = coordinates.latitude as NSObject
