@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mapbox.mapboxgl.models.OfflineRegionData;
+import com.mapbox.mapboxsdk.net.ConnectivityReceiver;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -60,10 +61,14 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 installOfflineMapTiles(tilesDb);
                 result.success(null);
                 break;
+            case "setOffline":
+                boolean offline = methodCall.argument("offline");
+                ConnectivityReceiver.instance(context).setConnected(offline ? false : null);
+                result.success(null);
+                break;
             case "mergeOfflineRegions":
                 OfflineManagerUtils.mergeRegions(result, context, methodCall.argument("path"));
                 break;
-
             case "downloadOfflineRegion":
                 // Get download region arguments from caller
                 OfflineRegionData regionData = new Gson().fromJson(methodCall.argument("region").toString(), OfflineRegionData.class);
