@@ -785,8 +785,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     
     func mapView(_ mapView: MGLMapView, regionDidChangeAnimated animated: Bool) {
+        let arguments = trackCameraPosition ? [
+            "position": getCamera()?.toDict(mapView: mapView)
+        ] : [:];
         if let channel = channel {
-            channel.invokeMethod("camera#onIdle", arguments: []);
+            channel.invokeMethod("camera#onIdle", arguments: arguments);
         }
     }
     
