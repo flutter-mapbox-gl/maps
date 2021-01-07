@@ -6,8 +6,27 @@
 
 part of mapbox_gl_platform_interface;
 
+FillOptions translateFill(FillOptions options, LatLng newOrigin,
+    {LatLng orign}) {
+  if (options.geometry != null) {
+    if (orign == null) {
+      orign = options.geometry[0][0];
+    }
+    LatLng delta = newOrigin - orign;
+    List<List<LatLng>> newGeometry = [];
+    for (var ring in options.geometry) {
+      List<LatLng> newRing = [];
+      for (var coords in ring) {
+        newRing.add(coords + delta);
+      }
+      newGeometry.add(newRing);
+    }
+    return FillOptions(geometry: newGeometry);
+  }
+  return options;
+}
+
 class Fill {
-  @visibleForTesting
   Fill(this._id, this.options, [this._data]);
 
   /// A unique identifier for this fill.
