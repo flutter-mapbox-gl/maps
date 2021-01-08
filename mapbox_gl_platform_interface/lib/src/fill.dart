@@ -6,7 +6,6 @@
 
 part of mapbox_gl_platform_interface;
 
-/// Translates a [FillOptions] specified in [options] by [delta].
 FillOptions translateFillOptions(FillOptions options, LatLng delta) {
   if (options.geometry != null) {
     List<List<LatLng>> newGeometry = [];
