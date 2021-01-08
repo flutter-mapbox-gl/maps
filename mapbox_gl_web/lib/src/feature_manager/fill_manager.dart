@@ -24,11 +24,9 @@ class FillManager extends FeatureManager<FillOptions> {
       'type': 'fill',
       'source': sourceId,
       'paint': {
-        // 'fill-antialias': ['get', 'fillAntialias'],
         'fill-color': ['get', 'fillColor'],
         'fill-opacity': ['get', 'fillOpacity'],
         'fill-outline-color': ['get', 'fillOutlineColor'],
-        // 'fill-pattern-opacity': ['get', 'fillPatternOpacity'],
       }
     });
   }
@@ -38,7 +36,11 @@ class FillManager extends FeatureManager<FillOptions> {
     Feature oldFeature = getFeature(featureId);
     final geometry =
         Convert.featureGeometryToFillGeometry(oldFeature.geometry.coordinates);
-    update(featureId, translateFill(FillOptions(geometry: geometry), latLng));
+    update(
+        featureId,
+        translateFill(FillOptions(geometry: geometry), latLng,
+            origin: dragOrigin));
+    dragOrigin = latLng;
   }
 
   @override

@@ -6,13 +6,17 @@
 
 part of mapbox_gl_platform_interface;
 
+/// Translates a fill specified in [options] to [newOrigin]. The vector of the
+/// translation is given by [newOrigin] - [origin]. If [origin] is null, the
+/// first [LatLng] within the first ring of the geometry is selected as the
+/// origin.
 FillOptions translateFill(FillOptions options, LatLng newOrigin,
-    {LatLng orign}) {
+    {LatLng origin}) {
   if (options.geometry != null) {
-    if (orign == null) {
-      orign = options.geometry[0][0];
+    if (origin == null) {
+      origin = options.geometry[0][0];
     }
-    LatLng delta = newOrigin - orign;
+    LatLng delta = newOrigin - origin;
     List<List<LatLng>> newGeometry = [];
     for (var ring in options.geometry) {
       List<LatLng> newRing = [];
@@ -55,14 +59,13 @@ class FillOptions {
   ///
   /// By default, every non-specified field is null, meaning no desire to change
   /// fill defaults or current configuration.
-  const FillOptions({
-    this.fillOpacity,
-    this.fillColor,
-    this.fillOutlineColor,
-    this.fillPattern,
-    this.geometry,
-    this.draggable
-  });
+  const FillOptions(
+      {this.fillOpacity,
+      this.fillColor,
+      this.fillOutlineColor,
+      this.fillPattern,
+      this.geometry,
+      this.draggable});
 
   final double fillOpacity;
   final String fillColor;
@@ -100,8 +103,12 @@ class FillOptions {
     addIfPresent('fillColor', fillColor);
     addIfPresent('fillOutlineColor', fillOutlineColor);
     addIfPresent('fillPattern', fillPattern);
-    addIfPresent('geometry',
-        geometry?.map((List<LatLng> latLngList) => latLngList.map((LatLng latLng) => latLng.toJson())?.toList())?.toList());
+    addIfPresent(
+        'geometry',
+        geometry
+            ?.map((List<LatLng> latLngList) =>
+                latLngList.map((LatLng latLng) => latLng.toJson())?.toList())
+            ?.toList());
     addIfPresent('draggable', draggable);
     return json;
   }
