@@ -6,17 +6,9 @@
 
 part of mapbox_gl_platform_interface;
 
-/// Translates a fill specified in [options] to [newOrigin]. The vector of the
-/// translation is given by [newOrigin] - [origin]. If [origin] is null, the
-/// first [LatLng] within the first ring of the geometry is selected as the
-/// origin.
-FillOptions translateFill(FillOptions options, LatLng newOrigin,
-    {LatLng origin}) {
+/// Translates a [FillOptions] specified in [options] by [delta].
+FillOptions translateFillOptions(FillOptions options, LatLng delta) {
   if (options.geometry != null) {
-    if (origin == null) {
-      origin = options.geometry[0][0];
-    }
-    LatLng delta = newOrigin - origin;
     List<List<LatLng>> newGeometry = [];
     for (var ring in options.geometry) {
       List<LatLng> newRing = [];

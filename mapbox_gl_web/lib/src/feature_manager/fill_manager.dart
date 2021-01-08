@@ -38,8 +38,8 @@ class FillManager extends FeatureManager<FillOptions> {
         Convert.featureGeometryToFillGeometry(oldFeature.geometry.coordinates);
     update(
         featureId,
-        translateFill(FillOptions(geometry: geometry), latLng,
-            origin: dragOrigin));
+        translateFillOptions(
+            FillOptions(geometry: geometry), latLng - dragOrigin));
     dragOrigin = latLng;
   }
 
