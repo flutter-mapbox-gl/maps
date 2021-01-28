@@ -10,7 +10,8 @@ This Flutter plugin allows to show embedded interactive and customizable vector 
 
 - Install [Flutter](https://flutter.io/get-started/) and validate its installation with `flutter doctor`
 - Clone the repository with `git clone git@github.com:tobrun/flutter-mapbox-gl.git`
-- Add a Mapbox access token to the example app (see next section)
+- Add a public Mapbox access token to the example app (see next section)
+- Add a secret Mapbox access token for downloading the SDK
 - Connect a mobile device or start an emulator, simulator or chrome
 - Locate the id of a the device with `flutter devices`
 - Run the app with `cd flutter_mapbox/example && flutter packages get && flutter run -d {device_id}`
@@ -24,6 +25,17 @@ This project uses Mapbox vector tiles, which requires a Mapbox account and a Map
 The **recommended** way to provide your access token is through the `MapboxMap` constructor's `accessToken` parameter, which is available starting from the v0.8 release. Note that you should always use the same token throughout your entire app.
 
 An alternative method to provide access tokens that was required until the v0.7 release is described in [this wiki article](https://github.com/tobrun/flutter-mapbox-gl/wiki/Mapbox-access-tokens).
+
+### SDK Download token
+
+You must also [configure a secret access token having the Download: read
+scope][https://docs.mapbox.com/ios/maps/guides/install/]. If this configuration
+is not present, an error like the following appears during the iOS build.
+
+```
+[!] Error installing Mapbox-iOS-SDK
+curl: (22) The requested URL returned error: 401 Unauthorized
+```
 
 ## Avoid Android UnsatisfiedLinkError
 
