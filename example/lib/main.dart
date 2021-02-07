@@ -11,6 +11,7 @@ import 'package:mapbox_gl_example/offline_regions.dart';
 import 'animate_camera.dart';
 import 'full_map.dart';
 import 'line.dart';
+import 'local_style.dart';
 import 'map_ui.dart';
 import 'move_camera.dart';
 import 'page.dart';
@@ -28,6 +29,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   PlaceSymbolPage(),
   PlaceSourcePage(),
   LinePage(),
+  LocalStylePage(),
   PlaceCirclePage(),
   PlaceFillPage(),
   ScrollingMapPage(),
