@@ -12,6 +12,8 @@ import io.flutter.plugin.platform.PlatformViewFactory;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.ArrayList;
 
 public class MapboxMapFactory extends PlatformViewFactory {
 
@@ -33,6 +35,10 @@ public class MapboxMapFactory extends PlatformViewFactory {
     if (params.containsKey("initialCameraPosition")) {
       CameraPosition position = Convert.toCameraPosition(params.get("initialCameraPosition"));
       builder.setInitialCameraPosition(position);
+    }
+    if (params.containsKey("annotationOrder")) {
+      List<String> annotations = Convert.toAnnotationOrder(params.get("annotationOrder"));
+      builder.setAnnotationOrder(annotations);
     }
     return builder.build(id, context, mActivityState, mPluginRegistrar, (String) params.get("accessToken"));
   }

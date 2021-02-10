@@ -78,6 +78,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.ArrayList;
 
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.CREATED;
 import static com.mapbox.mapboxgl.MapboxMapsPlugin.DESTROYED;
@@ -140,6 +142,7 @@ final class MapboxMapController
   private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
+  private List<String> annotationOrder = new ArrayList();
 
   MapboxMapController(
     int id,
@@ -148,7 +151,8 @@ final class MapboxMapController
     PluginRegistry.Registrar registrar,
     MapboxMapOptions options,
     String accessToken,
-    String styleStringInitial) {
+    String styleStringInitial,
+    List<String> annotationOrder) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
@@ -165,6 +169,7 @@ final class MapboxMapController
       new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
     this.registrarActivityHashCode = registrar.activity().hashCode();
+    this.annotationOrder = annotationOrder;
   }
 
   @Override
@@ -337,10 +342,25 @@ final class MapboxMapController
     @Override
     public void onStyleLoaded(@NonNull Style style) {
       MapboxMapController.this.style = style;
-      enableLineManager(style);
-      enableSymbolManager(style);
-      enableCircleManager(style);
-      enableFillManager(style);
+      for(String annotationType : annotationOrder) {
+        switch (annotationType) {
+          case "AnnotationType.polygone":
+            enableFillManager(style);
+            break;
+          case "AnnotationType.line":
+            enableLineManager(style);
+            break;
+          case "AnnotationType.circle":
+            enableCircleManager(style);
+            break;
+          case "AnnotationType.symbol":
+            enableSymbolManager(style);
+            break;
+          default:
+            throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'polygone', 'line', 'circle' or 'symbol'");
+        }
+      }
+      
       if (myLocationEnabled) {
         enableLocationComponent(style);
       }
