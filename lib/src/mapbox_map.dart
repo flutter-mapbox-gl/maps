@@ -46,6 +46,7 @@ class MapboxMap extends StatefulWidget {
       AnnotationType.polygone,
     ],
   })  : assert(initialCameraPosition != null),
+        assert(annotationOrder != null),
         assert(annotationOrder.length == 4),
         super(key: key);
 
