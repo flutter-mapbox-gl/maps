@@ -4,7 +4,7 @@
 
 part of mapbox_gl;
 
-enum AnnotationType { polygone, line, circle, symbol }
+enum AnnotationType { fill, line, circle, symbol }
 
 typedef void MapCreatedCallback(MapboxMapController controller);
 
@@ -43,7 +43,7 @@ class MapboxMap extends StatefulWidget {
       AnnotationType.line,
       AnnotationType.symbol,
       AnnotationType.circle,
-      AnnotationType.polygone,
+      AnnotationType.fill,
     ],
   })  : assert(initialCameraPosition != null),
         assert(annotationOrder != null),

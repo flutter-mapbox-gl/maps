@@ -344,7 +344,7 @@ final class MapboxMapController
       MapboxMapController.this.style = style;
       for(String annotationType : annotationOrder) {
         switch (annotationType) {
-          case "AnnotationType.polygone":
+          case "AnnotationType.fill":
             enableFillManager(style);
             break;
           case "AnnotationType.line":
@@ -357,7 +357,7 @@ final class MapboxMapController
             enableSymbolManager(style);
             break;
           default:
-            throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'polygone', 'line', 'circle' or 'symbol'");
+            throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
         }
       }
       

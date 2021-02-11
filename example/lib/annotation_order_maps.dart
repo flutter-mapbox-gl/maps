@@ -56,7 +56,7 @@ class _AnnotationOrderBodyState extends State<AnnotationOrderBody> {
                         AnnotationType.line,
                         AnnotationType.symbol,
                         AnnotationType.circle,
-                        AnnotationType.polygone,
+                        AnnotationType.fill,
                       ],
                     ),
                   ),
@@ -88,7 +88,7 @@ class _AnnotationOrderBodyState extends State<AnnotationOrderBody> {
                         zoom: 5.0,
                       ),
                       annotationOrder: const [
-                        AnnotationType.polygone,
+                        AnnotationType.fill,
                         AnnotationType.line,
                         AnnotationType.symbol,
                         AnnotationType.circle,

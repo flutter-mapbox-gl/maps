@@ -672,7 +672,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
         for annotationType in annotationOrder {
             switch annotationType {
-            case "AnnotationType.polygone":
+            case "AnnotationType.fill":
                 fillAnnotationController = MGLPolygonAnnotationController(mapView: self.mapView)
                 fillAnnotationController!.annotationsInteractionEnabled = true
                 fillAnnotationController?.delegate = self
@@ -689,7 +689,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 symbolAnnotationController!.annotationsInteractionEnabled = true
                 symbolAnnotationController?.delegate = self
             default:
-                print("Error with symbol name or unexpected symbol name: \(annotationType)")  
+                print("Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'")  
             }
         }
 
