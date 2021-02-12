@@ -23,6 +23,25 @@ import io.flutter.plugin.common.MethodChannel;
 abstract class OfflineManagerUtils {
     private static final String TAG = "OfflineManagerUtils";
 
+    static void mergeRegions(MethodChannel.Result result, Context context, String path) {
+        OfflineManager.getInstance(context).mergeOfflineRegions(path, new OfflineManager.MergeOfflineRegionsCallback() {
+            public void onMerge(OfflineRegion[] offlineRegions) {
+                if (result == null) return;
+                List<OfflineRegionData> regionsArgs = new ArrayList<>();
+                for (OfflineRegion offlineRegion : offlineRegions) {
+                    regionsArgs.add(OfflineRegionData.fromOfflineRegion(offlineRegion));
+                }
+                String json = new Gson().toJson(regionsArgs);
+                result.success(json);
+            }
+
+            public void onError(String error) {
+                if (result == null) return;
+                result.error("mergeOfflineRegions Error", error, null);
+            }
+        });
+    }
+
     static void downloadRegion(
         MethodChannel.Result result,
         Context context,

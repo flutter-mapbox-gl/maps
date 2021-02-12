@@ -18,6 +18,21 @@ Future<void> installOfflineMapTiles(String tilesDb) async {
   );
 }
 
+Future<List<OfflineRegion>> mergeOfflineRegions(
+  String path, {
+  String accessToken,
+}) async {
+  String regionsJson = await _globalChannel.invokeMethod(
+    'mergeOfflineRegions',
+    <String, dynamic>{
+      'path': path,
+      'accessToken': accessToken,
+    },
+  );
+  Iterable regions = json.decode(regionsJson);
+  return regions.map((region) => OfflineRegion.fromJson(region)).toList();
+}
+
 Future<List<OfflineRegion>> getListOfRegions({String accessToken}) async {
   String regionsJson = await _globalChannel.invokeMethod(
     'getListOfRegions',
