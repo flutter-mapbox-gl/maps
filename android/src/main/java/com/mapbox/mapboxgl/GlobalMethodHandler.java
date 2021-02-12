@@ -107,7 +107,7 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
         }
     }
 
-    private static int copy(InputStream input, OutputStream output) throws IOException {
+    private static void copy(InputStream input, OutputStream output) throws IOException {
         final byte[] buffer = new byte[BUFFER_SIZE];
         final BufferedInputStream in = new BufferedInputStream(input, BUFFER_SIZE);
         final BufferedOutputStream out = new BufferedOutputStream(output, BUFFER_SIZE);
