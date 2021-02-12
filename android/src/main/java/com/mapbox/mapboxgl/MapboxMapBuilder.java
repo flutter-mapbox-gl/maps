@@ -13,6 +13,7 @@ import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.Style;
 
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.PluginRegistry;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,9 +34,9 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private List<String> annotationOrder = new ArrayList();
 
   MapboxMapController build(
-    int id, Context context, AtomicInteger state, PluginRegistry.Registrar registrar, String accessToken) {
+    int id, Context context, BinaryMessenger messenger, MapboxMapsPlugin.LifecycleProvider lifecycleProvider, String accessToken) {
     final MapboxMapController controller =
-      new MapboxMapController(id, context, state, registrar, options, accessToken, styleString, annotationOrder);
+      new MapboxMapController(id, context,  messenger, lifecycleProvider, options, accessToken, styleString, annotationOrder);
     controller.init();
     controller.setMyLocationEnabled(myLocationEnabled);
     controller.setMyLocationTrackingMode(myLocationTrackingMode);

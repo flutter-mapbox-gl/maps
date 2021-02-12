@@ -192,7 +192,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let x = arguments["x"] as? Double else { return }
             guard let y = arguments["y"] as? Double else { return }
-            let screenPoint: CGPoint = CGPoint(x: y, y:y)
+            let screenPoint: CGPoint = CGPoint(x: x, y:y)
             let coordinates: CLLocationCoordinate2D = mapView.convert(screenPoint, toCoordinateFrom: mapView)
             var reply = [String: NSObject]()
             reply["latitude"] = coordinates.latitude as NSObject
@@ -633,7 +633,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
      *  MGLAnnotationControllerDelegate
      */
     func annotationController(_ annotationController: MGLAnnotationController, didSelect styleAnnotation: MGLStyleAnnotation) {
-        annotationController.deselectStyleAnnotation(styleAnnotation)
+        DispatchQueue.main.async {
+            // Remove tint color overlay from selected annotation by
+            // deselecting. This is not handled correctly if requested
+            // synchronously from the callback.
+            annotationController.deselectStyleAnnotation(styleAnnotation)
+        }
+
         guard let channel = channel else {
             return
         }
@@ -797,8 +803,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
     
     func mapView(_ mapView: MGLMapView, regionDidChangeAnimated animated: Bool) {
+        let arguments = trackCameraPosition ? [
+            "position": getCamera()?.toDict(mapView: mapView)
+        ] : [:];
         if let channel = channel {
-            channel.invokeMethod("camera#onIdle", arguments: []);
+            channel.invokeMethod("camera#onIdle", arguments: arguments);
         }
     }
     

@@ -44,7 +44,9 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         onCameraMovePlatform(cameraPosition);
         break;
       case 'camera#onIdle':
-        onCameraIdlePlatform(null);
+        final CameraPosition cameraPosition =
+            CameraPosition.fromMap(call.arguments['position']);
+        onCameraIdlePlatform(cameraPosition);
         break;
       case 'map#onStyleLoaded':
         onMapStyleLoadedPlatform(null);
