@@ -1,5 +1,6 @@
 package com.mapbox.mapboxgl;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -48,6 +49,10 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
 
     @Override
     public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
+        final Context context = registrar.context();
+        String accessToken = methodCall.argument("accessToken");
+        MapBoxUtils.getMapbox(context, accessToken);
+
         switch (methodCall.method) {
             case "installOfflineMapTiles":
                 String tilesDb = methodCall.argument("tilesdb");
@@ -55,18 +60,20 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 result.success(null);
                 break;
             case "downloadOfflineRegion":
-                //Get download region arguments from caller
-                Gson gson = new Gson();
-                OfflineRegionData args = gson.fromJson(methodCall.arguments.toString(), OfflineRegionData.class);
+                // Get download region arguments from caller
+                OfflineRegionData regionData = new Gson().fromJson(methodCall.argument("region").toString(), OfflineRegionData.class);
+                // Prepare channel
+                String channelName = methodCall.argument("channelName");
+                OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(registrar.messenger(), channelName);
 
-                //Start downloading
-                OfflineManagerUtils.downloadRegion(args, result, registrar, gson.fromJson(methodCall.arguments.toString(), JsonObject.class).get("accessToken").getAsString());
+                // Start downloading
+                OfflineManagerUtils.downloadRegion(result, context, regionData, channelHandler);
                 break;
             case "getListOfRegions":
-                OfflineManagerUtils.regionsList(result, registrar.context(), new Gson().fromJson(methodCall.arguments.toString(), JsonObject.class).get("accessToken").getAsString());
+                OfflineManagerUtils.regionsList(result, context);
                 break;
             case "deleteOfflineRegion":
-                OfflineManagerUtils.deleteRegion(result, registrar.context(), (int) methodCall.argument("id"), new Gson().fromJson(methodCall.arguments.toString(), JsonObject.class).get("accessToken").getAsString());
+                OfflineManagerUtils.deleteRegion(result, context, methodCall.<Number>argument("id").longValue());
                 break;
             default:
                 result.notImplemented();
@@ -98,14 +105,6 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
             }
             return registrar.activeContext().getAssets().open(assetKey);
         }
-    }
-
-    private String extractAccessToken(MethodCall methodCall, String fallbackValue) {
-        if (methodCall.hasArgument("accessToken")) {
-            return methodCall.argument("accessToken");
-        }
-
-        return fallbackValue;
     }
 
     private static void copy(InputStream input, OutputStream output) throws IOException {
