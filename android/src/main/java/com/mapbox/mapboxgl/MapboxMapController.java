@@ -269,20 +269,23 @@ final class MapboxMapController
 
   @Override
   public void setStyleString(String styleString) {
-    //check if json, url or plain string:
+    // Check if json, url, absolute path or asset path:
     if (styleString == null || styleString.isEmpty()) {
       Log.e(TAG, "setStyleString - string empty or null");
     } else if (styleString.startsWith("{") || styleString.startsWith("[")) {
       mapboxMap.setStyle(new Style.Builder().fromJson(styleString), onStyleLoadedCallback);
+    } else if (styleString.startsWith("/")) {
+      // Absolute path
+      mapboxMap.setStyle(new Style.Builder().fromUri("file://" + styleString), onStyleLoadedCallback);
     } else if (
-      !styleString.startsWith("http://") && 
-      !styleString.startsWith("https://")&& 
+      !styleString.startsWith("http://") &&
+      !styleString.startsWith("https://")&&
       !styleString.startsWith("mapbox://")) {
       // We are assuming that the style will be loaded from an asset here.
       String key = MapboxMapsPlugin.flutterAssets.getAssetFilePathByName(styleString);
       mapboxMap.setStyle(new Style.Builder().fromUri("asset://" + key), onStyleLoadedCallback);
     } else {
-      mapboxMap.setStyle(new Style.Builder().fromUrl(styleString), onStyleLoadedCallback);
+      mapboxMap.setStyle(new Style.Builder().fromUri(styleString), onStyleLoadedCallback);
     }
   }
 

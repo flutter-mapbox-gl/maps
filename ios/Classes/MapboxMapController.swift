@@ -827,12 +827,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         mapView.maximumZoomLevel = max
     }
     func setStyleString(styleString: String) {
-        // Check if json, url or plain string:
+        // Check if json, url, absolute path or asset path:
         if styleString.isEmpty {
             NSLog("setStyleString - string empty")
         } else if (styleString.hasPrefix("{") || styleString.hasPrefix("[")) {
             // Currently the iOS Mapbox SDK does not have a builder for json.
             NSLog("setStyleString - JSON style currently not supported")
+        } else if (styleString.hasPrefix("/")) {
+            // Absolute path
+            mapView.styleURL = URL(fileURLWithPath: styleString, isDirectory: false)
         } else if (
             !styleString.hasPrefix("http://") && 
             !styleString.hasPrefix("https://") && 
@@ -840,6 +843,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             // We are assuming that the style will be loaded from an asset here.
             let assetPath = registrar.lookupKey(forAsset: styleString)
             mapView.styleURL = URL(string: assetPath, relativeTo: Bundle.main.resourceURL)
+            
+            
         } else {
             mapView.styleURL = URL(string: styleString)
         }
