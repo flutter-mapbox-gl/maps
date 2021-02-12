@@ -95,8 +95,13 @@ class MapboxMapController extends ChangeNotifier {
       notifyListeners();
     });
 
-    MapboxGlPlatform.getInstance(_id).onCameraIdlePlatform.add((_) {
+    MapboxGlPlatform.getInstance(_id)
+        .onCameraIdlePlatform
+        .add((cameraPosition) {
       _isCameraMoving = false;
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;        
+      }
       if (onCameraIdle != null) {
         onCameraIdle();
       }
@@ -643,6 +648,21 @@ class MapboxMapController extends ChangeNotifier {
     assert(changes != null);
     await MapboxGlPlatform.getInstance(_id).updateFill(fill, changes);
     fill.options = fill.options.copyWith(changes);
+    notifyListeners();
+  }
+
+  /// Removes all [fill] from the map.
+  ///
+  /// Change listeners are notified once all fills have been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> clearFills() async {
+    assert(_fills != null);
+    final List<String> fillIds = List<String>.from(_fills.keys);
+    for (String id in fillIds) {
+      await _removeFill(id);
+    }
     notifyListeners();
   }
 

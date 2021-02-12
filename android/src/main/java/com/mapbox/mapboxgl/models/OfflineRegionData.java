@@ -8,6 +8,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.offline.OfflineRegion;
+import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ import java.util.Map;
 
 public class OfflineRegionData {
     @SerializedName("id")
-    private int id;
+    public long id;
     @SerializedName("bounds")
     private List<List<Double>> bounds;
     @SerializedName("metadata")
@@ -30,7 +32,7 @@ public class OfflineRegionData {
     @SerializedName("maxZoom")
     private double maxZoom;
 
-    public OfflineRegionData(int id, List<List<Double>> bounds, Map<String, Object> metadata, String mapStyleUrl, double minZoom, double maxZoom) {
+    public OfflineRegionData(long id, List<List<Double>> bounds, Map<String, Object> metadata, String mapStyleUrl, double minZoom, double maxZoom) {
         this.id = id;
         this.bounds = bounds;
         this.metadata = metadata;
@@ -39,7 +41,7 @@ public class OfflineRegionData {
         this.maxZoom = maxZoom;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -66,22 +68,37 @@ public class OfflineRegionData {
         return maxZoom;
     }
 
-    @Nullable
-    public static OfflineRegionData fromOfflineRegion(OfflineTilePyramidRegionDefinition region, byte[] metadata) {
-        Gson gson = new Gson();
-        String json = new String(metadata);
-        Map<String, Object> map = new HashMap<>();
-        map = gson.fromJson(json, map.getClass());
-        if (!map.containsKey("id")) return null;
-        int id = ((Double) map.get("id")).intValue();
-        map.remove("id");
+    public byte[] prepareMetadata() {
+        return new Gson().toJson((metadata == null) ? new HashMap() : metadata).getBytes();
+    }
+
+    public OfflineRegionDefinition generateRegionDefinition(float pixelDensity) {
+        // Create a bounding box for the offline region
+        return new OfflineTilePyramidRegionDefinition(
+                getMapStyleUrl(),
+                getBounds(),
+                getMinZoom(),
+                getMaxZoom(),
+                pixelDensity);
+    }
+
+    public static OfflineRegionData fromOfflineRegion(OfflineRegion region) {
+        OfflineRegionDefinition definition = region.getDefinition();
+        byte[] metadataBytes = region.getMetadata();
+
+        Map<String, Object> metadata = null;
+        if (metadataBytes != null) {
+            metadata = new Gson().fromJson(new String(metadataBytes), HashMap.class);
+        }
+        metadata = (metadata == null) ? new HashMap() : metadata;
+
         return new OfflineRegionData(
-                id,
-                getBoundsAsList(region.getBounds()),
-                map,
-                region.getStyleURL(),
-                region.getMinZoom(),
-                region.getMaxZoom()
+                region.getID(),
+                getBoundsAsList(definition.getBounds()),
+                metadata,
+                definition.getStyleURL(),
+                definition.getMinZoom(),
+                definition.getMaxZoom()
         );
     }
 

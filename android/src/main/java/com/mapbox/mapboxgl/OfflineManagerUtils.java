@@ -8,9 +8,9 @@ import com.mapbox.mapboxgl.models.OfflineRegionData;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.offline.OfflineRegion;
+import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineRegionError;
 import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
-import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,31 +19,32 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.PluginRegistry;
 
 abstract class OfflineManagerUtils {
     private static final String TAG = "OfflineManagerUtils";
 
-    static void downloadRegion(OfflineRegionData offlineRegionData, MethodChannel.Result result, PluginRegistry.Registrar registrar, String accessToken) {
-        //Initialize Mapbox
-        MapBoxUtils.getMapbox(registrar.context(), accessToken);
-        //Prepare channel
-        String channelName = "downloadOfflineRegion_" + offlineRegionData.getId();
-        OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(registrar.messenger(), channelName);
-        // Set up the OfflineManager
-        OfflineManager offlineManager = OfflineManager.getInstance(registrar.context());
+    static void downloadRegion(
+        MethodChannel.Result result,
+        Context context,
+        OfflineRegionData offlineRegionData,
+        OfflineChannelHandlerImpl channelHandler
+    ) {
         // Define the offline region
-        OfflineTilePyramidRegionDefinition definition = generateRegionDefinition(offlineRegionData, registrar.context());
+        float pixelDensity = context.getResources().getDisplayMetrics().density;
+        OfflineRegionDefinition definition = offlineRegionData.generateRegionDefinition(pixelDensity);
         //Prepare metadata
-        byte[] metadata = prepareMetadata(offlineRegionData);
+        byte[] metadata = offlineRegionData.prepareMetadata();
         //Tracker of result
         AtomicBoolean isComplete = new AtomicBoolean(false);
         //Download region
-        offlineManager.createOfflineRegion(definition, metadata, new OfflineManager.CreateOfflineRegionCallback() {
+        OfflineManager.getInstance(context).createOfflineRegion(definition, metadata, new OfflineManager.CreateOfflineRegionCallback() {
             private OfflineRegion _offlineRegion;
 
             @Override
             public void onCreate(OfflineRegion offlineRegion) {
+                OfflineRegionData data = OfflineRegionData.fromOfflineRegion(offlineRegion);
+                result.success(new Gson().toJson(data));
+
                 _offlineRegion = offlineRegion;
                 //Start downloading region
                 _offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
@@ -63,7 +64,6 @@ abstract class OfflineManagerUtils {
                             if (isComplete.get()) return;
                             isComplete.set(true);
                             channelHandler.onSuccess();
-                            result.success(null);
                         } else {
                             Log.i(TAG, "Region download progress = " + progress);
                             channelHandler.onProgress(progress);
@@ -78,7 +78,6 @@ abstract class OfflineManagerUtils {
                         _offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
                         isComplete.set(true);
                         channelHandler.onError("Downloading error", error.getMessage(), error.getReason());
-                        result.error("Downloading error", error.getMessage(), error.getReason());
                     }
 
                     @Override
@@ -88,9 +87,8 @@ abstract class OfflineManagerUtils {
                         _offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
                         isComplete.set(true);
                         channelHandler.onError("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
-                        result.error("mapboxTileCountLimitExceeded", "Mapbox tile count limit exceeded: " + limit, null);
                         //Mapbox even after crash and not downloading fully region still keeps part of it in database, so we have to remove it
-                        deleteRegion(null, registrar.context(), offlineRegionData.getId(), accessToken);
+                        deleteRegion(null, context, offlineRegionData.getId());
                     }
                 };
                 _offlineRegion.setObserver(observer);
@@ -111,21 +109,13 @@ abstract class OfflineManagerUtils {
         });
     }
 
-    static void regionsList(MethodChannel.Result result, Context context, String accessToken) {
-        //Initialize Mapbox
-        MapBoxUtils.getMapbox(context, accessToken);
-        // Set up the OfflineManager
-        OfflineManager offlineManager = OfflineManager.getInstance(context);
-        offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
+    static void regionsList(MethodChannel.Result result, Context context) {
+        OfflineManager.getInstance(context).listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
             @Override
             public void onList(OfflineRegion[] offlineRegions) {
                 List<OfflineRegionData> regionsArgs = new ArrayList<>();
                 for (OfflineRegion offlineRegion : offlineRegions) {
-                    OfflineTilePyramidRegionDefinition definition = (OfflineTilePyramidRegionDefinition) offlineRegion.getDefinition();
-                    OfflineRegionData regionArgs = OfflineRegionData.fromOfflineRegion(definition, offlineRegion.getMetadata());
-                    if (regionArgs != null) {
-                        regionsArgs.add(regionArgs);
-                    }
+                    regionsArgs.add(OfflineRegionData.fromOfflineRegion(offlineRegion));
                 }
                 result.success(new Gson().toJson(regionsArgs));
             }
@@ -137,22 +127,12 @@ abstract class OfflineManagerUtils {
         });
     }
 
-    static void deleteRegion(MethodChannel.Result result, Context context, int id, String accessToken) {
-        //Initialize Mapbox
-        MapBoxUtils.getMapbox(context, accessToken);
-        // Set up the OfflineManager
-        OfflineManager offlineManager = OfflineManager.getInstance(context);
-        Gson gson = new Gson();
-        offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
+    static void deleteRegion(MethodChannel.Result result, Context context, long id) {
+        OfflineManager.getInstance(context).listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
             @Override
             public void onList(OfflineRegion[] offlineRegions) {
                 for (OfflineRegion offlineRegion : offlineRegions) {
-                    String json = new String(offlineRegion.getMetadata());
-                    Map<String, Object> map = new HashMap<>();
-                    map = gson.fromJson(json, map.getClass());
-                    if (!map.containsKey("id")) continue;
-                    int regionId = ((Double) map.get("id")).intValue();
-                    if (regionId != id) continue;
+                    if (offlineRegion.getID() != id) continue;
 
                     offlineRegion.delete(new OfflineRegion.OfflineRegionDeleteCallback() {
                         @Override
@@ -185,29 +165,5 @@ abstract class OfflineManagerUtils {
         return requiredResourceCount > 0
                 ? (100.0 * completedResourceCount / requiredResourceCount) :
                 0.0;
-    }
-
-    private static byte[] prepareMetadata(OfflineRegionData args) {
-        //Make copy of received metadata
-        Map<String, Object> metadata;
-        if (args.getMetadata() == null) {
-            metadata = new HashMap<>();
-        } else {
-            metadata = new HashMap<>(args.getMetadata());
-        }
-        //Add id to metadata
-        metadata.put("id", args.getId());
-        return new Gson().toJson(metadata).getBytes();
-    }
-
-    private static OfflineTilePyramidRegionDefinition generateRegionDefinition(OfflineRegionData args, Context context) {
-        // Create a bounding box for the offline region
-        LatLngBounds latLngBounds = args.getBounds();
-        return new OfflineTilePyramidRegionDefinition(
-                args.getMapStyleUrl(),
-                latLngBounds,
-                args.getMinZoom(),
-                args.getMaxZoom(),
-                context.getResources().getDisplayMetrics().density);
     }
 }
