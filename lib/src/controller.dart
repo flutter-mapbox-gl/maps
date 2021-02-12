@@ -649,6 +649,21 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Removes all [fill] from the map.
+  ///
+  /// Change listeners are notified once all fills have been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
+  Future<void> clearFills() async {
+    assert(_fills != null);
+    final List<String> fillIds = List<String>.from(_fills.keys);
+    for (String id in fillIds) {
+      await _removeFill(id);
+    }
+    notifyListeners();
+  }
+
   /// Removes the specified [fill] from the map. The fill must be a current
   /// member of the [fills] set.
   ///
