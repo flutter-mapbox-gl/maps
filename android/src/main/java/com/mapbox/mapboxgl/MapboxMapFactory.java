@@ -1,27 +1,25 @@
 package com.mapbox.mapboxgl;
 
-import static io.flutter.plugin.common.PluginRegistry.Registrar;
-
 import android.content.Context;
 
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 
+import java.util.Map;
+
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.platform.PlatformView;
 import io.flutter.plugin.platform.PlatformViewFactory;
 
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class MapboxMapFactory extends PlatformViewFactory {
 
-  private final AtomicInteger mActivityState;
-  private final Registrar mPluginRegistrar;
+  private final BinaryMessenger messenger;
+  private final MapboxMapsPlugin.LifecycleProvider lifecycleProvider;
 
-  public MapboxMapFactory(AtomicInteger state, Registrar registrar) {
+  public MapboxMapFactory(BinaryMessenger messenger, MapboxMapsPlugin.LifecycleProvider lifecycleProvider) {
     super(StandardMessageCodec.INSTANCE);
-    mActivityState = state;
-    mPluginRegistrar = registrar;
+    this.messenger = messenger;
+    this.lifecycleProvider = lifecycleProvider;
   }
 
   @Override
@@ -34,6 +32,6 @@ public class MapboxMapFactory extends PlatformViewFactory {
       CameraPosition position = Convert.toCameraPosition(params.get("initialCameraPosition"));
       builder.setInitialCameraPosition(position);
     }
-    return builder.build(id, context, mActivityState, mPluginRegistrar, (String) params.get("accessToken"));
+    return builder.build(id, context, messenger, lifecycleProvider, (String) params.get("accessToken"));
   }
 }

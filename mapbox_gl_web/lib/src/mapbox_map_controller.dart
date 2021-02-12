@@ -386,7 +386,14 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   void _onCameraIdle(_) {
-    onCameraIdlePlatform(null);
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+    onCameraIdlePlatform(camera);
   }
 
   void _onCameraTrackingChanged(bool isTracking) {
