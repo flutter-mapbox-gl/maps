@@ -4,12 +4,15 @@ import android.content.Context;
 
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 
-import java.util.Map;
-
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.platform.PlatformView;
 import io.flutter.plugin.platform.PlatformViewFactory;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.ArrayList;
 
 public class MapboxMapFactory extends PlatformViewFactory {
 
@@ -31,6 +34,10 @@ public class MapboxMapFactory extends PlatformViewFactory {
     if (params.containsKey("initialCameraPosition")) {
       CameraPosition position = Convert.toCameraPosition(params.get("initialCameraPosition"));
       builder.setInitialCameraPosition(position);
+    }
+    if (params.containsKey("annotationOrder")) {
+      List<String> annotations = Convert.toAnnotationOrder(params.get("annotationOrder"));
+      builder.setAnnotationOrder(annotations);
     }
     return builder.build(id, context, messenger, lifecycleProvider, (String) params.get("accessToken"));
   }

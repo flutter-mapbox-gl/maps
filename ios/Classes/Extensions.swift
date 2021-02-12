@@ -32,6 +32,19 @@ extension CLLocation {
     }
 }
 
+extension CLHeading {
+    func toDict() -> [String: Any]? {
+        return ["magneticHeading": self.magneticHeading,
+                "trueHeading": self.trueHeading,
+                "headingAccuracy": self.headingAccuracy,
+                "x": self.x,
+                "y": self.y,
+                "z": self.z,
+                "timestamp": Int(self.timestamp.timeIntervalSince1970 * 1000),
+        ]
+    }
+}
+
 extension CLLocationCoordinate2D {
     func toArray()  -> [Double] {
         return [self.latitude, self.longitude]
