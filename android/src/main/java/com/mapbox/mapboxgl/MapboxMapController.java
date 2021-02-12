@@ -846,7 +846,11 @@ final class MapboxMapController
 
   @Override
   public void onCameraIdle() {
-    methodChannel.invokeMethod("camera#onIdle", Collections.singletonMap("map", id));
+    final Map<String, Object> arguments = new HashMap<>(2);
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("camera#onIdle", arguments);
   }
 
   @Override
