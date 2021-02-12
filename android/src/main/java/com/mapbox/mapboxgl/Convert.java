@@ -63,6 +63,15 @@ class Convert {
     return builder.build();
   }
 
+  static List<String> toAnnotationOrder(Object o) {
+    final List<?> data = toList(o);
+    List<String> annotations = new ArrayList();
+    for (int index = 0; index < data.size(); index++) {
+      annotations.add(toString(data.get(index)));
+    }
+    return annotations;
+  }
+
   static boolean isScrollByCameraUpdate(Object o) {
     return toString(toList(o).get(0)).equals("scrollBy");
   }

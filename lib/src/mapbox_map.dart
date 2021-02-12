@@ -4,6 +4,8 @@
 
 part of mapbox_gl;
 
+enum AnnotationType { fill, line, circle, symbol }
+
 typedef void MapCreatedCallback(MapboxMapController controller);
 
 class MapboxMap extends StatefulWidget {
@@ -37,8 +39,20 @@ class MapboxMap extends StatefulWidget {
     this.onCameraTrackingChanged,
     this.onCameraIdle,
     this.onMapIdle,
+    this.annotationOrder = const [
+      AnnotationType.line,
+      AnnotationType.symbol,
+      AnnotationType.circle,
+      AnnotationType.fill,
+    ],
   })  : assert(initialCameraPosition != null),
+        assert(annotationOrder != null),
+        assert(annotationOrder.length == 4),
         super(key: key);
+
+  /// Defined the layer order of annotations displayed on map
+  /// (must contain all annotation types, 4 items)
+  final List<AnnotationType> annotationOrder;
 
   /// If you want to use Mapbox hosted styles and map tiles, you need to provide a Mapbox access token.
   /// Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
@@ -183,10 +197,13 @@ class _MapboxMapState extends State<MapboxMap> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> annotationOrder = widget.annotationOrder.map((e) => e.toString()).toList();
+
     final Map<String, dynamic> creationParams = <String, dynamic>{
       'initialCameraPosition': widget.initialCameraPosition?.toMap(),
       'options': _MapboxMapOptions.fromWidget(widget).toMap(),
       'accessToken': widget.accessToken,
+      'annotationOrder': annotationOrder,
     };
     return _mapboxGlPlatform.buildView(
         creationParams, onPlatformViewCreated, widget.gestureRecognizers);
@@ -225,9 +242,9 @@ class _MapboxMapState extends State<MapboxMap> {
         if (_controller.isCompleted) {
           widget.onStyleLoadedCallback();
         } else {
-          _controller.future.then((_) => widget.onStyleLoadedCallback());
-        }
-      },
+        _controller.future.then((_) => widget.onStyleLoadedCallback());
+      }
+    },
         onMapClick: widget.onMapClick,
         onUserLocationUpdated: widget.onUserLocationUpdated,
         onMapLongClick: widget.onMapLongClick,

@@ -22,6 +22,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var lineAnnotationController: MGLLineAnnotationController?
     private var fillAnnotationController: MGLPolygonAnnotationController?
 
+    private var annotationOrder = [String]()
+
     func view() -> UIView {
         return mapView
     }
@@ -62,6 +64,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 let zoom = initialCameraPosition["zoom"] as? Double {
                 mapView.setCenter(camera.centerCoordinate, zoomLevel: zoom, direction: camera.heading, animated: false)
                 initialTilt = camera.pitch
+            }
+            if let annotationOrderArg = args["annotationOrder"] as? [String] {
+                annotationOrder = annotationOrderArg
             }
         }
     }
@@ -671,22 +676,29 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             mapView.setCamera(camera, animated: false)
         }
 
-        lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
-        lineAnnotationController!.annotationsInteractionEnabled = true
-        lineAnnotationController?.delegate = self
+        for annotationType in annotationOrder {
+            switch annotationType {
+            case "AnnotationType.fill":
+                fillAnnotationController = MGLPolygonAnnotationController(mapView: self.mapView)
+                fillAnnotationController!.annotationsInteractionEnabled = true
+                fillAnnotationController?.delegate = self
+            case "AnnotationType.line":
+                lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
+                lineAnnotationController!.annotationsInteractionEnabled = true
+                lineAnnotationController?.delegate = self
+            case "AnnotationType.circle":
+                circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
+                circleAnnotationController!.annotationsInteractionEnabled = true
+                circleAnnotationController?.delegate = self
+            case "AnnotationType.symbol":
+                symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
+                symbolAnnotationController!.annotationsInteractionEnabled = true
+                symbolAnnotationController?.delegate = self
+            default:
+                print("Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'")  
+            }
+        }
 
-        symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
-        symbolAnnotationController!.annotationsInteractionEnabled = true
-        symbolAnnotationController?.delegate = self
-        
-        circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
-        circleAnnotationController!.annotationsInteractionEnabled = true
-        circleAnnotationController?.delegate = self
-
-        fillAnnotationController = MGLPolygonAnnotationController(mapView: self.mapView)
-        fillAnnotationController!.annotationsInteractionEnabled = true
-        fillAnnotationController?.delegate = self
-        
         mapReadyResult?(nil)
         if let channel = channel {
             channel.invokeMethod("map#onStyleLoaded", arguments: nil)

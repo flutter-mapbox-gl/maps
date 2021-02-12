@@ -71,12 +71,10 @@ import com.mapbox.mapboxsdk.style.sources.ImageSource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -132,6 +130,7 @@ final class MapboxMapController
   private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
+  private List<String> annotationOrder = new ArrayList();
 
   MapboxMapController(
     int id,
@@ -140,7 +139,8 @@ final class MapboxMapController
     MapboxMapsPlugin.LifecycleProvider lifecycleProvider,
     MapboxMapOptions options,
     String accessToken,
-    String styleStringInitial) {
+    String styleStringInitial,
+    List<String> annotationOrder) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
@@ -154,6 +154,7 @@ final class MapboxMapController
     this.lifecycleProvider = lifecycleProvider;
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
+    this.annotationOrder = annotationOrder;
   }
 
   @Override
@@ -289,10 +290,25 @@ final class MapboxMapController
     @Override
     public void onStyleLoaded(@NonNull Style style) {
       MapboxMapController.this.style = style;
-      enableLineManager(style);
-      enableSymbolManager(style);
-      enableCircleManager(style);
-      enableFillManager(style);
+      for(String annotationType : annotationOrder) {
+        switch (annotationType) {
+          case "AnnotationType.fill":
+            enableFillManager(style);
+            break;
+          case "AnnotationType.line":
+            enableLineManager(style);
+            break;
+          case "AnnotationType.circle":
+            enableCircleManager(style);
+            break;
+          case "AnnotationType.symbol":
+            enableSymbolManager(style);
+            break;
+          default:
+            throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
+        }
+      }
+      
       if (myLocationEnabled) {
         enableLocationComponent(style);
       }
