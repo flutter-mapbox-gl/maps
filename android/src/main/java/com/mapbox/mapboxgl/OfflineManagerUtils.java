@@ -127,6 +127,44 @@ abstract class OfflineManagerUtils {
         });
     }
 
+    static void updateRegionMetadata(MethodChannel.Result result, Context context, long id, Map<String, Object> metadata) {
+        OfflineManager.getInstance(context).listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
+            @Override
+            public void onList(OfflineRegion[] offlineRegions) {
+                for (OfflineRegion offlineRegion : offlineRegions) {
+                    if (offlineRegion.getID() != id) continue;
+
+                    final OfflineRegionData regionData = OfflineRegionData.fromOfflineRegion(offlineRegion);
+                    regionData.setMetadata(metadata);
+
+                    offlineRegion.updateMetadata(regionData.prepareMetadata(), new OfflineRegion.OfflineRegionUpdateMetadataCallback() {
+                        @Override
+                        public void onUpdate(byte[] metadataBytes) {
+                            regionData.setMetadataBytes(metadataBytes);
+                            if (result == null) return;
+                            result.success(new Gson().toJson(regionData));
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            if (result == null) return;
+                            result.error("UpdateMetadataError", error, null);
+                        }
+                    });
+                    return;
+                }
+                if (result == null) return;
+                result.error("UpdateMetadataError", "There is no region with given id to update.", null);
+            }
+
+            @Override
+            public void onError(String error) {
+                if (result == null) return;
+                result.error("RegionListError", error, null);
+            }
+        });
+    }
+
     static void deleteRegion(MethodChannel.Result result, Context context, long id) {
         OfflineManager.getInstance(context).listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
             @Override

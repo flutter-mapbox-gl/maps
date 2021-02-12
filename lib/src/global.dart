@@ -29,6 +29,21 @@ Future<List<OfflineRegion>> getListOfRegions({String accessToken}) async {
   return regions.map((region) => OfflineRegion.fromJson(region)).toList();
 }
 
+Future<OfflineRegion> updateOfflineRegionMetadata(
+    int id, Map<String, dynamic> metadata,
+    {String accessToken}) async {
+  final regionJson = await _globalChannel.invokeMethod(
+    'updateOfflineRegionMetadata',
+    <String, dynamic>{
+      'id': id,
+      'accessToken': accessToken,
+      'metadata': metadata,
+    },
+  );
+
+  return OfflineRegion.fromJson(json.decode(regionJson));
+}
+
 Future<dynamic> deleteOfflineRegion(int id, {String accessToken}) =>
     _globalChannel.invokeMethod(
       'deleteOfflineRegion',

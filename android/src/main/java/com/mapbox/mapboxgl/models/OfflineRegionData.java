@@ -56,6 +56,14 @@ public class OfflineRegionData {
         return metadata;
     }
 
+    public void setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata;
+    }
+
+    public void setMetadataBytes(byte[] metadataBytes) {
+        this.metadata = parseMetadataBytes(metadataBytes);
+    }
+
     public String getMapStyleUrl() {
         return mapStyleUrl;
     }
@@ -84,22 +92,22 @@ public class OfflineRegionData {
 
     public static OfflineRegionData fromOfflineRegion(OfflineRegion region) {
         OfflineRegionDefinition definition = region.getDefinition();
-        byte[] metadataBytes = region.getMetadata();
-
-        Map<String, Object> metadata = null;
-        if (metadataBytes != null) {
-            metadata = new Gson().fromJson(new String(metadataBytes), HashMap.class);
-        }
-        metadata = (metadata == null) ? new HashMap() : metadata;
-
         return new OfflineRegionData(
                 region.getID(),
                 getBoundsAsList(definition.getBounds()),
-                metadata,
+                parseMetadataBytes(region.getMetadata()),
                 definition.getStyleURL(),
                 definition.getMinZoom(),
                 definition.getMaxZoom()
         );
+    }
+
+    private static Map<String, Object> parseMetadataBytes(byte[] metadataBytes) {
+        Map<String, Object> metadata = null;
+        if (metadataBytes != null) {
+            metadata = new Gson().fromJson(new String(metadataBytes), HashMap.class);
+        }
+        return (metadata == null) ? new HashMap() : metadata;
     }
 
     private static List<List<Double>> getBoundsAsList(LatLngBounds bounds) {
