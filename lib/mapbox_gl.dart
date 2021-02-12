@@ -21,6 +21,8 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         LatLngBounds,
         LatLngQuad,
         CameraPosition,
+        UserLocation,
+        UserHeading,
         CameraUpdate,
         ArgumentCallbacks,
         Symbol,
@@ -37,7 +39,6 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         LineOptions,
         Fill,
         FillOptions;
-
 
 part 'src/controller.dart';
 part 'src/mapbox_map.dart';

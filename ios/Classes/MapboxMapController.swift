@@ -755,7 +755,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func mapView(_ mapView: MGLMapView, didUpdate userLocation: MGLUserLocation?) {
         if let channel = channel, let userLocation = userLocation, let location = userLocation.location {
             channel.invokeMethod("map#onUserLocationUpdated", arguments: [
-                "userLocation": location.toDict()
+                "userLocation": location.toDict(),
+                "heading": userLocation.heading?.toDict()
             ]);
        }
    }
