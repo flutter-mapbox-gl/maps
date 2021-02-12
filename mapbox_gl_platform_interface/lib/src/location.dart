@@ -26,6 +26,14 @@ class LatLng {
   /// The longitude in degrees between -180.0 (inclusive) and 180.0 (exclusive).
   final double longitude;
 
+  LatLng operator +(LatLng o) {
+    return LatLng(latitude + o.latitude, longitude + o.longitude);
+  }
+
+  LatLng operator -(LatLng o) {
+    return LatLng(latitude - o.latitude, longitude - o.longitude);
+  }
+
   dynamic toJson() {
     return <double>[latitude, longitude];
   }
@@ -107,7 +115,11 @@ class LatLngBounds {
 /// A geographical area representing a non-aligned quadrilateral
 /// This class does not wrap values to the world bounds
 class LatLngQuad {
-  const LatLngQuad({@required this.topLeft, @required this.topRight, @required this.bottomRight, @required this.bottomLeft})
+  const LatLngQuad(
+      {@required this.topLeft,
+      @required this.topRight,
+      @required this.bottomRight,
+      @required this.bottomLeft})
       : assert(topLeft != null),
         assert(topRight != null),
         assert(bottomRight != null),
@@ -122,7 +134,12 @@ class LatLngQuad {
   final LatLng bottomLeft;
 
   dynamic toList() {
-    return <dynamic>[topLeft.toJson(), topRight.toJson(), bottomRight.toJson(), bottomLeft.toJson()];
+    return <dynamic>[
+      topLeft.toJson(),
+      topRight.toJson(),
+      bottomRight.toJson(),
+      bottomLeft.toJson()
+    ];
   }
 
   @visibleForTesting
@@ -154,7 +171,6 @@ class LatLngQuad {
 
   @override
   int get hashCode => hashValues(topLeft, topRight, bottomRight, bottomLeft);
-  
 }
 
 /// User's observed location

@@ -8,6 +8,8 @@ abstract class FeatureManager<T> {
   final String layerId;
   final MapboxMap map;
   final FeatureTapCallback onTap;
+  @protected
+  LatLng dragOrigin;
 
   final Map<String, Feature> _features = {};
   num featureCounter = 1;
@@ -39,27 +41,21 @@ abstract class FeatureManager<T> {
     return '${feature.id}';
   }
 
-  
   void updateFeature(Feature feature) {
     updateFeatures([feature]);
   }
 
-  
   void updateFeatures(Iterable<Feature> features) {
-    features.forEach(
-        (feature) => _features['${feature.id}'] = feature
-    );
+    features.forEach((feature) => _features['${feature.id}'] = feature);
     _updateSource();
   }
-  
+
   void remove(String featureId) {
     removeAll([featureId]);
   }
 
   void removeAll(Iterable<String> featuresIds) {
-    featuresIds.forEach(
-      (featureId) => _features.remove(featureId)
-    );
+    featuresIds.forEach((featureId) => _features.remove(featureId));
     _updateSource();
   }
 
@@ -91,6 +87,8 @@ abstract class FeatureManager<T> {
         e.preventDefault();
         _draggableFeatureId = '${e.features[0].id}';
         map.getCanvas().style.cursor = 'grabbing';
+        var coords = e.lngLat;
+        dragOrigin = LatLng(coords.lat, coords.lng);
       }
     });
 

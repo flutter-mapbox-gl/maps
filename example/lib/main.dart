@@ -39,7 +39,6 @@ final List<ExamplePage> _allPages = <ExamplePage>[
 ];
 
 class MapsDemo extends StatelessWidget {
-
   //FIXME: Add your Mapbox access token here
   static const String ACCESS_TOKEN = "YOUR_TOKEN_HERE";
 

@@ -147,7 +147,9 @@ class MapboxMapController extends ChangeNotifier {
         onMapIdle();
       }
     });
-    MapboxGlPlatform.getInstance(_id).onUserLocationUpdatedPlatform.add((location) { 
+    MapboxGlPlatform.getInstance(_id)
+        .onUserLocationUpdatedPlatform
+        .add((location) {
       onUserLocationUpdated?.call(location);
     });
   }
@@ -779,7 +781,8 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Adds an image source to the style currently displayed in the map, so that it can later be referred to by the provided id.
-  Future<void> addImageSource(String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
+  Future<void> addImageSource(
+      String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
     return MapboxGlPlatform.getInstance(_id)
         .addImageSource(imageSourceId, bytes, coordinates);
   }
@@ -791,12 +794,15 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Adds a Mapbox style layer to the map's style at render time.
   Future<void> addLayer(String imageLayerId, String imageSourceId) {
-    return MapboxGlPlatform.getInstance(_id).addLayer(imageLayerId, imageSourceId);
+    return MapboxGlPlatform.getInstance(_id)
+        .addLayer(imageLayerId, imageSourceId);
   }
 
   /// Adds a Mapbox style layer below the layer provided with belowLayerId to the map's style at render time,
-  Future<void> addLayerBelow(String imageLayerId, String imageSourceId, String belowLayerId) {
-    return MapboxGlPlatform.getInstance(_id).addLayerBelow(imageLayerId, imageSourceId, belowLayerId);
+  Future<void> addLayerBelow(
+      String imageLayerId, String imageSourceId, String belowLayerId) {
+    return MapboxGlPlatform.getInstance(_id)
+        .addLayerBelow(imageLayerId, imageSourceId, belowLayerId);
   }
 
   /// Removes a Mapbox style layer
@@ -821,8 +827,8 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Returns the distance spanned by one pixel at the specified [latitude] and current zoom level.
   /// The distance between pixels decreases as the latitude approaches the poles. This relationship parallels the relationship between longitudinal coordinates at different latitudes.
-  Future<double> getMetersPerPixelAtLatitude(double latitude) async{
-    return MapboxGlPlatform.getInstance(_id).getMetersPerPixelAtLatitude(latitude);
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async {
+    return MapboxGlPlatform.getInstance(_id)
+        .getMetersPerPixelAtLatitude(latitude);
   }
-
 }

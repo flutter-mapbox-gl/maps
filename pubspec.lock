@@ -21,7 +21,7 @@ packages:
       name: characters
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0-nullsafety.3"
+    version: "1.1.0-nullsafety.5"
   charcode:
     dependency: transitive
     description:
@@ -35,7 +35,7 @@ packages:
       name: collection
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.15.0-nullsafety.3"
+    version: "1.15.0-nullsafety.5"
   convert:
     dependency: transitive
     description:
@@ -66,14 +66,14 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.14"
+    version: "2.1.19"
   js:
     dependency: transitive
     description:
       name: js
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.2"
+    version: "0.6.3-nullsafety.3"
   mapbox_gl_dart:
     dependency: transitive
     description:
@@ -86,7 +86,7 @@ packages:
     description:
       path: mapbox_gl_platform_interface
       ref: HEAD
-      resolved-ref: "7861b62ee1d396439d44ebb1f84563244aa6bf82"
+      resolved-ref: "37703aa872a877d0dc4c88fe358647003f4949cc"
       url: "https://github.com/tobrun/flutter-mapbox-gl.git"
     source: git
     version: "0.9.0"
@@ -95,7 +95,7 @@ packages:
     description:
       path: mapbox_gl_web
       ref: HEAD
-      resolved-ref: "7861b62ee1d396439d44ebb1f84563244aa6bf82"
+      resolved-ref: "37703aa872a877d0dc4c88fe358647003f4949cc"
       url: "https://github.com/tobrun/flutter-mapbox-gl.git"
     source: git
     version: "0.9.0"
@@ -105,7 +105,7 @@ packages:
       name: meta
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0-nullsafety.3"
+    version: "1.3.0-nullsafety.6"
   path:
     dependency: transitive
     description:
@@ -119,7 +119,7 @@ packages:
       name: petitparser
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.4"
+    version: "3.1.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -131,14 +131,14 @@ packages:
       name: typed_data
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0-nullsafety.3"
+    version: "1.3.0-nullsafety.5"
   vector_math:
     dependency: transitive
     description:
       name: vector_math
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0-nullsafety.3"
+    version: "2.1.0-nullsafety.5"
   xml:
     dependency: transitive
     description:
@@ -147,5 +147,5 @@ packages:
     source: hosted
     version: "4.5.1"
 sdks:
-  dart: ">=2.10.0-110 <2.11.0"
+  dart: ">=2.12.0-0 <3.0.0"
   flutter: ">=1.12.13+hotfix.4 <2.0.0"

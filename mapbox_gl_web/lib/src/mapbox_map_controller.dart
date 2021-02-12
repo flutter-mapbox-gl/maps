@@ -10,6 +10,7 @@ class MapboxMapController extends MapboxGlPlatform
   SymbolManager symbolManager;
   LineManager lineManager;
   CircleManager circleManager;
+  FillManager fillManager;
 
   bool _trackCameraPosition = false;
   GeolocateControl _geolocateControl;
@@ -139,31 +140,28 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
-    Map<String, SymbolOptions> optionsById = Map.fromIterable(
-      options,
-      key: (o) => symbolManager.add(
-          Feature(
-            geometry: Geometry(
-              type: 'Point',
-              coordinates: [o.geometry.longitude, o.geometry.latitude],
-            ),
-          )
-      ),
-      value: (o) => o
-    );
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
+      [List<Map> data]) async {
+    Map<String, SymbolOptions> optionsById = Map.fromIterable(options,
+        key: (o) => symbolManager.add(Feature(
+              geometry: Geometry(
+                type: 'Point',
+                coordinates: [o.geometry.longitude, o.geometry.latitude],
+              ),
+            )),
+        value: (o) => o);
     symbolManager.updateAll(optionsById);
-    
-    return optionsById.map(
-        (id, singleOptions) {
+
+    return optionsById
+        .map((id, singleOptions) {
           int dataIndex = options.indexOf(singleOptions);
-          Map singleData = data != null && data.length >= dataIndex + 1 ? data[dataIndex] : null;
-          return MapEntry(
-            id,
-            Symbol(id, singleOptions, singleData)
-          );
-        }
-    ).values.toList();
+          Map singleData = data != null && data.length >= dataIndex + 1
+              ? data[dataIndex]
+              : null;
+          return MapEntry(id, Symbol(id, singleOptions, singleData));
+        })
+        .values
+        .toList();
   }
 
   @override
@@ -226,6 +224,26 @@ class MapboxMapController extends MapboxGlPlatform
   @override
   Future<void> removeCircle(String circleId) async {
     circleManager.remove(circleId);
+  }
+
+  Future<Fill> addFill(FillOptions options, [Map data]) async {
+    String fillId = fillManager.add(Feature(
+      geometry: Geometry(
+        type: 'Polygon',
+        coordinates: Convert.fillGeometryToFeatureGeometry(options.geometry),
+      ),
+    ));
+
+    fillManager.update(fillId, options);
+    return Fill(fillId, options, data);
+  }
+
+  Future<void> updateFill(Fill fill, FillOptions changes) async {
+    fillManager.update(fill.id, changes);
+  }
+
+  Future<void> removeFill(String fillId) async {
+    fillManager.remove(fillId);
   }
 
   @override
@@ -334,6 +352,7 @@ class MapboxMapController extends MapboxGlPlatform
     symbolManager = SymbolManager(map: _map, onTap: onSymbolTappedPlatform);
     lineManager = LineManager(map: _map, onTap: onLineTappedPlatform);
     circleManager = CircleManager(map: _map, onTap: onCircleTappedPlatform);
+    fillManager = FillManager(map: _map, onTap: onFillTappedPlatform);
     onMapStyleLoadedPlatform(null);
     _map.on('click', _onMapClick);
     // long click not available in web, so it is mapped to double click
@@ -563,7 +582,7 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   void setMyLocationTrackingMode(int myLocationTrackingMode) {
-    if(_geolocateControl==null){
+    if (_geolocateControl == null) {
       //myLocationEnabled is false, ignore myLocationTrackingMode
       return;
     }
@@ -639,21 +658,23 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future<Point> toScreenLocation(LatLng latLng) async {
-    var screenPosition = _map.project(LngLat(latLng.longitude, latLng.latitude));
+    var screenPosition =
+        _map.project(LngLat(latLng.longitude, latLng.latitude));
     return Point(screenPosition.x.round(), screenPosition.y.round());
   }
 
   @override
   Future<LatLng> toLatLng(Point screenLocation) async {
-    var lngLat = _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
+    var lngLat =
+        _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
     return LatLng(lngLat.lat, lngLat.lng);
   }
 
   @override
-  Future<double> getMetersPerPixelAtLatitude(double latitude) async{
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async {
     //https://wiki.openstreetmap.org/wiki/Zoom_levels
     var circumference = 40075017.686;
     var zoom = _map.getZoom();
-    return circumference * cos(latitude * (pi/180)) / pow(2, zoom + 9);
+    return circumference * cos(latitude * (pi / 180)) / pow(2, zoom + 9);
   }
 }
