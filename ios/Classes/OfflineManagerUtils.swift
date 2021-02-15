@@ -15,14 +15,9 @@ class OfflineManagerUtils {
     static func downloadRegion(
         regionData: OfflineRegionData,
         result: @escaping FlutterResult,
-        registrar: FlutterPluginRegistrar
+        registrar: FlutterPluginRegistrar,
+        channelHandler: OfflineChannelHandler
     ) {
-        // Prepare channel
-        let channelName = "downloadOfflineRegion_\(regionData.id)"
-        let channelHandler = OfflineChannelHandler(
-            messenger: registrar.messenger(),
-            channelName: channelName
-        )
         // Define the offline region
         let definition = generateRegionDefinition(args: regionData)
         // Prepare metadata

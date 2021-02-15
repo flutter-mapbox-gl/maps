@@ -17,17 +17,26 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                 installOfflineMapTiles(registrar: registrar, tilesdb: tilesdb!)
                 result(nil)
             case "downloadOfflineRegion":
-                guard let args = methodCall.arguments as? String,
-                    let offlineData = OfflineRegionData.fromJsonString(args)
+                // Get download region arguments from caller
+                guard let args = methodCall.arguments as? [String: Any],
+                    let regionJson = args["region"] as? String,
+                    let offlineData = OfflineRegionData.fromJsonString(regionJson),
+                    let channelName = args["channelName"] as? String
                     else {
-                        // some error here
+                        print("downloadOfflineRegion unexpected arguments: \(String(describing: methodCall.arguments))")
                         result(nil)
                         return
                     }
+                // Prepare channel
+                let channelHandler = OfflineChannelHandler(
+                    messenger: registrar.messenger(),
+                    channelName: channelName
+                )
                 OfflineManagerUtils.downloadRegion(
                     regionData: offlineData,
                     result: result,
-                    registrar: registrar
+                    registrar: registrar,
+                    channelHandler: channelHandler
                 )
             case "getListOfRegions":
                 // Note: this does not download anything from internet, it only fetches data drom database
