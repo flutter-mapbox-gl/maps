@@ -99,9 +99,6 @@ class MapboxMapController extends ChangeNotifier {
         .onCameraIdlePlatform
         .add((cameraPosition) {
       _isCameraMoving = false;
-      if (cameraPosition != null) {
-        _cameraPosition = cameraPosition;        
-      }
       if (onCameraIdle != null) {
         onCameraIdle();
       }
