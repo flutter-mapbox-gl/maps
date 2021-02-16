@@ -9,13 +9,13 @@ import Foundation
 import Mapbox
 
 class OfflineRegionData {
-    var id: Int
-    var bounds: [[Double]]
-    var metadata: [String: Any]?
-    var mapStyleUrl: URL
-    var minZoom: Double
-    var maxZoom: Double
-    
+    let id: Int
+    let bounds: [[Double]]
+    let metadata: [String: Any]?
+    let mapStyleUrl: URL
+    let minZoom: Double
+    let maxZoom: Double
+
     init(id: Int, bounds: [[Double]], metadata: [String: Any]?, mapStyleUrl: URL, minZoom: Double, maxZoom: Double) {
         self.id = id
         self.bounds = bounds
@@ -24,37 +24,15 @@ class OfflineRegionData {
         self.minZoom = minZoom
         self.maxZoom = maxZoom
     }
-    
-    func getBounds() -> MGLCoordinateBounds {
-        return MGLCoordinateBounds(
-            sw: CLLocationCoordinate2D(latitude: bounds[0][0], longitude: bounds[0][1]),
-            ne: CLLocationCoordinate2D(latitude: bounds[1][0], longitude: bounds[1][1])
-        )
-    }
-    
-    static func fromJsonString(_ jsonString: String) -> OfflineRegionData? {
-        guard let jsonData = jsonString.data(using: .utf8),
-            let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []),
-            let jsonDict = jsonObject as? [String: Any],
-            let id = jsonDict["id"] as? Int,
-            let bounds = jsonDict["bounds"] as? [[Double]],
-            let mapStyleUrlString = jsonDict["mapStyleUrl"] as? String,
-            let mapStyleUrl = URL(string: mapStyleUrlString),
-            let minZoom = jsonDict["minZoom"] as? Double,
-            let maxZoom = jsonDict["maxZoom"] as? Double
-            else { return nil }
-        return OfflineRegionData(
-            id: id,
-            bounds: bounds,
-            metadata: jsonDict["metadata"] as? [String: Any],
-            mapStyleUrl: mapStyleUrl,
-            minZoom: minZoom,
-            maxZoom: maxZoom
-        )
+
+    func prepareContext() -> Data {
+        let context = ["metadata": metadata ?? [], "id": id] as [String: Any]
+        let jsonData = try? JSONSerialization.data(withJSONObject: context, options: [])
+        return jsonData ?? Data()
     }
     
     func toJsonString() -> String {
-        let formatString = #"{"id":%d,"bounds":%@,"metadata":%@,"mapStyleUrl":"%@","minZoom":%f,"maxZoom":%f}"#
+        let formatString = #"{"id":%ld,"bounds":%@,"metadata":%@,"mapStyleUrl":"%@","minZoom":%f,"maxZoom":%f}"#
         let boundsJsonData = (try? JSONSerialization.data(withJSONObject: bounds)) ?? Data()
         let boundJsonString = String(data: boundsJsonData, encoding: .utf8) ?? "[]"
         var metadataJsonString = "null"
@@ -65,34 +43,33 @@ class OfflineRegionData {
         let jsonString = String(format: formatString, id, boundJsonString, metadataJsonString, mapStyleUrl.path, minZoom, maxZoom)
         return jsonString
     }
-    
-    func toJsonDict() -> [String: Any] {
-        return [
-            "id": id,
-            "bounds": bounds,
-            "metadata": metadata as Any,
-            "mapStyleUrl": mapStyleUrl.path,
-            "minZoom": Double(minZoom),
-            "maxZoom": Double(maxZoom)
-        ]
+
+    static func fromOfflineRegionDefinition(_ region: OfflineRegionDefinition, id: Int) -> OfflineRegionData {
+        return OfflineRegionData(
+            id: id,
+            bounds: region.bounds,
+            metadata: region.metadata,
+            mapStyleUrl: region.mapStyleUrl,
+            minZoom: region.minZoom,
+            maxZoom: region.maxZoom
+        );
     }
-    
-    static func fromOfflineRegion(_ region: MGLTilePyramidOfflineRegion, metadata: Data) -> OfflineRegionData? {
-        guard let dataObject = try? JSONSerialization.jsonObject(with: metadata, options: []),
-            var dict = dataObject as? [String: Any],
-            dict.keys.contains("id"),
-            let id = dict["id"] as? Int else { return nil }
-        dict.removeValue(forKey: "id")
+
+    static func fromOfflineRegion(_ region: MGLTilePyramidOfflineRegion, context: Data) -> OfflineRegionData? {
+        guard let dataObject = try? JSONSerialization.jsonObject(with: context, options: []),
+            let dict = dataObject as? [String: Any],
+            let id = dict["id"] as? Int,
+            let metadata = dict["metadata"] as? [String: Any] else { return nil }
         return OfflineRegionData(
             id: id,
             bounds: boundsToArray(region.bounds),
-            metadata: dict,
+            metadata: metadata,
             mapStyleUrl: region.styleURL,
             minZoom: region.minimumZoomLevel,
             maxZoom: region.maximumZoomLevel
         )
     }
-    
+
     private static func boundsToArray(_ bounds: MGLCoordinateBounds) -> [[Double]] {
         let ne = [bounds.ne.latitude, bounds.ne.longitude]
         let sw = [bounds.sw.latitude, bounds.sw.longitude]

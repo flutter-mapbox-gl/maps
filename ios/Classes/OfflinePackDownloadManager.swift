@@ -14,7 +14,7 @@ class OfflinePackDownloader {
     private let result: FlutterResult
     private let channelHandler: OfflineChannelHandler
     private let region: MGLOfflineRegion
-    private let metadata: Data
+    private let context: Data
     private let regionId: Int
     
     /// Currently managed pack
@@ -25,11 +25,11 @@ class OfflinePackDownloader {
     private var isCompleted = false
     
     // MARK: Initializers
-    init(result: @escaping FlutterResult, channelHandler: OfflineChannelHandler, region: MGLOfflineRegion, metadata: Data, regionId: Int) {
+    init(result: @escaping FlutterResult, channelHandler: OfflineChannelHandler, region: MGLOfflineRegion, context: Data, regionId: Int) {
         self.result = result
         self.channelHandler = channelHandler
         self.region = region
-        self.metadata = metadata
+        self.context = context
         self.regionId = regionId
         
         setupNotifications()
@@ -43,7 +43,7 @@ class OfflinePackDownloader {
     // MARK: Public methods
     func download() {
         let storage = MGLOfflineStorage.shared
-        storage.addPack(for: region, withContext: metadata) { [weak self] (pack, error) in
+        storage.addPack(for: region, withContext: context) { [weak self] (pack, error) in
             if let pack = pack {
                 self?.onPackCreated(pack: pack)
             } else {

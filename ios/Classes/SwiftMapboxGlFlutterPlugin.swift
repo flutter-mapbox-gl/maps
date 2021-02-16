@@ -20,7 +20,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                 // Get download region arguments from caller
                 guard let args = methodCall.arguments as? [String: Any],
                     let regionJson = args["region"] as? String,
-                    let offlineData = OfflineRegionData.fromJsonString(regionJson),
+                    let defintion = OfflineRegionDefinition.fromJsonString(regionJson),
                     let channelName = args["channelName"] as? String
                     else {
                         print("downloadOfflineRegion unexpected arguments: \(String(describing: methodCall.arguments))")
@@ -33,7 +33,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                     channelName: channelName
                 )
                 OfflineManagerUtils.downloadRegion(
-                    regionData: offlineData,
+                    definition: defintion,
                     result: result,
                     registrar: registrar,
                     channelHandler: channelHandler

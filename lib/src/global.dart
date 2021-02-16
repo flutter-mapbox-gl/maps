@@ -68,11 +68,11 @@ Future<dynamic> deleteOfflineRegion(int id, {String accessToken}) =>
       },
     );
 
-Future<dynamic> downloadOfflineRegion(
-  OfflineRegion region, {
+Future<OfflineRegion> downloadOfflineRegion(
+  OfflineRegionDefinition region, {
   String accessToken,
   Function(DownloadRegionStatus event) onEvent,
-}) {
+}) async {
   String channelName =
       'downloadOfflineRegion_${DateTime.now().microsecondsSinceEpoch}';
 
@@ -128,5 +128,5 @@ Future<dynamic> downloadOfflineRegion(
     });
   }
 
-  return result;
+  return OfflineRegion.fromJson(json.decode(await result));
 }

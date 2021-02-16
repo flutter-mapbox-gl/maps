@@ -1,5 +1,38 @@
 part of mapbox_gl;
 
+/// Description of region to be downloaded. Identifier will be generated when
+/// the download is initiated.
+class OfflineRegionDefinition {
+  const OfflineRegionDefinition({
+    @required this.bounds,
+    @required this.metadata,
+    @required this.mapStyleUrl,
+    @required this.minZoom,
+    @required this.maxZoom,
+  });
+
+  final LatLngBounds bounds;
+  final Map<String, dynamic> metadata;
+  final String mapStyleUrl;
+  final double minZoom;
+  final double maxZoom;
+
+  Map<String, dynamic> _toJson() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['bounds'] = bounds.toList();
+    data['metadata'] = metadata;
+    data['mapStyleUrl'] = mapStyleUrl;
+    data['minZoom'] = minZoom;
+    data['maxZoom'] = maxZoom;
+    return data;
+  }
+
+  @override
+  String toString() =>
+      "$runtimeType, bounds = $bounds, metadata = $metadata, mapStyleUrl = $mapStyleUrl, minZoom = $minZoom, maxZoom = $maxZoom";
+}
+
+/// Description of a downloaded region including its identifier.
 class OfflineRegion {
   const OfflineRegion({
     @required this.id,
@@ -51,17 +84,6 @@ class OfflineRegion {
       return null;
     }
     return LatLng(json[0], json[1]);
-  }
-
-  Map<String, dynamic> _toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['id'] = id;
-    data['bounds'] = bounds.toList();
-    data['metadata'] = metadata;
-    data['mapStyleUrl'] = mapStyleUrl;
-    data['minZoom'] = minZoom;
-    data['maxZoom'] = maxZoom;
-    return data;
   }
 
   @override
