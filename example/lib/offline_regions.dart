@@ -20,28 +20,25 @@ final LatLngBounds auckland = LatLngBounds(
   northeast: const LatLng(-36.82838, 174.79745),
 );
 
-final OfflineRegion hawaiiRegion = OfflineRegion(
-  id: 0,
+final OfflineRegionDefinition hawaiiRegion = OfflineRegionDefinition(
   bounds: hawaii,
-  metadata: null,
+  metadata: {'name': 'hawaii'},
   minZoom: 3.0,
   maxZoom: 8.0,
   mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
 );
 
-final OfflineRegion santiagoRegion = OfflineRegion(
-  id: 1,
+final OfflineRegionDefinition santiagoRegion = OfflineRegionDefinition(
   bounds: santiago,
-  metadata: null,
+  metadata: {'name': 'santiago'},
   minZoom: 10.0,
   maxZoom: 16.0,
   mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
 );
 
-final OfflineRegion aucklandRegion = OfflineRegion(
-  id: 2,
+final OfflineRegionDefinition aucklandRegion = OfflineRegionDefinition(
   bounds: auckland,
-  metadata: null,
+  metadata: {'name': 'auckland'},
   minZoom: 13.0,
   maxZoom: 16.0,
   mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
@@ -50,49 +47,51 @@ final OfflineRegion aucklandRegion = OfflineRegion(
 class OfflineRegionListItem {
   OfflineRegionListItem({
     @required this.offlineRegion,
-    @required this.isDownloaded,
+    @required this.downloadedId,
     @required this.isDownloading,
     @required this.name,
     @required this.estimatedTiles,
   });
 
-  final OfflineRegion offlineRegion;
-  final bool isDownloaded;
+  final OfflineRegionDefinition offlineRegion;
+  final int downloadedId;
   final bool isDownloading;
   final String name;
   final int estimatedTiles;
 
   OfflineRegionListItem copyWith({
-    bool isDownloaded,
+    int downloadedId,
     bool isDownloading,
   }) =>
       OfflineRegionListItem(
         offlineRegion: offlineRegion,
         name: name,
         estimatedTiles: estimatedTiles,
-        isDownloaded: isDownloaded ?? this.isDownloaded,
+        downloadedId: downloadedId,
         isDownloading: isDownloading ?? this.isDownloading,
       );
+
+  bool get isDownloaded => downloadedId != null;
 }
 
 final List<OfflineRegionListItem> allRegions = [
   OfflineRegionListItem(
     offlineRegion: hawaiiRegion,
-    isDownloaded: false,
+    downloadedId: null,
     isDownloading: false,
     name: 'Hawaii',
     estimatedTiles: 61,
   ),
   OfflineRegionListItem(
     offlineRegion: santiagoRegion,
-    isDownloaded: false,
+    downloadedId: null,
     isDownloading: false,
     name: 'Santiago',
     estimatedTiles: 3580,
   ),
   OfflineRegionListItem(
     offlineRegion: aucklandRegion,
-    isDownloaded: false,
+    downloadedId: null,
     isDownloading: false,
     name: 'Auckland',
     estimatedTiles: 202,
@@ -182,22 +181,24 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
   }
 
   void _updateListOfRegions() async {
-    List<int> storedRegionsIds = (await getListOfRegions(
-      accessToken: MapsDemo.ACCESS_TOKEN,
-    ))
-        .map((region) => region.id)
-        .toList();
-    List<OfflineRegionListItem> regions = [];
-    for (var region in allRegions) {
-      if (storedRegionsIds.contains(region.offlineRegion.id)) {
-        regions.add(region.copyWith(isDownloaded: true));
+    List<OfflineRegion> offlineRegions =
+        await getListOfRegions(accessToken: MapsDemo.ACCESS_TOKEN);
+    List<OfflineRegionListItem> regionItems = [];
+    for (var item in allRegions) {
+      final offlineRegion = offlineRegions.firstWhere(
+          (offlineRegion) =>
+              offlineRegion.metadata['name'] ==
+              item.offlineRegion.metadata['name'],
+          orElse: () => null);
+      if (offlineRegion != null) {
+        regionItems.add(item.copyWith(downloadedId: offlineRegion.id));
       } else {
-        regions.add(region);
+        regionItems.add(item);
       }
     }
     setState(() {
       _items.clear();
-      _items.addAll(regions);
+      _items.addAll(regionItems);
     });
   }
 
@@ -208,10 +209,19 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
     });
 
     try {
-      await downloadOfflineRegion(
+      final downloadingRegion = await downloadOfflineRegion(
         item.offlineRegion,
         accessToken: MapsDemo.ACCESS_TOKEN,
       );
+      setState(() {
+        _items.removeAt(index);
+        _items.insert(
+            index,
+            item.copyWith(
+              isDownloading: false,
+              downloadedId: downloadingRegion.id,
+            ));
+      });
     } on Exception catch (_) {
       setState(() {
         _items.removeAt(index);
@@ -219,21 +229,11 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
             index,
             item.copyWith(
               isDownloading: false,
-              isDownloaded: false,
+              downloadedId: null,
             ));
       });
       return;
     }
-
-    setState(() {
-      _items.removeAt(index);
-      _items.insert(
-          index,
-          item.copyWith(
-            isDownloading: false,
-            isDownloaded: true,
-          ));
-    });
   }
 
   void _deleteRegion(OfflineRegionListItem item, int index) async {
@@ -243,7 +243,7 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
     });
 
     await deleteOfflineRegion(
-      item.offlineRegion.id,
+      item.downloadedId,
       accessToken: MapsDemo.ACCESS_TOKEN,
     );
 
@@ -253,7 +253,7 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
           index,
           item.copyWith(
             isDownloading: false,
-            isDownloaded: false,
+            downloadedId: null,
           ));
     });
   }
