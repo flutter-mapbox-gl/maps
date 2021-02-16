@@ -45,12 +45,7 @@ public class MapboxMapsPlugin implements FlutterPlugin, ActivityAware {
     flutterAssets = binding.getFlutterAssets();
 
     MethodChannel methodChannel = new MethodChannel(binding.getBinaryMessenger(), "plugins.flutter.io/mapbox_gl");
-    methodChannel.setMethodCallHandler(
-      new GlobalMethodHandler(
-        binding.getApplicationContext(),
-        binding.getFlutterAssets()
-      )
-    );
+    methodChannel.setMethodCallHandler(new GlobalMethodHandler(binding));
 
     binding
       .getPlatformViewRegistry()
