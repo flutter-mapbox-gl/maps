@@ -59,6 +59,14 @@ Future<OfflineRegion> updateOfflineRegionMetadata(
   return OfflineRegion.fromJson(json.decode(regionJson));
 }
 
+Future<dynamic> setOfflineTileCountLimit(int limit) =>
+    _globalChannel.invokeMethod(
+      'setOfflineTileCountLimit',
+      <String, dynamic>{
+        'limt': limit,
+      },
+    );
+
 Future<dynamic> deleteOfflineRegion(int id, {String accessToken}) =>
     _globalChannel.invokeMethod(
       'deleteOfflineRegion',

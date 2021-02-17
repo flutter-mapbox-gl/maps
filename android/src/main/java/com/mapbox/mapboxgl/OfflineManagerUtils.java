@@ -42,6 +42,11 @@ abstract class OfflineManagerUtils {
         });
     }
 
+    static void setOfflineTileCountLimit(MethodChannel.Result result, Context context, long limit){
+        OfflineManager.getInstance(context).setOfflineMapboxTileCountLimit(limit);
+        result.success(null);
+    }
+
     static void downloadRegion(
         MethodChannel.Result result,
         Context context,
@@ -56,7 +61,11 @@ abstract class OfflineManagerUtils {
         //Tracker of result
         AtomicBoolean isComplete = new AtomicBoolean(false);
         //Download region
-        OfflineManager.getInstance(context).createOfflineRegion(definition, metadata, new OfflineManager.CreateOfflineRegionCallback() {
+        OfflineManager manager = OfflineManager.getInstance(context);
+
+        manager.setOfflineMapboxTileCountLimit(60000);
+
+        manager.createOfflineRegion(definition, metadata, new OfflineManager.CreateOfflineRegionCallback() {
             private OfflineRegion _offlineRegion;
 
             @Override
