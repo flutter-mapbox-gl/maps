@@ -91,7 +91,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   void _add(String iconImage) {
     List<int> availableNumbers = Iterable<int>.generate(12).toList();
-    controller.symbols.forEach((s) => availableNumbers.removeWhere((i) => i == s.data['count']));
+    controller.neoClusterSymbols.forEach((s) => availableNumbers.removeWhere((i) => i == s.data['count']));
     if (availableNumbers.isNotEmpty) {
       controller
           .addNeoClusterSymbol(_getSymbolOptions(iconImage, availableNumbers.first), {'count': availableNumbers.first});
@@ -114,7 +114,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   Future<void> _addAll(String iconImage) async {
     List<int> symbolsToAddNumbers = Iterable<int>.generate(12).toList();
-    controller.symbols.forEach((s) => symbolsToAddNumbers.removeWhere((i) => i == s.data['count']));
+    controller.neoClusterSymbols.forEach((s) => symbolsToAddNumbers.removeWhere((i) => i == s.data['count']));
 
     if (symbolsToAddNumbers.isNotEmpty) {
       final List<SymbolOptions> symbolOptionsList =
@@ -136,7 +136,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _removeAll() {
-    controller.removeNeoClusterSymbols(controller.symbols);
+    controller.removeNeoClusterSymbols(controller.neoClusterSymbols);
     setState(() {
       _selectedSymbol = null;
       _symbolCount = 0;
