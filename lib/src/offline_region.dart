@@ -33,22 +33,22 @@ class OfflineRegionDefinition {
 }
 
 /// Description of a downloaded region including its identifier.
-class OfflineRegion {
+class OfflineRegion extends OfflineRegionDefinition {
   const OfflineRegion({
-    @required this.id,
-    @required this.bounds,
-    @required this.metadata,
-    @required this.mapStyleUrl,
-    @required this.minZoom,
-    @required this.maxZoom,
-  });
+    this.id,
+    LatLngBounds bounds,
+    Map<String, dynamic> metadata,
+    String mapStyleUrl,
+    double minZoom,
+    double maxZoom,
+  }) : super(
+            bounds: bounds,
+            metadata: metadata,
+            mapStyleUrl: mapStyleUrl,
+            minZoom: minZoom,
+            maxZoom: maxZoom);
 
   final int id;
-  final LatLngBounds bounds;
-  final Map<String, dynamic> metadata;
-  final String mapStyleUrl;
-  final double minZoom;
-  final double maxZoom;
 
   factory OfflineRegion.fromJson(Map<String, dynamic> json) {
     if (json == null) {
