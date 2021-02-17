@@ -70,7 +70,7 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 break;
 
             case "setOfflineTileCountLimit":
-                OfflineManagerUtils.setOfflineTileCountLimit(result, context, methodCall.argument("count"));
+                OfflineManagerUtils.setOfflineTileCountLimit(result, context, methodCall.<Number>argument("limit").longValue());
                 break;
 
             case "downloadOfflineRegion":
