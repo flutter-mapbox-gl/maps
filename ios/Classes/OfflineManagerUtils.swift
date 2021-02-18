@@ -21,7 +21,7 @@ class OfflineManagerUtils {
         // While the Android SDK generates a region ID in createOfflineRegion, the iOS
         // SDK does not have this feature. Therefore, we generate a region ID here.
         let id = Int.random(in: 0..<Int.max)
-        let regionData = OfflineRegionData.fromOfflineRegionDefinition(definition, id: id)
+        let regionData = OfflineRegion.fromOfflineRegionDefinition(definition, id: id)
         // Prepare downloader
         let downloader = OfflinePackDownloader(
             result: result,
@@ -48,7 +48,7 @@ class OfflineManagerUtils {
         }
         let regionsArgs = packs.compactMap { pack -> [String: Any]? in
             guard let definition = pack.region as? MGLTilePyramidOfflineRegion,
-                let regionArgs = OfflineRegionData.fromOfflineRegion(definition, context: pack.context),
+                let regionArgs = OfflineRegion.fromOfflineRegion(definition, context: pack.context),
                 let jsonData = regionArgs.toJsonString().data(using: .utf8),
                 let jsonObject = try? JSONSerialization.jsonObject(with: jsonData),
                 let jsonDict = jsonObject as? [String: Any]

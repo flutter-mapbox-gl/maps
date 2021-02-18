@@ -8,7 +8,7 @@
 import Foundation
 import Mapbox
 
-class OfflineRegionData {
+class OfflineRegion {
     let id: Int
     let bounds: [[Double]]
     let metadata: [String: Any]?
@@ -44,8 +44,8 @@ class OfflineRegionData {
         return jsonString
     }
 
-    static func fromOfflineRegionDefinition(_ region: OfflineRegionDefinition, id: Int) -> OfflineRegionData {
-        return OfflineRegionData(
+    static func fromOfflineRegionDefinition(_ region: OfflineRegionDefinition, id: Int) -> OfflineRegion {
+        return OfflineRegion(
             id: id,
             bounds: region.bounds,
             metadata: region.metadata,
@@ -55,12 +55,12 @@ class OfflineRegionData {
         );
     }
 
-    static func fromOfflineRegion(_ region: MGLTilePyramidOfflineRegion, context: Data) -> OfflineRegionData? {
+    static func fromOfflineRegion(_ region: MGLTilePyramidOfflineRegion, context: Data) -> OfflineRegion? {
         guard let dataObject = try? JSONSerialization.jsonObject(with: context, options: []),
             let dict = dataObject as? [String: Any],
             let id = dict["id"] as? Int,
             let metadata = dict["metadata"] as? [String: Any] else { return nil }
-        return OfflineRegionData(
+        return OfflineRegion(
             id: id,
             bounds: boundsToArray(region.bounds),
             metadata: metadata,
