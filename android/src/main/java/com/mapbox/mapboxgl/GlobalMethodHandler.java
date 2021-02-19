@@ -69,6 +69,10 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 OfflineManagerUtils.mergeRegions(result, context, methodCall.argument("path"));
                 break;
 
+            case "setOfflineTileCountLimit":
+                OfflineManagerUtils.setOfflineTileCountLimit(result, context, methodCall.<Number>argument("limit").longValue());
+                break;
+
             case "downloadOfflineRegion":
                 // Get download region arguments from caller
                 OfflineRegionData regionData = new Gson().fromJson(methodCall.argument("region").toString(), OfflineRegionData.class);
