@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import os
 
 public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -31,7 +32,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                 )
             case "setOfflineTileCountLimit":
                 guard let arguments = methodCall.arguments as? [String: Any],
-                    let limit = arguments["limit"] as? Int else {
+                    let limit = arguments["limit"] as? UInt64 else {
                         result(FlutterError(
                             code: "SetOfflineTileCountLimitError",
                             message: "could not decode arguments",
@@ -39,7 +40,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                         ))
                         return
                 }
-                OfOfflineManagerUtils.setOfflineTileCountLimit(result: result, maximumCount: limit)
+                OfflineManagerUtils.setOfflineTileCountLimit(result: result, maximumCount: limit)
 
             case "getListOfRegions":
                 // Note: this does not download anything from internet, it only fetches data drom database
