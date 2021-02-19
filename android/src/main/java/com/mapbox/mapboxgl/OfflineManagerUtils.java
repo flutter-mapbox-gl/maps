@@ -61,11 +61,7 @@ abstract class OfflineManagerUtils {
         //Tracker of result
         AtomicBoolean isComplete = new AtomicBoolean(false);
         //Download region
-        OfflineManager manager = OfflineManager.getInstance(context);
-
-        manager.setOfflineMapboxTileCountLimit(60000);
-
-        manager.createOfflineRegion(definition, metadata, new OfflineManager.CreateOfflineRegionCallback() {
+        OfflineManager.getInstance(context).createOfflineRegion(definition, metadata, new OfflineManager.CreateOfflineRegionCallback() {
             private OfflineRegion _offlineRegion;
 
             @Override

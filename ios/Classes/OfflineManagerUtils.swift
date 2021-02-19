@@ -65,10 +65,11 @@ class OfflineManagerUtils {
         }
         result(regionsArgsJsonString)
     }
+
     static func setOfflineTileCountLimit(result: @escaping FlutterResult, maximumCount: UInt64) {
         let offlineStorage = MGLOfflineStorage.shared
         offlineStorage.setMaximumAllowedMapboxTiles(maximumCount)
-        result()
+        result(nil)
     }
 
     static func deleteRegion(result: @escaping FlutterResult, id: Int) {

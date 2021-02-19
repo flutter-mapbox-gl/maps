@@ -1,6 +1,5 @@
 import Flutter
 import UIKit
-import os
 
 public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -41,7 +40,6 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                         return
                 }
                 OfflineManagerUtils.setOfflineTileCountLimit(result: result, maximumCount: limit)
-
             case "getListOfRegions":
                 // Note: this does not download anything from internet, it only fetches data drom database
                 OfflineManagerUtils.regionsList(result: result)
