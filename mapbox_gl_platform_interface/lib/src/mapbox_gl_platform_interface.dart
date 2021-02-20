@@ -254,6 +254,11 @@ abstract class MapboxGlPlatform {
         'toScreenLocation() has not been implemented.');
   }
 
+  Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async{
+    throw UnimplementedError(
+        'toScreenLocationList() has not been implemented.');
+  }
+
   Future<LatLng> toLatLng(Point screenLocation) async{
       throw UnimplementedError(
         'toLatLng() has not been implemented.');

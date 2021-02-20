@@ -460,6 +460,19 @@ final class MapboxMapController
         result.success(reply);
         break;
       }
+      case "map#toScreenLocationBatch": {
+        double[] param = (double[])call.argument("coordinates");
+        double[] reply = new double[param.length];
+
+        for (int i = 0; i < param.length; i += 2) {
+          PointF pointf = mapboxMap.getProjection().toScreenLocation(new LatLng(param[i], param[i + 1]));
+          reply[i] = pointf.x;
+          reply[i + 1] = pointf.y;
+        }
+
+        result.success(reply);
+        break;
+      }
       case "map#toLatLng": {
         Map<String, Object> reply = new HashMap<>();
         LatLng latlng = mapboxMap.getProjection().fromScreenLocation(new PointF( ((Double) call.argument("x")).floatValue(), ((Double) call.argument("y")).floatValue()));
