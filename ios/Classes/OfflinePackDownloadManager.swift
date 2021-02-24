@@ -13,10 +13,8 @@ class OfflinePackDownloader {
     // MARK: Properties
     private let result: FlutterResult
     private let channelHandler: OfflineChannelHandler
-    private let region: MGLOfflineRegion
-    private let context: Data
-    private let regionId: Int
-    
+    private let regionDefinition: OfflineRegionDefinition
+
     /// Currently managed pack
     private var pack: MGLOfflinePack?
     
@@ -25,13 +23,11 @@ class OfflinePackDownloader {
     private var isCompleted = false
     
     // MARK: Initializers
-    init(result: @escaping FlutterResult, channelHandler: OfflineChannelHandler, region: MGLOfflineRegion, context: Data, regionId: Int) {
+    init(result: @escaping FlutterResult, channelHandler: OfflineChannelHandler, regionDefintion: OfflineRegionDefinition) {
         self.result = result
         self.channelHandler = channelHandler
-        self.region = region
-        self.context = context
-        self.regionId = regionId
-        
+        self.regionDefinition = regionDefintion
+
         setupNotifications()
     }
     
@@ -41,23 +37,35 @@ class OfflinePackDownloader {
     }
     
     // MARK: Public methods
-    func download() {
+    func download() -> Int {
         let storage = MGLOfflineStorage.shared
-        storage.addPack(for: region, withContext: context) { [weak self] (pack, error) in
+        // While the Android SDK generates a region ID in createOfflineRegion, the iOS
+        // SDK does not have this feature. Therefore, we generate a region ID here.
+        let id = Int.random(in: 0..<Int.max)
+        let regionData = OfflineRegion.fromOfflineRegionDefinition(regionDefinition, id: id)
+        let tilePyramidRegion = regionDefinition.toMGLTilePyramidOfflineRegion()
+        storage.addPack(for: tilePyramidRegion, withContext: regionData.prepareContext()) { [weak self] (pack, error) in
             if let pack = pack {
                 self?.onPackCreated(pack: pack)
             } else {
                 self?.onPackCreationError(error: error)
             }
         }
+        return id
     }
     
     // MARK: Pack management
     private func onPackCreated(pack: MGLOfflinePack) {
-        // Start downloading
-        self.pack = pack
-        pack.resume()
-        channelHandler.onStart()
+        if let region = OfflineRegion.fromOfflinePack(pack) {
+            // Start downloading
+            self.pack = pack
+            pack.resume()
+            // Provide region with generated id
+            result(region.toJsonString())
+            channelHandler.onStart()
+        } else {
+            onPackCreationError(error: OfflinePackError.InvalidPackData)
+        }
     }
     
     private func onPackCreationError(error: Error?) {
@@ -95,7 +103,9 @@ class OfflinePackDownloader {
             isCompleted = true
             channelHandler.onSuccess()
             result(nil)
-            OfflineManagerUtils.releaseDownloader(id: regionId)
+            if let region = OfflineRegion.fromOfflinePack(pack) {
+                OfflineManagerUtils.releaseDownloader(id:region.id)
+            }
         } else {
             print("Region download progress \(downloadProgress)")
             channelHandler.onProgress(progress: downloadProgress)
@@ -119,7 +129,9 @@ class OfflinePackDownloader {
             message: error?.localizedDescription,
             details: nil
         ))
-        OfflineManagerUtils.releaseDownloader(id: regionId)
+        if let region = OfflineRegion.fromOfflinePack(pack) {
+            OfflineManagerUtils.releaseDownloader(id:region.id)
+        }
     }
     
     @objc private func onMaximumAllowedMapboxTiles(notification: NSNotification) {
@@ -140,8 +152,10 @@ class OfflinePackDownloader {
             message: "Mapbox tile count limit exceeded: \(maximumCount)",
             details: nil
         ))
-        OfflineManagerUtils.deleteRegion(result: result, id: regionId)
-        OfflineManagerUtils.releaseDownloader(id: regionId)
+        if let region = OfflineRegion.fromOfflinePack(pack) {
+            OfflineManagerUtils.deleteRegion(result: result, id: region.id)
+            OfflineManagerUtils.releaseDownloader(id: region.id)
+        }
     }
     
     // MARK: Util methods
@@ -188,6 +202,6 @@ class OfflinePackDownloader {
     }
 }
 
-// When you start:
-// - test downloads
-// - call Jarek (questions + gitHub)
+enum OfflinePackError: Error {
+    case InvalidPackData
+}

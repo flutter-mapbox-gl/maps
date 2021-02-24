@@ -55,8 +55,9 @@ class OfflineRegion {
         );
     }
 
-    static func fromOfflineRegion(_ region: MGLTilePyramidOfflineRegion, context: Data) -> OfflineRegion? {
-        guard let dataObject = try? JSONSerialization.jsonObject(with: context, options: []),
+    static func fromOfflinePack(_ pack: MGLOfflinePack) -> OfflineRegion? {
+        guard let region = pack.region as? MGLTilePyramidOfflineRegion,
+            let dataObject = try? JSONSerialization.jsonObject(with: pack.context, options: []),
             let dict = dataObject as? [String: Any],
             let id = dict["id"] as? Int,
             let metadata = dict["metadata"] as? [String: Any] else { return nil }

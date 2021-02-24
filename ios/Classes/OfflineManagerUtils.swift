@@ -18,26 +18,17 @@ class OfflineManagerUtils {
         registrar: FlutterPluginRegistrar,
         channelHandler: OfflineChannelHandler
     ) {
-        // While the Android SDK generates a region ID in createOfflineRegion, the iOS
-        // SDK does not have this feature. Therefore, we generate a region ID here.
-        let id = Int.random(in: 0..<Int.max)
-        let regionData = OfflineRegion.fromOfflineRegionDefinition(definition, id: id)
         // Prepare downloader
         let downloader = OfflinePackDownloader(
             result: result,
             channelHandler: channelHandler,
-            region: definition.toMGLTilePyramidOfflineRegion(),
-            context: regionData.prepareContext(),
-            regionId: regionData.id
+            regionDefintion: definition
         )
-        // Save downloader so it does not get deallocated
-        activeDownloaders[regionData.id] = downloader
-        
-        // Download region
-        downloader.download()
 
-        // Provide region with generated id
-        result(regionData.toJsonString())
+        // Download region
+        let id = downloader.download()
+        // retain downloader by its generated id
+        activeDownloaders[id] = downloader
     }
     
     static func regionsList(result: @escaping FlutterResult) {
@@ -47,8 +38,7 @@ class OfflineManagerUtils {
             return
         }
         let regionsArgs = packs.compactMap { pack -> [String: Any]? in
-            guard let definition = pack.region as? MGLTilePyramidOfflineRegion,
-                let regionArgs = OfflineRegion.fromOfflineRegion(definition, context: pack.context),
+            guard let regionArgs = OfflineRegion.fromOfflinePack(pack),
                 let jsonData = regionArgs.toJsonString().data(using: .utf8),
                 let jsonObject = try? JSONSerialization.jsonObject(with: jsonData),
                 let jsonDict = jsonObject as? [String: Any]
@@ -96,7 +86,7 @@ class OfflineManagerUtils {
             ))
         }
     }
-    
+
     /// Removes downloader from cache so it's memory can be deallocated
     static func releaseDownloader(id: Int) {
         activeDownloaders.removeValue(forKey: id)
