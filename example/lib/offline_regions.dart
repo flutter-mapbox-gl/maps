@@ -5,55 +5,54 @@ import 'package:mapbox_gl_example/main.dart';
 import 'offline_region_map.dart';
 import 'page.dart';
 
-final LatLngBounds hawaii = LatLngBounds(
+final LatLngBounds hawaiiBounds = LatLngBounds(
   southwest: const LatLng(17.26672, -161.14746),
   northeast: const LatLng(23.76523, -153.74267),
 );
 
-final LatLngBounds santiago = LatLngBounds(
+final LatLngBounds santiagoBounds = LatLngBounds(
   southwest: const LatLng(-33.5597, -70.49102),
   northeast: const LatLng(-33.33282, -153.74267),
 );
 
-final LatLngBounds auckland = LatLngBounds(
+final LatLngBounds aucklandBounds = LatLngBounds(
   southwest: const LatLng(-36.87838, 174.73205),
   northeast: const LatLng(-36.82838, 174.79745),
 );
 
-final OfflineRegionDefinition hawaiiRegion = OfflineRegionDefinition(
-  bounds: hawaii,
-  metadata: {'name': 'hawaii'},
-  minZoom: 3.0,
-  maxZoom: 8.0,
-  mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
-);
+final List<OfflineRegionDefinition> regionDefinitions = [
+  OfflineRegionDefinition(
+    bounds: hawaiiBounds,
+    minZoom: 3.0,
+    maxZoom: 8.0,
+    mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
+  ),
+  OfflineRegionDefinition(
+    bounds: santiagoBounds,
+    minZoom: 10.0,
+    maxZoom: 16.0,
+    mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
+  ),
+  OfflineRegionDefinition(
+    bounds: aucklandBounds,
+    minZoom: 13.0,
+    maxZoom: 16.0,
+    mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
+  ),
+];
 
-final OfflineRegionDefinition santiagoRegion = OfflineRegionDefinition(
-  bounds: santiago,
-  metadata: {'name': 'santiago'},
-  minZoom: 10.0,
-  maxZoom: 16.0,
-  mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
-);
-
-final OfflineRegionDefinition aucklandRegion = OfflineRegionDefinition(
-  bounds: auckland,
-  metadata: {'name': 'auckland'},
-  minZoom: 13.0,
-  maxZoom: 16.0,
-  mapStyleUrl: MapboxStyles.MAPBOX_STREETS,
-);
+final List<String> regionNames = ['Hawaii', 'Santiago', 'Auckland'];
 
 class OfflineRegionListItem {
   OfflineRegionListItem({
-    @required this.offlineRegion,
+    @required this.offlineRegionDefinition,
     @required this.downloadedId,
     @required this.isDownloading,
     @required this.name,
     @required this.estimatedTiles,
   });
 
-  final OfflineRegionDefinition offlineRegion;
+  final OfflineRegionDefinition offlineRegionDefinition;
   final int downloadedId;
   final bool isDownloading;
   final String name;
@@ -64,7 +63,7 @@ class OfflineRegionListItem {
     bool isDownloading,
   }) =>
       OfflineRegionListItem(
-        offlineRegion: offlineRegion,
+        offlineRegionDefinition: offlineRegionDefinition,
         name: name,
         estimatedTiles: estimatedTiles,
         downloadedId: downloadedId,
@@ -76,24 +75,24 @@ class OfflineRegionListItem {
 
 final List<OfflineRegionListItem> allRegions = [
   OfflineRegionListItem(
-    offlineRegion: hawaiiRegion,
+    offlineRegionDefinition: regionDefinitions[0],
     downloadedId: null,
     isDownloading: false,
-    name: 'Hawaii',
+    name: regionNames[0],
     estimatedTiles: 61,
   ),
   OfflineRegionListItem(
-    offlineRegion: santiagoRegion,
+    offlineRegionDefinition: regionDefinitions[1],
     downloadedId: null,
     isDownloading: false,
-    name: 'Santiago',
+    name: regionNames[1],
     estimatedTiles: 3580,
   ),
   OfflineRegionListItem(
-    offlineRegion: aucklandRegion,
+    offlineRegionDefinition: regionDefinitions[2],
     downloadedId: null,
     isDownloading: false,
-    name: 'Auckland',
+    name: regionNames[2],
     estimatedTiles: 202,
   ),
 ];
@@ -186,9 +185,7 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
     List<OfflineRegionListItem> regionItems = [];
     for (var item in allRegions) {
       final offlineRegion = offlineRegions.firstWhere(
-          (offlineRegion) =>
-              offlineRegion.metadata['name'] ==
-              item.offlineRegion.metadata['name'],
+          (offlineRegion) => offlineRegion.metadata['name'] == item.name,
           orElse: () => null);
       if (offlineRegion != null) {
         regionItems.add(item.copyWith(downloadedId: offlineRegion.id));
@@ -210,7 +207,10 @@ class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
 
     try {
       final downloadingRegion = await downloadOfflineRegion(
-        item.offlineRegion,
+        item.offlineRegionDefinition,
+        metadata: {
+          'name': regionNames[index],
+        },
         accessToken: MapsDemo.ACCESS_TOKEN,
       );
       setState(() {
