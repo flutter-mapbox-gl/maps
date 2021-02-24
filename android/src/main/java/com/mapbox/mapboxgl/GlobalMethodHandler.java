@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
@@ -38,20 +39,24 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
     private FlutterPlugin.FlutterAssets flutterAssets;
     @NonNull
     private final Context context;
+    @NonNull
+    private final BinaryMessenger messenger;
 
     GlobalMethodHandler(@NonNull PluginRegistry.Registrar registrar) {
         this.registrar = registrar;
         this.context = registrar.activeContext();
+        this.messenger = registrar.messenger();
+
     }
 
-    GlobalMethodHandler(@NonNull Context context, @NonNull FlutterPlugin.FlutterAssets assets) {
-        this.context = context;
-        this.flutterAssets = assets;
+    GlobalMethodHandler(@NonNull FlutterPlugin.FlutterPluginBinding binding) {
+        this.context = binding.getApplicationContext();
+        this.flutterAssets = binding.getFlutterAssets();
+        this.messenger = binding.getBinaryMessenger();
     }
 
     @Override
     public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
-        final Context context = registrar.context();
         String accessToken = methodCall.argument("accessToken");
         MapBoxUtils.getMapbox(context, accessToken);
 
@@ -69,12 +74,15 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
             case "mergeOfflineRegions":
                 OfflineManagerUtils.mergeRegions(result, context, methodCall.argument("path"));
                 break;
+            case "setOfflineTileCountLimit":
+                OfflineManagerUtils.setOfflineTileCountLimit(result, context, methodCall.<Number>argument("limit").longValue());
+                break;
             case "downloadOfflineRegion":
                 // Get download region arguments from caller
                 OfflineRegionData regionData = new Gson().fromJson(methodCall.argument("region").toString(), OfflineRegionData.class);
                 // Prepare channel
                 String channelName = methodCall.argument("channelName");
-                OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(registrar.messenger(), channelName);
+                OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(messenger, channelName);
 
                 // Start downloading
                 OfflineManagerUtils.downloadRegion(result, context, regionData, channelHandler);
@@ -118,7 +126,7 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
             } else {
                 throw new IllegalStateException();
             }
-            return registrar.activeContext().getAssets().open(assetKey);
+            return context.getAssets().open(assetKey);
         }
     }
 
