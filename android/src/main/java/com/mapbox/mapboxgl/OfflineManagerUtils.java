@@ -42,6 +42,11 @@ abstract class OfflineManagerUtils {
         });
     }
 
+    static void setOfflineTileCountLimit(MethodChannel.Result result, Context context, long limit){
+        OfflineManager.getInstance(context).setOfflineMapboxTileCountLimit(limit);
+        result.success(null);
+    }
+
     static void downloadRegion(
         MethodChannel.Result result,
         Context context,

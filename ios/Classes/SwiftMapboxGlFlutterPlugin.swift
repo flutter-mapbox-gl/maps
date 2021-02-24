@@ -38,6 +38,17 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                     registrar: registrar,
                     channelHandler: channelHandler
                 )
+            case "setOfflineTileCountLimit":
+                guard let arguments = methodCall.arguments as? [String: Any],
+                    let limit = arguments["limit"] as? UInt64 else {
+                        result(FlutterError(
+                            code: "SetOfflineTileCountLimitError",
+                            message: "could not decode arguments",
+                            details: nil
+                        ))
+                        return
+                }
+                OfflineManagerUtils.setOfflineTileCountLimit(result: result, maximumCount: limit)
             case "getListOfRegions":
                 // Note: this does not download anything from internet, it only fetches data drom database
                 OfflineManagerUtils.regionsList(result: result)
