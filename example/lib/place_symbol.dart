@@ -3,12 +3,13 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:core';
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
@@ -47,7 +48,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   void _onStyleLoaded() {
     addImageFromAsset("assetImage", "assets/symbols/custom-icon.png");
-    addImageFromUrl("networkImage", "https://via.placeholder.com/50");
+    addImageFromUrl("networkImage", Uri.parse("https://via.placeholder.com/50"));
   }
 
   @override
@@ -64,8 +65,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   /// Adds a network image to the currently displayed style
-  Future<void> addImageFromUrl(String name, String url) async {
-    var response = await get(url);
+  Future<void> addImageFromUrl(String name, Uri uri) async {
+    var response = await http.get(uri);
     return controller.addImage(name, response.bodyBytes);
   }
 
