@@ -41,7 +41,7 @@ class OfflinePackDownloader {
         let storage = MGLOfflineStorage.shared
         // While the Android SDK generates a region ID in createOfflineRegion, the iOS
         // SDK does not have this feature. Therefore, we generate a region ID here.
-        let id = Int.random(in: 0..<Int.max)
+        let id = UUID().hashValue
         let regionData = OfflineRegion.fromOfflineRegionDefinition(regionDefinition, id: id)
         let tilePyramidRegion = regionDefinition.toMGLTilePyramidOfflineRegion()
         storage.addPack(for: tilePyramidRegion, withContext: regionData.prepareContext()) { [weak self] (pack, error) in
