@@ -3,14 +3,12 @@ import Mapbox
 
 class OfflineRegionDefinition {
     let bounds: [[Double]]
-    let metadata: [String: Any]?
     let mapStyleUrl: URL
     let minZoom: Double
     let maxZoom: Double
 
-    init(bounds: [[Double]], metadata: [String: Any]?, mapStyleUrl: URL, minZoom: Double, maxZoom: Double) {
+    init(bounds: [[Double]], mapStyleUrl: URL, minZoom: Double, maxZoom: Double) {
         self.bounds = bounds
-        self.metadata = metadata
         self.mapStyleUrl = mapStyleUrl
         self.minZoom = minZoom
         self.maxZoom = maxZoom
@@ -23,11 +21,8 @@ class OfflineRegionDefinition {
         )
     }
 
-    static func fromJsonString(_ jsonString: String) -> OfflineRegionDefinition? {
-        guard let jsonData = jsonString.data(using: .utf8),
-            let jsonObject = try? JSONSerialization.jsonObject(with: jsonData, options: []),
-            let jsonDict = jsonObject as? [String: Any],
-            let bounds = jsonDict["bounds"] as? [[Double]],
+    static func fromDictionary(_ jsonDict: [String: Any]) -> OfflineRegionDefinition? {
+        guard let bounds = jsonDict["bounds"] as? [[Double]],
             let mapStyleUrlString = jsonDict["mapStyleUrl"] as? String,
             let mapStyleUrl = URL(string: mapStyleUrlString),
             let minZoom = jsonDict["minZoom"] as? Double,
@@ -35,11 +30,19 @@ class OfflineRegionDefinition {
             else { return nil }
         return OfflineRegionDefinition(
             bounds: bounds,
-            metadata: jsonDict["metadata"] as? [String: Any],
             mapStyleUrl: mapStyleUrl,
             minZoom: minZoom,
             maxZoom: maxZoom
         )
+    }
+
+    func toDictionary() -> [String: Any] {
+        return [
+            "bounds": self.bounds,
+            "mapStyleUrl": self.mapStyleUrl.absoluteString,
+            "minZoom": self.minZoom,
+            "maxZoom": self.maxZoom,
+        ];
     }
 
     func toMGLTilePyramidOfflineRegion() -> MGLTilePyramidOfflineRegion {

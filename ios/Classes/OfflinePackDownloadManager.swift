@@ -14,6 +14,7 @@ class OfflinePackDownloader {
     private let result: FlutterResult
     private let channelHandler: OfflineChannelHandler
     private let regionDefinition: OfflineRegionDefinition
+    private let metadata: [String: Any]
 
     /// Currently managed pack
     private var pack: MGLOfflinePack?
@@ -23,10 +24,11 @@ class OfflinePackDownloader {
     private var isCompleted = false
     
     // MARK: Initializers
-    init(result: @escaping FlutterResult, channelHandler: OfflineChannelHandler, regionDefintion: OfflineRegionDefinition) {
+    init(result: @escaping FlutterResult, channelHandler: OfflineChannelHandler, regionDefintion: OfflineRegionDefinition, metadata: [String: Any]) {
         self.result = result
         self.channelHandler = channelHandler
         self.regionDefinition = regionDefintion
+        self.metadata = metadata
 
         setupNotifications()
     }
@@ -42,7 +44,7 @@ class OfflinePackDownloader {
         // While the Android SDK generates a region ID in createOfflineRegion, the iOS
         // SDK does not have this feature. Therefore, we generate a region ID here.
         let id = UUID().hashValue
-        let regionData = OfflineRegion.fromOfflineRegionDefinition(regionDefinition, id: id)
+        let regionData = OfflineRegion(id: id, metadata: metadata, definition: regionDefinition)
         let tilePyramidRegion = regionDefinition.toMGLTilePyramidOfflineRegion()
         storage.addPack(for: tilePyramidRegion, withContext: regionData.prepareContext()) { [weak self] (pack, error) in
             if let pack = pack {
@@ -56,12 +58,13 @@ class OfflinePackDownloader {
     
     // MARK: Pack management
     private func onPackCreated(pack: MGLOfflinePack) {
-        if let region = OfflineRegion.fromOfflinePack(pack) {
+        if let region = OfflineRegion.fromOfflinePack(pack),
+           let regionData = try? JSONSerialization.data(withJSONObject: region.toDictionary()) {
             // Start downloading
             self.pack = pack
             pack.resume()
-            // Provide region with generated id
-            result(region.toJsonString())
+            // Provide region with generated
+            result(String(data: regionData, encoding: .utf8))
             channelHandler.onStart()
         } else {
             onPackCreationError(error: OfflinePackError.InvalidPackData)

@@ -11,9 +11,10 @@ import Mapbox
 
 class OfflineManagerUtils {
     static var activeDownloaders: [Int: OfflinePackDownloader] = [:]
-    
+
     static func downloadRegion(
         definition: OfflineRegionDefinition,
+        metadata: [String: Any],
         result: @escaping FlutterResult,
         registrar: FlutterPluginRegistrar,
         channelHandler: OfflineChannelHandler
@@ -22,7 +23,8 @@ class OfflineManagerUtils {
         let downloader = OfflinePackDownloader(
             result: result,
             channelHandler: channelHandler,
-            regionDefintion: definition
+            regionDefintion: definition,
+            metadata: metadata
         )
 
         // Download region
@@ -30,20 +32,15 @@ class OfflineManagerUtils {
         // retain downloader by its generated id
         activeDownloaders[id] = downloader
     }
-    
+
     static func regionsList(result: @escaping FlutterResult) {
         let offlineStorage = MGLOfflineStorage.shared
         guard let packs = offlineStorage.packs else {
             result("[]")
             return
         }
-        let regionsArgs = packs.compactMap { pack -> [String: Any]? in
-            guard let regionArgs = OfflineRegion.fromOfflinePack(pack),
-                let jsonData = regionArgs.toJsonString().data(using: .utf8),
-                let jsonObject = try? JSONSerialization.jsonObject(with: jsonData),
-                let jsonDict = jsonObject as? [String: Any]
-                else { return nil }
-            return jsonDict
+        let regionsArgs = packs.compactMap { pack in
+            return OfflineRegion.fromOfflinePack(pack)?.toDictionary()
         }
         guard let regionsArgsJsonData = try? JSONSerialization.data(withJSONObject: regionsArgs),
             let regionsArgsJsonString = String(data: regionsArgsJsonData, encoding: .utf8)

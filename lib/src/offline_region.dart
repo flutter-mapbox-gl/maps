@@ -39,8 +39,9 @@ class OfflineRegionDefinition {
             )
           : null,
       mapStyleUrl: map['mapStyleUrl'],
-      minZoom: map['minZoom'],
-      maxZoom: map['maxZoom'],
+      // small integers may deserialize to Int
+      minZoom: map['minZoom'].toDouble(),
+      maxZoom: map['maxZoom'].toDouble(),
       includeIdeographs: map['includeIdeographs'] ?? false,
     );
   }
@@ -61,8 +62,6 @@ class OfflineRegionDefinition {
     }
     return LatLng(json[0], json[1]);
   }
-
-
 }
 
 /// Description of a downloaded region including its identifier.

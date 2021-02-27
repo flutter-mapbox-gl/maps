@@ -10,49 +10,31 @@ import Mapbox
 
 class OfflineRegion {
     let id: Int
-    let bounds: [[Double]]
-    let metadata: [String: Any]?
-    let mapStyleUrl: URL
-    let minZoom: Double
-    let maxZoom: Double
+    let metadata: [String: Any]
+    let definition: OfflineRegionDefinition
+    
+    enum CodingKeys: CodingKey {
+      case id, metadata, definition
+    }
 
-    init(id: Int, bounds: [[Double]], metadata: [String: Any]?, mapStyleUrl: URL, minZoom: Double, maxZoom: Double) {
+    init(id: Int, metadata: [String: Any], definition: OfflineRegionDefinition) {
         self.id = id
-        self.bounds = bounds
         self.metadata = metadata
-        self.mapStyleUrl = mapStyleUrl
-        self.minZoom = minZoom
-        self.maxZoom = maxZoom
+        self.definition = definition
     }
 
     func prepareContext() -> Data {
-        let context = ["metadata": metadata ?? [], "id": id] as [String: Any]
+        let context = ["metadata": metadata, "id": id] as [String: Any]
         let jsonData = try? JSONSerialization.data(withJSONObject: context, options: [])
         return jsonData ?? Data()
     }
-    
-    func toJsonString() -> String {
-        let formatString = #"{"id":%ld,"bounds":%@,"metadata":%@,"mapStyleUrl":"%@","minZoom":%f,"maxZoom":%f}"#
-        let boundsJsonData = (try? JSONSerialization.data(withJSONObject: bounds)) ?? Data()
-        let boundJsonString = String(data: boundsJsonData, encoding: .utf8) ?? "[]"
-        var metadataJsonString = "null"
-        if let metadata = metadata {
-            let metadataJsonData = (try? JSONSerialization.data(withJSONObject: metadata)) ?? Data()
-            metadataJsonString = String(data: metadataJsonData, encoding: .utf8) ?? "null"
-        }
-        let jsonString = String(format: formatString, id, boundJsonString, metadataJsonString, mapStyleUrl.path, minZoom, maxZoom)
-        return jsonString
-    }
 
-    static func fromOfflineRegionDefinition(_ region: OfflineRegionDefinition, id: Int) -> OfflineRegion {
-        return OfflineRegion(
-            id: id,
-            bounds: region.bounds,
-            metadata: region.metadata,
-            mapStyleUrl: region.mapStyleUrl,
-            minZoom: region.minZoom,
-            maxZoom: region.maxZoom
-        );
+    func toDictionary() -> [String: Any] {
+        return [
+            "id": id,
+            "metadata": metadata,
+            "definition": definition.toDictionary()
+        ]
     }
 
     static func fromOfflinePack(_ pack: MGLOfflinePack) -> OfflineRegion? {
@@ -63,17 +45,13 @@ class OfflineRegion {
             let metadata = dict["metadata"] as? [String: Any] else { return nil }
         return OfflineRegion(
             id: id,
-            bounds: boundsToArray(region.bounds),
             metadata: metadata,
-            mapStyleUrl: region.styleURL,
-            minZoom: region.minimumZoomLevel,
-            maxZoom: region.maximumZoomLevel
+            definition: OfflineRegionDefinition(
+                bounds: [region.bounds.sw, region.bounds.ne].map { [$0.latitude, $0.longitude] },
+                mapStyleUrl: region.styleURL,
+                minZoom: region.minimumZoomLevel,
+                maxZoom: region.maximumZoomLevel
+            )
         )
-    }
-
-    private static func boundsToArray(_ bounds: MGLCoordinateBounds) -> [[Double]] {
-        let ne = [bounds.ne.latitude, bounds.ne.longitude]
-        let sw = [bounds.sw.latitude, bounds.sw.longitude]
-        return [sw, ne]
     }
 }
