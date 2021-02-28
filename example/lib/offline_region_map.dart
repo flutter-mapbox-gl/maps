@@ -22,22 +22,22 @@ class _OfflineRegionMapState extends State<OfflineRegionMap> {
       body: MapboxMap(
         initialCameraPosition: CameraPosition(
           target: _center,
-          zoom: widget.item.offlineRegion.minZoom,
+          zoom: widget.item.offlineRegionDefinition.minZoom,
         ),
         minMaxZoomPreference: MinMaxZoomPreference(
-          widget.item.offlineRegion.minZoom,
-          widget.item.offlineRegion.maxZoom,
+          widget.item.offlineRegionDefinition.minZoom,
+          widget.item.offlineRegionDefinition.maxZoom,
         ),
-        styleString: widget.item.offlineRegion.mapStyleUrl,
+        styleString: widget.item.offlineRegionDefinition.mapStyleUrl,
         cameraTargetBounds: CameraTargetBounds(
-          widget.item.offlineRegion.bounds,
+          widget.item.offlineRegionDefinition.bounds,
         ),
       ),
     );
   }
 
   LatLng get _center {
-    final bounds = widget.item.offlineRegion.bounds;
+    final bounds = widget.item.offlineRegionDefinition.bounds;
     final lat = (bounds.southwest.latitude + bounds.northeast.latitude) / 2;
     final lng = (bounds.southwest.longitude + bounds.northeast.longitude) / 2;
     return LatLng(lat, lng);

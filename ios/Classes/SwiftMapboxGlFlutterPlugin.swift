@@ -17,17 +17,28 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                 installOfflineMapTiles(registrar: registrar, tilesdb: tilesdb!)
                 result(nil)
             case "downloadOfflineRegion":
-                guard let args = methodCall.arguments as? String,
-                    let offlineData = OfflineRegionData.fromJsonString(args)
+                // Get download region arguments from caller
+                guard let args = methodCall.arguments as? [String: Any],
+                      let definitionDictionary = args["definition"] as? [String: Any],
+                      let metadata = args["metadata"] as? [String: Any],
+                      let defintion = OfflineRegionDefinition.fromDictionary(definitionDictionary),
+                      let channelName = args["channelName"] as? String
                     else {
-                        // some error here
+                        print("downloadOfflineRegion unexpected arguments: \(String(describing: methodCall.arguments))")
                         result(nil)
                         return
                     }
+                // Prepare channel
+                let channelHandler = OfflineChannelHandler(
+                    messenger: registrar.messenger(),
+                    channelName: channelName
+                )
                 OfflineManagerUtils.downloadRegion(
-                    regionData: offlineData,
+                    definition: defintion,
+                    metadata: metadata,
                     result: result,
-                    registrar: registrar
+                    registrar: registrar,
+                    channelHandler: channelHandler
                 )
             case "setOfflineTileCountLimit":
                 guard let arguments = methodCall.arguments as? [String: Any],

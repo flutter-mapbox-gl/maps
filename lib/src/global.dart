@@ -30,7 +30,7 @@ Future<List<OfflineRegion>> mergeOfflineRegions(
     },
   );
   Iterable regions = json.decode(regionsJson);
-  return regions.map((region) => OfflineRegion.fromJson(region)).toList();
+  return regions.map((region) => OfflineRegion.fromMap(region)).toList();
 }
 
 Future<List<OfflineRegion>> getListOfRegions({String accessToken}) async {
@@ -41,12 +41,14 @@ Future<List<OfflineRegion>> getListOfRegions({String accessToken}) async {
     },
   );
   Iterable regions = json.decode(regionsJson);
-  return regions.map((region) => OfflineRegion.fromJson(region)).toList();
+  return regions.map((region) => OfflineRegion.fromMap(region)).toList();
 }
 
 Future<OfflineRegion> updateOfflineRegionMetadata(
-    int id, Map<String, dynamic> metadata,
-    {String accessToken}) async {
+  int id,
+  Map<String, dynamic> metadata, {
+  String accessToken,
+}) async {
   final regionJson = await _globalChannel.invokeMethod(
     'updateOfflineRegionMetadata',
     <String, dynamic>{
@@ -56,7 +58,7 @@ Future<OfflineRegion> updateOfflineRegionMetadata(
     },
   );
 
-  return OfflineRegion.fromJson(json.decode(regionJson));
+  return OfflineRegion.fromMap(json.decode(regionJson));
 }
 
 Future<dynamic> setOfflineTileCountLimit(int limit, {String accessToken}) =>
@@ -77,11 +79,12 @@ Future<dynamic> deleteOfflineRegion(int id, {String accessToken}) =>
       },
     );
 
-Future<dynamic> downloadOfflineRegion(
-  OfflineRegion region, {
+Future<OfflineRegion> downloadOfflineRegion(
+  OfflineRegionDefinition definition, {
+  Map<String, dynamic> metadata = const {},
   String accessToken,
   Function(DownloadRegionStatus event) onEvent,
-}) {
+}) async {
   String channelName =
       'downloadOfflineRegion_${DateTime.now().microsecondsSinceEpoch}';
 
@@ -89,7 +92,8 @@ Future<dynamic> downloadOfflineRegion(
       _globalChannel.invokeMethod('downloadOfflineRegion', <String, dynamic>{
     'accessToken': accessToken,
     'channelName': channelName,
-    'region': json.encode(region._toJson())
+    'definition': definition.toMap(),
+    'metadata': metadata,
   });
 
   if (onEvent != null) {
@@ -137,5 +141,5 @@ Future<dynamic> downloadOfflineRegion(
     });
   }
 
-  return result;
+  return OfflineRegion.fromMap(json.decode(await result));
 }
