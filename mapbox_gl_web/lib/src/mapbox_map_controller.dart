@@ -1,5 +1,8 @@
 part of mapbox_gl_web;
 
+const _mapboxGlCssUrl =
+    'https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.css';
+
 class MapboxMapController extends MapboxGlPlatform
     implements MapboxMapOptionsSink {
   DivElement _mapElement;
@@ -42,7 +45,7 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future<void> initPlatform(int id) async {
-    await _addStylesheetToShadowRoot();
+    await _addStylesheetToShadowRoot(_mapElement);
     if (_creationParams.containsKey('initialCameraPosition')) {
       var camera = _creationParams['initialCameraPosition'];
       if (_creationParams.containsKey('accessToken')) {
@@ -63,20 +66,11 @@ class MapboxMapController extends MapboxGlPlatform
     Convert.interpretMapboxMapOptions(_creationParams['options'], this);
   }
 
-  Future<void> _addStylesheetToShadowRoot() async {
-    int index = -1;
-    while (index == -1) {
-      index = document.getElementsByTagName('flt-platform-view').length - 1;
-      await Future.delayed(Duration(milliseconds: 10));
-    }
-    HtmlElement e = document.getElementsByTagName('flt-platform-view')[index]
-        as HtmlElement;
-
-    LinkElement link = LinkElement();
-    link.href =
-        'https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.css';
-    link.rel = 'stylesheet';
-    e.shadowRoot.append(link);
+  Future<void> _addStylesheetToShadowRoot(HtmlElement e) async {
+    LinkElement link = LinkElement()
+      ..href = _mapboxGlCssUrl
+      ..rel = 'stylesheet';
+    e.append(link);
 
     await link.onLoad.first;
   }
@@ -439,7 +433,15 @@ class MapboxMapController extends MapboxGlPlatform
     );
     _geolocateControl.on('geolocate', (e) {
       _myLastLocation = LatLng(e.coords.latitude, e.coords.longitude);
-      onUserLocationUpdatedPlatform(UserLocation(position: LatLng(e.coords.latitude, e.coords.longitude), altitude: e.coords.altitude, bearing: e.coords.heading, speed: e.coords.speed, horizontalAccuracy: e.coords.accuracy, verticalAccuracy: e.coords.altitudeAccuracy, heading: null, timestamp: DateTime.fromMillisecondsSinceEpoch(e.timestamp)));
+      onUserLocationUpdatedPlatform(UserLocation(
+          position: LatLng(e.coords.latitude, e.coords.longitude),
+          altitude: e.coords.altitude,
+          bearing: e.coords.heading,
+          speed: e.coords.speed,
+          horizontalAccuracy: e.coords.accuracy,
+          verticalAccuracy: e.coords.altitudeAccuracy,
+          heading: null,
+          timestamp: DateTime.fromMillisecondsSinceEpoch(e.timestamp)));
     });
     _geolocateControl.on('trackuserlocationstart', (_) {
       _onCameraTrackingChanged(true);
