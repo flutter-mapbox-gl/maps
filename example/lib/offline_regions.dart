@@ -114,7 +114,7 @@ class OfflineRegionBody extends StatefulWidget {
 }
 
 class _OfflineRegionsBodyState extends State<OfflineRegionBody> {
-  List<OfflineRegionListItem> _items = List();
+  List<OfflineRegionListItem> _items = [];
 
   @override
   void initState() {
