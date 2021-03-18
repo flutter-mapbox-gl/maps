@@ -100,7 +100,7 @@ class MapboxMapController extends ChangeNotifier {
         .add((cameraPosition) {
       _isCameraMoving = false;
       if (cameraPosition != null) {
-        _cameraPosition = cameraPosition;        
+        _cameraPosition = cameraPosition;
       }
       if (onCameraIdle != null) {
         onCameraIdle();
@@ -222,17 +222,27 @@ class MapboxMapController extends ChangeNotifier {
   Set<Line> get lines => Set<Line>.from(_lines.values);
   final Map<String, Line> _lines = <String, Line>{};
 
+  final _lineToDeleteIds = <String>[];
+  final _lineToAddOptions = <CircleOptions>[];
+
   /// The current set of circles on this map.
   ///
   /// The returned set will be a detached snapshot of the circles collection.
   Set<Circle> get circles => Set<Circle>.from(_circles.values);
   final Map<String, Circle> _circles = <String, Circle>{};
 
+  final _circleToDeleteIds = <String>[];
+  final _circleToAddOptions = <CircleOptions>[];
+
   /// The current set of fills on this map.
   ///
   /// The returned set will be a detached snapshot of the fills collection.
   Set<Fill> get fills => Set<Fill>.from(_fills.values);
   final Map<String, Fill> _fills = <String, Fill>{};
+
+  final _fillToDeleteIds = <String>[];
+  final _fillToAddOptions = <CircleOptions>[];
+  final _resultingIdStreams = <Stream<String>>[];
 
   /// True if the map camera is currently moving.
   bool get isCameraMoving => _isCameraMoving;
@@ -533,6 +543,17 @@ class MapboxMapController extends ChangeNotifier {
     _lines.remove(id);
   }
 
+  void removeLineLazy(Line line) {
+    assert(line != null);
+    assert(_lines[line.id] == line);
+    _lineToDeleteIds.add(line.id);
+  }
+
+  void removeLazyLines() async {
+    await MapboxGlPlatform.getInstance(_id).removeCircles(_lineToDeleteIds);
+    _lineToDeleteIds.forEach((id) => _lines.remove(id))
+  }
+
   /// Adds a circle to the map, configured using the specified custom [options].
   ///
   /// Change listeners are notified once the circle has been added on the
@@ -590,6 +611,17 @@ class MapboxMapController extends ChangeNotifier {
     assert(_circles[circle.id] == circle);
     await _removeCircle(circle.id);
     notifyListeners();
+  }
+
+  void removeCircleLazy(Circle circle) {
+    assert(circle != null);
+    assert(_circles[circle.id] == circle);
+    _circleToDeleteIds.add(circle.id);
+  }
+
+  void removeLazyCircles() async {
+    await MapboxGlPlatform.getInstance(_id).removeCircles(_circleToDeleteIds);
+    _circleToDeleteIds.forEach((id) => _circles.remove(id));
   }
 
   /// Removes all [circles] from the map.
@@ -678,6 +710,17 @@ class MapboxMapController extends ChangeNotifier {
     assert(_fills[fill.id] == fill);
     await _removeFill(fill.id);
     notifyListeners();
+  }
+
+  void removeFillLazy(Fill fill) {
+    assert(fill != null);
+    assert(_fills[fill.id] == fill);
+    _fillToDeleteIds.add(fill.id);
+  }
+
+  void removeLazyFills() async {
+    await MapboxGlPlatform.getInstance(_id).removeFills(_fillToDeleteIds);
+    _fillToDeleteIds.forEach((id) => _fills.remove(id));
   }
 
   /// Helper method to remove a single fill from the map. Consumed by
