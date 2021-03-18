@@ -23,6 +23,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var fillAnnotationController: MGLPolygonAnnotationController?
 
     private var annotationOrder = [String]()
+    private var annotationClickOrder = [String]()
 
     func view() -> UIView {
         return mapView
@@ -67,6 +68,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
             if let annotationOrderArg = args["annotationOrder"] as? [String] {
                 annotationOrder = annotationOrderArg
+            }
+            if let annotationClickOrderArg = args["annotationClickOrder"] as? [String] {
+                annotationClickOrder = annotationClickOrderArg
             }
         }
     }
@@ -680,24 +684,39 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             switch annotationType {
             case "AnnotationType.fill":
                 fillAnnotationController = MGLPolygonAnnotationController(mapView: self.mapView)
-                fillAnnotationController!.annotationsInteractionEnabled = true
+                fillAnnotationController!.annotationsInteractionEnabled = false
                 fillAnnotationController?.delegate = self
             case "AnnotationType.line":
                 lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
-                lineAnnotationController!.annotationsInteractionEnabled = true
+                lineAnnotationController!.annotationsInteractionEnabled = false
                 lineAnnotationController?.delegate = self
             case "AnnotationType.circle":
                 circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
-                circleAnnotationController!.annotationsInteractionEnabled = true
+                circleAnnotationController!.annotationsInteractionEnabled = false
                 circleAnnotationController?.delegate = self
             case "AnnotationType.symbol":
                 symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
-                symbolAnnotationController!.annotationsInteractionEnabled = true
+                symbolAnnotationController!.annotationsInteractionEnabled = false
                 symbolAnnotationController?.delegate = self
             default:
                 print("Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'")  
             }
         }
+
+        for annotationType in annotationClickOrder {
+                    switch annotationType {
+                    case "AnnotationType.fill":
+                        fillAnnotationController!.annotationsInteractionEnabled = true
+                    case "AnnotationType.line":
+                        lineAnnotationController!.annotationsInteractionEnabled = true
+                    case "AnnotationType.circle":
+                        circleAnnotationController!.annotationsInteractionEnabled = true
+                    case "AnnotationType.symbol":
+                        symbolAnnotationController!.annotationsInteractionEnabled = true
+                    default:
+                        print("Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'")
+                    }
+                }
 
         mapReadyResult?(nil)
         if let channel = channel {

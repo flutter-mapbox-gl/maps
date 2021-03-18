@@ -15,7 +15,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -71,10 +70,11 @@ import com.mapbox.mapboxsdk.style.sources.ImageSource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -130,7 +130,8 @@ final class MapboxMapController
   private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
-  private List<String> annotationOrder = new ArrayList();
+  private List<String> annotationOrder;
+  private List<String> annotationClickOrder;
 
   MapboxMapController(
     int id,
@@ -140,7 +141,8 @@ final class MapboxMapController
     MapboxMapOptions options,
     String accessToken,
     String styleStringInitial,
-    List<String> annotationOrder) {
+    List<String> annotationOrder,
+    List<String> annotationClickOrder) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
@@ -155,6 +157,7 @@ final class MapboxMapController
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
     this.annotationOrder = annotationOrder;
+    this.annotationClickOrder = annotationClickOrder;
   }
 
   @Override
@@ -311,14 +314,35 @@ final class MapboxMapController
             throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
         }
       }
-      
-      if (myLocationEnabled) {
-        enableLocationComponent(style);
-      }
+
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
       mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
+
+      for(String annotationType : annotationClickOrder) {
+        switch (annotationType) {
+          case "AnnotationType.fill":
+            enableFillClickListener();
+            break;
+          case "AnnotationType.line":
+            enableLineClickListener();
+            break;
+          case "AnnotationType.circle":
+            enableCircleClickListener();
+            break;
+          case "AnnotationType.symbol":
+            enableSymbolClickListener();
+            break;
+          default:
+            throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
+        }
+      }
+      
+      if (myLocationEnabled) {
+        enableLocationComponent(style);
+      }
+
 	    localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
@@ -375,15 +399,23 @@ final class MapboxMapController
       symbolManager.setIconIgnorePlacement(true);
       symbolManager.setTextAllowOverlap(true);
       symbolManager.setTextIgnorePlacement(true);
+    }
+  }
+
+  private void enableSymbolClickListener() {
+    if (symbolManager != null) {
       symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
 
-
-
   private void enableLineManager(@NonNull Style style) {
     if (lineManager == null) {
       lineManager = new LineManager(mapView, mapboxMap, style);
+    }
+  }
+
+  private void enableLineClickListener() {
+    if (lineManager != null) {
       lineManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
@@ -391,6 +423,11 @@ final class MapboxMapController
   private void enableCircleManager(@NonNull Style style) {
     if (circleManager == null) {
       circleManager = new CircleManager(mapView, mapboxMap, style);
+    }
+  }
+
+  private void enableCircleClickListener() {
+    if (circleManager != null) {
       circleManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
@@ -398,6 +435,11 @@ final class MapboxMapController
   private void enableFillManager(@NonNull Style style) {
     if (fillManager ==  null) {
       fillManager = new FillManager(mapView, mapboxMap, style);
+    }
+  }
+
+  private void enableFillClickListener() {
+    if (fillManager != null) {
       fillManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
