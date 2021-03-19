@@ -27,6 +27,10 @@ class FillController implements FillOptionsSink {
     this.onTappedListener = onTappedListener;
   }
 
+  public Fill getFill(){
+    return this.fill;
+  }
+
   boolean onTap() {
     if (onTappedListener != null) {
       onTappedListener.onFillTapped(fill);

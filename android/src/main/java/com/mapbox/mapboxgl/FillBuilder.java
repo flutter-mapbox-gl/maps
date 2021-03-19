@@ -22,6 +22,10 @@ class FillBuilder implements FillOptionsSink {
     this.fillOptions = new FillOptions();
   }
 
+  public FillOptions getFillOptions(){
+    return this.fillOptions;
+  }
+
   Fill build() {
     return fillManager.create(fillOptions);
   }
