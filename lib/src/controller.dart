@@ -427,12 +427,10 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   Future<void> removeSymbols(Iterable<Symbol> symbols) async {
-    assert(symbols.length > 0);
-    symbols.forEach((s) {
-      assert(_symbols[s.id] == s);
-    });
+    final ids = symbols.where((s) => _symbols[s.id] == s).map((s) => s.id);
+    assert(symbols.length == ids.length);
 
-    await _removeSymbols(symbols.map((s) => s.id));
+    await _removeSymbols(ids);
     notifyListeners();
   }
 
@@ -444,8 +442,8 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> clearSymbols() async {
     assert(_symbols != null);
-    final List<String> symbolIds = List<String>.from(_symbols.keys);
-    _removeSymbols(symbolIds);
+    await MapboxGlPlatform.getInstance(_id).removeLines(_symbols.keys);
+    _symbols.clear();
     notifyListeners();
   }
 
@@ -523,15 +521,18 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> removeLine(Line line) async {
     assert(line != null);
     assert(_lines[line.id] == line);
-    await _removeLine(line.id);
+
+    await MapboxGlPlatform.getInstance(_id).removeLine(line.id);
+    _lines.remove(line.id);
     notifyListeners();
   }
 
-  Future<void> removeLines(List<Line> lines) async {
-    final checkedLines = lines.where((l) => _lines[l.id] == l).map((l) => l.id);
-    assert(checkedLines.length == lines.length);
-    await MapboxGlPlatform.getInstance(_id).removeLines(checkedLines);
-    checkedLines.forEach((id) => _lines.remove(id));
+  Future<void> removeLines(Iterable<Line> lines) async {
+    final ids = lines.where((l) => _lines[l.id] == l).map((l) => l.id);
+    assert(lines.length == ids.length);
+
+    await MapboxGlPlatform.getInstance(_id).removeLines(ids);
+    ids.forEach((id) => _lines.remove(id));
     notifyListeners();
   }
 
@@ -547,27 +548,6 @@ class MapboxMapController extends ChangeNotifier {
     await MapboxGlPlatform.getInstance(_id).removeLines(lineIds);
     _lines.clear();
     notifyListeners();
-  }
-
-  /// Helper method to remove a single line from the map. Consumed by
-  /// [removeLine] and [clearLines].
-  ///
-  /// The returned [Future] completes once the line has been removed from
-  /// [_lines].
-  Future<void> _removeLine(String id) async {
-    await MapboxGlPlatform.getInstance(_id).removeLine(id);
-    _lines.remove(id);
-  }
-
-  void removeLineLazy(Line line) {
-    assert(line != null);
-    assert(_lines[line.id] == line);
-    _lineToDeleteIds.add(line.id);
-  }
-
-  void removeLazyLines() async {
-    await MapboxGlPlatform.getInstance(_id).removeLines(_lineToDeleteIds);
-    _lineToDeleteIds.forEach((id) => _lines.remove(id));
   }
 
   /// Adds a circle to the map, configured using the specified custom [options].
@@ -634,19 +614,21 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> removeCircle(Circle circle) async {
     assert(circle != null);
     assert(_circles[circle.id] == circle);
-    await _removeCircle(circle.id);
+
+    await MapboxGlPlatform.getInstance(_id).removeCircle(circle.id);
+    _circles.remove(circle.id);
+
     notifyListeners();
   }
 
-  void removeCircleLazy(Circle circle) {
-    assert(circle != null);
-    assert(_circles[circle.id] == circle);
-    _circleToDeleteIds.add(circle.id);
-  }
+  Future<void> removeCircles(Iterable<Circle> circles) async {
+    assert(circles != null);
+    final ids = circles.where((c) => _circles[c.id] == c).map((c) => c.id);
+    assert(circles.length == ids.length);
 
-  void removeLazyCircles() async {
-    await MapboxGlPlatform.getInstance(_id).removeCircles(_circleToDeleteIds);
-    _circleToDeleteIds.forEach((id) => _circles.remove(id));
+    await MapboxGlPlatform.getInstance(_id).removeCircles(ids);
+    ids.forEach((id) => _circles.remove(id));
+    notifyListeners();
   }
 
   /// Removes all [circles] from the map.
@@ -661,17 +643,6 @@ class MapboxMapController extends ChangeNotifier {
     _circles.clear();
 
     notifyListeners();
-  }
-
-  /// Helper method to remove a single circle from the map. Consumed by
-  /// [removeCircle] and [clearCircles].
-  ///
-  /// The returned [Future] completes once the circle has been removed from
-  /// [_circles].
-  Future<void> _removeCircle(String id) async {
-    await MapboxGlPlatform.getInstance(_id).removeCircle(id);
-
-    _circles.remove(id);
   }
 
   /// Adds a fill to the map, configured using the specified custom [options].
@@ -698,16 +669,6 @@ class MapboxMapController extends ChangeNotifier {
     circles.forEach((f) => _fills[f.id] = f);
     notifyListeners();
     return circles;
-  }
-
-  Future<Fill> addFillLazy(FillOptions options, [Map data]) async {
-    final FillOptions effectiveOptions =
-        FillOptions.defaultOptions.copyWith(options);
-    final fill =
-        await MapboxGlPlatform.getInstance(_id).addFill(effectiveOptions, data);
-    _fills[fill.id] = fill;
-    notifyListeners();
-    return fill;
   }
 
   /// Updates the specified [fill] with the given [changes]. The fill must
@@ -750,30 +711,19 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> removeFill(Fill fill) async {
     assert(fill != null);
     assert(_fills[fill.id] == fill);
-    await _removeFill(fill.id);
+    await MapboxGlPlatform.getInstance(_id).removeFill(fill.id);
+    _fills.remove(fill.id);
+
     notifyListeners();
   }
 
-  void removeFillLazy(Fill fill) {
-    assert(fill != null);
-    assert(_fills[fill.id] == fill);
-    _fillToDeleteIds.add(fill.id);
-  }
+  Future<void> removeFills(Iterable<Fill> fills) async {
+    final ids = fills.where((f) => _fills[f.id] == f).map((f) => f.id);
+    assert(fills.length == ids.length);
 
-  void removeLazyFills() async {
-    await MapboxGlPlatform.getInstance(_id).removeFills(_fillToDeleteIds);
-    _fillToDeleteIds.forEach((id) => _fills.remove(id));
-  }
-
-  /// Helper method to remove a single fill from the map. Consumed by
-  /// [removeFill] and [clearFills].
-  ///
-  /// The returned [Future] completes once the fill has been removed from
-  /// [_fills].
-  Future<void> _removeFill(String id) async {
-    await MapboxGlPlatform.getInstance(_id).removeFill(id);
-
-    _fills.remove(id);
+    await MapboxGlPlatform.getInstance(_id).removeFills(ids);
+    ids.forEach((id) => _fills.remove(id));
+    notifyListeners();
   }
 
   Future<List> queryRenderedFeatures(
