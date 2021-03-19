@@ -476,8 +476,17 @@ class MapboxMapController extends ChangeNotifier {
     return line;
   }
 
+  Future<List<Line>> addLines(List<LineOptions> options,
+      [List<Map> data]) async {
+    final lines =
+        await MapboxGlPlatform.getInstance(_id).addLines(options, data);
+    lines.forEach((l) => _lines[l.id] = l);
+    notifyListeners();
+    return lines;
+  }
+
   /// Updates the specified [line] with the given [changes]. The line must
-  /// be a current member of the [lines] set.
+  /// be a current member of the [lines] set.‚
   ///
   /// Change listeners are notified once the line has been updated on the
   /// platform side.
@@ -518,6 +527,14 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> removeLines(List<Line> lines) async {
+    final checkedLines = lines.where((l) => _lines[l.id] == l).map((l) => l.id);
+    assert(checkedLines.length == lines.length);
+    await MapboxGlPlatform.getInstance(_id).removeLines(checkedLines);
+    checkedLines.forEach((id) => _lines.remove(id));
+    notifyListeners();
+  }
+
   /// Removes all [lines] from the map.
   ///
   /// Change listeners are notified once all lines have been removed on the
@@ -527,9 +544,8 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> clearLines() async {
     assert(_lines != null);
     final List<String> lineIds = List<String>.from(_lines.keys);
-    for (String id in lineIds) {
-      await _removeLine(id);
-    }
+    await MapboxGlPlatform.getInstance(_id).removeLines(lineIds);
+    _lines.clear();
     notifyListeners();
   }
 
@@ -550,8 +566,8 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   void removeLazyLines() async {
-    await MapboxGlPlatform.getInstance(_id).removeCircles(_lineToDeleteIds);
-    _lineToDeleteIds.forEach((id) => _lines.remove(id))
+    await MapboxGlPlatform.getInstance(_id).removeLines(_lineToDeleteIds);
+    _lineToDeleteIds.forEach((id) => _lines.remove(id));
   }
 
   /// Adds a circle to the map, configured using the specified custom [options].
@@ -569,6 +585,15 @@ class MapboxMapController extends ChangeNotifier {
     _circles[circle.id] = circle;
     notifyListeners();
     return circle;
+  }
+
+  Future<List<Circle>> addCircles(List<CircleOptions> options,
+      [List<Map> data]) async {
+    final circles =
+        await MapboxGlPlatform.getInstance(_id).addCircles(options, data);
+    circles.forEach((c) => _circles[c.id] = c);
+    notifyListeners();
+    return circles;
   }
 
   /// Updates the specified [circle] with the given [changes]. The circle must
@@ -632,10 +657,9 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> clearCircles() async {
     assert(_circles != null);
-    final List<String> circleIds = List<String>.from(_circles.keys);
-    for (String id in circleIds) {
-      await _removeCircle(id);
-    }
+    await MapboxGlPlatform.getInstance(_id).removeCircles(_circles.keys);
+    _circles.clear();
+
     notifyListeners();
   }
 
@@ -658,6 +682,25 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes with the added fill once listeners have
   /// been notified.
   Future<Fill> addFill(FillOptions options, [Map data]) async {
+    final FillOptions effectiveOptions =
+        FillOptions.defaultOptions.copyWith(options);
+    final fill =
+        await MapboxGlPlatform.getInstance(_id).addFill(effectiveOptions, data);
+    _fills[fill.id] = fill;
+    notifyListeners();
+    return fill;
+  }
+
+  Future<List<Fill>> addFills(List<FillOptions> options,
+      [List<Map> data]) async {
+    final circles =
+        await MapboxGlPlatform.getInstance(_id).addFills(options, data);
+    circles.forEach((f) => _fills[f.id] = f);
+    notifyListeners();
+    return circles;
+  }
+
+  Future<Fill> addFillLazy(FillOptions options, [Map data]) async {
     final FillOptions effectiveOptions =
         FillOptions.defaultOptions.copyWith(options);
     final fill =
@@ -691,10 +734,9 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> clearFills() async {
     assert(_fills != null);
-    final List<String> fillIds = List<String>.from(_fills.keys);
-    for (String id in fillIds) {
-      await _removeFill(id);
-    }
+    await MapboxGlPlatform.getInstance(_id).removeFills(_fills.keys);
+    _fills.clear();
+
     notifyListeners();
   }
 

@@ -279,7 +279,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   Future<List<Line>> addLines(List<LineOptions> options,
       [List<Map> data]) async {
     final List<dynamic> ids = await _channel.invokeMethod(
-      'fills#addAll',
+      'line#addAll',
       <String, dynamic>{
         'options': options.map((o) => o.toJson()).toList(),
       },
@@ -343,6 +343,25 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<List<Circle>> addCircles(List<CircleOptions> options,
+      [List<Map> data]) async {
+    final List<dynamic> ids = await _channel.invokeMethod(
+      'circle#addAll',
+      <String, dynamic>{
+        'options': options.map((o) => o.toJson()).toList(),
+      },
+    );
+    return ids
+        .asMap()
+        .map((i, id) => MapEntry(
+            i,
+            Circle(id, options.elementAt(i),
+                data != null && data.length > i ? data.elementAt(i) : null)))
+        .values
+        .toList();
+  }
+
+  @override
   Future<void> updateCircle(Circle circle, CircleOptions changes) async {
     await _channel.invokeMethod('circle#update', <String, dynamic>{
       'circle': circle.id,
@@ -367,6 +386,13 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> removeCircles(Iterable<String> ids) async {
+    await _channel.invokeMethod('circle#removeAll', <String, dynamic>{
+      'ids': ids.toList(),
+    });
+  }
+
+  @override
   Future<Fill> addFill(FillOptions options, [Map data]) async {
     final String fillId = await _channel.invokeMethod(
       'fill#add',
@@ -381,7 +407,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   Future<List<Fill>> addFills(List<FillOptions> options,
       [List<Map> data]) async {
     final List<dynamic> ids = await _channel.invokeMethod(
-      'fills#addAll',
+      'fill#addAll',
       <String, dynamic>{
         'options': options.map((o) => o.toJson()).toList(),
       },
@@ -415,7 +441,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
 
   @override
   Future<void> removeFills(Iterable<String> ids) async {
-    await _channel.invokeMethod('fills#removeAll', <String, dynamic>{
+    await _channel.invokeMethod('fill#removeAll', <String, dynamic>{
       'ids': ids.toList(),
     });
   }
