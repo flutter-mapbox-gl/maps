@@ -698,7 +698,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         default:
             result(FlutterMethodNotImplemented)
         }
-        NSLog("methodCall.method")
     }
     
     private func getSymbolForOptions(options: [String: Any]) -> MGLSymbolStyleAnnotation? {
