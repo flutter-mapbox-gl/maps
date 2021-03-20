@@ -72,7 +72,7 @@ class Convert {
     return annotations;
   }
 
-  static List<String> toAnnotationClickOrder(Object o) {
+  static List<String> toAnnotationConsumeTapEvents(Object o) {
     return toAnnotationOrder(o);
   }
 

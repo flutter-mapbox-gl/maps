@@ -45,7 +45,7 @@ class MapboxMap extends StatefulWidget {
       AnnotationType.circle,
       AnnotationType.fill,
     ],
-    this.annotationClickOrder = const [
+    this.annotationConsumeTapEvents = const [
       AnnotationType.symbol,
       AnnotationType.fill,
       AnnotationType.line,
@@ -54,8 +54,8 @@ class MapboxMap extends StatefulWidget {
   })  : assert(initialCameraPosition != null),
         assert(annotationOrder != null),
         assert(annotationOrder.length == 4),
-        assert(annotationClickOrder != null),
-        assert(annotationClickOrder.length > 0),
+        assert(annotationConsumeTapEvents != null),
+        assert(annotationConsumeTapEvents.length > 0),
         super(key: key);
 
   /// Defined the layer order of annotations displayed on map
@@ -64,7 +64,7 @@ class MapboxMap extends StatefulWidget {
 
   /// Defined the layer order of click annotations
   /// (must contain at least 1 annotation type, 4 items max)
-  final List<AnnotationType> annotationClickOrder;
+  final List<AnnotationType> annotationConsumeTapEvents;
 
   /// If you want to use Mapbox hosted styles and map tiles, you need to provide a Mapbox access token.
   /// Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
@@ -211,15 +211,15 @@ class _MapboxMapState extends State<MapboxMap> {
   Widget build(BuildContext context) {
     final List<String> annotationOrder =
         widget.annotationOrder.map((e) => e.toString()).toList();
-    final List<String> annotationClickOrder =
-        widget.annotationClickOrder.map((e) => e.toString()).toList();
+    final List<String> annotationConsumeTapEvents =
+        widget.annotationConsumeTapEvents.map((e) => e.toString()).toList();
 
     final Map<String, dynamic> creationParams = <String, dynamic>{
       'initialCameraPosition': widget.initialCameraPosition?.toMap(),
       'options': _MapboxMapOptions.fromWidget(widget).toMap(),
       'accessToken': widget.accessToken,
       'annotationOrder': annotationOrder,
-      'annotationClickOrder': annotationClickOrder,
+      'annotationConsumeTapEvents': annotationConsumeTapEvents,
     };
     return _mapboxGlPlatform.buildView(
         creationParams, onPlatformViewCreated, widget.gestureRecognizers);

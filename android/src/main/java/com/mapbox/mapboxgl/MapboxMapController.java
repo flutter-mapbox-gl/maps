@@ -131,7 +131,7 @@ final class MapboxMapController
   private LocalizationPlugin localizationPlugin;
   private Style style;
   private List<String> annotationOrder;
-  private List<String> annotationClickOrder;
+  private List<String> annotationConsumeTapEvents;
 
   MapboxMapController(
     int id,
@@ -142,7 +142,7 @@ final class MapboxMapController
     String accessToken,
     String styleStringInitial,
     List<String> annotationOrder,
-    List<String> annotationClickOrder) {
+    List<String> annotationConsumeTapEvents) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
@@ -157,7 +157,7 @@ final class MapboxMapController
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
     this.annotationOrder = annotationOrder;
-    this.annotationClickOrder = annotationClickOrder;
+    this.annotationConsumeTapEvents = annotationConsumeTapEvents;
   }
 
   @Override
@@ -314,35 +314,14 @@ final class MapboxMapController
             throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
         }
       }
-
-      // needs to be placed after SymbolManager#addClickListener,
-      // is fixed with 0.6.0 of annotations plugin
-      mapboxMap.addOnMapClickListener(MapboxMapController.this);
-      mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
-
-      for(String annotationType : annotationClickOrder) {
-        switch (annotationType) {
-          case "AnnotationType.fill":
-            enableFillClickListener();
-            break;
-          case "AnnotationType.line":
-            enableLineClickListener();
-            break;
-          case "AnnotationType.circle":
-            enableCircleClickListener();
-            break;
-          case "AnnotationType.symbol":
-            enableSymbolClickListener();
-            break;
-          default:
-            throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
-        }
-      }
       
       if (myLocationEnabled) {
         enableLocationComponent(style);
       }
-
+      // needs to be placed after SymbolManager#addClickListener,
+      // is fixed with 0.6.0 of annotations plugin
+      mapboxMap.addOnMapClickListener(MapboxMapController.this);
+      mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
 	    localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
@@ -399,11 +378,6 @@ final class MapboxMapController
       symbolManager.setIconIgnorePlacement(true);
       symbolManager.setTextAllowOverlap(true);
       symbolManager.setTextIgnorePlacement(true);
-    }
-  }
-
-  private void enableSymbolClickListener() {
-    if (symbolManager != null) {
       symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
@@ -411,11 +385,6 @@ final class MapboxMapController
   private void enableLineManager(@NonNull Style style) {
     if (lineManager == null) {
       lineManager = new LineManager(mapView, mapboxMap, style);
-    }
-  }
-
-  private void enableLineClickListener() {
-    if (lineManager != null) {
       lineManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
@@ -423,11 +392,6 @@ final class MapboxMapController
   private void enableCircleManager(@NonNull Style style) {
     if (circleManager == null) {
       circleManager = new CircleManager(mapView, mapboxMap, style);
-    }
-  }
-
-  private void enableCircleClickListener() {
-    if (circleManager != null) {
       circleManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
@@ -435,11 +399,6 @@ final class MapboxMapController
   private void enableFillManager(@NonNull Style style) {
     if (fillManager ==  null) {
       fillManager = new FillManager(mapView, mapboxMap, style);
-    }
-  }
-
-  private void enableFillClickListener() {
-    if (fillManager != null) {
       fillManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
@@ -647,7 +606,7 @@ final class MapboxMapController
             for (Symbol symbol : newSymbols) {
               symbolId = String.valueOf(symbol.getId());
               newSymbolIds.add(symbolId);
-              symbols.put(symbolId, new SymbolController(symbol, true, this));
+              symbols.put(symbolId, new SymbolController(symbol, annotationConsumeTapEvents.contains("AnnotationType.symbol"), this));
             }
           }
         }
@@ -717,7 +676,7 @@ final class MapboxMapController
         Convert.interpretLineOptions(call.argument("options"), lineBuilder);
         final Line line = lineBuilder.build();
         final String lineId = String.valueOf(line.getId());
-        lines.put(lineId, new LineController(line, true, this));
+        lines.put(lineId, new LineController(line,  annotationConsumeTapEvents.contains("AnnotationType.line"), this));
         result.success(lineId);
         break;
       }
@@ -754,7 +713,7 @@ final class MapboxMapController
         Convert.interpretCircleOptions(call.argument("options"), circleBuilder);
         final Circle circle = circleBuilder.build();
         final String circleId = String.valueOf(circle.getId());
-        circles.put(circleId, new CircleController(circle, true, this));
+        circles.put(circleId, new CircleController(circle,  annotationConsumeTapEvents.contains("AnnotationType.circle"), this));
         result.success(circleId);
         break;
       }
@@ -788,7 +747,7 @@ final class MapboxMapController
         Convert.interpretFillOptions(call.argument("options"), fillBuilder);
         final Fill fill = fillBuilder.build();
         final String fillId = String.valueOf(fill.getId());
-        fills.put(fillId, new FillController(fill, true, this));
+        fills.put(fillId, new FillController(fill,  annotationConsumeTapEvents.contains("AnnotationType.fill"), this));
         result.success(fillId);
         break;
       }
@@ -932,31 +891,27 @@ final class MapboxMapController
     if (annotation instanceof Symbol) {
       final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
       if (symbolController != null) {
-        symbolController.onTap();
-        return true;
+        return symbolController.onTap();
       }
     }
 
     if (annotation instanceof Line) {
       final LineController lineController = lines.get(String.valueOf(annotation.getId()));
       if (lineController != null) {
-        lineController.onTap();
-        return true;
+        return lineController.onTap();
       }
     }
 
     if (annotation instanceof Circle) {
       final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
       if (circleController != null) {
-        circleController.onTap();
-        return true;
+        return circleController.onTap();
       }
     }
     if (annotation instanceof Fill) {
       final FillController fillController = fills.get(String.valueOf(annotation.getId()));
       if (fillController != null) {
-        fillController.onTap();
-        return true;
+        return fillController.onTap();
       }
     }
     return false;

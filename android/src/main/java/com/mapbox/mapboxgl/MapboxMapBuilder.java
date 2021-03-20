@@ -32,13 +32,13 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private int myLocationRenderMode = 0;
   private String styleString = Style.MAPBOX_STREETS;
   private List<String> annotationOrder = new ArrayList();
-  private List<String> annotationClickOrder = new ArrayList();
+  private List<String> annotationConsumeTapEvents = new ArrayList();
 
 
   MapboxMapController build(
     int id, Context context, BinaryMessenger messenger, MapboxMapsPlugin.LifecycleProvider lifecycleProvider, String accessToken) {
     final MapboxMapController controller =
-      new MapboxMapController(id, context,  messenger, lifecycleProvider, options, accessToken, styleString, annotationOrder, annotationClickOrder);
+      new MapboxMapController(id, context,  messenger, lifecycleProvider, options, accessToken, styleString, annotationOrder, annotationConsumeTapEvents);
     controller.init();
     controller.setMyLocationEnabled(myLocationEnabled);
     controller.setMyLocationTrackingMode(myLocationTrackingMode);
@@ -181,8 +181,8 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     this.annotationOrder = annotations;
   }
 
-  public void setAnnotationClickOrder(List<String> annotations) {
-    this.annotationClickOrder = annotations;
+  public void setAnnotationConsumeTapEvents(List<String> annotations) {
+    this.annotationConsumeTapEvents = annotations;
   }
 
 }

@@ -39,9 +39,9 @@ public class MapboxMapFactory extends PlatformViewFactory {
       List<String> annotations = Convert.toAnnotationOrder(params.get("annotationOrder"));
       builder.setAnnotationOrder(annotations);
     }
-    if (params.containsKey("annotationClickOrder")) {
-      List<String> annotations = Convert.toAnnotationClickOrder(params.get("annotationClickOrder"));
-      builder.setAnnotationClickOrder(annotations);
+    if (params.containsKey("annotationConsumeTapEvents")) {
+      List<String> annotations = Convert.toAnnotationConsumeTapEvents(params.get("annotationConsumeTapEvents"));
+      builder.setAnnotationConsumeTapEvents(annotations);
     }
     return builder.build(id, context, messenger, lifecycleProvider, (String) params.get("accessToken"));
   }
