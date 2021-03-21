@@ -372,6 +372,14 @@ class MapboxMapController extends ChangeNotifier {
     return result.first;
   }
 
+  /// Adds multiple symbols to the map, configured using the specified custom
+  /// [options].
+  ///
+  /// Change listeners are notified once the symbol has been added on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes with the added symbol once listeners have
+  /// been notified.
   Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
       [List<Map> data]) async {
     final List<SymbolOptions> effectiveOptions =
@@ -426,6 +434,13 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Removes the specified [symbols] from the map. The symbols must be current
+  /// members of the [symbols] set.
+  ///
+  /// Change listeners are notified once the symbol has been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
   Future<void> removeSymbols(Iterable<Symbol> symbols) async {
     final ids = symbols.where((s) => _symbols[s.id] == s).map((s) => s.id);
     assert(symbols.length == ids.length);
@@ -474,6 +489,13 @@ class MapboxMapController extends ChangeNotifier {
     return line;
   }
 
+  /// Adds multiple lines to the map, configured using the specified custom [options].
+  ///
+  /// Change listeners are notified once the lines have been added on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes with the added line once listeners have
+  /// been notified.
   Future<List<Line>> addLines(List<LineOptions> options,
       [List<Map> data]) async {
     final lines =
@@ -527,6 +549,13 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Removes the specified [lines] from the map. The lines must be current
+  /// members of the [lines] set.
+  ///
+  /// Change listeners are notified once the lines have been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
   Future<void> removeLines(Iterable<Line> lines) async {
     final ids = lines.where((l) => _lines[l.id] == l).map((l) => l.id);
     assert(lines.length == ids.length);
@@ -567,6 +596,14 @@ class MapboxMapController extends ChangeNotifier {
     return circle;
   }
 
+  /// Adds multiple circles to the map, configured using the specified custom
+  /// [options].
+  ///
+  /// Change listeners are notified once the circles have been added on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes with the added circle once listeners have
+  /// been notified.
   Future<List<Circle>> addCircles(List<CircleOptions> options,
       [List<Map> data]) async {
     final circles =
@@ -621,6 +658,13 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Removes the specified [circles] from the map. The circles must be current
+  /// members of the [circles] set.
+  ///
+  /// Change listeners are notified once the circles have been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
   Future<void> removeCircles(Iterable<Circle> circles) async {
     assert(circles != null);
     final ids = circles.where((c) => _circles[c.id] == c).map((c) => c.id);
@@ -662,6 +706,14 @@ class MapboxMapController extends ChangeNotifier {
     return fill;
   }
 
+  /// Adds multiple fills to the map, configured using the specified custom
+  /// [options].
+  ///
+  /// Change listeners are notified once the fills has been added on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes with the added fills once listeners have
+  /// been notified.
   Future<List<Fill>> addFills(List<FillOptions> options,
       [List<Map> data]) async {
     final circles =
@@ -717,6 +769,13 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Removes the specified [fills] from the map. The fills must be current
+  /// members of the [fills] set.
+  ///
+  /// Change listeners are notified once the fills have been removed on the
+  /// platform side.
+  ///
+  /// The returned [Future] completes once listeners have been notified.
   Future<void> removeFills(Iterable<Fill> fills) async {
     final ids = fills.where((f) => _fills[f.id] == f).map((f) => f.id);
     assert(fills.length == ids.length);
