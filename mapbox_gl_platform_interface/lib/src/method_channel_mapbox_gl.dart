@@ -260,7 +260,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> removeSymbols(Iterable<String> ids) async {
     await _channel.invokeMethod('symbols#removeAll', <String, dynamic>{
-      'ids': ids.toList(), //todo
+      'ids': ids.toList(),
     });
   }
 

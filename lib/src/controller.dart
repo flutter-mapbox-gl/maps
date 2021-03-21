@@ -222,27 +222,17 @@ class MapboxMapController extends ChangeNotifier {
   Set<Line> get lines => Set<Line>.from(_lines.values);
   final Map<String, Line> _lines = <String, Line>{};
 
-  final _lineToDeleteIds = <String>[];
-  final _lineToAddOptions = <CircleOptions>[];
-
   /// The current set of circles on this map.
   ///
   /// The returned set will be a detached snapshot of the circles collection.
   Set<Circle> get circles => Set<Circle>.from(_circles.values);
   final Map<String, Circle> _circles = <String, Circle>{};
 
-  final _circleToDeleteIds = <String>[];
-  final _circleToAddOptions = <CircleOptions>[];
-
   /// The current set of fills on this map.
   ///
   /// The returned set will be a detached snapshot of the fills collection.
   Set<Fill> get fills => Set<Fill>.from(_fills.values);
   final Map<String, Fill> _fills = <String, Fill>{};
-
-  final _fillToDeleteIds = <String>[];
-  final _fillToAddOptions = <CircleOptions>[];
-  final _resultingIdStreams = <Stream<String>>[];
 
   /// True if the map camera is currently moving.
   bool get isCameraMoving => _isCameraMoving;
