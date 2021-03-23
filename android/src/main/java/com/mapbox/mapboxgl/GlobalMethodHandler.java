@@ -5,9 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.mapbox.mapboxgl.models.OfflineRegionData;
 import com.mapbox.mapboxsdk.net.ConnectivityReceiver;
-import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -78,21 +76,23 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
                 OfflineManagerUtils.setOfflineTileCountLimit(result, context, methodCall.<Number>argument("limit").longValue());
                 break;
             case "downloadOfflineRegion":
-                // Get download region arguments from caller
-                OfflineRegionData regionData = new Gson().fromJson(methodCall.argument("region").toString(), OfflineRegionData.class);
-                // Prepare channel
+                // Get args from caller
+                Map<String, Object> definitionMap = (Map<String, Object>) methodCall.argument("definition");
+                Map<String, Object> metadataMap = (Map<String, Object>) methodCall.argument("metadata");
                 String channelName = methodCall.argument("channelName");
+
+                // Prepare args
                 OfflineChannelHandlerImpl channelHandler = new OfflineChannelHandlerImpl(messenger, channelName);
 
                 // Start downloading
-                OfflineManagerUtils.downloadRegion(result, context, regionData, channelHandler);
+                OfflineManagerUtils.downloadRegion(result, context, definitionMap, metadataMap, channelHandler);
                 break;
             case "getListOfRegions":
                 OfflineManagerUtils.regionsList(result, context);
                 break;
             case "updateOfflineRegionMetadata":
                 // Get download region arguments from caller
-                Map<String, Object> metadata = (Map<String, Object>) methodCall.<Map>argument("metadata");
+                Map<String, Object> metadata = (Map<String, Object>) methodCall.argument("metadata");
                 OfflineManagerUtils.updateRegionMetadata(result, context, methodCall.<Number>argument("id").longValue(), metadata);
                 break;
             case "deleteOfflineRegion":
