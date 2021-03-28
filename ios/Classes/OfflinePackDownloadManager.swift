@@ -119,7 +119,7 @@ class OfflinePackDownloader {
         guard let pack = notification.object as? MGLOfflinePack,
             verifyPack(pack: pack) else { return }
         let error = notification.userInfo?[MGLOfflinePackUserInfoKey.error] as? NSError
-        print("Pack download error: \(error?.localizedDescription)")
+        print("Pack download error: \(String(describing: error?.localizedDescription))")
         // set download state to inactive
         isCompleted = true
         channelHandler.onError(
@@ -133,6 +133,7 @@ class OfflinePackDownloader {
             details: nil
         ))
         if let region = OfflineRegion.fromOfflinePack(pack) {
+            OfflineManagerUtils.deleteRegion(result: result, id: region.id)
             OfflineManagerUtils.releaseDownloader(id:region.id)
         }
     }
