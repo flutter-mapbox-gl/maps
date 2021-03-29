@@ -31,8 +31,8 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private int myLocationTrackingMode = 0;
   private int myLocationRenderMode = 0;
   private String styleString = Style.MAPBOX_STREETS;
-  private LatLngBounds bounds = null;
   private List<String> annotationOrder = new ArrayList();
+  private LatLngBounds bounds = null;
 
   MapboxMapController build(
     int id, Context context, BinaryMessenger messenger, MapboxMapsPlugin.LifecycleProvider lifecycleProvider, String accessToken) {
