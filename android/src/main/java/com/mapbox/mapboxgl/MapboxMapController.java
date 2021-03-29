@@ -331,8 +331,9 @@ final class MapboxMapController
     setStyleString(styleStringInitial);
     // updateMyLocationEnabled();
 
-    if(null != bounds)
+    if(null != bounds) {
       mapboxMap.setLatLngBoundsForCameraTarget(bounds);
+    }
   }
 
   @Override
@@ -1100,7 +1101,9 @@ final class MapboxMapController
   @Override
   public void setCameraTargetBounds(LatLngBounds bounds) {
     this.bounds = bounds;
-//    mapboxMap.setLatLngBoundsForCameraTarget(bounds);
+    if(mapboxMap != null) {
+      mapboxMap.setLatLngBoundsForCameraTarget(bounds);
+    }
   }
 
   @Override
