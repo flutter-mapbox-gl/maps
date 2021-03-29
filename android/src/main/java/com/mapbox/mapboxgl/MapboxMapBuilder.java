@@ -43,8 +43,9 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     controller.setMyLocationTrackingMode(myLocationTrackingMode);
     controller.setMyLocationRenderMode(myLocationRenderMode);
     controller.setTrackCameraPosition(trackCameraPosition);
-    if(null != bounds)
+    if(null != bounds) {
       controller.setCameraTargetBounds(bounds);
+    }
     return controller;
   }
 
@@ -60,9 +61,6 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   @Override
   public void setCameraTargetBounds(LatLngBounds bounds) {
     this.bounds = bounds;
-//    Log.e(TAG, "setCameraTargetBounds is supported only after map initiated.");
-    //throw new UnsupportedOperationException("setCameraTargetBounds is supported only after map initiated.");
-    //options.latLngBoundsForCameraTarget(bounds);
   }
 
   @Override
