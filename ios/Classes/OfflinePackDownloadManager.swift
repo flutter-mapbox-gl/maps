@@ -158,7 +158,6 @@ class OfflinePackDownloader {
         ))
         if let region = OfflineRegion.fromOfflinePack(pack) {
             OfflineManagerUtils.deleteRegion(result: result, id: region.id)
-            OfflineManagerUtils.releaseDownloader(id: region.id)
         }
     }
     
@@ -193,7 +192,7 @@ class OfflinePackDownloader {
             return false
         }
         // We can tell whether 2 packs are the same by comparing metadata we assigned earlier
-        return pack.context == currentlyManagedPack.context
+        return pack.state != .invalid && pack.context == currentlyManagedPack.context
     }
     
     private func calculateDownloadingProgress(

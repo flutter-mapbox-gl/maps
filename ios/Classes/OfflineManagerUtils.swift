@@ -70,6 +70,9 @@ class OfflineManagerUtils {
             }
         })
         if let packToRemoveUnwrapped = packToRemove {
+            packToRemoveUnwrapped.suspend()
+            OfflineManagerUtils.releaseDownloader(id: id)
+
             offlineStorage.removePack(packToRemoveUnwrapped) { error in
                 if let error = error {
                     result(FlutterError(
