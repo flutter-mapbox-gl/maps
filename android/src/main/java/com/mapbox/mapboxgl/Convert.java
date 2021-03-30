@@ -72,6 +72,10 @@ class Convert {
     return annotations;
   }
 
+  static List<String> toAnnotationConsumeTapEvents(Object o) {
+    return toAnnotationOrder(o);
+  }
+
   static boolean isScrollByCameraUpdate(Object o) {
     return toString(toList(o).get(0)).equals("scrollBy");
   }

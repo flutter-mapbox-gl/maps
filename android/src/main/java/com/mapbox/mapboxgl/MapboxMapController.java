@@ -15,7 +15,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -71,10 +70,11 @@ import com.mapbox.mapboxsdk.style.sources.ImageSource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -130,7 +130,8 @@ final class MapboxMapController
   private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
-  private List<String> annotationOrder = new ArrayList();
+  private List<String> annotationOrder;
+  private List<String> annotationConsumeTapEvents;
 
   MapboxMapController(
     int id,
@@ -140,7 +141,8 @@ final class MapboxMapController
     MapboxMapOptions options,
     String accessToken,
     String styleStringInitial,
-    List<String> annotationOrder) {
+    List<String> annotationOrder,
+    List<String> annotationConsumeTapEvents) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
@@ -155,6 +157,7 @@ final class MapboxMapController
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
     this.annotationOrder = annotationOrder;
+    this.annotationConsumeTapEvents = annotationConsumeTapEvents;
   }
 
   @Override
@@ -378,8 +381,6 @@ final class MapboxMapController
       symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
   }
-
-
 
   private void enableLineManager(@NonNull Style style) {
     if (lineManager == null) {
@@ -618,7 +619,7 @@ final class MapboxMapController
             for (Symbol symbol : newSymbols) {
               symbolId = String.valueOf(symbol.getId());
               newSymbolIds.add(symbolId);
-              symbols.put(symbolId, new SymbolController(symbol, true, this));
+              symbols.put(symbolId, new SymbolController(symbol, annotationConsumeTapEvents.contains("AnnotationType.symbol"), this));
             }
           }
         }
@@ -688,7 +689,7 @@ final class MapboxMapController
         Convert.interpretLineOptions(call.argument("options"), lineBuilder);
         final Line line = lineBuilder.build();
         final String lineId = String.valueOf(line.getId());
-        lines.put(lineId, new LineController(line, true, this));
+        lines.put(lineId, new LineController(line,  annotationConsumeTapEvents.contains("AnnotationType.line"), this));
         result.success(lineId);
         break;
       }
@@ -725,7 +726,7 @@ final class MapboxMapController
         Convert.interpretCircleOptions(call.argument("options"), circleBuilder);
         final Circle circle = circleBuilder.build();
         final String circleId = String.valueOf(circle.getId());
-        circles.put(circleId, new CircleController(circle, true, this));
+        circles.put(circleId, new CircleController(circle,  annotationConsumeTapEvents.contains("AnnotationType.circle"), this));
         result.success(circleId);
         break;
       }
@@ -759,7 +760,7 @@ final class MapboxMapController
         Convert.interpretFillOptions(call.argument("options"), fillBuilder);
         final Fill fill = fillBuilder.build();
         final String fillId = String.valueOf(fill.getId());
-        fills.put(fillId, new FillController(fill, true, this));
+        fills.put(fillId, new FillController(fill,  annotationConsumeTapEvents.contains("AnnotationType.fill"), this));
         result.success(fillId);
         break;
       }
@@ -903,31 +904,27 @@ final class MapboxMapController
     if (annotation instanceof Symbol) {
       final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
       if (symbolController != null) {
-        symbolController.onTap();
-        return true;
+        return symbolController.onTap();
       }
     }
 
     if (annotation instanceof Line) {
       final LineController lineController = lines.get(String.valueOf(annotation.getId()));
       if (lineController != null) {
-        lineController.onTap();
-        return true;
+        return lineController.onTap();
       }
     }
 
     if (annotation instanceof Circle) {
       final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
       if (circleController != null) {
-        circleController.onTap();
-        return true;
+        return circleController.onTap();
       }
     }
     if (annotation instanceof Fill) {
       final FillController fillController = fills.get(String.valueOf(annotation.getId()));
       if (fillController != null) {
-        fillController.onTap();
-        return true;
+        return fillController.onTap();
       }
     }
     return false;
