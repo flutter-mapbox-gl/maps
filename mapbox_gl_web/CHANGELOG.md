@@ -1,3 +1,7 @@
+## 0.11.0, March 30, 2020
+* Fix Mapbox GL JS CSS embedding on web [#551](https://github.com/tobrun/flutter-mapbox-gl/pull/551)
+* Add batch mode of screen locations [#554](https://github.com/tobrun/flutter-mapbox-gl/pull/554)
+
 ## 0.10.0, February 12, 2020
 * Added web support for fills [#501](https://github.com/tobrun/flutter-mapbox-gl/pull/501)
 * Add heading to UserLocation and expose UserLocation type [#522](https://github.com/tobrun/flutter-mapbox-gl/pull/522)
