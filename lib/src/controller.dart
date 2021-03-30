@@ -820,6 +820,10 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxGlPlatform.getInstance(_id).toScreenLocation(latLng);
   }
 
+  Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
+    return MapboxGlPlatform.getInstance(_id).toScreenLocationBatch(latLngs);
+  }
+
   /// Returns the geographic location (as [LatLng]) that corresponds to a point on the screen. The screen location is specified in screen pixels (not display pixels) relative to the top left of the map (not the top left of the whole screen).
   Future<LatLng> toLatLng(Point screenLocation) async {
     return MapboxGlPlatform.getInstance(_id).toLatLng(screenLocation);

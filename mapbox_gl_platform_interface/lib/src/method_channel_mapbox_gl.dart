@@ -544,6 +544,25 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
+    try {
+      var coordinates = Float64List.fromList(
+          latLngs.map((e) => [e.latitude, e.longitude]).expand((e) => e).toList());
+      Float64List result = await _channel
+          .invokeMethod('map#toScreenLocationBatch', {"coordinates": coordinates});
+
+      var points = <Point>[];
+      for (int i = 0; i < result.length; i += 2) {
+        points.add(Point(result[i], result[i + 1]));
+      }
+
+      return points;
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
   Future<void> removeImageSource(String imageSourceId) async {
     try {
       return await _channel.invokeMethod('style#removeImageSource', <String, Object>{

@@ -181,6 +181,25 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             reply["x"] = returnVal.x as NSObject
             reply["y"] = returnVal.y as NSObject
             result(reply)
+        case "map#toScreenLocationBatch":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let data = arguments["coordinates"] as? FlutterStandardTypedData else { return }
+            let latLngs = data.data.withUnsafeBytes {
+                Array(
+                    UnsafeBufferPointer(
+                        start: $0.baseAddress!.assumingMemoryBound(to: Double.self),
+                        count:Int(data.elementCount))
+                )
+            }
+            var reply: [Double] = Array(repeating: 0.0, count: latLngs.count)
+            for i in stride(from: 0, to: latLngs.count, by: 2) {
+                let coordinate = CLLocationCoordinate2DMake(latLngs[i], latLngs[i + 1])
+                let returnVal = mapView.convert(coordinate, toPointTo: mapView)
+                reply[i] = Double(returnVal.x)
+                reply[i + 1] = Double(returnVal.y)
+            }
+            result(FlutterStandardTypedData(
+                    float64: Data(bytes: &reply, count: reply.count * 8) ))
         case "map#getMetersPerPixelAtLatitude":
              guard let arguments = methodCall.arguments as? [String: Any] else { return }
              var reply = [String: NSObject]()

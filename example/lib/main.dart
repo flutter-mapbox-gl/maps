@@ -5,6 +5,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:mapbox_gl_example/custom_marker.dart';
 import 'package:mapbox_gl_example/full_map.dart';
 import 'package:mapbox_gl_example/offline_regions.dart';
 
@@ -36,6 +37,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   ScrollingMapPage(),
   OfflineRegionsPage(),
   AnnotationOrderPage(),
+  CustomMarkerPage(),
 ];
 
 class MapsDemo extends StatelessWidget {
