@@ -18,6 +18,18 @@ Future<void> installOfflineMapTiles(String tilesDb) async {
   );
 }
 
+Future<dynamic> setOffline(
+  bool offline, {
+  String accessToken,
+}) =>
+    _globalChannel.invokeMethod(
+      'setOffline',
+      <String, dynamic>{
+        'offline': offline,
+        'accessToken': accessToken,
+      },
+    );
+
 Future<List<OfflineRegion>> mergeOfflineRegions(
   String path, {
   String accessToken,
