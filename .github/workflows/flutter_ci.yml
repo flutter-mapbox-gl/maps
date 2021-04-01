@@ -33,6 +33,7 @@ jobs:
       # We might want to add a flutter test step in the future, when there actually are tests for this plugin
         
   build-iOS:
+    environment: IOS_CI_DOWNLOADS_TOKEN
     name: Build iOS package
     runs-on: macos-latest
     
@@ -45,8 +46,13 @@ jobs:
       - run: flutter pub get
       - name: build iOS package
         run: |
+          echo "machine api.mapbox.com
+          login mapbox
+          password $SDK_REGISTRY_TOKEN" >> ~/.netrc
           cd ./example
           flutter build ios --release --no-codesign
+        env:
+          SDK_REGISTRY_TOKEN: ${{ secrets.SDK_REGISTRY_IOS}}
           
   build-web:
     name: "Build web"
