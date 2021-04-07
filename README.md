@@ -125,17 +125,25 @@ An offline region is a defined region of a map that is available for use in cond
 
 
 ## Location features
-To enable location features in an **Android** application:
+### Android
+Add the `ACCESS_COARSE_LOCATION` or `ACCESS_FINE_LOCATION` permission in the application manifest `android/app/src/main/AndroidManifest.xml` to enable location features in an **Android** application:
+```
+<manifest ...
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+```
 
-You need to declare the `ACCESS_COARSE_LOCATION` or `ACCESS_FINE_LOCATION` permission in the AndroidManifest.xml and starting from Android API level 23 also request it at runtime. The plugin does not handle this for you. The example app uses the flutter ['location' plugin](https://pub.dev/packages/location) for this. 
+Starting from Android API level 23 you also need to request it at runtime. This plugin does not handle this for you. The example app uses the flutter ['location' plugin](https://pub.dev/packages/location) for this.
 
+### iOS
 To enable location features in an **iOS** application:
 
-If you access your users' location, you should also add the following key to your Info.plist to explain why you need access to their location data:
+If you access your users' location, you should also add the following key to `ios/Runner/Info.plist` to explain why you need access to their location data:
 
-```xml
-<key>NSLocationWhenInUseUsageDescription</key>
-<string>[Your explanation here]</string>
+```
+xml ...
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>[Your explanation here]</string>
 ```
 
 Mapbox [recommends](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location) the explanation "Shows your location on the map and helps improve the map".
