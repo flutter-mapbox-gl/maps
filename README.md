@@ -143,8 +143,10 @@ Mapbox [recommends](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#
 ## Web Support
 Add the following lines to your web/index.html file:
 
-<script src='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
-<link href='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+```
+   <script src='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
+   <link href='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+```
 
 ## Documentation
 
