@@ -68,6 +68,9 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
             {'point': Point<double>(x, y), 'latLng': LatLng(lat, lng)});
 
         break;
+      case 'map#onAttributionClick':
+        onAttributionClickPlatform(null);
+        break;
       case 'map#onCameraTrackingChanged':
         final int mode = call.arguments['mode'];
         onCameraTrackingChangedPlatform(MyLocationTrackingMode.values[mode]);

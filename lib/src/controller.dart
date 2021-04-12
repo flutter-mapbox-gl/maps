@@ -7,6 +7,8 @@ part of mapbox_gl;
 typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
 typedef void OnMapLongClickCallback(Point<double> point, LatLng coordinates);
 
+typedef void OnAttributionClickCallback();
+
 typedef void OnStyleLoadedCallback();
 
 typedef void OnUserLocationUpdated(UserLocation location);
@@ -38,6 +40,7 @@ class MapboxMapController extends ChangeNotifier {
       {this.onStyleLoadedCallback,
       this.onMapClick,
       this.onMapLongClick,
+      this.onAttributionClick,
       this.onCameraTrackingDismissed,
       this.onCameraTrackingChanged,
       this.onMapIdle,
@@ -125,6 +128,12 @@ class MapboxMapController extends ChangeNotifier {
       }
     });
 
+    MapboxGlPlatform.getInstance(_id).onAttributionClickPlatform.add((_) {
+      if (onAttributionClick != null) {
+        onAttributionClick!();
+      }
+    });
+
     MapboxGlPlatform.getInstance(_id)
         .onCameraTrackingChangedPlatform
         .add((mode) {
@@ -158,6 +167,7 @@ class MapboxMapController extends ChangeNotifier {
       OnMapClickCallback? onMapClick,
       OnUserLocationUpdated? onUserLocationUpdated,
       OnMapLongClickCallback? onMapLongClick,
+      OnAttributionClickCallback? onAttributionClick,
       OnCameraTrackingDismissedCallback? onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback? onCameraTrackingChanged,
       OnCameraIdleCallback? onCameraIdle,
@@ -167,6 +177,7 @@ class MapboxMapController extends ChangeNotifier {
         onMapClick: onMapClick,
         onUserLocationUpdated: onUserLocationUpdated,
         onMapLongClick: onMapLongClick,
+        onAttributionClick: onAttributionClick,
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
         onCameraIdle: onCameraIdle,
@@ -183,6 +194,7 @@ class MapboxMapController extends ChangeNotifier {
   final OnMapLongClickCallback? onMapLongClick;
 
   final OnUserLocationUpdated? onUserLocationUpdated;
+  final OnAttributionClickCallback? onAttributionClick;
 
   final OnCameraTrackingDismissedCallback? onCameraTrackingDismissed;
   final OnCameraTrackingChangedCallback? onCameraTrackingChanged;

@@ -57,7 +57,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             longPress.require(toFail: recognizer)
         }
         mapView.addGestureRecognizer(longPress)
-        
+
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
             if let initialCameraPosition = args["initialCameraPosition"] as? [String: Any],
@@ -72,8 +72,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             if let annotationConsumeTapEventsArg = args["annotationConsumeTapEvents"] as? [String] {
                 annotationConsumeTapEvents = annotationConsumeTapEventsArg
             }
+            if let onAttributionClickOverride = args["onAttributionClickOverride"] as? Bool {
+                if  onAttributionClickOverride {
+                    setupAttribution(mapView)
+                }
+            }
         }
     }
+
     func removeAllForController(controller: MGLAnnotationController, ids: [String]){
         let idSet = Set(ids)
         let annotations = controller.styleAnnotations()
@@ -813,7 +819,24 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         return MGLAnnotationView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
     }
-    
+
+    /*
+     * Override the attribution button's click target to handle the event locally.
+     * Called if the application supplies an onAttributionClick handler.
+     */
+    func setupAttribution(_ mapView: MGLMapView) {
+        mapView.attributionButton.removeTarget(mapView, action: #selector(mapView.showAttribution), for: .touchUpInside)
+        mapView.attributionButton.addTarget(self, action: #selector(showAttribution), for: UIControl.Event.touchUpInside)
+    }
+
+    /*
+     * Custom click handler for the attribution button. This callback is bound when
+     * the application specifies an onAttributionClick handler.
+     */
+    @objc func showAttribution() {
+        channel?.invokeMethod("map#onAttributionClick", arguments: [])
+    }
+
     /*
      *  MGLMapViewDelegate
      */
