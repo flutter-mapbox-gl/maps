@@ -31,7 +31,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     init(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, registrar: FlutterPluginRegistrar) {
         if let args = args as? [String: Any] {
-            if let token = args["accessToken"] as? NSString{
+            if let token = args["accessToken"] as? String {
                 MGLAccountManager.accessToken = token
             }
         }
