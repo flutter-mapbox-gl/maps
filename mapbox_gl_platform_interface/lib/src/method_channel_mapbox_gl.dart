@@ -44,7 +44,9 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         onCameraMovePlatform(cameraPosition);
         break;
       case 'camera#onIdle':
-        onCameraIdlePlatform(null);
+        final CameraPosition cameraPosition =
+            CameraPosition.fromMap(call.arguments['position']);
+        onCameraIdlePlatform(cameraPosition);
         break;
       case 'map#onStyleLoaded':
         onMapStyleLoadedPlatform(null);
@@ -78,6 +80,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         break;
       case 'map#onUserLocationUpdated':
         final dynamic userLocation = call.arguments['userLocation'];
+        final dynamic heading = call.arguments['heading'];
         if (onUserLocationUpdatedPlatform != null) {
           onUserLocationUpdatedPlatform(UserLocation(
               position: LatLng(userLocation['position'][0], userLocation['position'][1]),
@@ -86,8 +89,20 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
               speed: userLocation['speed'],
               horizontalAccuracy: userLocation['horizontalAccuracy'],
               verticalAccuracy: userLocation['verticalAccuracy'],
-              timestamp: DateTime.fromMillisecondsSinceEpoch(userLocation['timestamp'])
-          ));
+              heading: heading == null
+                  ? null
+                  : UserHeading(
+                      magneticHeading: heading['magneticHeading'],
+                      trueHeading: heading['trueHeading'],
+                      headingAccuracy: heading['headingAccuracy'],
+                      x: heading['x'],
+                      y: heading['y'],
+                      z: heading['x'],
+                      timestamp: DateTime.fromMillisecondsSinceEpoch(
+                          heading['timestamp']),
+                    ),
+              timestamp: DateTime.fromMillisecondsSinceEpoch(
+                  userLocation['timestamp'])));
         }
         break;
       default:
@@ -523,6 +538,25 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         'longitude':latLng.longitude,
       });
       return Point(screenPosMap['x'], screenPosMap['y']);
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
+    try {
+      var coordinates = Float64List.fromList(
+          latLngs.map((e) => [e.latitude, e.longitude]).expand((e) => e).toList());
+      Float64List result = await _channel
+          .invokeMethod('map#toScreenLocationBatch', {"coordinates": coordinates});
+
+      var points = <Point>[];
+      for (int i = 0; i < result.length; i += 2) {
+        points.add(Point(result[i], result[i + 1]));
+      }
+
+      return points;
     } on PlatformException catch (e) {
       return new Future.error(e);
     }

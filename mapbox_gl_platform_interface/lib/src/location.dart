@@ -26,6 +26,14 @@ class LatLng {
   /// The longitude in degrees between -180.0 (inclusive) and 180.0 (exclusive).
   final double longitude;
 
+  LatLng operator +(LatLng o) {
+    return LatLng(latitude + o.latitude, longitude + o.longitude);
+  }
+
+  LatLng operator -(LatLng o) {
+    return LatLng(latitude - o.latitude, longitude - o.longitude);
+  }
+
   dynamic toJson() {
     return <double>[latitude, longitude];
   }
@@ -107,7 +115,11 @@ class LatLngBounds {
 /// A geographical area representing a non-aligned quadrilateral
 /// This class does not wrap values to the world bounds
 class LatLngQuad {
-  const LatLngQuad({@required this.topLeft, @required this.topRight, @required this.bottomRight, @required this.bottomLeft})
+  const LatLngQuad(
+      {@required this.topLeft,
+      @required this.topRight,
+      @required this.bottomRight,
+      @required this.bottomLeft})
       : assert(topLeft != null),
         assert(topRight != null),
         assert(bottomRight != null),
@@ -122,7 +134,12 @@ class LatLngQuad {
   final LatLng bottomLeft;
 
   dynamic toList() {
-    return <dynamic>[topLeft.toJson(), topRight.toJson(), bottomRight.toJson(), bottomLeft.toJson()];
+    return <dynamic>[
+      topLeft.toJson(),
+      topRight.toJson(),
+      bottomRight.toJson(),
+      bottomLeft.toJson()
+    ];
   }
 
   @visibleForTesting
@@ -154,7 +171,6 @@ class LatLngQuad {
 
   @override
   int get hashCode => hashValues(topLeft, topRight, bottomRight, bottomLeft);
-  
 }
 
 /// User's observed location
@@ -180,6 +196,9 @@ class UserLocation {
   /// Time the user's location was observed
   final DateTime timestamp;
 
+  /// The heading of the user location, null if not available.
+  final UserHeading heading;
+
   const UserLocation(
       {@required this.position,
       @required this.altitude,
@@ -187,5 +206,45 @@ class UserLocation {
       @required this.speed,
       @required this.horizontalAccuracy,
       @required this.verticalAccuracy,
+      @required this.timestamp,
+      @required this.heading});
+}
+
+/// Type represents a geomagnetic value, measured in microteslas, relative to a
+/// device axis in three dimensional space.
+class UserHeading {
+  /// Represents the direction in degrees, where 0 degrees is magnetic North.
+  /// The direction is referenced from the top of the device regardless of
+  /// device orientation as well as the orientation of the user interface.
+  final double magneticHeading;
+
+  /// Represents the direction in degrees, where 0 degrees is true North. The
+  /// direction is referenced from the top of the device regardless of device
+  /// orientation as well as the orientation of the user interface
+  final double trueHeading;
+
+  /// Represents the maximum deviation of where the magnetic heading may differ
+  /// from the actual geomagnetic heading in degrees. A negative value indicates
+  /// an invalid heading.
+  final double headingAccuracy;
+
+  /// Returns a raw value for the geomagnetism measured in the x-axis.
+  final double x;
+
+  /// Returns a raw value for the geomagnetism measured in the y-axis.
+  final double y;
+
+  /// Returns a raw value for the geomagnetism measured in the z-axis.
+  final double z;
+
+  /// Returns a timestamp for when the magnetic heading was determined.
+  final DateTime timestamp;
+  const UserHeading(
+      {@required this.magneticHeading,
+      @required this.trueHeading,
+      @required this.headingAccuracy,
+      @required this.x,
+      @required this.y,
+      @required this.z,
       @required this.timestamp});
 }

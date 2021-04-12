@@ -67,7 +67,7 @@ This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), foll
 | Symbol | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Circle | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Line | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-| Fill | :white_check_mark:   | :white_check_mark: |  |
+| Fill | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 
 ## Map Styles
 
@@ -75,7 +75,8 @@ Map styles can be supplied by setting the `styleString` in the `MapOptions`. The
 
 1. Passing the URL of the map style. This can be one of the built-in map styles, also see `MapboxStyles` or a custom map style served remotely using a URL that start with 'http(s)://' or 'mapbox://'
 2. Passing the style as a local asset. Create a JSON file in the `assets` and add a reference in `pubspec.yml`. Set the style string to the relative path for this asset in order to load it into the map.
-3. Passing the raw JSON of the map style. This is only supported on Android.  
+3. Passing the style as a local file. create an JSON file in app directory (e.g. ApplicationDocumentsDirectory). Set the style string to the absolute path of this JSON file.
+4. Passing the raw JSON of the map style. This is only supported on Android.  
 
 ## Offline Sideloading
 

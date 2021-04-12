@@ -3,12 +3,13 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:core';
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
@@ -47,7 +48,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   void _onStyleLoaded() {
     addImageFromAsset("assetImage", "assets/symbols/custom-icon.png");
-    addImageFromUrl("networkImage", "https://via.placeholder.com/50");
+    addImageFromUrl(
+        "networkImage", Uri.parse("https://via.placeholder.com/50"));
   }
 
   @override
@@ -64,8 +66,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   /// Adds a network image to the currently displayed style
-  Future<void> addImageFromUrl(String name, String url) async {
-    var response = await get(url);
+  Future<void> addImageFromUrl(String name, Uri uri) async {
+    var response = await http.get(uri);
     return controller.addImage(name, response.bodyBytes);
   }
 
@@ -92,20 +94,17 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   void _add(String iconImage) {
     List<int> availableNumbers = Iterable<int>.generate(12).toList();
     controller.symbols.forEach(
-            (s) => availableNumbers.removeWhere((i) => i == s.data['count'])
-    );
+        (s) => availableNumbers.removeWhere((i) => i == s.data['count']));
     if (availableNumbers.isNotEmpty) {
-      controller.addSymbol(
-        _getSymbolOptions(iconImage, availableNumbers.first),
-        {'count': availableNumbers.first}
-      );
+      controller.addSymbol(_getSymbolOptions(iconImage, availableNumbers.first),
+          {'count': availableNumbers.first});
       setState(() {
         _symbolCount += 1;
       });
     }
   }
 
-  SymbolOptions _getSymbolOptions(String iconImage, int symbolCount){
+  SymbolOptions _getSymbolOptions(String iconImage, int symbolCount) {
     LatLng geometry = LatLng(
       center.latitude + sin(symbolCount * pi / 6.0) / 20.0,
       center.longitude + cos(symbolCount * pi / 6.0) / 20.0,
@@ -133,18 +132,15 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   Future<void> _addAll(String iconImage) async {
     List<int> symbolsToAddNumbers = Iterable<int>.generate(12).toList();
     controller.symbols.forEach(
-        (s) => symbolsToAddNumbers.removeWhere((i) => i == s.data['count'])
-    );
-    
+        (s) => symbolsToAddNumbers.removeWhere((i) => i == s.data['count']));
+
     if (symbolsToAddNumbers.isNotEmpty) {
-      final List<SymbolOptions> symbolOptionsList = symbolsToAddNumbers.map(
-        (i) => _getSymbolOptions(iconImage, i)
-      ).toList();
-      controller.addSymbols(
-        symbolOptionsList,
-          symbolsToAddNumbers.map((i) => {'count': i}).toList()
-      );
-  
+      final List<SymbolOptions> symbolOptionsList = symbolsToAddNumbers
+          .map((i) => _getSymbolOptions(iconImage, i))
+          .toList();
+      controller.addSymbols(symbolOptionsList,
+          symbolsToAddNumbers.map((i) => {'count': i}).toList());
+
       setState(() {
         _symbolCount += symbolOptionsList.length;
       });
@@ -263,9 +259,9 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     );
   }
 
-   void _getLatLng() async {
+  void _getLatLng() async {
     LatLng latLng = await controller.getSymbolLatLng(_selectedSymbol);
-    Scaffold.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(latLng.toString()),
       ),
@@ -309,104 +305,108 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                   children: <Widget>[
                     Column(
                       children: <Widget>[
-                        FlatButton(
+                        TextButton(
                           child: const Text('add'),
                           onPressed: () =>
                               (_symbolCount == 12) ? null : _add("airport-15"),
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('add all'),
-                          onPressed: () =>
-                            (_symbolCount == 12) ? null : _addAll("airport-15"),
+                          onPressed: () => (_symbolCount == 12)
+                              ? null
+                              : _addAll("airport-15"),
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('add (custom icon)'),
                           onPressed: () => (_symbolCount == 12)
                               ? null
                               : _add("assets/symbols/custom-icon.png"),
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('remove'),
                           onPressed: (_selectedSymbol == null) ? null : _remove,
                         ),
-                        FlatButton(
-                          child:  Text('${_iconAllowOverlap ? 'disable' : 'enable'} icon overlap'),
+                        TextButton(
+                          child: Text(
+                              '${_iconAllowOverlap ? 'disable' : 'enable'} icon overlap'),
                           onPressed: _changeIconOverlap,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('remove all'),
                           onPressed: (_symbolCount == 0) ? null : _removeAll,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('add (asset image)'),
                           onPressed: () => (_symbolCount == 12)
                               ? null
                               : _add(
                                   "assetImage"), //assetImage added to the style in _onStyleLoaded
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('add (network image)'),
-                          onPressed: () =>
-                              (_symbolCount == 12) ? null : _add("networkImage"), //networkImage added to the style in _onStyleLoaded
+                          onPressed: () => (_symbolCount == 12)
+                              ? null
+                              : _add(
+                                  "networkImage"), //networkImage added to the style in _onStyleLoaded
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('add (custom font)'),
-                          onPressed: () => (_symbolCount == 12) ? null : _add("customFont"),
+                          onPressed: () =>
+                              (_symbolCount == 12) ? null : _add("customFont"),
                         )
                       ],
                     ),
                     Column(
                       children: <Widget>[
-                        FlatButton(
+                        TextButton(
                           child: const Text('change alpha'),
                           onPressed:
                               (_selectedSymbol == null) ? null : _changeAlpha,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('change icon offset'),
                           onPressed: (_selectedSymbol == null)
                               ? null
                               : _changeIconOffset,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('change icon anchor'),
                           onPressed: (_selectedSymbol == null)
                               ? null
                               : _changeIconAnchor,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('toggle draggable'),
                           onPressed: (_selectedSymbol == null)
                               ? null
                               : _toggleDraggable,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('change position'),
                           onPressed: (_selectedSymbol == null)
                               ? null
                               : _changePosition,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('change rotation'),
                           onPressed: (_selectedSymbol == null)
                               ? null
                               : _changeRotation,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('toggle visible'),
                           onPressed:
                               (_selectedSymbol == null) ? null : _toggleVisible,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('change zIndex'),
                           onPressed:
                               (_selectedSymbol == null) ? null : _changeZIndex,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('get current LatLng'),
-                          onPressed: (_selectedSymbol == null)
-                              ? null
-                              : _getLatLng,
+                          onPressed:
+                              (_selectedSymbol == null) ? null : _getLatLng,
                         ),
                       ],
                     ),

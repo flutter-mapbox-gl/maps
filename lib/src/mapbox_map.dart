@@ -4,6 +4,8 @@
 
 part of mapbox_gl;
 
+enum AnnotationType { fill, line, circle, symbol }
+
 typedef void MapCreatedCallback(MapboxMapController controller);
 
 class MapboxMap extends StatefulWidget {
@@ -37,8 +39,32 @@ class MapboxMap extends StatefulWidget {
     this.onCameraTrackingChanged,
     this.onCameraIdle,
     this.onMapIdle,
+    this.annotationOrder = const [
+      AnnotationType.line,
+      AnnotationType.symbol,
+      AnnotationType.circle,
+      AnnotationType.fill,
+    ],
+    this.annotationConsumeTapEvents = const [
+      AnnotationType.symbol,
+      AnnotationType.fill,
+      AnnotationType.line,
+      AnnotationType.circle,
+    ],
   })  : assert(initialCameraPosition != null),
+        assert(annotationOrder != null),
+        assert(annotationOrder.length == 4),
+        assert(annotationConsumeTapEvents != null),
+        assert(annotationConsumeTapEvents.length > 0),
         super(key: key);
+
+  /// Defined the layer order of annotations displayed on map
+  /// (must contain all annotation types, 4 items)
+  final List<AnnotationType> annotationOrder;
+
+  /// Defined the layer order of click annotations
+  /// (must contain at least 1 annotation type, 4 items max)
+  final List<AnnotationType> annotationConsumeTapEvents;
 
   /// If you want to use Mapbox hosted styles and map tiles, you need to provide a Mapbox access token.
   /// Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
@@ -183,10 +209,17 @@ class _MapboxMapState extends State<MapboxMap> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> annotationOrder =
+        widget.annotationOrder.map((e) => e.toString()).toList();
+    final List<String> annotationConsumeTapEvents =
+        widget.annotationConsumeTapEvents.map((e) => e.toString()).toList();
+
     final Map<String, dynamic> creationParams = <String, dynamic>{
       'initialCameraPosition': widget.initialCameraPosition?.toMap(),
       'options': _MapboxMapOptions.fromWidget(widget).toMap(),
       'accessToken': widget.accessToken,
+      'annotationOrder': annotationOrder,
+      'annotationConsumeTapEvents': annotationConsumeTapEvents,
     };
     return _mapboxGlPlatform.buildView(
         creationParams, onPlatformViewCreated, widget.gestureRecognizers);
@@ -219,23 +252,20 @@ class _MapboxMapState extends State<MapboxMap> {
   Future<void> onPlatformViewCreated(int id) async {
     MapboxGlPlatform.addInstance(id, _mapboxGlPlatform);
     final MapboxMapController controller = MapboxMapController.init(
-      id,
-      widget.initialCameraPosition,
-      onStyleLoadedCallback: () {
-        if (_controller.isCompleted) {
-          widget.onStyleLoadedCallback();
-        } else {
-          _controller.future.then((_) => widget.onStyleLoadedCallback());
-        }
-      },
+        id, widget.initialCameraPosition, onStyleLoadedCallback: () {
+      if (_controller.isCompleted) {
+        widget.onStyleLoadedCallback();
+      } else {
+        _controller.future.then((_) => widget.onStyleLoadedCallback());
+      }
+    },
         onMapClick: widget.onMapClick,
         onUserLocationUpdated: widget.onUserLocationUpdated,
         onMapLongClick: widget.onMapLongClick,
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged,
         onCameraIdle: widget.onCameraIdle,
-        onMapIdle: widget.onMapIdle
-    );
+        onMapIdle: widget.onMapIdle);
     await MapboxMapController.initPlatform(id);
     _controller.complete(controller);
     if (widget.onMapCreated != null) {

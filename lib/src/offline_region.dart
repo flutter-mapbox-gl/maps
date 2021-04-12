@@ -1,70 +1,94 @@
 part of mapbox_gl;
 
-class OfflineRegion {
-  const OfflineRegion({
-    @required this.id,
+/// Description of region to be downloaded. Identifier will be generated when
+/// the download is initiated.
+class OfflineRegionDefinition {
+  const OfflineRegionDefinition({
     @required this.bounds,
-    @required this.metadata,
     @required this.mapStyleUrl,
     @required this.minZoom,
     @required this.maxZoom,
+    this.includeIdeographs = false,
   });
 
-  final int id;
   final LatLngBounds bounds;
-  final Map<String, dynamic> metadata;
   final String mapStyleUrl;
   final double minZoom;
   final double maxZoom;
+  final bool includeIdeographs;
 
-  factory OfflineRegion.fromJson(Map<String, dynamic> json) {
+  @override
+  String toString() =>
+      "$runtimeType, bounds = $bounds, mapStyleUrl = $mapStyleUrl, minZoom = $minZoom, maxZoom = $maxZoom";
+
+  Map<String, dynamic> toMap() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['bounds'] = bounds.toList();
+    data['mapStyleUrl'] = mapStyleUrl;
+    data['minZoom'] = minZoom;
+    data['maxZoom'] = maxZoom;
+    data['includeIdeographs'] = includeIdeographs;
+    return data;
+  }
+
+  factory OfflineRegionDefinition.fromMap(Map<String, dynamic> map) {
+    return OfflineRegionDefinition(
+      bounds: map['bounds'] != null
+          ? _latLngBoundsFromList(
+              map['bounds'],
+            )
+          : null,
+      mapStyleUrl: map['mapStyleUrl'],
+      // small integers may deserialize to Int
+      minZoom: map['minZoom'].toDouble(),
+      maxZoom: map['maxZoom'].toDouble(),
+      includeIdeographs: map['includeIdeographs'] ?? false,
+    );
+  }
+
+  static LatLngBounds _latLngBoundsFromList(List<dynamic> json) {
+    if (json == null) {
+      return null;
+    }
+    return LatLngBounds(
+      southwest: _latLngFromList(json[0]),
+      northeast: _latLngFromList(json[1]),
+    );
+  }
+
+  static LatLng _latLngFromList(dynamic json) {
+    if (json == null) {
+      return null;
+    }
+    return LatLng(json[0], json[1]);
+  }
+}
+
+/// Description of a downloaded region including its identifier.
+class OfflineRegion {
+  const OfflineRegion({
+    this.id,
+    this.definition,
+    this.metadata,
+  });
+
+  final int id;
+  final OfflineRegionDefinition definition;
+  final Map<String, dynamic> metadata;
+
+  factory OfflineRegion.fromMap(Map<String, dynamic> json) {
     if (json == null) {
       return null;
     }
 
     return OfflineRegion(
       id: json['id'],
-      bounds: json['bounds'] != null
-          ? fromList(
-              json['bounds'],
-            )
-          : null,
+      definition: OfflineRegionDefinition.fromMap(json['definition']),
       metadata: json['metadata'],
-      mapStyleUrl: json['mapStyleUrl'],
-      minZoom: json['minZoom'].toDouble(),
-      maxZoom: json['maxZoom'].toDouble(),
     );
-  }
-
-  static LatLngBounds fromList(dynamic json) {
-    if (json == null) {
-      return null;
-    }
-    return LatLngBounds(
-      southwest: latLngFromJson(json[0]),
-      northeast: latLngFromJson(json[1]),
-    );
-  }
-
-  static LatLng latLngFromJson(dynamic json) {
-    if (json == null) {
-      return null;
-    }
-    return LatLng(json[0], json[1]);
-  }
-
-  Map<String, dynamic> _toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['id'] = id;
-    data['bounds'] = bounds.toList();
-    data['metadata'] = metadata;
-    data['mapStyleUrl'] = mapStyleUrl;
-    data['minZoom'] = minZoom;
-    data['maxZoom'] = maxZoom;
-    return data;
   }
 
   @override
   String toString() =>
-      "$runtimeType, id = $id, bounds = $bounds, metadata = $metadata, mapStyleUrl = $mapStyleUrl, minZoom = $minZoom, maxZoom = $maxZoom";
+      "$runtimeType, id = $id, definition = $definition, metadata = $metadata";
 }

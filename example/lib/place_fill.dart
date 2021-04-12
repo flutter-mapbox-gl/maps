@@ -74,20 +74,19 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
     controller.addFill(
       FillOptions(geometry: [
         [
-          LatLng(-32.81711, 151.1447171),
-          LatLng(-32.81711, 152.2447171),
-          LatLng(-33.91711, 152.2447171),
-          LatLng(-33.91711, 151.1447171),
+          LatLng(-33.719, 151.150),
+          LatLng(-33.858, 151.150),
+          LatLng(-33.866, 151.401),
+          LatLng(-33.747, 151.328),
+          LatLng(-33.719, 151.150),
         ],
         [
-          LatLng(-32.86711, 152.1947171),
-          LatLng(-33.86711, 151.1947171),
-          LatLng(-32.86711, 151.1947171),
-          LatLng(-33.86711, 152.1947171),
+          LatLng(-33.762, 151.250),
+          LatLng(-33.827, 151.250),
+          LatLng(-33.833, 151.347),
+          LatLng(-33.762, 151.250),
         ]
-      ], 
-      fillColor: "#FF0000", 
-      fillOutlineColor: "#FF0000"),
+      ], fillColor: "#FF0000", fillOutlineColor: "#FF0000"),
     );
     setState(() {
       _fillCount += 1;
@@ -154,7 +153,8 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   }
 
   Future<void> _changeFillPattern() async {
-    String current = _selectedFill.options.fillPattern == null ? "assetImage" : null;
+    String current =
+        _selectedFill.options.fillPattern == null ? "assetImage" : null;
     _updateSelectedFill(
       FillOptions(fillPattern: current),
     );
@@ -190,11 +190,11 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
                   children: <Widget>[
                     Column(
                       children: <Widget>[
-                        FlatButton(
+                        TextButton(
                           child: const Text('add'),
                           onPressed: (_fillCount == 12) ? null : _add,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('remove'),
                           onPressed: (_selectedFill == null) ? null : _remove,
                         ),
@@ -202,41 +202,38 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
                     ),
                     Column(
                       children: <Widget>[
-                        FlatButton(
+                        TextButton(
                           child: const Text('change fill-opacity'),
                           onPressed: (_selectedFill == null)
                               ? null
                               : _changeFillOpacity,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('change fill-color'),
-                          onPressed: (_selectedFill == null) 
-                              ? null 
-                              : _changeFillColor,
+                          onPressed:
+                              (_selectedFill == null) ? null : _changeFillColor,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('change fill-outline-color'),
                           onPressed: (_selectedFill == null)
                               ? null
                               : _changeFillOutlineColor,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('change fill-pattern'),
                           onPressed: (_selectedFill == null)
                               ? null
                               : _changeFillPattern,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('change position'),
-                          onPressed: (_selectedFill == null) 
-                              ? null 
-                              : _changePosition,
+                          onPressed:
+                              (_selectedFill == null) ? null : _changePosition,
                         ),
-                        FlatButton(
+                        TextButton(
                           child: const Text('toggle draggable'),
-                          onPressed: (_selectedFill == null) 
-                              ? null 
-                              : _changeDraggable,
+                          onPressed:
+                              (_selectedFill == null) ? null : _changeDraggable,
                         ),
                       ],
                     ),

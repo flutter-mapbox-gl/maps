@@ -1,4 +1,13 @@
-## 0.9.0,  October 24. 2020
+## 0.11.0, March 30, 2020
+* Add batch mode of screen locations [#554](https://github.com/tobrun/flutter-mapbox-gl/pull/554)
+
+## 0.10.0, February 12, 2020
+* Added web support for fills [#501](https://github.com/tobrun/flutter-mapbox-gl/pull/501)
+* Add heading to UserLocation and expose UserLocation type [#522](https://github.com/tobrun/flutter-mapbox-gl/pull/522)
+* Update tracked camera position in camera#onIdle [#500](https://github.com/tobrun/flutter-mapbox-gl/pull/500)
+* Improved Image Source Support [#469](https://github.com/tobrun/flutter-mapbox-gl/pull/469)
+
+## 0.9.0,  October 24, 2020
 * Breaking change: CameraUpdate.newLatLngBounds() now supports setting different padding values for left, top, right, bottom with default of 0 for all. Implementations using the old approach with only one padding value for all edges have to be updated. [#382](https://github.com/tobrun/flutter-mapbox-gl/pull/382)
 * Add methods to access projection [#380](https://github.com/tobrun/flutter-mapbox-gl/pull/380)
 * Add fill API support for Android and iOS [#49](https://github.com/tobrun/flutter-mapbox-gl/pull/49)

@@ -13,9 +13,12 @@ import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.Style;
 
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.PluginRegistry;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.ArrayList;
 
 
 class MapboxMapBuilder implements MapboxMapOptionsSink {
@@ -28,11 +31,14 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private int myLocationTrackingMode = 0;
   private int myLocationRenderMode = 0;
   private String styleString = Style.MAPBOX_STREETS;
+  private List<String> annotationOrder = new ArrayList();
+  private List<String> annotationConsumeTapEvents = new ArrayList();
+
 
   MapboxMapController build(
-    int id, Context context, AtomicInteger state, PluginRegistry.Registrar registrar, String accessToken) {
+    int id, Context context, BinaryMessenger messenger, MapboxMapsPlugin.LifecycleProvider lifecycleProvider, String accessToken) {
     final MapboxMapController controller =
-      new MapboxMapController(id, context, state, registrar, options, accessToken, styleString);
+      new MapboxMapController(id, context,  messenger, lifecycleProvider, options, accessToken, styleString, annotationOrder, annotationConsumeTapEvents);
     controller.init();
     controller.setMyLocationEnabled(myLocationEnabled);
     controller.setMyLocationTrackingMode(myLocationTrackingMode);
@@ -170,4 +176,13 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
             (int) y, //bottom
     });
   }
+
+  public void setAnnotationOrder(List<String> annotations) {
+    this.annotationOrder = annotations;
+  }
+
+  public void setAnnotationConsumeTapEvents(List<String> annotations) {
+    this.annotationConsumeTapEvents = annotations;
+  }
+
 }
