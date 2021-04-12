@@ -1,3 +1,6 @@
+## 0.12.0, April 12, 2020
+* Batch creation/removal for circles, fills and lines [#576](https://github.com/tobrun/flutter-mapbox-gl/pull/576)
+
 ## 0.11.0, March 30, 2020
 * Add batch mode of screen locations [#554](https://github.com/tobrun/flutter-mapbox-gl/pull/554)
 
