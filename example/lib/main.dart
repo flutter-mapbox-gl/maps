@@ -8,6 +8,7 @@ import 'package:location/location.dart';
 import 'package:mapbox_gl_example/custom_marker.dart';
 import 'package:mapbox_gl_example/full_map.dart';
 import 'package:mapbox_gl_example/offline_regions.dart';
+import 'package:mapbox_gl_example/place_batch.dart';
 
 import 'animate_camera.dart';
 import 'annotation_order_maps.dart';
@@ -38,6 +39,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   OfflineRegionsPage(),
   AnnotationOrderPage(),
   CustomMarkerPage(),
+  BatchAddPage(),
 ];
 
 class MapsDemo extends StatelessWidget {

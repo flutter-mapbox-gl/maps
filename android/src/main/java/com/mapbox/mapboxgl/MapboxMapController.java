@@ -55,10 +55,13 @@ import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.plugins.annotation.Annotation;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
+import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 import com.mapbox.mapboxsdk.plugins.annotation.Fill;
 import com.mapbox.mapboxsdk.plugins.annotation.FillManager;
+import com.mapbox.mapboxsdk.plugins.annotation.FillOptions;
 import com.mapbox.mapboxsdk.plugins.annotation.Line;
 import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
+import com.mapbox.mapboxsdk.plugins.annotation.LineOptions;
 import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
@@ -627,7 +630,7 @@ final class MapboxMapController
         break;
       }
       case "symbols#removeAll": {
-        final ArrayList<String> symbolIds = call.argument("symbols");
+        final ArrayList<String> symbolIds = call.argument("ids");
         SymbolController symbolController;
 
         List<Symbol> symbolList = new ArrayList<Symbol>();
@@ -699,6 +702,47 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "line#addAll": { 
+        List<String> newIds = new ArrayList<String>();
+        final List<Object> options = call.argument("options");
+        List<LineOptions> optionList = new ArrayList<LineOptions>();
+        if (options != null) {
+          LineBuilder builder;
+          for (Object o : options) {
+            builder = newLineBuilder();
+            Convert.interpretLineOptions(o, builder);
+            optionList.add(builder.getLineOptions());
+          }
+          if (!optionList.isEmpty()) {
+            List<Line> newLines = lineManager.create(optionList);
+            String id;
+            for (Line line : newLines) {
+              id = String.valueOf(line.getId());
+              newIds.add(id);
+              lines.put(id, new LineController(line, true, this));
+            }
+          }
+        }
+        result.success(newIds);
+        break;
+      }
+      case "line#removeAll": {
+        final ArrayList<String> ids = call.argument("ids");
+        LineController lineController;
+
+        List<Line> toBeRemoved = new ArrayList<Line>();
+        for(String id : ids){
+            lineController = lines.remove(id);
+            if (lineController != null) {
+              toBeRemoved.add(lineController.getLine());
+            }
+        }
+        if(!toBeRemoved.isEmpty()) {
+          lineManager.delete(toBeRemoved);
+        }
+        result.success(null);
+        break;
+      }
       case "line#update": {
         final String lineId = call.argument("line");
         final LineController line = line(lineId);
@@ -728,6 +772,47 @@ final class MapboxMapController
         final String circleId = String.valueOf(circle.getId());
         circles.put(circleId, new CircleController(circle,  annotationConsumeTapEvents.contains("AnnotationType.circle"), this));
         result.success(circleId);
+        break;
+      }
+      case "circle#addAll": { 
+        List<String> newIds = new ArrayList<String>();
+        final List<Object> options = call.argument("options");
+        List<CircleOptions> optionList = new ArrayList<CircleOptions>();
+        if (options != null) {
+          CircleBuilder builder;
+          for (Object o : options) {
+            builder = newCircleBuilder();
+            Convert.interpretCircleOptions(o, builder);
+            optionList.add(builder.getCircleOptions());
+          }
+          if (!optionList.isEmpty()) {
+            List<Circle> newCircles = circleManager.create(optionList);
+            String id;
+            for (Circle circle : newCircles) {
+              id = String.valueOf(circle.getId());
+              newIds.add(id);
+              circles.put(id, new CircleController(circle, true, this));
+            }
+          }
+        }
+        result.success(newIds);
+        break;
+      }
+      case "circle#removeAll": {
+        final ArrayList<String> ids = call.argument("ids");
+        CircleController circleController;
+
+        List<Circle> toBeRemoved = new ArrayList<Circle>();
+        for(String id : ids){
+            circleController = circles.remove(id);
+            if (circleController != null) {
+              toBeRemoved.add(circleController.getCircle());
+            }
+        }
+        if(!toBeRemoved.isEmpty()) {
+          circleManager.delete(toBeRemoved);
+        }
+        result.success(null);
         break;
       }
       case "circle#remove": {
@@ -762,6 +847,48 @@ final class MapboxMapController
         final String fillId = String.valueOf(fill.getId());
         fills.put(fillId, new FillController(fill,  annotationConsumeTapEvents.contains("AnnotationType.fill"), this));
         result.success(fillId);
+        break;
+      }
+
+      case "fill#addAll": { 
+        List<String> newIds = new ArrayList<String>();
+        final List<Object> options = call.argument("options");
+        List<FillOptions> optionList = new ArrayList<FillOptions>();
+        if (options != null) {
+          FillBuilder builder;
+          for (Object o : options) {
+            builder = newFillBuilder();
+            Convert.interpretFillOptions(o, builder);
+            optionList.add(builder.getFillOptions());
+          }
+          if (!optionList.isEmpty()) {
+            List<Fill> newFills = fillManager.create(optionList);
+            String id;
+            for (Fill fill : newFills) {
+              id = String.valueOf(fill.getId());
+              newIds.add(id);
+              fills.put(id, new FillController(fill, true, this));
+            }
+          }
+        }
+        result.success(newIds);
+        break;
+      }
+      case "fill#removeAll": {
+        final ArrayList<String> ids = call.argument("ids");
+        FillController fillController;
+
+        List<Fill> toBeRemoved = new ArrayList<Fill>();
+        for(String id : ids){
+            fillController = fills.remove(id);
+            if (fillController != null) {
+              toBeRemoved.add(fillController.getFill());
+            }
+        }
+        if(!toBeRemoved.isEmpty()) {
+          fillManager.delete(toBeRemoved);
+        }
+        result.success(null);
         break;
       }
       case "fill#remove": {
