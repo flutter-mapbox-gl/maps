@@ -37,6 +37,7 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
+import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.geometry.LatLngQuad;
@@ -1238,9 +1239,14 @@ final class MapboxMapController
     //mapboxMap.resetMinMaxZoomPreference();
     if (min != null) {
       mapboxMap.setMinZoomPreference(min);
+    } else {
+      mapboxMap.setMinZoomPreference(MapboxConstants.MINIMUM_ZOOM);
     }
     if (max != null) {
       mapboxMap.setMaxZoomPreference(max);
+    }
+    else {
+      mapboxMap.setMaxZoomPreference(MapboxConstants.MAXIMUM_ZOOM);
     }
   }
 
