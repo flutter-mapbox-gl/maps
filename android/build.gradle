@@ -12,7 +12,7 @@ def getTokenFromEnv() {
 }
 
 def getTokenFromNetrc() {
-    def contentList = [:]
+    def credentials = [:]
     def netrcPath = System.getProperty("user.home") + '/.netrc';
     def content = new File(netrcPath);
     def lastMachine = null;
@@ -29,16 +29,21 @@ def getTokenFromNetrc() {
                     switch (it[0]) {
                         case 'machine':
                             lastMachine = it[1];
-                            contentList.put(lastMachine, [:]);
+                            credentials.put(lastMachine, [:]);
                             break
                         default:
-                            contentList.
+                            credentials.
                             "$lastMachine".put(it[0], it[1])
                     }
                 }
             };
     }
-    return contentList["api.mapbox.com"]["password"];
+
+    if (!credentials.containsKey("api.mapbox.com")) {
+        return null;
+    }
+
+    return credentials["api.mapbox.com"]["password"];
 }
 
 def getToken() {
