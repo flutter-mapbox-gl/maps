@@ -22,6 +22,10 @@ class LineBuilder implements LineOptionsSink {
     this.lineOptions = new LineOptions();
   }
 
+  public LineOptions getLineOptions(){
+    return this.lineOptions;
+  }
+
   Line build() {
     return lineManager.create(lineOptions);
   }

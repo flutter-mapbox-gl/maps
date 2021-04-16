@@ -32,6 +32,10 @@ class LineController implements LineOptionsSink {
     this.onTappedListener = onTappedListener;
   }
 
+  public Line getLine(){
+    return this.line;
+  }
+
   boolean onTap() {
     if (onTappedListener != null) {
       onTappedListener.onLineTapped(line);
