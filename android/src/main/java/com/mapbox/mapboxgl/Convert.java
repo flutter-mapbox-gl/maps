@@ -307,7 +307,7 @@ class Convert {
     if(compassViewMargins != null){
       final List compassViewMarginsData = toList(compassViewMargins);
       final Point point = toPoint(compassViewMarginsData, metrics.density);
-      sink.setCompassViewMargins(metrics.widthPixels - point.x, metrics.heightPixels - point.y);
+      sink.setCompassViewMargins(point.x, point.y);
     }
     final Object attributionButtonMargins = data.get("attributionButtonMargins");
     if(attributionButtonMargins != null){
