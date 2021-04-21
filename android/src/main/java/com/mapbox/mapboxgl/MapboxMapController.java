@@ -1236,18 +1236,8 @@ final class MapboxMapController
 
   @Override
   public void setMinMaxZoomPreference(Float min, Float max) {
-    //mapboxMap.resetMinMaxZoomPreference();
-    if (min != null) {
-      mapboxMap.setMinZoomPreference(min);
-    } else {
-      mapboxMap.setMinZoomPreference(MapboxConstants.MINIMUM_ZOOM);
-    }
-    if (max != null) {
-      mapboxMap.setMaxZoomPreference(max);
-    }
-    else {
-      mapboxMap.setMaxZoomPreference(MapboxConstants.MAXIMUM_ZOOM);
-    }
+    mapboxMap.setMinZoomPreference(min != null ? min : MapboxConstants.MINIMUM_ZOOM);
+    mapboxMap.setMaxZoomPreference(max != null ? max : MapboxConstants.MAXIMUM_ZOOM);
   }
 
   @Override

@@ -121,12 +121,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Widget buildView(
       Map<String, dynamic> creationParams,
-      Function onPlatformViewCreated,
+      OnPlatformViewCreatedCallback onPlatformViewCreated,
       Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers) {
     if (defaultTargetPlatform == TargetPlatform.android) {
       return AndroidView(
         viewType: 'plugins.flutter.io/mapbox_gl',
-        onPlatformViewCreated: onPlatformViewCreated as void Function(int)?,
+        onPlatformViewCreated: onPlatformViewCreated,
         gestureRecognizers: gestureRecognizers,
         creationParams: creationParams,
         creationParamsCodec: const StandardMessageCodec(),
@@ -134,7 +134,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return UiKitView(
         viewType: 'plugins.flutter.io/mapbox_gl',
-        onPlatformViewCreated: onPlatformViewCreated as void Function(int)?,
+        onPlatformViewCreated: onPlatformViewCreated,
         gestureRecognizers: gestureRecognizers,
         creationParams: creationParams,
         creationParamsCodec: const StandardMessageCodec(),

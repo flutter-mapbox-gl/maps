@@ -62,7 +62,7 @@ class CameraPosition {
     }
     return CameraPosition(
       bearing: json['bearing'],
-      target: LatLng._fromJson(json['target'])!,
+      target: LatLng._fromJson(json['target']),
       tilt: json['tilt'],
       zoom: json['zoom'],
     );

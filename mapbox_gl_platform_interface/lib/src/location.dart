@@ -36,10 +36,7 @@ class LatLng {
     return <double>[latitude, longitude];
   }
 
-  static LatLng? _fromJson(dynamic json) {
-    if (json == null) {
-      return null;
-    }
+  static LatLng _fromJson(List<double> json) {
     return LatLng(json[0], json[1]);
   }
 
@@ -87,8 +84,8 @@ class LatLngBounds {
       return null;
     }
     return LatLngBounds(
-      southwest: LatLng._fromJson(json[0])!,
-      northeast: LatLng._fromJson(json[1])!,
+      southwest: LatLng._fromJson(json[0]),
+      northeast: LatLng._fromJson(json[1]),
     );
   }
 
@@ -141,10 +138,10 @@ class LatLngQuad {
       return null;
     }
     return LatLngQuad(
-      topLeft: LatLng._fromJson(json[0])!,
-      topRight: LatLng._fromJson(json[1])!,
-      bottomRight: LatLng._fromJson(json[2])!,
-      bottomLeft: LatLng._fromJson(json[3])!,
+      topLeft: LatLng._fromJson(json[0]),
+      topRight: LatLng._fromJson(json[1]),
+      bottomRight: LatLng._fromJson(json[2]),
+      bottomLeft: LatLng._fromJson(json[3]),
     );
   }
 
