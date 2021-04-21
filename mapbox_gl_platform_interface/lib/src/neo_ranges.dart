@@ -8,10 +8,10 @@ class NeoRanges {
   int circlePrecision;
 
   NeoRanges({
-    @required this.visionRangeOptions,
-    @required this.adRangeOptions,
-    @required this.actionRangeOptions,
-    @required this.geometry,
+    required this.visionRangeOptions,
+    required this.adRangeOptions,
+    required this.actionRangeOptions,
+    required this.geometry,
     this.circlePrecision = 180,
   });
 
@@ -43,12 +43,12 @@ class NeoRangeOptions {
   int radius;
 
   NeoRangeOptions({
-    @required this.fillColor,
-    @required this.fillOpacity,
-    @required this.borderColor,
-    @required this.borderOpacity,
-    @required this.borderWidth,
-    @required this.radius,
+    required this.fillColor,
+    required this.fillOpacity,
+    required this.borderColor,
+    required this.borderOpacity,
+    required this.borderWidth,
+    required this.radius,
   });
 
   factory NeoRangeOptions.empty() {
