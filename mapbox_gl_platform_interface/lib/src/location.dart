@@ -36,7 +36,7 @@ class LatLng {
     return <double>[latitude, longitude];
   }
 
-  static LatLng _fromJson(List<double> json) {
+  static LatLng _fromJson(List<dynamic> json) {
     return LatLng(json[0], json[1]);
   }
 
