@@ -20,8 +20,8 @@ dependencies:
     git:
       url: https://github.com/tobrun/flutter-mapbox-gl.git
       path: mapbox_gl_platform_interface
-  mapbox_gl_dart: ^0.1.5
-  image: ^3.0.2
+  mapbox_gl_dart: ^0.2.0-nullsafety
+  image: ^3.0.0
 
 dependency_overrides:
   mapbox_gl_platform_interface:
@@ -32,5 +32,5 @@ dev_dependencies:
     sdk: flutter
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
-  flutter: ">=1.12.13+hotfix.4"
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.0.0"

@@ -25,8 +25,8 @@ class LocalStyle extends StatefulWidget {
 }
 
 class LocalStyleState extends State<LocalStyle> {
-  MapboxMapController mapController;
-  String styleAbsoluteFilePath;
+  MapboxMapController? mapController;
+  String? styleAbsoluteFilePath;
 
   @override
   initState() {

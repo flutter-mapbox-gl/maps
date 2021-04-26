@@ -10,13 +10,10 @@ part of mapbox_gl_platform_interface;
 class CameraPosition {
   const CameraPosition({
     this.bearing = 0.0,
-    @required this.target,
+    required this.target,
     this.tilt = 0.0,
     this.zoom = 0.0,
-  })  : assert(bearing != null),
-        assert(target != null),
-        assert(tilt != null),
-        assert(zoom != null);
+  });
 
   /// The camera's bearing in degrees, measured clockwise from north.
   ///
@@ -59,7 +56,7 @@ class CameraPosition {
       };
 
   @visibleForTesting
-  static CameraPosition fromMap(dynamic json) {
+  static CameraPosition? fromMap(dynamic json) {
     if (json == null) {
       return null;
     }
@@ -108,11 +105,10 @@ class CameraUpdate {
     return CameraUpdate._(<dynamic>['newLatLng', latLng.toJson()]);
   }
 
-
   /// Returns a camera update that transforms the camera so that the specified
   /// geographical bounding box is centered in the map view at the greatest
   /// possible zoom level. A non-zero [left], [top], [right] and [bottom] padding
-  /// insets the bounding box from the map view's edges. 
+  /// insets the bounding box from the map view's edges.
   /// The camera's new tilt and bearing will both be 0.0.
   static CameraUpdate newLatLngBounds(LatLngBounds bounds,
       {double left = 0, double top = 0, double right = 0, double bottom = 0}) {
@@ -149,7 +145,7 @@ class CameraUpdate {
   /// Returns a camera update that modifies the camera zoom level by the
   /// specified amount. The optional [focus] is a screen point whose underlying
   /// geographical location should be invariant, if possible, by the movement.
-  static CameraUpdate zoomBy(double amount, [Offset focus]) {
+  static CameraUpdate zoomBy(double amount, [Offset? focus]) {
     if (focus == null) {
       return CameraUpdate._(<dynamic>['zoomBy', amount]);
     } else {

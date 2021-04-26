@@ -35,7 +35,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   static const LAYER_ID = 'sydney_layer';
 
   bool sourceAdded = false;
-  MapboxMapController controller;
+  late MapboxMapController controller;
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
