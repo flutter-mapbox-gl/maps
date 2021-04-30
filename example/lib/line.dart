@@ -31,9 +31,9 @@ class LineBodyState extends State<LineBody> {
 
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
-  MapboxMapController controller;
+  MapboxMapController? controller;
   int _lineCount = 0;
-  Line _selectedLine;
+  Line? _selectedLine;
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
@@ -42,7 +42,7 @@ class LineBodyState extends State<LineBody> {
 
   @override
   void dispose() {
-    controller?.onLineTapped?.remove(_onLineTapped);
+    controller?.onLineTapped.remove(_onLineTapped);
     super.dispose();
   }
 
@@ -65,11 +65,11 @@ class LineBodyState extends State<LineBody> {
   }
 
   void _updateSelectedLine(LineOptions changes) {
-    controller.updateLine(_selectedLine, changes);
+    controller!.updateLine(_selectedLine!, changes);
   }
 
   void _add() {
-    controller.addLine(
+    controller!.addLine(
       LineOptions(
           geometry: [
             LatLng(-33.86711, 151.1947171),
@@ -88,7 +88,7 @@ class LineBodyState extends State<LineBody> {
   }
 
   void _remove() {
-    controller.removeLine(_selectedLine);
+    controller!.removeLine(_selectedLine!);
     setState(() {
       _selectedLine = null;
       _lineCount -= 1;
@@ -96,7 +96,7 @@ class LineBodyState extends State<LineBody> {
   }
 
   Future<void> _changeAlpha() async {
-    double current = _selectedLine.options.lineOpacity;
+    double? current = _selectedLine!.options.lineOpacity;
     if (current == null) {
       // default value
       current = 1.0;
@@ -108,7 +108,7 @@ class LineBodyState extends State<LineBody> {
   }
 
   Future<void> _toggleVisible() async {
-    double current = _selectedLine.options.lineOpacity;
+    double? current = _selectedLine!.options.lineOpacity;
     if (current == null) {
       // default value
       current = 1.0;
@@ -119,7 +119,7 @@ class LineBodyState extends State<LineBody> {
   }
 
   void onStyleLoadedCallback() {
-    controller.addLine(
+    controller!.addLine(
       LineOptions(
         geometry: [LatLng(37.4220, -122.0841), LatLng(37.4240, -122.0941)],
         lineColor: "#ff0000",
@@ -186,8 +186,8 @@ class LineBodyState extends State<LineBody> {
                           onPressed: (_selectedLine == null)
                               ? null
                               : () async {
-                                  var latLngs = await controller
-                                      .getLineLatLngs(_selectedLine);
+                                  var latLngs = await controller!
+                                      .getLineLatLngs(_selectedLine!);
                                   for (var latLng in latLngs) {
                                     print(latLng.toString());
                                   }

@@ -1,36 +1,36 @@
 part of mapbox_gl_platform_interface;
 
 class MethodChannelMapboxGl extends MapboxGlPlatform {
-  MethodChannel _channel;
+  late MethodChannel _channel;
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'infoWindow#onTap':
-        final String symbolId = call.arguments['symbol'];
+        final String? symbolId = call.arguments['symbol'];
         if (symbolId != null) {
           onInfoWindowTappedPlatform(symbolId);
         }
         break;
       case 'symbol#onTap':
-        final String symbolId = call.arguments['symbol'];
+        final String? symbolId = call.arguments['symbol'];
         if (symbolId != null) {
           onSymbolTappedPlatform(symbolId);
         }
         break;
       case 'line#onTap':
-        final String lineId = call.arguments['line'];
+        final String? lineId = call.arguments['line'];
         if (lineId != null) {
           onLineTappedPlatform(lineId);
         }
         break;
       case 'circle#onTap':
-        final String circleId = call.arguments['circle'];
+        final String? circleId = call.arguments['circle'];
         if (circleId != null) {
           onCircleTappedPlatform(circleId);
         }
         break;
       case 'fill#onTap':
-        final String fillId = call.arguments['fill'];
+        final String? fillId = call.arguments['fill'];
         if (fillId != null) {
           onFillTappedPlatform(fillId);
         }
@@ -39,12 +39,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         onCameraMoveStartedPlatform(null);
         break;
       case 'camera#onMove':
-        final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+        final cameraPosition =
+            CameraPosition.fromMap(call.arguments['position'])!;
         onCameraMovePlatform(cameraPosition);
         break;
       case 'camera#onIdle':
-        final CameraPosition cameraPosition =
+        final cameraPosition =
             CameraPosition.fromMap(call.arguments['position']);
         onCameraIdlePlatform(cameraPosition);
         break;
@@ -81,29 +81,30 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       case 'map#onUserLocationUpdated':
         final dynamic userLocation = call.arguments['userLocation'];
         final dynamic heading = call.arguments['heading'];
-        if (onUserLocationUpdatedPlatform != null) {
-          onUserLocationUpdatedPlatform(UserLocation(
-              position: LatLng(userLocation['position'][0], userLocation['position'][1]),
-              altitude: userLocation['altitude'],
-              bearing: userLocation['bearing'],
-              speed: userLocation['speed'],
-              horizontalAccuracy: userLocation['horizontalAccuracy'],
-              verticalAccuracy: userLocation['verticalAccuracy'],
-              heading: heading == null
-                  ? null
-                  : UserHeading(
-                      magneticHeading: heading['magneticHeading'],
-                      trueHeading: heading['trueHeading'],
-                      headingAccuracy: heading['headingAccuracy'],
-                      x: heading['x'],
-                      y: heading['y'],
-                      z: heading['x'],
-                      timestamp: DateTime.fromMillisecondsSinceEpoch(
-                          heading['timestamp']),
-                    ),
-              timestamp: DateTime.fromMillisecondsSinceEpoch(
-                  userLocation['timestamp'])));
-        }
+        onUserLocationUpdatedPlatform(UserLocation(
+            position: LatLng(
+              userLocation['position'][0],
+              userLocation['position'][1],
+            ),
+            altitude: userLocation['altitude'],
+            bearing: userLocation['bearing'],
+            speed: userLocation['speed'],
+            horizontalAccuracy: userLocation['horizontalAccuracy'],
+            verticalAccuracy: userLocation['verticalAccuracy'],
+            heading: heading == null
+                ? null
+                : UserHeading(
+                    magneticHeading: heading['magneticHeading'],
+                    trueHeading: heading['trueHeading'],
+                    headingAccuracy: heading['headingAccuracy'],
+                    x: heading['x'],
+                    y: heading['y'],
+                    z: heading['x'],
+                    timestamp: DateTime.fromMillisecondsSinceEpoch(
+                        heading['timestamp']),
+                  ),
+            timestamp: DateTime.fromMillisecondsSinceEpoch(
+                userLocation['timestamp'])));
         break;
       default:
         throw MissingPluginException();
@@ -112,7 +113,6 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
 
   @override
   Future<void> initPlatform(int id) async {
-    assert(id != null);
     _channel = MethodChannel('plugins.flutter.io/mapbox_maps_$id');
     await _channel.invokeMethod('map#waitForMap');
     _channel.setMethodCallHandler(_handleMethodCall);
@@ -121,8 +121,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Widget buildView(
       Map<String, dynamic> creationParams,
-      Function onPlatformViewCreated,
-      Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers) {
+      OnPlatformViewCreatedCallback onPlatformViewCreated,
+      Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers) {
     if (defaultTargetPlatform == TargetPlatform.android) {
       return AndroidView(
         viewType: 'plugins.flutter.io/mapbox_gl',
@@ -145,7 +145,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<CameraPosition> updateMapOptions(
+  Future<CameraPosition?> updateMapOptions(
       Map<String, dynamic> optionsUpdate) async {
     final dynamic json = await _channel.invokeMethod(
       'map#update',
@@ -157,14 +157,14 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<bool> animateCamera(cameraUpdate) async {
+  Future<bool?> animateCamera(cameraUpdate) async {
     return await _channel.invokeMethod('camera#animate', <String, dynamic>{
       'cameraUpdate': cameraUpdate.toJson(),
     });
   }
 
   @override
-  Future<bool> moveCamera(CameraUpdate cameraUpdate) async {
+  Future<bool?> moveCamera(CameraUpdate cameraUpdate) async {
     return await _channel.invokeMethod('camera#move', <String, dynamic>{
       'cameraUpdate': cameraUpdate.toJson(),
     });
@@ -218,7 +218,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
 
   @override
   Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
-      [List<Map> data]) async {
+      [List<Map>? data]) async {
     final List<dynamic> symbolIds = await _channel.invokeMethod(
       'symbols#addAll',
       <String, dynamic>{
@@ -259,12 +259,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> removeSymbols(Iterable<String> ids) async {
     await _channel.invokeMethod('symbols#removeAll', <String, dynamic>{
-      'symbols': ids.toList(),
+      'ids': ids.toList(),
     });
   }
 
   @override
-  Future<Line> addLine(LineOptions options, [Map data]) async {
+  Future<Line> addLine(LineOptions options, [Map? data]) async {
     final String lineId = await _channel.invokeMethod(
       'line#add',
       <String, dynamic>{
@@ -272,6 +272,27 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       },
     );
     return Line(lineId, options, data);
+  }
+
+  @override
+  Future<List<Line>> addLines(List<LineOptions> options,
+      [List<Map>? data]) async {
+    final List<dynamic> ids = await _channel.invokeMethod(
+      'line#addAll',
+      <String, dynamic>{
+        'options': options.map((o) => o.toJson()).toList(),
+      },
+    );
+    final List<Line> lines = ids
+        .asMap()
+        .map((i, id) => MapEntry(
+            i,
+            Line(id, options.elementAt(i),
+                data != null && data.length > i ? data.elementAt(i) : null)))
+        .values
+        .toList();
+
+    return lines;
   }
 
   @override
@@ -303,7 +324,14 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<Circle> addCircle(CircleOptions options, [Map data]) async {
+  Future<void> removeLines(Iterable<String> ids) async {
+    await _channel.invokeMethod('line#removeAll', <String, dynamic>{
+      'ids': ids.toList(),
+    });
+  }
+
+  @override
+  Future<Circle> addCircle(CircleOptions options, [Map? data]) async {
     final String circleId = await _channel.invokeMethod(
       'circle#add',
       <String, dynamic>{
@@ -311,6 +339,25 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       },
     );
     return Circle(circleId, options, data);
+  }
+
+  @override
+  Future<List<Circle>> addCircles(List<CircleOptions> options,
+      [List<Map>? data]) async {
+    final List<dynamic> ids = await _channel.invokeMethod(
+      'circle#addAll',
+      <String, dynamic>{
+        'options': options.map((o) => o.toJson()).toList(),
+      },
+    );
+    return ids
+        .asMap()
+        .map((i, id) => MapEntry(
+            i,
+            Circle(id, options.elementAt(i),
+                data != null && data.length > i ? data.elementAt(i) : null)))
+        .values
+        .toList();
   }
 
   @override
@@ -338,7 +385,14 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<Fill> addFill(FillOptions options, [Map data]) async {
+  Future<void> removeCircles(Iterable<String> ids) async {
+    await _channel.invokeMethod('circle#removeAll', <String, dynamic>{
+      'ids': ids.toList(),
+    });
+  }
+
+  @override
+  Future<Fill> addFill(FillOptions options, [Map? data]) async {
     final String fillId = await _channel.invokeMethod(
       'fill#add',
       <String, dynamic>{
@@ -346,6 +400,27 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       },
     );
     return Fill(fillId, options, data);
+  }
+
+  @override
+  Future<List<Fill>> addFills(List<FillOptions> options,
+      [List<Map>? data]) async {
+    final List<dynamic> ids = await _channel.invokeMethod(
+      'fill#addAll',
+      <String, dynamic>{
+        'options': options.map((o) => o.toJson()).toList(),
+      },
+    );
+    final List<Fill> fills = ids
+        .asMap()
+        .map((i, id) => MapEntry(
+            i,
+            Fill(id, options.elementAt(i),
+                data != null && data.length > i ? data.elementAt(i) : null)))
+        .values
+        .toList();
+
+    return fills;
   }
 
   @override
@@ -364,19 +439,26 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> removeFills(Iterable<String> ids) async {
+    await _channel.invokeMethod('fill#removeAll', <String, dynamic>{
+      'ids': ids.toList(),
+    });
+  }
+
+  @override
   Future<List> queryRenderedFeatures(
-      Point<double> point, List<String> layerIds, List<Object> filter) async {
+      Point<double> point, List<String> layerIds, List<Object>? filter) async {
     try {
-      final Map<Object, Object> reply = await _channel.invokeMethod(
+      final Map<dynamic, dynamic> reply = await _channel.invokeMethod(
         'map#queryRenderedFeatures',
-        <String, Object>{
+        <String, Object?>{
           'x': point.x,
           'y': point.y,
           'layerIds': layerIds,
           'filter': filter,
         },
       );
-      return reply['features'];
+      return reply['features'].map((feature) => jsonDecode(feature)).toList();
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
@@ -384,11 +466,11 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
 
   @override
   Future<List> queryRenderedFeaturesInRect(
-      Rect rect, List<String> layerIds, String filter) async {
+      Rect rect, List<String> layerIds, String? filter) async {
     try {
-      final Map<Object, Object> reply = await _channel.invokeMethod(
+      final Map<dynamic, dynamic> reply = await _channel.invokeMethod(
         'map#queryRenderedFeatures',
-        <String, Object>{
+        <String, Object?>{
           'left': rect.left,
           'top': rect.top,
           'right': rect.right,
@@ -397,7 +479,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           'filter': filter,
         },
       );
-      return reply['features'];
+      return reply['features'].map((feature) => jsonDecode(feature)).toList();
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
@@ -434,18 +516,14 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<LatLngBounds> getVisibleRegion() async {
     try {
-      final Map<Object, Object> reply =
+      final Map<dynamic, dynamic> reply =
           await _channel.invokeMethod('map#getVisibleRegion', null);
-      LatLng southwest, northeast;
-      if (reply.containsKey('sw')) {
-        List<dynamic> coordinates = reply['sw'];
-        southwest = LatLng(coordinates[0], coordinates[1]);
-      }
-      if (reply.containsKey('ne')) {
-        List<dynamic> coordinates = reply['ne'];
-        northeast = LatLng(coordinates[0], coordinates[1]);
-      }
-      return LatLngBounds(southwest: southwest, northeast: northeast);
+      final southwest = reply['sw'] as List<dynamic>;
+      final northeast = reply['ne'] as List<dynamic>;
+      return LatLngBounds(
+        southwest: LatLng(southwest[0], southwest[1]),
+        northeast: LatLng(northeast[0], northeast[1]),
+      );
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
@@ -515,10 +593,11 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addImageSource(String imageSourceId, Uint8List bytes,
-      LatLngQuad coordinates) async {
+  Future<void> addImageSource(
+      String imageSourceId, Uint8List bytes, LatLngQuad coordinates) async {
     try {
-      return await _channel.invokeMethod('style#addImageSource', <String, Object>{
+      return await _channel
+          .invokeMethod('style#addImageSource', <String, Object>{
         'imageSourceId': imageSourceId,
         'bytes': bytes,
         'length': bytes.length,
@@ -532,10 +611,10 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<Point> toScreenLocation(LatLng latLng) async {
     try {
-      var screenPosMap = await _channel
-          .invokeMethod('map#toScreenLocation', <String, dynamic>{
+      var screenPosMap =
+          await _channel.invokeMethod('map#toScreenLocation', <String, dynamic>{
         'latitude': latLng.latitude,
-        'longitude':latLng.longitude,
+        'longitude': latLng.longitude,
       });
       return Point(screenPosMap['x'], screenPosMap['y']);
     } on PlatformException catch (e) {
@@ -546,10 +625,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
     try {
-      var coordinates = Float64List.fromList(
-          latLngs.map((e) => [e.latitude, e.longitude]).expand((e) => e).toList());
-      Float64List result = await _channel
-          .invokeMethod('map#toScreenLocationBatch', {"coordinates": coordinates});
+      var coordinates = Float64List.fromList(latLngs
+          .map((e) => [e.latitude, e.longitude])
+          .expand((e) => e)
+          .toList());
+      Float64List result = await _channel.invokeMethod(
+          'map#toScreenLocationBatch', {"coordinates": coordinates});
 
       var points = <Point>[];
       for (int i = 0; i < result.length; i += 2) {
@@ -565,14 +646,13 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> removeImageSource(String imageSourceId) async {
     try {
-      return await _channel.invokeMethod('style#removeImageSource', <String, Object>{
-        'imageSourceId': imageSourceId
-      });
+      return await _channel.invokeMethod('style#removeImageSource',
+          <String, Object>{'imageSourceId': imageSourceId});
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
   }
-  
+
   @override
   Future<void> addLayer(String imageLayerId, String imageSourceId) async {
     try {
@@ -586,9 +666,11 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addLayerBelow(String imageLayerId, String imageSourceId, String belowLayerId) async {
+  Future<void> addLayerBelow(
+      String imageLayerId, String imageSourceId, String belowLayerId) async {
     try {
-      return await _channel.invokeMethod('style#addLayerBelow', <String, Object>{
+      return await _channel
+          .invokeMethod('style#addLayerBelow', <String, Object>{
         'imageLayerId': imageLayerId,
         'imageSourceId': imageSourceId,
         'belowLayerId': belowLayerId
@@ -597,25 +679,24 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       return new Future.error(e);
     }
   }
-  
+
   @override
   Future<void> removeLayer(String imageLayerId) async {
     try {
-      return await _channel.invokeMethod('style#removeLayer', <String, Object>{
-        'imageLayerId': imageLayerId
-      });
+      return await _channel.invokeMethod(
+          'style#removeLayer', <String, Object>{'imageLayerId': imageLayerId});
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
   }
-  
+
   @override
   Future<LatLng> toLatLng(Point screenLocation) async {
     try {
-      var latLngMap = await _channel
-          .invokeMethod('map#toLatLng', <String, dynamic>{
+      var latLngMap =
+          await _channel.invokeMethod('map#toLatLng', <String, dynamic>{
         'x': screenLocation.x,
-        'y':screenLocation.y,
+        'y': screenLocation.y,
       });
       return LatLng(latLngMap['latitude'], latLngMap['longitude']);
     } on PlatformException catch (e) {
@@ -624,7 +705,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<double> getMetersPerPixelAtLatitude(double latitude) async{
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async {
     try {
       var latLngMap = await _channel
           .invokeMethod('map#getMetersPerPixelAtLatitude', <String, dynamic>{
@@ -635,5 +716,4 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       return new Future.error(e);
     }
   }
-
 }

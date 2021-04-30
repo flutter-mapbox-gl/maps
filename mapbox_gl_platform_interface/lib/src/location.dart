@@ -14,9 +14,7 @@ class LatLng {
   /// The longitude is normalized to the half-open interval from -180.0
   /// (inclusive) to +180.0 (exclusive)
   const LatLng(double latitude, double longitude)
-      : assert(latitude != null),
-        assert(longitude != null),
-        latitude =
+      : latitude =
             (latitude < -90.0 ? -90.0 : (90.0 < latitude ? 90.0 : latitude)),
         longitude = (longitude + 180.0) % 360.0 - 180.0;
 
@@ -38,10 +36,7 @@ class LatLng {
     return <double>[latitude, longitude];
   }
 
-  static LatLng _fromJson(dynamic json) {
-    if (json == null) {
-      return null;
-    }
+  static LatLng _fromJson(List<dynamic> json) {
     return LatLng(json[0], json[1]);
   }
 
@@ -70,10 +65,8 @@ class LatLngBounds {
   ///
   /// The latitude of the southwest corner cannot be larger than the
   /// latitude of the northeast corner.
-  LatLngBounds({@required this.southwest, @required this.northeast})
-      : assert(southwest != null),
-        assert(northeast != null),
-        assert(southwest.latitude <= northeast.latitude);
+  LatLngBounds({required this.southwest, required this.northeast})
+      : assert(southwest.latitude <= northeast.latitude);
 
   /// The southwest corner of the rectangle.
   final LatLng southwest;
@@ -86,7 +79,7 @@ class LatLngBounds {
   }
 
   @visibleForTesting
-  static LatLngBounds fromList(dynamic json) {
+  static LatLngBounds? fromList(dynamic json) {
     if (json == null) {
       return null;
     }
@@ -115,15 +108,12 @@ class LatLngBounds {
 /// A geographical area representing a non-aligned quadrilateral
 /// This class does not wrap values to the world bounds
 class LatLngQuad {
-  const LatLngQuad(
-      {@required this.topLeft,
-      @required this.topRight,
-      @required this.bottomRight,
-      @required this.bottomLeft})
-      : assert(topLeft != null),
-        assert(topRight != null),
-        assert(bottomRight != null),
-        assert(bottomLeft != null);
+  const LatLngQuad({
+    required this.topLeft,
+    required this.topRight,
+    required this.bottomRight,
+    required this.bottomLeft,
+  });
 
   final LatLng topLeft;
 
@@ -143,7 +133,7 @@ class LatLngQuad {
   }
 
   @visibleForTesting
-  static LatLngQuad fromList(dynamic json) {
+  static LatLngQuad? fromList(dynamic json) {
     if (json == null) {
       return null;
     }
@@ -179,35 +169,35 @@ class UserLocation {
   final LatLng position;
 
   /// User's altitude in meters
-  final double altitude;
+  final double? altitude;
 
   /// Direction user is traveling, measured in degrees
-  final double bearing;
+  final double? bearing;
 
   /// User's speed in meters per second
-  final double speed;
+  final double? speed;
 
   /// The radius of uncertainty for the location, measured in meters
-  final double horizontalAccuracy;
+  final double? horizontalAccuracy;
 
   /// Accuracy of the altitude measurement, in meters
-  final double verticalAccuracy;
+  final double? verticalAccuracy;
 
   /// Time the user's location was observed
   final DateTime timestamp;
 
   /// The heading of the user location, null if not available.
-  final UserHeading heading;
+  final UserHeading? heading;
 
   const UserLocation(
-      {@required this.position,
-      @required this.altitude,
-      @required this.bearing,
-      @required this.speed,
-      @required this.horizontalAccuracy,
-      @required this.verticalAccuracy,
-      @required this.timestamp,
-      @required this.heading});
+      {required this.position,
+      required this.altitude,
+      required this.bearing,
+      required this.speed,
+      required this.horizontalAccuracy,
+      required this.verticalAccuracy,
+      required this.timestamp,
+      required this.heading});
 }
 
 /// Type represents a geomagnetic value, measured in microteslas, relative to a
@@ -216,35 +206,35 @@ class UserHeading {
   /// Represents the direction in degrees, where 0 degrees is magnetic North.
   /// The direction is referenced from the top of the device regardless of
   /// device orientation as well as the orientation of the user interface.
-  final double magneticHeading;
+  final double? magneticHeading;
 
   /// Represents the direction in degrees, where 0 degrees is true North. The
   /// direction is referenced from the top of the device regardless of device
   /// orientation as well as the orientation of the user interface
-  final double trueHeading;
+  final double? trueHeading;
 
   /// Represents the maximum deviation of where the magnetic heading may differ
   /// from the actual geomagnetic heading in degrees. A negative value indicates
   /// an invalid heading.
-  final double headingAccuracy;
+  final double? headingAccuracy;
 
   /// Returns a raw value for the geomagnetism measured in the x-axis.
-  final double x;
+  final double? x;
 
   /// Returns a raw value for the geomagnetism measured in the y-axis.
-  final double y;
+  final double? y;
 
   /// Returns a raw value for the geomagnetism measured in the z-axis.
-  final double z;
+  final double? z;
 
   /// Returns a timestamp for when the magnetic heading was determined.
   final DateTime timestamp;
   const UserHeading(
-      {@required this.magneticHeading,
-      @required this.trueHeading,
-      @required this.headingAccuracy,
-      @required this.x,
-      @required this.y,
-      @required this.z,
-      @required this.timestamp});
+      {required this.magneticHeading,
+      required this.trueHeading,
+      required this.headingAccuracy,
+      required this.x,
+      required this.y,
+      required this.z,
+      required this.timestamp});
 }
