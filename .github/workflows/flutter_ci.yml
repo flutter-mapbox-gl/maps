@@ -18,6 +18,7 @@ jobs:
       run: cd example && flutter analyze
 
   build-android:
+    environment: ANDROID_CI_DOWNLOADS_TOKEN
     name: "Build Android apk"
     runs-on: ubuntu-latest
 
@@ -30,12 +31,14 @@ jobs:
     - run: flutter pub get
     - name: Build example APK
       run: cd example && flutter build apk
-      # We might want to add a flutter test step in the future, when there actually are tests for this plugin
-        
+      env:
+        SDK_REGISTRY_TOKEN: ${{ secrets.SDK_REGISTRY_ANDROID}}
+
   build-iOS:
+    environment: ANDROID_CI_DOWNLOADS_TOKEN
     name: Build iOS package
     runs-on: macos-latest
-    
+
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-java@v1
@@ -45,8 +48,13 @@ jobs:
       - run: flutter pub get
       - name: build iOS package
         run: |
+          echo "machine api.mapbox.com
+          login mapbox
+          password $SDK_REGISTRY_TOKEN" >> ~/.netrc
           cd ./example
           flutter build ios --release --no-codesign
+        env:
+          SDK_REGISTRY_TOKEN: ${{ secrets.SDK_REGISTRY_IOS}}
           
   build-web:
     name: "Build web"

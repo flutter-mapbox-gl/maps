@@ -10,6 +10,7 @@ class MapboxMapController extends MapboxGlPlatform
   Map<String, dynamic> _creationParams;
   MapboxMap _map;
 
+  List<String> annotationOrder = [];
   SymbolManager symbolManager;
   LineManager lineManager;
   CircleManager circleManager;
@@ -64,6 +65,10 @@ class MapboxMapController extends MapboxGlPlatform
       _map.on('load', _onStyleLoaded);
     }
     Convert.interpretMapboxMapOptions(_creationParams['options'], this);
+
+    if (_creationParams.containsKey('annotationOrder')) {
+      annotationOrder = _creationParams['annotationOrder'];
+    }
   }
 
   Future<void> _addStylesheetToShadowRoot(HtmlElement e) async {
@@ -343,10 +348,28 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   void _onStyleLoaded(_) {
-    symbolManager = SymbolManager(map: _map, onTap: onSymbolTappedPlatform);
-    lineManager = LineManager(map: _map, onTap: onLineTappedPlatform);
-    circleManager = CircleManager(map: _map, onTap: onCircleTappedPlatform);
-    fillManager = FillManager(map: _map, onTap: onFillTappedPlatform);
+    for (final annotationType in annotationOrder) {
+      switch (annotationType) {
+        case 'AnnotationType.symbol':
+          symbolManager =
+              SymbolManager(map: _map, onTap: onSymbolTappedPlatform);
+          break;
+        case 'AnnotationType.line':
+          lineManager = LineManager(map: _map, onTap: onLineTappedPlatform);
+          break;
+        case 'AnnotationType.circle':
+          circleManager =
+              CircleManager(map: _map, onTap: onCircleTappedPlatform);
+          break;
+        case 'AnnotationType.fill':
+          fillManager = FillManager(map: _map, onTap: onFillTappedPlatform);
+          break;
+        default:
+          print(
+              "Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'");
+      }
+    }
+
     onMapStyleLoadedPlatform(null);
     _map.on('click', _onMapClick);
     // long click not available in web, so it is mapped to double click
@@ -668,8 +691,9 @@ class MapboxMapController extends MapboxGlPlatform
   @override
   Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
     return latLngs.map((latLng) {
-        var screenPosition = _map.project(LngLat(latLng.longitude, latLng.latitude));
-        return Point(screenPosition.x.round(), screenPosition.y.round());
+      var screenPosition =
+          _map.project(LngLat(latLng.longitude, latLng.latitude));
+      return Point(screenPosition.x.round(), screenPosition.y.round());
     }).toList(growable: false);
   }
 
