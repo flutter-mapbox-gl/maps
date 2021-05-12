@@ -28,9 +28,6 @@ abstract class MapboxGlPlatform {
   final ArgumentCallbacks<String> onSymbolTappedPlatform =
       ArgumentCallbacks<String>();
 
-  final ArgumentCallbacks<Map<String, dynamic>> onSymbolDraggedPlatform =
-  ArgumentCallbacks<Map<String, dynamic>>();
-
   final ArgumentCallbacks<String> onLineTappedPlatform =
       ArgumentCallbacks<String>();
 

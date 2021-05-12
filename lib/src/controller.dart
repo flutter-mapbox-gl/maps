@@ -18,27 +18,6 @@ typedef void OnCameraIdleCallback();
 
 typedef void OnMapIdleCallback();
 
-
-enum DragEventType
-{
-  start,
-  drag,
-  end,
-  none,
-}
-
-
-class SymbolDragEventArgs
-{
-  final Symbol symbol;
-  final LatLng currentLatLng;
-  final LatLng previousLatLng;
-  final DragEventType eventType;
-
-  SymbolDragEventArgs({@required this.symbol, @required this.currentLatLng, this.previousLatLng, @required this.eventType});
-
-}
-
 /// Controller for a single MapboxMap instance running on the host platform.
 ///
 /// Change listeners are notified upon changes to any of
@@ -81,31 +60,6 @@ class MapboxMapController extends ChangeNotifier {
       if (symbol != null) {
         onSymbolTapped(symbol);
       }
-    });
-
-    MapboxGlPlatform.getInstance(_id).onSymbolDraggedPlatform.add((args) {
-      final Symbol symbol = _symbols[args['symbol']];
-      final LatLng latLng = args["latLng"];
-
-      DragEventType type = DragEventType.values.firstWhere((e) => e.toString() == "DragEventType.${args['type']}");
-      SymbolDragEventArgs eventArg = new SymbolDragEventArgs(
-        symbol: symbol,
-        eventType: type,
-        currentLatLng: latLng,
-        previousLatLng: new LatLng(symbol.options.geometry.latitude, symbol.options.geometry.longitude)
-      );
-
-      if(type == DragEventType.end) {
-        this.updateSymbol(symbol, SymbolOptions(geometry: latLng)).then((
-            value) {
-          if (symbol != null) {
-            onSymbolDragged(eventArg);
-          }
-        });
-      }
-      else
-        onSymbolDragged(eventArg);
-
     });
 
     MapboxGlPlatform.getInstance(_id).onLineTappedPlatform.add((lineId) {
@@ -242,9 +196,6 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Symbol> onSymbolTapped = ArgumentCallbacks<Symbol>();
-
-  /// Callbacks to receive tap events for symbols dragged on this map.
-  final ArgumentCallbacks<SymbolDragEventArgs> onSymbolDragged = ArgumentCallbacks<SymbolDragEventArgs>();
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Circle> onCircleTapped = ArgumentCallbacks<Circle>();

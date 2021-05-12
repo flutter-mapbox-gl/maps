@@ -60,7 +60,6 @@ import com.mapbox.mapboxsdk.plugins.annotation.FillManager;
 import com.mapbox.mapboxsdk.plugins.annotation.Line;
 import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
 import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
-import com.mapbox.mapboxsdk.plugins.annotation.OnSymbolDragListener;
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
@@ -380,40 +379,6 @@ final class MapboxMapController
       symbolManager.setTextAllowOverlap(true);
       symbolManager.setTextIgnorePlacement(true);
       symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-      symbolManager.addDragListener(new OnSymbolDragListener() {
-        @Override
-        public void onAnnotationDragStarted(Symbol annotation) {
-
-          final Map<String, Object> arguments = new HashMap<>(3);
-          arguments.put("lat",annotation.getLatLng().getLatitude());
-          arguments.put("lng",annotation.getLatLng().getLongitude());
-          arguments.put("symbol",String.valueOf(annotation.getId()));
-          methodChannel.invokeMethod("map#onAnnotationDragStarted",arguments);
-          Log.e(TAG, "onAnnotationDragStarted");
-        }
-
-        @Override
-        public void onAnnotationDrag(Symbol annotation) {
-
-          final Map<String, Object> arguments = new HashMap<>(3);
-          arguments.put("lat",annotation.getLatLng().getLatitude());
-          arguments.put("lng",annotation.getLatLng().getLongitude());
-          arguments.put("symbol",String.valueOf(annotation.getId()));
-          methodChannel.invokeMethod("map#onAnnotationDrag",arguments);
-        }
-
-        @Override
-        public void onAnnotationDragFinished(Symbol annotation) {
-
-          Log.e(TAG, "onAnnotationDragFinished");
-          final Map<String, Object> arguments = new HashMap<>(3);
-          arguments.put("lat",annotation.getLatLng().getLatitude());
-          arguments.put("lng",annotation.getLatLng().getLongitude());
-          arguments.put("symbol",String.valueOf(annotation.getId()));
-          methodChannel.invokeMethod("map#onAnnotationDragFinished",arguments);
-
-        }
-      });
     }
   }
 

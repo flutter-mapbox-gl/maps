@@ -78,33 +78,6 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       case 'map#onIdle':
         onMapIdlePlatform(null);
         break;
-      case 'map#onAnnotationDragFinished':
-        final double lng = call.arguments['lng'];
-        final double lat = call.arguments['lat'];
-        final String symbol  = call.arguments['symbol'];
-        onSymbolDraggedPlatform(
-            {'latLng': LatLng(lat, lng), 'symbol' : symbol, 'type': "end"});
-
-        break;
-
-      case 'map#onAnnotationDrag':
-        final double lng = call.arguments['lng'];
-        final double lat = call.arguments['lat'];
-        final String symbol  = call.arguments['symbol'];
-        onSymbolDraggedPlatform(
-            {'latLng': LatLng(lat, lng), 'symbol' : symbol,'type': "drag"});
-
-        break;
-
-      case 'map#onAnnotationDragStarted':
-        final double lng = call.arguments['lng'];
-        final double lat = call.arguments['lat'];
-        final String symbol  = call.arguments['symbol'];
-        onSymbolDraggedPlatform(
-            {'latLng': LatLng(lat, lng), 'symbol' : symbol,'type':"start"});
-
-        break;
-
       case 'map#onUserLocationUpdated':
         final dynamic userLocation = call.arguments['userLocation'];
         final dynamic heading = call.arguments['heading'];
