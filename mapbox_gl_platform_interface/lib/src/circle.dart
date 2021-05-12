@@ -15,8 +15,8 @@ class Circle {
   final String _id;
   String get id => _id;
 
-  final Map _data;
-  Map get data => _data;
+  final Map? _data;
+  Map? get data => _data;
 
   /// The circle configuration options most recently applied programmatically
   /// via the map controller.
@@ -47,22 +47,19 @@ class CircleOptions {
     this.draggable,
   });
 
-  final double circleRadius;
-  final String circleColor;
-  final double circleBlur;
-  final double circleOpacity;
-  final double circleStrokeWidth;
-  final String circleStrokeColor;
-  final double circleStrokeOpacity;
-  final LatLng geometry;
-  final bool draggable;
+  final double? circleRadius;
+  final String? circleColor;
+  final double? circleBlur;
+  final double? circleOpacity;
+  final double? circleStrokeWidth;
+  final String? circleStrokeColor;
+  final double? circleStrokeOpacity;
+  final LatLng? geometry;
+  final bool? draggable;
 
   static const CircleOptions defaultOptions = CircleOptions();
 
   CircleOptions copyWith(CircleOptions changes) {
-    if (changes == null) {
-      return this;
-    }
     return CircleOptions(
       circleRadius: changes.circleRadius ?? circleRadius,
       circleColor: changes.circleColor ?? circleColor,

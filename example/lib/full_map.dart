@@ -21,7 +21,7 @@ class FullMap extends StatefulWidget {
 }
 
 class FullMapState extends State<FullMap> {
-  MapboxMapController mapController;
+  MapboxMapController? mapController;
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;

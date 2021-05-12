@@ -24,7 +24,7 @@ class MoveCamera extends StatefulWidget {
 }
 
 class MoveCameraState extends State<MoveCamera> {
-  MapboxMapController mapController;
+  late MapboxMapController mapController;
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
