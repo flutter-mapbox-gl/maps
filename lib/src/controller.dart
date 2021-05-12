@@ -496,7 +496,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> clearSymbols() async {
     assert(_symbols != null);
-    await MapboxGlPlatform.getInstance(_id).removeLines(_symbols.keys);
+    await MapboxGlPlatform.getInstance(_id).removeSymbols(_symbols.keys);
     _symbols.clear();
     notifyListeners();
   }

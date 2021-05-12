@@ -19,7 +19,7 @@ dependencies:
   mapbox_gl_platform_interface:
     path: ../mapbox_gl_platform_interface
   mapbox_gl_dart: ^0.1.5
-  image: ^3.0.2
+  image: ^2.1.12
 
 dependency_overrides:
   mapbox_gl_platform_interface:

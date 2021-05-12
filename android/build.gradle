@@ -13,10 +13,7 @@ buildscript {
 }
 
 rootProject.allprojects {
-    def token = System.getenv('SDK_REGISTRY_TOKEN')
-    if (token == null || token.empty) {
-        throw new Exception("SDK Registry token is null. See README.md for more information.")
-    }
+
     repositories {
         google()
         jcenter()
@@ -28,7 +25,7 @@ rootProject.allprojects {
             }
             credentials {
                 username = "mapbox"
-                password = token
+                password = "sk.eyJ1IjoibmV0Y2FkIiwiYSI6ImNrb2JlbXhiMDJ5Y3oycGx5eGRsZmhqeWgifQ.2I0rC4LXccMJkQ9wQU2lUg"
             }
         }
     }
