@@ -64,9 +64,14 @@ abstract class FeatureManager<T> {
   }
 
   void _initClickHandler() {
-    map.on('click', layerId, (e) {
-      if (onTap != null) {
-        onTap('${e.features[0].id}');
+    map.on('click', (e) {
+      if (e is Event) {
+        final features = map.queryRenderedFeatures([e.point.x, e.point.y]);
+        if (features.length > 0 && features[0].source == sourceId) {
+          if (onTap != null) {
+            onTap('${features[0].id}');
+          }
+        }
       }
     });
 
