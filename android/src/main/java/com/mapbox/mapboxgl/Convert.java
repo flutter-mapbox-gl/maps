@@ -313,7 +313,8 @@ class Convert {
     if(attributionButtonMargins != null){
       final List attributionButtonMarginsData = toList(attributionButtonMargins);
       final Point point = toPoint(attributionButtonMarginsData, metrics.density);
-      sink.setAttributionButtonMargins(metrics.widthPixels - point.x - 56, point.y);
+      final int attributionButtonWidth = toPixels(21, metrics.density);
+      sink.setAttributionButtonMargins(metrics.widthPixels - point.x - attributionButtonWidth, point.y);
     }
   }
 
