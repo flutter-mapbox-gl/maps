@@ -46,7 +46,11 @@ abstract class MapboxGlPlatform {
 
   final onMapLongClickPlatform = ArgumentCallbacks<Map<String, dynamic>>();
 
-  final onCameraTrackingChangedPlatform =
+  final ArgumentCallbacks<void> onAttributionClickPlatform =
+      ArgumentCallbacks<void>();
+
+  final ArgumentCallbacks<MyLocationTrackingMode>
+      onCameraTrackingChangedPlatform =
       ArgumentCallbacks<MyLocationTrackingMode>();
 
   final onCameraTrackingDismissedPlatform = ArgumentCallbacks<void>();

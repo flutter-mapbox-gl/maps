@@ -35,6 +35,7 @@ class MapboxMap extends StatefulWidget {
     this.onMapClick,
     this.onUserLocationUpdated,
     this.onMapLongClick,
+    this.onAttributionClick,
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
     this.onCameraIdle,
@@ -172,6 +173,8 @@ class MapboxMap extends StatefulWidget {
   final OnMapClickCallback? onMapClick;
   final OnMapClickCallback? onMapLongClick;
 
+  final OnAttributionClickCallback? onAttributionClick;
+
   /// While the `myLocationEnabled` property is set to `true`, this method is
   /// called whenever a new location update is received by the map view.
   final OnUserLocationUpdated? onUserLocationUpdated;
@@ -217,6 +220,7 @@ class _MapboxMapState extends State<MapboxMap> {
       'accessToken': widget.accessToken,
       'annotationOrder': annotationOrder,
       'annotationConsumeTapEvents': annotationConsumeTapEvents,
+      'onAttributionClickOverride': widget.onAttributionClick != null,
     };
     return _mapboxGlPlatform.buildView(
         creationParams, onPlatformViewCreated, widget.gestureRecognizers);
@@ -267,6 +271,7 @@ class _MapboxMapState extends State<MapboxMap> {
       onMapClick: widget.onMapClick,
       onUserLocationUpdated: widget.onUserLocationUpdated,
       onMapLongClick: widget.onMapLongClick,
+      onAttributionClick: widget.onAttributionClick,
       onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
       onCameraTrackingChanged: widget.onCameraTrackingChanged,
       onCameraIdle: widget.onCameraIdle,
