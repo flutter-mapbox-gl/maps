@@ -6,16 +6,22 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl_example/layer.dart';
+import 'package:mapbox_gl_example/custom_marker.dart';
 import 'package:mapbox_gl_example/full_map.dart';
+import 'package:mapbox_gl_example/offline_regions.dart';
 
 import 'animate_camera.dart';
+import 'annotation_order_maps.dart';
 import 'full_map.dart';
 import 'line.dart';
+import 'local_style.dart';
 import 'map_ui.dart';
 import 'move_camera.dart';
 import 'page.dart';
 import 'place_circle.dart';
+import 'place_source.dart';
 import 'place_symbol.dart';
+import 'place_fill.dart';
 import 'scrolling_map.dart';
 
 final List<ExamplePage> _allPages = <ExamplePage>[
@@ -24,14 +30,19 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   AnimateCameraPage(),
   MoveCameraPage(),
   PlaceSymbolPage(),
+  PlaceSourcePage(),
   LinePage(),
   LayerPage(),
+  LocalStylePage(),
   PlaceCirclePage(),
+  PlaceFillPage(),
   ScrollingMapPage(),
+  OfflineRegionsPage(),
+  AnnotationOrderPage(),
+  CustomMarkerPage(),
 ];
 
 class MapsDemo extends StatelessWidget {
-
   //FIXME: Add your Mapbox access token here
   static const String ACCESS_TOKEN = "pk.eyJ1Ijoib3V0d2F5LWFkbWluIiwiYSI6ImNrMnRxYnQ3bzFlNTEzbXVpNXIxZG00dG0ifQ.jt1gMJMirDNJneqN3G1O8w";
 

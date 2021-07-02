@@ -5,6 +5,7 @@ import 'dart:async';
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:html';
 import 'dart:js';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -25,4 +26,5 @@ part 'src/feature_manager/feature_manager.dart';
 part 'src/feature_manager/symbol_manager.dart';
 part 'src/feature_manager/line_manager.dart';
 part 'src/feature_manager/circle_manager.dart';
+part 'src/feature_manager/fill_manager.dart';
 part 'src/mapbox_map_controller.dart';

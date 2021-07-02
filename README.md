@@ -25,6 +25,21 @@ The **recommended** way to provide your access token is through the `MapboxMap` 
 
 An alternative method to provide access tokens that was required until the v0.7 release is described in [this wiki article](https://github.com/tobrun/flutter-mapbox-gl/wiki/Mapbox-access-tokens).
 
+## Avoid Android UnsatisfiedLinkError
+
+Update buildTypes in `android\app\build.gradle`
+
+```gradle
+buildTypes {
+    release {
+        // other configs
+        ndk {
+            abiFilters 'armeabi-v7a','arm64-v8a','x86_64', 'x86'
+        }
+    }
+}
+```
+
 ## Using the SDK in your project
 
 This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to integrate a package into your flutter application. For platform specific integration, use the flutter application under the example folder as reference. 
@@ -40,7 +55,7 @@ This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), foll
 | Symbol | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Circle | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Line | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-| Fill |   |  |  |
+| Fill | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 
 ## Map Styles
 
@@ -48,7 +63,8 @@ Map styles can be supplied by setting the `styleString` in the `MapOptions`. The
 
 1. Passing the URL of the map style. This can be one of the built-in map styles, also see `MapboxStyles` or a custom map style served remotely using a URL that start with 'http(s)://' or 'mapbox://'
 2. Passing the style as a local asset. Create a JSON file in the `assets` and add a reference in `pubspec.yml`. Set the style string to the relative path for this asset in order to load it into the map.
-3. Passing the raw JSON of the map style. This is only supported on Android.  
+3. Passing the style as a local file. create an JSON file in app directory (e.g. ApplicationDocumentsDirectory). Set the style string to the absolute path of this JSON file.
+4. Passing the raw JSON of the map style. This is only supported on Android.  
 
 ## Offline Sideloading
 
@@ -72,6 +88,41 @@ Support for offline maps is available by *"side loading"* the required map tiles
       print(err);
     }
 ```
+
+## Downloading Offline Regions
+
+An offline region is a defined region of a map that is available for use in conditions with limited or no network connection. Tiles for selected region, style and precision are downloaded from Mapbox using proper SDK methods and stored in application's cache. 
+
+* Beware of selecting big regions, as size might be significant. Here is an online estimator https://docs.mapbox.com/playground/offline-estimator/.
+
+* Call `downloadOfflineRegionStream` with predefined `OfflineRegion` and optionally track progress in the callback function.
+
+```      
+    final Function(DownloadRegionStatus event) onEvent = (DownloadRegionStatus status) {
+      if (status.runtimeType == Success) {
+        // ...
+      } else if (status.runtimeType == InProgress) {
+        int progress = (status as InProgress).progress.round();
+        // ...
+      } else if (status.runtimeType == Error) {
+        // ...
+      }
+    };
+
+    final OfflineRegion offlineRegion = OfflineRegion(
+      bounds: LatLngBounds(
+        northeast: LatLng(52.5050648, 13.3915634),
+        southwest: LatLng(52.4943073, 13.4055383),
+      ),
+      id: 1,
+      minZoom: 6,
+      maxZoom: 18,
+      mapStyleUrl: 'mapbox://styles/mapbox/streets-v11',
+    );
+
+    downloadOfflineRegionStream(offlineRegion, onEvent);
+```
+
 
 ## Location features
 To enable location features in an **Android** application:

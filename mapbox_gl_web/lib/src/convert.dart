@@ -45,6 +45,7 @@ class Convert {
       sink.setMyLocationEnabled(options['myLocationEnabled']);
     }
     if (options.containsKey('myLocationTrackingMode')) {
+      //Should not be invoked before sink.setMyLocationEnabled()
       sink.setMyLocationTrackingMode(options['myLocationTrackingMode']);
     }
     if (options.containsKey('myLocationRenderMode')) {
@@ -90,7 +91,10 @@ class Convert {
         );
       case 'newLatLngBounds':
         final bounds = json[1];
-        final padding = json[2];
+        final left = json[2];
+        final top = json[3];
+        final right = json[4];
+        final bottom = json[5];
         final camera = mapboxMap.cameraForBounds(
             LngLatBounds(
               LngLat(bounds[0][1], bounds[0][0]),
@@ -98,10 +102,10 @@ class Convert {
             ),
             {
               'padding': {
-                'top': padding,
-                'bottom': padding,
-                'left': padding,
-                'right': padding
+                'top': top,
+                'bottom': bottom,
+                'left': left,
+                'right': right,
               }
             });
         return camera;
@@ -350,6 +354,60 @@ class Convert {
     }
     if (options.draggable != null) {
       properties['draggable'] = options.draggable;
+    }
+    return feature.copyWith(properties: properties, geometry: geometry);
+  }
+
+  static List<List<List<double>>> fillGeometryToFeatureGeometry(
+      List<List<LatLng>> geom) {
+    List<List<List<double>>> convertedFill = [];
+    for (final ring in geom) {
+      List<List<double>> convertedRing = [];
+      for (final coords in ring) {
+        convertedRing.add([coords.longitude, coords.latitude]);
+      }
+      convertedFill.add(convertedRing);
+    }
+    return convertedFill;
+  }
+
+  static List<List<LatLng>> featureGeometryToFillGeometry(
+      List<List<List<double>>> geom) {
+    List<List<LatLng>> convertedFill = [];
+    for (final ring in geom) {
+      List<LatLng> convertedRing = [];
+      for (final coords in ring) {
+        convertedRing.add(LatLng(coords[1], coords[0]));
+      }
+      convertedFill.add(convertedRing);
+    }
+    return convertedFill;
+  }
+
+  static Feature intepretFillOptions(FillOptions options, Feature feature) {
+    var properties = feature.properties;
+    var geometry = feature.geometry;
+    if (options.draggable != null) {
+      properties['draggable'] = options.draggable;
+    }
+    if (options.fillColor != null) {
+      properties['fillColor'] = options.fillColor;
+    }
+    if (options.fillOpacity != null) {
+      properties['fillOpacity'] = options.fillOpacity;
+    }
+    if (options.fillOutlineColor != null) {
+      properties['fillOutlineColor'] = options.fillOutlineColor;
+    }
+    if (options.fillPattern != null) {
+      properties['fillPattern'] = options.fillPattern;
+    }
+
+    if (options.geometry != null) {
+      geometry = Geometry(
+        type: geometry.type,
+        coordinates: fillGeometryToFeatureGeometry(options.geometry),
+      );
     }
     return feature.copyWith(properties: properties, geometry: geometry);
   }

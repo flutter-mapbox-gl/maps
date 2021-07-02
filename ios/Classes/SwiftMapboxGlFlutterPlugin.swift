@@ -5,6 +5,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = MapboxMapFactory(withRegistrar: registrar)
         registrar.register(instance, withId: "plugins.flutter.io/mapbox_gl")
+        
 
         let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_gl", binaryMessenger: registrar.messenger())
 
@@ -15,6 +16,51 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                 let tilesdb = arguments["tilesdb"]
                 installOfflineMapTiles(registrar: registrar, tilesdb: tilesdb!)
                 result(nil)
+            case "downloadOfflineRegion":
+                // Get download region arguments from caller
+                guard let args = methodCall.arguments as? [String: Any],
+                      let definitionDictionary = args["definition"] as? [String: Any],
+                      let metadata = args["metadata"] as? [String: Any],
+                      let defintion = OfflineRegionDefinition.fromDictionary(definitionDictionary),
+                      let channelName = args["channelName"] as? String
+                    else {
+                        print("downloadOfflineRegion unexpected arguments: \(String(describing: methodCall.arguments))")
+                        result(nil)
+                        return
+                    }
+                // Prepare channel
+                let channelHandler = OfflineChannelHandler(
+                    messenger: registrar.messenger(),
+                    channelName: channelName
+                )
+                OfflineManagerUtils.downloadRegion(
+                    definition: defintion,
+                    metadata: metadata,
+                    result: result,
+                    registrar: registrar,
+                    channelHandler: channelHandler
+                )
+            case "setOfflineTileCountLimit":
+                guard let arguments = methodCall.arguments as? [String: Any],
+                    let limit = arguments["limit"] as? UInt64 else {
+                        result(FlutterError(
+                            code: "SetOfflineTileCountLimitError",
+                            message: "could not decode arguments",
+                            details: nil
+                        ))
+                        return
+                }
+                OfflineManagerUtils.setOfflineTileCountLimit(result: result, maximumCount: limit)
+            case "getListOfRegions":
+                // Note: this does not download anything from internet, it only fetches data drom database
+                OfflineManagerUtils.regionsList(result: result)
+            case "deleteOfflineRegion":
+                guard let args = methodCall.arguments as? [String: Any],
+                    let id = args["id"] as? Int else {
+                        result(nil)
+                        return
+                }
+                OfflineManagerUtils.deleteRegion(result: result, id: id)
             default:
                 result(FlutterMethodNotImplemented)
             }
