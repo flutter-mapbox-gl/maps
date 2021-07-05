@@ -515,6 +515,22 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> addLayerProperties(String layerId, String properties) async {
+    await _channel.invokeMethod('layer#addProperties', <String, dynamic>{
+      'layerId': layerId,
+      'properties': properties,
+    });
+  }
+
+  @override
+  Future<void> addSourceFeatures(String sourceId, String features) async {
+    await _channel.invokeMethod('source#addFeatures', <String, dynamic>{
+      'sourceId': sourceId,
+      'features': features,
+    });
+  }
+
+  @override
   Future<void> addSource(String sourceId, String geojson) async {
     await _channel.invokeMethod('source#add', <String, dynamic>{
       'sourceId': sourceId,
@@ -523,20 +539,47 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addSymbolLayer(String sourceId, String layerId, Map<String, String> properties) async {
+  Future<void> addSymbolLayer(
+    String sourceId, 
+    String layerId, 
+    Map<String, String> properties,
+    String filter,
+  ) async {
     await _channel.invokeMethod('symbolLayer#add', <String, dynamic>{
       'sourceId': sourceId,
       'layerId': layerId,
-      'properties': properties
+      'properties': properties,
+      'filter': filter,
     });
   }
 
   @override
-  Future<void> addLineLayer(String sourceId, String layerId, Map<String, String> properties) async {
+  Future<void> addLineLayer(
+    String sourceId,
+    String layerId,
+    Map<String, String> properties,
+    String filter,
+  ) async {
     await _channel.invokeMethod('lineLayer#add', <String, dynamic>{
       'sourceId': sourceId,
       'layerId': layerId,
-      'properties': properties
+      'properties': properties,
+      'filter': filter,
+    });
+  }
+
+  @override
+  Future<void> addFillLayer(
+    String sourceId,
+    String layerId,
+    Map<String, String> properties,
+    String filter,
+  ) async {
+    await _channel.invokeMethod('fillLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'properties': properties,
+      'filter': filter,
     });
   }
 

@@ -100,7 +100,7 @@ class MapboxMapController extends ChangeNotifier {
         .add((cameraPosition) {
       _isCameraMoving = false;
       if (cameraPosition != null) {
-        _cameraPosition = cameraPosition;        
+        _cameraPosition = cameraPosition;
       }
       if (onCameraIdle != null) {
         onCameraIdle();
@@ -292,12 +292,40 @@ class MapboxMapController extends ChangeNotifier {
     await MapboxGlPlatform.getInstance(_id).addSource(sourceId, geojson);
   }
 
-  Future<void> addSymbolLayer(String sourceId, String layerId, Map<String, String> properties) async {
-    await MapboxGlPlatform.getInstance(_id).addSymbolLayer(sourceId, layerId, properties);
+  /// Add properties to existing layer
+  Future<void> addLayerProperties(String layerId, String properties) async {
+    await MapboxGlPlatform.getInstance(_id)
+        .addLayerProperties(layerId, properties);
   }
 
-  Future<void> addLineLayer(String sourceId, String layerId, Map<String, String> properties) async {
-    await MapboxGlPlatform.getInstance(_id).addLineLayer(sourceId, layerId, properties);
+  /// Adds a raw geojson FeatureCollection string
+  Future<void> addSourceFeatures(String sourceId, String features) async {
+    await MapboxGlPlatform.getInstance(_id)
+        .addSourceFeatures(sourceId, features);
+  }
+
+  /// Add a layer of type symbol
+  Future<void> addSymbolLayer(
+      String sourceId, String layerId, Map<String, String> properties,
+      {filter}) async {
+    await MapboxGlPlatform.getInstance(_id)
+        .addSymbolLayer(sourceId, layerId, properties, filter);
+  }
+
+  /// Adds a layer of type line
+  Future<void> addLineLayer(
+      String sourceId, String layerId, Map<String, String> properties,
+      {filter}) async {
+    await MapboxGlPlatform.getInstance(_id)
+        .addLineLayer(sourceId, layerId, properties, filter);
+  }
+
+  /// Add a layer of type Fill
+  Future<void> addFillLayer(
+      String sourceId, String layerId, Map<String, String> properties,
+      {String filter}) async {
+    await MapboxGlPlatform.getInstance(_id)
+        .addFillLayer(sourceId, layerId, properties, filter);
   }
 
   /// Updates user location tracking mode.

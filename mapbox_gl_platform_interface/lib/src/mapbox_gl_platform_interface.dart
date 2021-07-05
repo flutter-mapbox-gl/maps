@@ -229,18 +229,31 @@ abstract class MapboxGlPlatform {
   }
 
   Future<void> addSource(String sourceId, String geojson) async {
-    throw UnimplementedError(
-        'setSymbolTextIgnorePlacement() has not been implemented.');
+    throw UnimplementedError('addSource() has not been implemented.');
   }
 
-  Future<void> addSymbolLayer(String sourceId, String layerId, Map<String, String> properties) async {
-    throw UnimplementedError(
-        'setSymbolTextIgnorePlacement() has not been implemented.');
+  Future<void> addLayerProperties(String layerId, String properties) async {
+    throw UnimplementedError('addLayerProperties() has not been implemented.');
   }
 
-  Future<void> addLineLayer(String sourceId, String layerId, Map<String, String> properties) async {
-    throw UnimplementedError(
-        'setSymbolTextIgnorePlacement() has not been implemented.');
+  Future<void> addSourceFeatures(String sourceId, String features) async {
+    throw UnimplementedError('addSourceFeatures() has not been implemented.');
+  }
+
+  Future<void> addSymbolLayer(String sourceId, String layerId,
+      Map<String, String> properties, String filter) async {
+    throw UnimplementedError('addSymbolLayer() has not been implemented.');
+  }
+
+  Future<void> addLineLayer(String sourceId, String layerId,
+      Map<String, String> properties, String filter) async {
+    throw UnimplementedError('addLineLayer() has not been implemented.');
+  }
+
+  Future<void> addFillLayer(String sourceId, String layerId,
+      Map<String, String> properties, String filter) async {
+    throw UnimplementedError('addFillLayer() has not been implemented.');
+  }
 
   Future<void> addImageSource(String imageSourceId, Uint8List bytes,
       LatLngQuad coordinates) async {

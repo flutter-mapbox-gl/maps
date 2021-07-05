@@ -795,4 +795,46 @@ class Convert {
       sink.setDraggable(toBoolean(draggable));
     }
   }
+
+  static PropertyValue[] interpretFillLayerProperties(Object o) {
+    final Map<String, String> data = (Map<String, String>) toMap(o);
+    final List<PropertyValue> properties = new LinkedList();
+
+    for (Map.Entry<String, String> entry : data.entrySet()) {
+      Expression expression = Expression.Converter.convert(entry.getValue());
+      switch(entry.getKey()) {
+        case "fill-antialias":
+          properties.add(PropertyFactory.fillAntialias(expression));
+          break;
+        case "fill-color":
+          properties.add(PropertyFactory.fillColor(expression));
+          break;
+        case "fill-opacity":
+          properties.add(PropertyFactory.fillOpacity(expression));
+          break;
+        case "fill-outline-color":
+          properties.add(PropertyFactory.fillOutlineColor(expression));
+          break;
+        case "fill-pattern":
+          properties.add(PropertyFactory.fillPattern(expression));
+          break;
+        case "fill-sort-key":
+          properties.add(PropertyFactory.fillSortKey(expression));
+          break;
+        case "fill-translate":
+          properties.add(PropertyFactory.fillTranslate(expression));
+          break;
+        case "fill-translate-anchor":
+          properties.add(PropertyFactory.fillTranslateAnchor(expression));
+          break;
+        case "visibility":
+          properties.add(PropertyFactory.visibility(expression.toString()));
+          break;
+        default:
+          break;
+      }
+    }
+
+    return properties.toArray(new PropertyValue[properties.size()]);
+  }
 }

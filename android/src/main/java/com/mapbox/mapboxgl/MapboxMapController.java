@@ -33,8 +33,13 @@ import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.telemetry.TelemetryEnabler;
+import com.mapbox.geojson.BoundingBox;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Geometry;
+import com.mapbox.geojson.GeometryCollection;
+import com.mapbox.geojson.Point;
+import com.mapbox.geojson.gson.GeometryGeoJson;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
@@ -66,6 +71,8 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
+import com.mapbox.mapboxsdk.style.layers.FillLayer;
+import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
@@ -93,6 +100,8 @@ import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
+
+import com.mapbox.mapboxsdk.style.sources.Source;
 
 /**
  * Controller of a single MapboxMaps MapView instance.
@@ -371,26 +380,71 @@ final class MapboxMapController
     style.addSource(geoJsonSource);
   }
 
+  // Add properties to an existing layer
+  private void addLayerProperties(String layerName, String properties) {
+    final Layer layer = mapboxMap.getStyle().getLayer(layerName);
+
+    if (layer != null) {
+      PropertyValue[] props = new PropertyValue[0];
+      if (layer instanceof SymbolLayer) {
+        props = Convert.interpretSymbolLayerProperties(properties);
+      } else if (layer instanceof LineLayer) {
+        props = Convert.interpretLineLayerProperties(properties);
+      } else if (layer instanceof FillLayer) {
+        props = Convert.interpretFillLayerProperties(properties);
+      }
+
+      layer.setProperties(props);
+    } else {
+      Log.e("MapboxMapController","No layer named " + layerName);
+    }
+  }
+
+  // replace features of an existing source
+  private void addSourceFeatures(String sourceName, String features) {
+    final Source source = mapboxMap.getStyle().getSource(sourceName);
+    if (source instanceof GeoJsonSource) {
+      final GeoJsonSource geoJsonSource = (GeoJsonSource) source;
+      geoJsonSource.setGeoJson(features);
+    } else {
+      Log.e("MapboxMapController","Source is not an instance of GeoJsonSource, found: " + source.toString());
+    }
+  }
+
+  // add a custom symbol layer
   private void addSymbolLayer(String layerName,
                               String sourceName,
                               PropertyValue[] properties,
                               Expression filter) {
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
 
-    symbolLayer.setProperties(properties);
+    if(properties != null) symbolLayer.setProperties(properties);
+    if(filter != null) symbolLayer.setFilter(filter);
 
     style.addLayer(symbolLayer);
   }
 
+  // add a custom line layer
   private void addLineLayer(String layerName,
                             String sourceName,
                             PropertyValue[] properties,
                             Expression filter) {
     LineLayer lineLayer = new LineLayer(layerName, sourceName);
 
-    lineLayer.setProperties(properties);
+    if(properties != null) lineLayer.setProperties(properties);
+    if(filter != null) lineLayer.setFilter(filter);
 
     style.addLayer(lineLayer);
+  }
+
+  // add a custom fill layer
+  private void addFillLayer(String layerName, String sourceName, PropertyValue[] properties, Expression filter) {
+    FillLayer fillLayer = new FillLayer(layerName, sourceName);
+
+    if(properties != null) fillLayer.setProperties(properties);
+    if(filter != null) fillLayer.setFilter(filter);
+
+    style.addLayer(fillLayer);
   }
 
   private void onUserLocationUpdate(Location location){
@@ -801,21 +855,80 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String geojson = call.argument("geojson");
         addSource(sourceId, geojson);
+        result.success(null);
+        break;
+      }
+      case "layer#addProperties": {
+        final String layerId = call.argument("layerId");
+        final String properties = call.argument("properties");
+        addLayerProperties(layerId, properties);
+        result.success(null);
+        break;
+      }
+      case "source#addFeatures": {
+        final String sourceId = call.argument("sourceId");
+        final String features = call.argument("features");
+        addSourceFeatures(sourceId, features);
+        result.success(null);
         break;
       }
       case "symbolLayer#add": {
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
-        final PropertyValue[] properties = Convert.interpretSymbolLayerProperties(call.argument("properties"));
-        addSymbolLayer(layerId, sourceId, properties, null);
+
+        PropertyValue[] properties = null;
+        if (call.argument("properties") != null) {
+          properties = Convert.interpretSymbolLayerProperties(call.argument("properties"));
+        }
+
+        final String filterString = call.argument("filter");
+        Expression filter = null;
+        if (filterString != null) {
+          filter = Expression.Converter.convert(filterString);
+        }
+
+        addSymbolLayer(layerId, sourceId, properties, filter);
+        result.success(null);
         break;
       }
       case "lineLayer#add": {
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
-        final PropertyValue[] properties = Convert.interpretLineLayerProperties(call.argument("properties"));
-        addLineLayer(layerId, sourceId, properties, null);
+
+         PropertyValue[] properties = null;
+        if (call.argument("properties") != null) {
+          properties = Convert.interpretLineLayerProperties(call.argument("properties"));
+        }
+
+        final String filterString = call.argument("filter");
+        Expression filter = null;
+        if (filterString != null) {
+          filter = Expression.Converter.convert(filterString);
+        }
+
+        addLineLayer(layerId, sourceId, properties, filter);
+        result.success(null);
         break;
+      }
+      case "fillLayer#add": {
+        final String layerId = call.argument("layerId");
+        final String sourceId = call.argument("sourceId");
+
+        PropertyValue[] properties = null;
+        if (call.argument("properties") != null) {
+          properties = Convert.interpretFillLayerProperties(call.argument("properties"));
+        }
+
+        final String filterString = call.argument("filter");
+        Expression filter = null;
+        if (filterString != null) {
+          filter = Expression.Converter.convert(filterString);
+        }
+
+        addFillLayer(layerId, sourceId, properties, filter);
+        result.success(null);
+        break;
+      }
       case "fill#add": {
         final FillBuilder fillBuilder = newFillBuilder();
         Convert.interpretFillOptions(call.argument("options"), fillBuilder);

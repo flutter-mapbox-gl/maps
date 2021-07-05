@@ -668,8 +668,9 @@ class MapboxMapController extends MapboxGlPlatform
   @override
   Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
     return latLngs.map((latLng) {
-        var screenPosition = _map.project(LngLat(latLng.longitude, latLng.latitude));
-        return Point(screenPosition.x.round(), screenPosition.y.round());
+      var screenPosition =
+          _map.project(LngLat(latLng.longitude, latLng.latitude));
+      return Point(screenPosition.x.round(), screenPosition.y.round());
     }).toList(growable: false);
   }
 

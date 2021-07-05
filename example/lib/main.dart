@@ -5,10 +5,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:mapbox_gl_example/dynamic_symbols.dart';
 import 'package:mapbox_gl_example/layer.dart';
 import 'package:mapbox_gl_example/custom_marker.dart';
 import 'package:mapbox_gl_example/full_map.dart';
 import 'package:mapbox_gl_example/offline_regions.dart';
+import 'package:mapbox_gl_example/polygon.dart';
 
 import 'animate_camera.dart';
 import 'annotation_order_maps.dart';
@@ -33,6 +35,8 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   PlaceSourcePage(),
   LinePage(),
   LayerPage(),
+  DynamicSymbolsPage(),
+  PolygonPage(),
   LocalStylePage(),
   PlaceCirclePage(),
   PlaceFillPage(),
@@ -44,7 +48,8 @@ final List<ExamplePage> _allPages = <ExamplePage>[
 
 class MapsDemo extends StatelessWidget {
   //FIXME: Add your Mapbox access token here
-  static const String ACCESS_TOKEN = "pk.eyJ1Ijoib3V0d2F5LWFkbWluIiwiYSI6ImNrMnRxYnQ3bzFlNTEzbXVpNXIxZG00dG0ifQ.jt1gMJMirDNJneqN3G1O8w";
+  static const String ACCESS_TOKEN =
+      "pk.eyJ1Ijoib3V0d2F5LWFkbWluIiwiYSI6ImNrMnRxYnQ3bzFlNTEzbXVpNXIxZG00dG0ifQ.jt1gMJMirDNJneqN3G1O8w";
 
   void _pushPage(BuildContext context, ExamplePage page) async {
     if (!kIsWeb) {
