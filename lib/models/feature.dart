@@ -45,10 +45,14 @@ class Feature extends GeoJson {
     bbox = _bbox;
   }
 
+  /// [geometry] could be one of [GeometryLineString], [GeometryPoint], [GeometryPolygon]
+  /// depending on the line type you're adding it to
   final Geometry geometry;
 
   final Map<String, dynamic> properties;
 
+  /// [geometry] could be one of [GeometryLineString], [GeometryPoint], [GeometryPolygon]
+  /// depending on the line type you're adding it to
   Feature(
     this.geometry, {
     this.bbox,

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:mapbox_gl/models/bounding_box.dart';
 import 'package:mapbox_gl/models/geometry/geometry.dart';
-import 'package:mapbox_gl/models/geometry/point.dart';
+import 'package:mapbox_gl/models/geometry/geometry_point.dart';
 
 /// A linestring represents two or more geographic points that share a relationship and is one of the
 /// seven geometries found in the GeoJson spec.
@@ -37,7 +37,7 @@ import 'package:mapbox_gl/models/geometry/point.dart';
 ///
 /// @since 1.0.0
 
-class LineString extends Geometry {
+class GeometryLineString extends Geometry {
   //implements CoordinateContainer<List<Point>> {
 
   static const String TYPE = "LineString";
@@ -48,7 +48,7 @@ class LineString extends Geometry {
 
   final List<GeometryPoint> coordinates;
 
-  LineString(
+  GeometryLineString(
     this.coordinates, {
     this.bbox,
   }) {
@@ -66,16 +66,16 @@ class LineString extends Geometry {
   ///   method
   /// @since 1.0.0
 
-  static LineString fromJson(String jsonString) {
+  static GeometryLineString fromJson(String jsonString) {
     final jsonMap = json.decode(jsonString);
 
     return fromMap(jsonMap);
   }
 
-  static LineString fromMap(Map<String, dynamic> map) {
+  static GeometryLineString fromMap(Map<String, dynamic> map) {
     if (!map.containsKey('coordinates')) return null;
 
-    return LineString(
+    return GeometryLineString(
         (map['coordinates'] as List<dynamic>)
             .map((e) => GeometryPoint.fromMap(e))
             .toList(),

@@ -26,7 +26,7 @@ class LayerState extends State {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
   static final geojson = FeatureCollection([
-    Feature(LineString(
+    Feature(GeometryLineString(
       [
         GeometryPoint(-33.87112820031405, 151.19213104248047),
         GeometryPoint(-33.853737857223145, 151.4770858764648),

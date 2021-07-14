@@ -26,7 +26,7 @@ class LayerBody extends StatefulWidget {
 class LayerState extends State {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
-  final polygon = Polygon([
+  final polygon = GeometryPolygon([
     [
       GeometryPoint(-33.863737857223145, 151.19213104248047),
       GeometryPoint(-33.863737857223145, 151.20213104248047),

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:mapbox_gl/models/geometry/point.dart';
+import 'package:mapbox_gl/models/geometry/geometry_point.dart';
 
 /// A GeoJson object MAY have a member named "bbox" to include information on the coordinate range
 /// for its Geometries, Features, or FeatureCollections.
