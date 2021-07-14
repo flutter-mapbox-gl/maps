@@ -7,7 +7,6 @@ import 'package:mapbox_gl/models/geometry/geometry_point.dart';
 
 class GeometryPolygon extends Geometry {
   static const TYPE = "Polygon";
-
   String type;
 
   List<List<GeometryPoint>> coordinates;

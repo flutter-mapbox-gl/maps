@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:mapbox_gl/models/geometry/geometry.dart';
 
 class GeometryPoint extends Geometry {
-  GeometryPoint(this.latitude, this.longitude);
+  static const String TYPE = "Point";
+  String type;
 
-  String type = "Point";
+  GeometryPoint(this.latitude, this.longitude) {
+    type = TYPE;
+  }
 
   final double latitude;
   final double longitude;
