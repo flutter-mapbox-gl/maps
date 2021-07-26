@@ -323,7 +323,7 @@ class MapboxMapController extends ChangeNotifier {
   /// Add a layer of type Fill
   Future<void> addFillLayer(
       String sourceId, String layerId, Map<String, String> properties,
-      {String filter}) async {
+      {filter}) async {
     await MapboxGlPlatform.getInstance(_id)
         .addFillLayer(sourceId, layerId, properties, filter);
   }
