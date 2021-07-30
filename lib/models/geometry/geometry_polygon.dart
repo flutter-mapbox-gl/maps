@@ -44,10 +44,9 @@ class GeometryPolygon extends Geometry {
   }
 
   /// Add additional geometry and automatically repeat the first geometry point in the last position
-  Future addGeometryPoints(
-      GeometryPolygon geometryPoly, List<LatLng> newCoordinates) async {
-    for (final currentPoly in geometryPoly.coordinates) {
-      final index = geometryPoly.coordinates.indexOf(currentPoly);
+  Future addGeometryPoints(List<LatLng> newCoordinates) async {
+    for (final currentPoly in coordinates) {
+      final index = coordinates.indexOf(currentPoly);
 
       final firstDoesRepeat = currentPoly.length > 1 &&
           currentPoly.first.latitude == currentPoly.last.latitude &&
@@ -62,7 +61,7 @@ class GeometryPolygon extends Geometry {
       if (currentPoly?.first != null) {
         currentPoly.add(currentPoly.first);
       }
-      geometryPoly.coordinates[index] = currentPoly;
+      coordinates[index] = currentPoly;
     }
   }
 }
