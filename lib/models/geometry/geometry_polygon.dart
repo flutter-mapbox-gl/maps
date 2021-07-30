@@ -42,4 +42,27 @@ class GeometryPolygon extends Geometry {
     };
     return map;
   }
+
+  /// Add additional geometry and automatically repeat the first geometry point in the last position
+  Future addGeometryPoints(
+      GeometryPolygon geometryPoly, List<LatLng> newCoordinates) async {
+    for (final currentPoly in geometryPoly.coordinates) {
+      final index = geometryPoly.coordinates.indexOf(currentPoly);
+
+      final firstDoesRepeat = currentPoly.length > 1 &&
+          currentPoly.first.latitude == currentPoly.last.latitude &&
+          currentPoly.first.longitude == currentPoly.last.longitude;
+
+      if (firstDoesRepeat) currentPoly.removeLast();
+
+      for (final coordinate in newCoordinates) {
+        currentPoly
+            .add(GeometryPoint(coordinate.latitude, coordinate.longitude));
+      }
+      if (currentPoly?.first != null) {
+        currentPoly.add(currentPoly.first);
+      }
+      geometryPoly.coordinates[index] = currentPoly;
+    }
+  }
 }
