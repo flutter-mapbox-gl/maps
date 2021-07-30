@@ -46,7 +46,7 @@ class GeometryLineString extends Geometry {
 
   final BoundingBox bbox;
 
-  final List<GeometryPoint> coordinates;
+  List<GeometryPoint> coordinates = [];
 
   GeometryLineString(
     this.coordinates, {

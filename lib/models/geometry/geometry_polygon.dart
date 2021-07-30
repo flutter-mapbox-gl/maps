@@ -9,7 +9,7 @@ class GeometryPolygon extends Geometry {
   static const TYPE = "Polygon";
   String type;
 
-  List<List<GeometryPoint>> coordinates;
+  List<List<GeometryPoint>> coordinates = [];
 
   final BoundingBox bbox;
 
