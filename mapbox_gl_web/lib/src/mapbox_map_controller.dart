@@ -110,7 +110,7 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future<void> matchMapLanguageWithDeviceDefault() async {
-    setMapLanguage(ui.window.locale!.languageCode);
+    setMapLanguage(ui.window.locale.languageCode);
   }
 
   @override
