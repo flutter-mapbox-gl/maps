@@ -6,9 +6,8 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:mapbox_gl_example/main.dart';
 import 'package:mapbox_gl/models/feature.dart';
 import 'package:mapbox_gl/models/feature_collection.dart';
-import 'package:mapbox_gl/models/geometry/line_string.dart';
-import 'package:mapbox_gl/models/geometry/point.dart';
-import 'package:mapbox_gl/models/geometry/polygon.dart';
+import 'package:mapbox_gl/models/geometry/geometry_point.dart';
+import 'package:mapbox_gl/models/geometry/geometry_polygon.dart';
 import 'package:mapbox_gl_example/page.dart';
 
 class PolygonPage extends ExamplePage {

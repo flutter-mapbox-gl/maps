@@ -407,7 +407,7 @@ final class MapboxMapController
       final GeoJsonSource geoJsonSource = (GeoJsonSource) source;
       geoJsonSource.setGeoJson(features);
     } else {
-      Log.e("MapboxMapController","Source is not an instance of GeoJsonSource, found: " + source.toString());
+      Log.e("MapboxMapController","Source is null or not an instance of GeoJsonSource.");
     }
   }
 
@@ -415,7 +415,7 @@ final class MapboxMapController
   private void addSymbolLayer(String layerName,
                               String sourceName,
                               PropertyValue[] properties,
-                              Expression filter) {
+                              Expression filter,) {
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
 
     if(properties != null) symbolLayer.setProperties(properties);
@@ -428,7 +428,7 @@ final class MapboxMapController
   private void addLineLayer(String layerName,
                             String sourceName,
                             PropertyValue[] properties,
-                            Expression filter) {
+                            Expression filter,) {
     LineLayer lineLayer = new LineLayer(layerName, sourceName);
 
     if(properties != null) lineLayer.setProperties(properties);
@@ -438,7 +438,7 @@ final class MapboxMapController
   }
 
   // add a custom fill layer
-  private void addFillLayer(String layerName, String sourceName, PropertyValue[] properties, Expression filter) {
+  private void addFillLayer(String layerName, String sourceName, PropertyValue[] properties, Expression filter,) {
     FillLayer fillLayer = new FillLayer(layerName, sourceName);
 
     if(properties != null) fillLayer.setProperties(properties);

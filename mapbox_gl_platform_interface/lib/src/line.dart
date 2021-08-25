@@ -46,6 +46,7 @@ class LineOptions {
     this.lineOffset,
     this.lineBlur,
     this.linePattern,
+    this.lineDasharray,
     this.geometry,
     this.draggable,
   });
@@ -58,6 +59,7 @@ class LineOptions {
   final double lineOffset;
   final double lineBlur;
   final String linePattern;
+  final List<double> lineDasharray;
   final List<LatLng> geometry;
   final bool draggable;
 
@@ -76,6 +78,7 @@ class LineOptions {
       lineOffset: changes.lineOffset ?? lineOffset,
       lineBlur: changes.lineBlur ?? lineBlur,
       linePattern: changes.linePattern ?? linePattern,
+      lineDasharray: changes.lineDasharray ?? lineDasharray,
       geometry: changes.geometry ?? geometry,
       draggable: changes.draggable ?? draggable,
     );
@@ -98,6 +101,7 @@ class LineOptions {
     addIfPresent('lineOffset', lineOffset);
     addIfPresent('lineBlur', lineBlur);
     addIfPresent('linePattern', linePattern);
+    addIfPresent('lineDashArray', lineDasharray);
     addIfPresent('geometry',
         geometry?.map((LatLng latLng) => latLng.toJson())?.toList());
     addIfPresent('draggable', draggable);

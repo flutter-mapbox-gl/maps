@@ -6,8 +6,8 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:mapbox_gl_example/main.dart';
 import 'package:mapbox_gl/models/feature.dart';
 import 'package:mapbox_gl/models/feature_collection.dart';
-import 'package:mapbox_gl/models/geometry/line_string.dart';
-import 'package:mapbox_gl/models/geometry/point.dart';
+import 'package:mapbox_gl/models/geometry/geometry_line_string.dart';
+import 'package:mapbox_gl/models/geometry/geometry_point.dart';
 import 'package:mapbox_gl_example/page.dart';
 
 class LayerPage extends ExamplePage {
@@ -68,10 +68,14 @@ class LayerState extends State {
     controller.addSource("source_1", geojson);
 
     await controller.addLineLayer("source_1", "layer_1", {
+      'line-dasharray': '["literal", [4, 5, 6, 2]]',
       'line-width': '''[
         "interpolate",
         ["linear"],
-        ["zoom"], 5.0, 2.0, 23.0, 40.0,
+        ["zoom"], 
+        5.0, 2.0, 
+        23.0, 20.0,
+        24.0, 25.0
       ]''',
     });
   }

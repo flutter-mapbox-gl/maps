@@ -5,6 +5,8 @@
 package com.mapbox.mapboxgl;
 
 import android.graphics.Point;
+import android.util.Log;
+
 import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
@@ -716,7 +718,9 @@ class Convert {
     final List<PropertyValue> properties = new LinkedList();
 
     for (Map.Entry<String, String> entry : data.entrySet()) {
+      Log.e("interpretLineLayerProperties", entry.toString());
       Expression expression = Expression.Converter.convert(entry.getValue());
+
       switch(entry.getKey()) {
         case "line-blur":
           properties.add(PropertyFactory.lineBlur(expression));

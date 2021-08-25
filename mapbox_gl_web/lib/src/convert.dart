@@ -295,6 +295,9 @@ class Convert {
     if (options.lineWidth != null) {
       properties['lineWidth'] = options.lineWidth;
     }
+    if (options.lineDasharray != null) {
+      properties['lineDashArray'] = options.lineDasharray;
+    }
     if (options.lineGapWidth != null) {
       properties['lineGapWidth'] = options.lineGapWidth;
     }
