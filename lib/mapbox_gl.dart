@@ -35,6 +35,7 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         CompassViewPosition,
         Circle,
         CircleOptions,
+        LayerOptions,
         Line,
         LineOptions,
         Fill,

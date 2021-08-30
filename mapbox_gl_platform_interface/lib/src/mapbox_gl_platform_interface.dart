@@ -63,8 +63,9 @@ abstract class MapboxGlPlatform {
       ArgumentCallbacks<void>();
 
   final ArgumentCallbacks<void> onMapIdlePlatform = ArgumentCallbacks<void>();
-  
-  final ArgumentCallbacks<UserLocation> onUserLocationUpdatedPlatform = ArgumentCallbacks<UserLocation>();
+
+  final ArgumentCallbacks<UserLocation> onUserLocationUpdatedPlatform =
+      ArgumentCallbacks<UserLocation>();
 
   Future<void> initPlatform(int id) async {
     throw UnimplementedError('initPlatform() has not been implemented.');
@@ -116,8 +117,9 @@ abstract class MapboxGlPlatform {
   Future<bool> getTelemetryEnabled() async {
     throw UnimplementedError('getTelemetryEnabled() has not been implemented.');
   }
-  
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options, [List<Map> data]) async {
+
+  Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
+      [List<Map> data]) async {
     throw UnimplementedError('addSymbols() has not been implemented.');
   }
 
@@ -169,7 +171,7 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('addFill() has not been implemented.');
   }
 
-  Future<void>updateFill(Fill fill, FillOptions changes) async {
+  Future<void> updateFill(Fill fill, FillOptions changes) async {
     throw UnimplementedError('updateFill() has not been implemented.');
   }
 
@@ -240,23 +242,41 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('addSourceFeatures() has not been implemented.');
   }
 
-  Future<void> addSymbolLayer(String sourceId, String layerId,
-      Map<String, String> properties, String filter) async {
+  Future<void> addSymbolLayer(
+    String sourceId,
+    String layerId,
+    Map<String, String> properties,
+    String filter,
+    String placeBelowLayerId,
+    String placeAboveLayerId,
+  ) async {
     throw UnimplementedError('addSymbolLayer() has not been implemented.');
   }
 
-  Future<void> addLineLayer(String sourceId, String layerId,
-      Map<String, String> properties, String filter) async {
+  Future<void> addLineLayer(
+    String sourceId,
+    String layerId,
+    Map<String, String> properties,
+    String filter,
+    String placeBelowLayerId,
+    String placeAboveLayerId,
+  ) async {
     throw UnimplementedError('addLineLayer() has not been implemented.');
   }
 
-  Future<void> addFillLayer(String sourceId, String layerId,
-      Map<String, String> properties, String filter) async {
+  Future<void> addFillLayer(
+    String sourceId,
+    String layerId,
+    Map<String, String> properties,
+    String filter,
+    String placeBelowLayerId,
+    String placeAboveLayerId,
+  ) async {
     throw UnimplementedError('addFillLayer() has not been implemented.');
   }
 
-  Future<void> addImageSource(String imageSourceId, Uint8List bytes,
-      LatLngQuad coordinates) async {
+  Future<void> addImageSource(
+      String imageSourceId, Uint8List bytes, LatLngQuad coordinates) async {
     throw UnimplementedError('addImageSource() has not been implemented.');
   }
 
@@ -268,7 +288,8 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('addLayer() has not been implemented.');
   }
 
-  Future<void> addLayerBelow(String imageLayerId, String imageSourceId, String belowLayerId) async {
+  Future<void> addLayerBelow(
+      String imageLayerId, String imageSourceId, String belowLayerId) async {
     throw UnimplementedError('addLayerBelow() has not been implemented.');
   }
 
@@ -276,22 +297,20 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('removeLayer() has not been implemented.');
   }
 
-  Future<Point> toScreenLocation(LatLng latLng) async{
-    throw UnimplementedError(
-        'toScreenLocation() has not been implemented.');
+  Future<Point> toScreenLocation(LatLng latLng) async {
+    throw UnimplementedError('toScreenLocation() has not been implemented.');
   }
 
-  Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async{
+  Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
     throw UnimplementedError(
         'toScreenLocationList() has not been implemented.');
   }
 
-  Future<LatLng> toLatLng(Point screenLocation) async{
-      throw UnimplementedError(
-        'toLatLng() has not been implemented.');
+  Future<LatLng> toLatLng(Point screenLocation) async {
+    throw UnimplementedError('toLatLng() has not been implemented.');
   }
 
-  Future<double> getMetersPerPixelAtLatitude(double latitude) async{
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async {
     throw UnimplementedError(
         'getMetersPerPixelAtLatitude() has not been implemented.');
   }

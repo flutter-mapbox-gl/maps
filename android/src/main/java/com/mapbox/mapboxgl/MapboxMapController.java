@@ -415,36 +415,53 @@ final class MapboxMapController
   private void addSymbolLayer(String layerName,
                               String sourceName,
                               PropertyValue[] properties,
-                              Expression filter,) {
+                              Expression filter,
+                              String placeAboveLayerId, String placeBelowLayerId) {
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
-
-    if(properties != null) symbolLayer.setProperties(properties);
     if(filter != null) symbolLayer.setFilter(filter);
 
-    style.addLayer(symbolLayer);
+    addCustomLayer(symbolLayer, properties, placeAboveLayerId, placeBelowLayerId);
   }
 
   // add a custom line layer
   private void addLineLayer(String layerName,
                             String sourceName,
                             PropertyValue[] properties,
-                            Expression filter,) {
+                            Expression filter,
+                            String placeAboveLayerId, String placeBelowLayerId) {
     LineLayer lineLayer = new LineLayer(layerName, sourceName);
-
-    if(properties != null) lineLayer.setProperties(properties);
     if(filter != null) lineLayer.setFilter(filter);
 
-    style.addLayer(lineLayer);
+    addCustomLayer(lineLayer, properties, placeAboveLayerId, placeBelowLayerId);
   }
 
   // add a custom fill layer
-  private void addFillLayer(String layerName, String sourceName, PropertyValue[] properties, Expression filter,) {
+  private void addFillLayer(String layerName, 
+                            String sourceName, 
+                            PropertyValue[] properties, 
+                            Expression filter,
+                            String placeAboveLayerId, String placeBelowLayerId
+                            ) {
     FillLayer fillLayer = new FillLayer(layerName, sourceName);
-
-    if(properties != null) fillLayer.setProperties(properties);
     if(filter != null) fillLayer.setFilter(filter);
 
-    style.addLayer(fillLayer);
+    addCustomLayer(fillLayer, properties, placeAboveLayerId, placeBelowLayerId);
+  }
+
+  private void addCustomLayer(Layer layer,
+                              PropertyValue[] properties,
+                              String placeAboveLayerId, 
+                              String placeBelowLayerId) {
+
+    if(properties != null) layer.setProperties(properties);
+
+    if(placeBelowLayerId != null) {
+      style.addLayerBelow(layer, placeBelowLayerId);
+    } else if (placeAboveLayerId != null) {
+      style.addLayerAbove(layer, placeAboveLayerId);
+    } else {
+      style.addLayer(layer);
+    }
   }
 
   private void onUserLocationUpdate(Location location){
@@ -887,7 +904,7 @@ final class MapboxMapController
           filter = Expression.Converter.convert(filterString);
         }
 
-        addSymbolLayer(layerId, sourceId, properties, filter);
+        addSymbolLayer(layerId, sourceId, properties, filter, call.argument("place_above_layer_id"), call.argument("place_below_layer_id"));
         result.success(null);
         break;
       }
@@ -906,7 +923,7 @@ final class MapboxMapController
           filter = Expression.Converter.convert(filterString);
         }
 
-        addLineLayer(layerId, sourceId, properties, filter);
+        addLineLayer(layerId, sourceId, properties, filter, call.argument("place_above_layer_id"), call.argument("place_below_layer_id"));
         result.success(null);
         break;
       }
@@ -925,7 +942,7 @@ final class MapboxMapController
           filter = Expression.Converter.convert(filterString);
         }
 
-        addFillLayer(layerId, sourceId, properties, filter);
+        addFillLayer(layerId, sourceId, properties, filter, call.argument("place_above_layer_id"), call.argument("place_below_layer_id"));
         result.success(null);
         break;
       }
