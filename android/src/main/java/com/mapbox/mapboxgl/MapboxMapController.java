@@ -70,6 +70,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
+import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
 
@@ -965,8 +966,14 @@ final class MapboxMapController
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
-        List<String> reply = style.getLayers().stream().map(l -> l.getId()).collect(Collectors.toList());
-        result.success(reply);
+
+        List<Layer> layers = style.getLayers();
+        List<String> layerIds = new ArrayList<String>(layers.size());
+        for (Layer layer : layers) {
+          layerIds.add(layer.getId());
+        }
+
+        result.success(layerIds);
         break;
       }
       case "style#addLayer": {
