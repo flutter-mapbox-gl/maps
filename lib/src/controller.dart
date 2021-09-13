@@ -865,7 +865,7 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxGlPlatform.getInstance(_id).removeImageSource(imageSourceId);
   }
 
-  Future<List<String>> getLayers() async {
+  Future<List<String>> getLayers() {
     return MapboxGlPlatform.getInstance(_id).getLayers();
   }
 
