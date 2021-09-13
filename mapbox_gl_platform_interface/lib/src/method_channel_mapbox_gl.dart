@@ -659,7 +659,14 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<List<String>> getLayers() async {
     try {
-      List<String> layers = await _channel.invokeMethod('style#getLayers', null);
+      final List<dynamic> layerIds = await _channel.invokeMethod('style#getLayers', null);
+
+      final List<String> layers = layerIds
+          .asMap()
+          .map((i, id) => MapEntry(i, id.toString()))
+          .values
+          .toList();
+
       return layers;
     } on PlatformException catch (e) {
       return new Future.error(e);
