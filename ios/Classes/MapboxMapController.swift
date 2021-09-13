@@ -652,6 +652,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let source = self.mapView.style?.source(withIdentifier: imageSourceId) else { return }
             self.mapView.style?.removeSource(source)
             result(nil)
+        case "style#getLayers":
+            let layers = style.styleManager.getStyleLayers()
+            let layerIds = layers.map { $0.id }
+            result(layerIds)
         case "style#addLayer":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let imageLayerId = arguments["imageLayerId"] as? String else { return }

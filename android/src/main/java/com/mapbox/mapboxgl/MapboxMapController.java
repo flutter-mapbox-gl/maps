@@ -21,6 +21,7 @@ import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -79,6 +80,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -407,6 +409,7 @@ final class MapboxMapController
     }
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.N)
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
@@ -956,6 +959,14 @@ final class MapboxMapController
         }
         style.removeSource((String) call.argument("imageSourceId"));
         result.success(null);
+        break;
+      }
+      case "style#getLayers": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+        List<String> reply = style.getLayers().stream().map(l -> l.getId()).collect(Collectors.toList());
+        result.success(reply);
         break;
       }
       case "style#addLayer": {

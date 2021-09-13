@@ -258,6 +258,10 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('removeImageSource() has not been implemented.');
   }
 
+  Future<List<String>> getLayers() async {
+    throw UnimplementedError('getLayers() has not been implemented.');
+  }
+
   Future<void> addLayer(String imageLayerId, String imageSourceId) async {
     throw UnimplementedError('addLayer() has not been implemented.');
   }
