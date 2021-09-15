@@ -764,6 +764,12 @@ class Convert {
         case "line-width":
           properties.add(PropertyFactory.lineWidth(expression));
           break;
+        case "line-opacity":
+          properties.add(PropertyFactory.lineOpacity(expression));
+          break;
+        case "visibility":
+          properties.add(PropertyFactory.visibility(expression.toString()));
+          break;
         default:
           break;
       }
