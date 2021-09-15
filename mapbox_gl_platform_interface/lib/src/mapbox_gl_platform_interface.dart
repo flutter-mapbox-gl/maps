@@ -262,6 +262,18 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('getLayers() has not been implemented.');
   }
 
+  Future<void> showLayer(String imageLayerId) async {
+    throw UnimplementedError('showLayer() has not been implemented.');
+  }
+
+  Future<void> hideLayer(String imageLayerId) async {
+    throw UnimplementedError('hideLayer() has not been implemented.');
+  }
+
+  Future<bool> isLayerVisible(String imageLayerId) async {
+    throw UnimplementedError('isLayerVisible() has not been implemented.');
+  }
+
   Future<void> addLayer(String imageLayerId, String imageSourceId) async {
     throw UnimplementedError('addLayer() has not been implemented.');
   }

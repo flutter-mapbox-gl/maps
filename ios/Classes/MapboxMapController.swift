@@ -656,6 +656,45 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             let layers = style.styleManager.getStyleLayers()
             let layerIds = layers.map { $0.id }
             result(layerIds)
+        case "style#showLayer":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
+
+            //Check for duplicateLayer error
+            if (self.mapView.style?.layer(withIdentifier: imageLayerId)) == nil {
+                result(FlutterError(code: "missingLayer", message: "Layer does not exists", details: "Can't show missing layer with imageLayerId: \(imageLayerId)" ))
+                return
+            }
+
+            guard let layer = self.mapView.style?.layer(withIdentifier: imageLayerId) else { return }
+            layer.isVisible = true
+            result(nil)
+        case "style#hideLayer":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
+
+            //Check for duplicateLayer error
+            if (self.mapView.style?.layer(withIdentifier: imageLayerId)) == nil {
+                result(FlutterError(code: "missingLayer", message: "Layer does not exists", details: "Can't hide missing layer with imageLayerId: \(imageLayerId)" ))
+                return
+            }
+
+            guard let layer = self.mapView.style?.layer(withIdentifier: imageLayerId) else { return }
+            layer.isVisible = false
+            result(nil)
+        case "style#isLayerVisible":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
+
+            //Check for duplicateLayer error
+            if (self.mapView.style?.layer(withIdentifier: imageLayerId)) == nil {
+                result(FlutterError(code: "missingLayer", message: "Layer does not exists", details: "Can't get visibility for missing layer with imageLayerId: \(imageLayerId)" ))
+                return
+            }
+
+            guard let layer = self.mapView.style?.layer(withIdentifier: imageLayerId) else { return }
+            guard let isVisible = layer.isVisible
+            result(isVisible)
         case "style#addLayer":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let imageLayerId = arguments["imageLayerId"] as? String else { return }

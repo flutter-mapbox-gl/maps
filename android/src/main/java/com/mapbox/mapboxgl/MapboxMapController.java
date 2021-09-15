@@ -4,6 +4,10 @@
 
 package com.mapbox.mapboxgl;
 
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -71,6 +75,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
 
@@ -974,6 +979,55 @@ final class MapboxMapController
         }
 
         result.success(layerIds);
+        break;
+      }
+      case "style#showLayer": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+
+        String layerId = call.argument("imageLayerId");
+        Layer layer = style.getLayer(layerId);
+
+        if (layer == null)
+          return;
+
+        layer.setProperties(visibility(VISIBLE));
+        result.success(null);
+        break;
+      }
+      case "style#hideLayer": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+
+        String layerId = call.argument("imageLayerId");
+        Layer layer = style.getLayer(layerId);
+
+        if (layer == null)
+          return;
+
+        layer.setProperties(visibility(NONE));
+        result.success(null);
+        break;
+      }
+      case "style#isLayerVisible": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+
+        String layerId = call.argument("imageLayerId");
+        Layer layer = style.getLayer(layerId);
+
+        if (layer == null) {
+          result.error("LAYER DOES NOT EXIST", "The layerId provided doesn't exist. Use getLayers before to verify its existence.", null);
+
+          break;
+        }
+
+        boolean isVisible = VISIBLE.equals(layer.getVisibility().getValue());
+;
+        result.success(isVisible);
         break;
       }
       case "style#addLayer": {

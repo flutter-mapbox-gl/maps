@@ -674,6 +674,41 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> showLayer(String imageLayerId) async {
+    try {
+      return await _channel.invokeMethod('style#showLayer', <String, Object>{
+        'imageLayerId': imageLayerId
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> hideLayer(String imageLayerId) async {
+    try {
+      return await _channel.invokeMethod('style#hideLayer', <String, Object>{
+        'imageLayerId': imageLayerId
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<bool> isLayerVisible(String imageLayerId) async {
+    try {
+      var isLayerVisible =
+      await _channel.invokeMethod('style#isLayerVisible', <String, Object>{
+        'imageLayerId': imageLayerId
+      });
+      return isLayerVisible;
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
   Future<void> addLayer(String imageLayerId, String imageSourceId) async {
     try {
       return await _channel.invokeMethod('style#addLayer', <String, Object>{
