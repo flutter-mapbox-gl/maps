@@ -869,6 +869,24 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxGlPlatform.getInstance(_id).getLayers();
   }
 
+  /// Show a Mapbox style layer on the map's style at render time.
+  Future<void> showLayer(String imageLayerId) {
+    return MapboxGlPlatform.getInstance(_id)
+        .showLayer(imageLayerId);
+  }
+
+  /// Hide a Mapbox style layer on the map's style at render time.
+  Future<void> hideLayer(String imageLayerId) {
+    return MapboxGlPlatform.getInstance(_id)
+        .hideLayer(imageLayerId);
+  }
+
+  /// Get a Mapbox style layer visibility state on the map's style at render time.
+  Future<bool> isLayerVisible(String imageLayerId) {
+    return MapboxGlPlatform.getInstance(_id)
+        .isLayerVisible(imageLayerId);
+  }
+
   /// Adds a Mapbox style layer to the map's style at render time.
   Future<void> addLayer(String imageLayerId, String imageSourceId) {
     return MapboxGlPlatform.getInstance(_id)
