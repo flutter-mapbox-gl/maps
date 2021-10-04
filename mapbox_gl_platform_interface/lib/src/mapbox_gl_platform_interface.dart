@@ -301,5 +301,10 @@ abstract class MapboxGlPlatform {
     onMapStyleLoadedPlatform.clear();
     onMapClickPlatform.clear();
     onMapLongClickPlatform.clear();
+    onAttributionClickPlatform.clear();
+    onCameraTrackingChangedPlatform.clear();
+    onCameraTrackingDismissedPlatform.clear();
+    onMapIdlePlatform.clear();
+    onUserLocationUpdatedPlatform.clear();
   }
 }
