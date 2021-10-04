@@ -188,20 +188,20 @@ class MapboxMapController extends ChangeNotifier {
     await MapboxGlPlatform.getInstance(id).initPlatform(id);
   }
 
-  final OnStyleLoadedCallback? onStyleLoadedCallback;
+  late OnStyleLoadedCallback? onStyleLoadedCallback;
 
-  final OnMapClickCallback? onMapClick;
-  final OnMapLongClickCallback? onMapLongClick;
+  late OnMapClickCallback? onMapClick;
+  late OnMapLongClickCallback? onMapLongClick;
 
-  final OnUserLocationUpdated? onUserLocationUpdated;
-  final OnAttributionClickCallback? onAttributionClick;
+  late OnUserLocationUpdated? onUserLocationUpdated;
+  late OnAttributionClickCallback? onAttributionClick;
 
-  final OnCameraTrackingDismissedCallback? onCameraTrackingDismissed;
-  final OnCameraTrackingChangedCallback? onCameraTrackingChanged;
+  late OnCameraTrackingDismissedCallback? onCameraTrackingDismissed;
+  late OnCameraTrackingChangedCallback? onCameraTrackingChanged;
 
-  final OnCameraIdleCallback? onCameraIdle;
+  late OnCameraIdleCallback? onCameraIdle;
 
-  final OnMapIdleCallback? onMapIdle;
+  late OnMapIdleCallback? onMapIdle;
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Symbol> onSymbolTapped = ArgumentCallbacks<Symbol>();
@@ -907,5 +907,27 @@ class MapboxMapController extends ChangeNotifier {
   Future<double> getMetersPerPixelAtLatitude(double latitude) async {
     return MapboxGlPlatform.getInstance(_id)
         .getMetersPerPixelAtLatitude(latitude);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    onStyleLoadedCallback = null;
+    onMapClick = null;
+    onMapLongClick = null;
+    onUserLocationUpdated = null;
+    onAttributionClick = null;
+    onCameraTrackingDismissed = null;
+    onCameraTrackingChanged = null;
+    onCameraIdle = null;
+    onMapIdle = null;
+
+    onSymbolTapped.clear();
+    onCircleTapped.clear();
+    onFillTapped.clear();
+    onInfoWindowTapped.clear();
+    onLineTapped.clear();
+
+    MapboxGlPlatform.getInstance(_id).dispose();
   }
 }

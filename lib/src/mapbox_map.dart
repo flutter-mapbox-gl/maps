@@ -201,11 +201,11 @@ class MapboxMap extends StatefulWidget {
 }
 
 class _MapboxMapState extends State<MapboxMap> {
-  final Completer<MapboxMapController> _controller =
+  late Completer<MapboxMapController>? _controller =
       Completer<MapboxMapController>();
 
   late _MapboxMapOptions _mapboxMapOptions;
-  final MapboxGlPlatform _mapboxGlPlatform = MapboxGlPlatform.createInstance();
+  late MapboxGlPlatform? _mapboxGlPlatform = MapboxGlPlatform.createInstance();
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +222,7 @@ class _MapboxMapState extends State<MapboxMap> {
       'annotationConsumeTapEvents': annotationConsumeTapEvents,
       'onAttributionClickOverride': widget.onAttributionClick != null,
     };
-    return _mapboxGlPlatform.buildView(
+    return _mapboxGlPlatform!.buildView(
         creationParams, onPlatformViewCreated, widget.gestureRecognizers);
   }
 
@@ -246,22 +246,22 @@ class _MapboxMapState extends State<MapboxMap> {
     if (updates.isEmpty) {
       return;
     }
-    final MapboxMapController controller = await _controller.future;
+    final MapboxMapController controller = await _controller!.future;
     controller._updateMapOptions(updates);
   }
 
   Future<void> onPlatformViewCreated(int id) async {
-    MapboxGlPlatform.addInstance(id, _mapboxGlPlatform);
+    MapboxGlPlatform.addInstance(id, _mapboxGlPlatform!);
     final MapboxMapController controller = MapboxMapController.init(
       id,
       widget.initialCameraPosition,
       onStyleLoadedCallback: () {
-        if (_controller.isCompleted) {
+        if (_controller!.isCompleted) {
           if (widget.onStyleLoadedCallback != null) {
             widget.onStyleLoadedCallback!();
           }
         } else {
-          _controller.future.then((_) {
+          _controller!.future.then((_) {
             if (widget.onStyleLoadedCallback != null) {
               widget.onStyleLoadedCallback!();
             }
@@ -278,10 +278,21 @@ class _MapboxMapState extends State<MapboxMap> {
       onMapIdle: widget.onMapIdle,
     );
     await MapboxMapController.initPlatform(id);
-    _controller.complete(controller);
+    _controller!.complete(controller);
     if (widget.onMapCreated != null) {
       widget.onMapCreated!(controller);
     }
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    if (_controller!.isCompleted) {
+      final controller = await _controller!.future;
+      controller.dispose();
+    }
+    _controller = null;
+    _mapboxGlPlatform = null;
   }
 }
 
