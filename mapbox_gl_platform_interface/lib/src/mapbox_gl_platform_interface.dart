@@ -288,4 +288,23 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError(
         'getMetersPerPixelAtLatitude() has not been implemented.');
   }
+
+  void dispose() {
+    onInfoWindowTappedPlatform.clear();
+    onSymbolTappedPlatform.clear();
+    onLineTappedPlatform.clear();
+    onCircleTappedPlatform.clear();
+    onFillTappedPlatform.clear();
+    onCameraMoveStartedPlatform.clear();
+    onCameraMovePlatform.clear();
+    onCameraIdlePlatform.clear();
+    onMapStyleLoadedPlatform.clear();
+    onMapClickPlatform.clear();
+    onMapLongClickPlatform.clear();
+    onAttributionClickPlatform.clear();
+    onCameraTrackingChangedPlatform.clear();
+    onCameraTrackingDismissedPlatform.clear();
+    onMapIdlePlatform.clear();
+    onUserLocationUpdatedPlatform.clear();
+  }
 }
