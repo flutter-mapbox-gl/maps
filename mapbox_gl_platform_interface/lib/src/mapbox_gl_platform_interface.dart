@@ -20,6 +20,10 @@ abstract class MapboxGlPlatform {
     _instances[id] = platform;
   }
 
+  static void removeInstance(MapboxGlPlatform platform) {
+    _instances.removeWhere((key, value) => value == platform);
+  }
+
   static MapboxGlPlatform getInstance(int id) {
     return _instances[id]!;
   }

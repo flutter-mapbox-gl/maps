@@ -292,6 +292,7 @@ class _MapboxMapState extends State<MapboxMap> {
       controller.dispose();
     }
     _controller = null;
+    MapboxGlPlatform.removeInstance(_mapboxGlPlatform!);
     _mapboxGlPlatform = null;
   }
 }
