@@ -719,4 +719,10 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       return new Future.error(e);
     }
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _channel.setMethodCallHandler(null);
+  }
 }
