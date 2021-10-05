@@ -201,11 +201,11 @@ class MapboxMap extends StatefulWidget {
 }
 
 class _MapboxMapState extends State<MapboxMap> {
-  late Completer<MapboxMapController>? _controller =
+  final Completer<MapboxMapController> _controller =
       Completer<MapboxMapController>();
 
   late _MapboxMapOptions _mapboxMapOptions;
-  late MapboxGlPlatform? _mapboxGlPlatform = MapboxGlPlatform.createInstance();
+  MapboxGlPlatform _mapboxGlPlatform = MapboxGlPlatform.createInstance();
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +222,7 @@ class _MapboxMapState extends State<MapboxMap> {
       'annotationConsumeTapEvents': annotationConsumeTapEvents,
       'onAttributionClickOverride': widget.onAttributionClick != null,
     };
-    return _mapboxGlPlatform!.buildView(
+    return _mapboxGlPlatform.buildView(
         creationParams, onPlatformViewCreated, widget.gestureRecognizers);
   }
 
@@ -230,6 +230,15 @@ class _MapboxMapState extends State<MapboxMap> {
   void initState() {
     super.initState();
     _mapboxMapOptions = _MapboxMapOptions.fromWidget(widget);
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    if (_controller.isCompleted) {
+        final controller = await _controller.future;
+        controller.dispose();
+    }
   }
 
   @override
@@ -246,27 +255,20 @@ class _MapboxMapState extends State<MapboxMap> {
     if (updates.isEmpty) {
       return;
     }
-    final MapboxMapController controller = await _controller!.future;
+    final MapboxMapController controller = await _controller.future;
     controller._updateMapOptions(updates);
   }
 
   Future<void> onPlatformViewCreated(int id) async {
-    MapboxGlPlatform.addInstance(id, _mapboxGlPlatform!);
-    final MapboxMapController controller = MapboxMapController.init(
-      id,
-      widget.initialCameraPosition,
+    final MapboxMapController controller = MapboxMapController(
+      mapboxGlPlatform: _mapboxGlPlatform,
+      initialCameraPosition: widget.initialCameraPosition,
       onStyleLoadedCallback: () {
-        if (_controller!.isCompleted) {
+        _controller.future.then((_) {
           if (widget.onStyleLoadedCallback != null) {
             widget.onStyleLoadedCallback!();
           }
-        } else {
-          _controller!.future.then((_) {
-            if (widget.onStyleLoadedCallback != null) {
-              widget.onStyleLoadedCallback!();
-            }
-          });
-        }
+        });
       },
       onMapClick: widget.onMapClick,
       onUserLocationUpdated: widget.onUserLocationUpdated,
@@ -277,23 +279,11 @@ class _MapboxMapState extends State<MapboxMap> {
       onCameraIdle: widget.onCameraIdle,
       onMapIdle: widget.onMapIdle,
     );
-    await MapboxMapController.initPlatform(id);
-    _controller!.complete(controller);
+    await _mapboxGlPlatform.initPlatform(id);
+    _controller.complete(controller);
     if (widget.onMapCreated != null) {
       widget.onMapCreated!(controller);
     }
-  }
-
-  @override
-  void dispose() async {
-    super.dispose();
-    if (_controller!.isCompleted) {
-      final controller = await _controller!.future;
-      controller.dispose();
-    }
-    _controller = null;
-    MapboxGlPlatform.removeInstance(_mapboxGlPlatform!);
-    _mapboxGlPlatform = null;
   }
 }
 

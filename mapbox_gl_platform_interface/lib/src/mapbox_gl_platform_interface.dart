@@ -14,20 +14,6 @@ abstract class MapboxGlPlatform {
   static MapboxGlPlatform Function() createInstance =
       () => MethodChannelMapboxGl();
 
-  static Map<int, MapboxGlPlatform> _instances = {};
-
-  static void addInstance(int id, MapboxGlPlatform platform) {
-    _instances[id] = platform;
-  }
-
-  static void removeInstance(MapboxGlPlatform platform) {
-    _instances.removeWhere((key, value) => value == platform);
-  }
-
-  static MapboxGlPlatform getInstance(int id) {
-    return _instances[id]!;
-  }
-
   final onInfoWindowTappedPlatform = ArgumentCallbacks<String>();
 
   final onSymbolTappedPlatform = ArgumentCallbacks<String>();
@@ -292,7 +278,7 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError(
         'getMetersPerPixelAtLatitude() has not been implemented.');
   }
-
+  
   void dispose() {
     onInfoWindowTappedPlatform.clear();
     onSymbolTappedPlatform.clear();
@@ -311,4 +297,5 @@ abstract class MapboxGlPlatform {
     onMapIdlePlatform.clear();
     onUserLocationUpdatedPlatform.clear();
   }
+
 }
