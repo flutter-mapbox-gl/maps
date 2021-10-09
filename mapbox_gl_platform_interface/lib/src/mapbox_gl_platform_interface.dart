@@ -14,16 +14,6 @@ abstract class MapboxGlPlatform {
   static MapboxGlPlatform Function() createInstance =
       () => MethodChannelMapboxGl();
 
-  static Map<int, MapboxGlPlatform> _instances = {};
-
-  static void addInstance(int id, MapboxGlPlatform platform) {
-    _instances[id] = platform;
-  }
-
-  static MapboxGlPlatform getInstance(int id) {
-    return _instances[id]!;
-  }
-
   final onInfoWindowTappedPlatform = ArgumentCallbacks<String>();
 
   final onSymbolTappedPlatform = ArgumentCallbacks<String>();
