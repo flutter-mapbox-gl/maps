@@ -2,25 +2,25 @@
   "configVersion": 2,
   "packages": [
     {
-      "name": "mustache",
-      "rootUri": "file:///Users/ocell/.pub-cache/hosted/pub.dartlang.org/mustache-1.1.1",
+      "name": "mustache_template",
+      "rootUri": "file:///Users/ocell/.pub-cache/hosted/pub.dartlang.org/mustache_template-2.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.0"
+      "languageVersion": "2.12"
     },
     {
       "name": "recase",
-      "rootUri": "file:///Users/ocell/.pub-cache/hosted/pub.dartlang.org/recase-3.0.0",
+      "rootUri": "file:///Users/ocell/.pub-cache/hosted/pub.dartlang.org/recase-4.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.6"
+      "languageVersion": "2.12"
     },
     {
       "name": "mapbox_code_gen",
       "rootUri": "../",
       "packageUri": "lib/",
-      "languageVersion": "2.0"
+      "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-10-15T19:19:48.011972Z",
+  "generated": "2021-10-15T22:46:38.145356Z",
   "generator": "pub",
   "generatorVersion": "2.14.3"
 }

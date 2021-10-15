@@ -6,5 +6,5 @@ environment:
   sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  mustache_template: 1.1.1
-  recase: 4.0.0
+  mustache_template: ^2.0.0
+  recase: ^4.0.0
