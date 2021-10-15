@@ -3,13 +3,13 @@
   "packages": [
     {
       "name": "mustache",
-      "rootUri": "file:///Users/max/.pub-cache/hosted/pub.dartlang.org/mustache-1.1.1",
+      "rootUri": "file:///Users/ocell/.pub-cache/hosted/pub.dartlang.org/mustache-1.1.1",
       "packageUri": "lib/",
       "languageVersion": "2.0"
     },
     {
       "name": "recase",
-      "rootUri": "file:///Users/max/.pub-cache/hosted/pub.dartlang.org/recase-3.0.0",
+      "rootUri": "file:///Users/ocell/.pub-cache/hosted/pub.dartlang.org/recase-3.0.0",
       "packageUri": "lib/",
       "languageVersion": "2.6"
     },
@@ -20,7 +20,7 @@
       "languageVersion": "2.0"
     }
   ],
-  "generated": "2020-06-10T15:23:39.710811Z",
+  "generated": "2021-10-15T19:19:48.011972Z",
   "generator": "pub",
-  "generatorVersion": "2.8.4"
+  "generatorVersion": "2.14.3"
 }

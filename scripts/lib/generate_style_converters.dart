@@ -5,20 +5,42 @@ import 'package:mustache/mustache.dart';
 import 'package:recase/recase.dart';
 
 main() async {
-  var properties = [];
+  var styleJson =
+      jsonDecode(await new File('./scripts/input/style.json').readAsString());
 
-  var styleJson = jsonDecode(await new File('./scripts/input/style.json').readAsString());
-  properties.addAll(styleJson["layout_line"].keys.followedBy(styleJson["paint_line"].keys)
-      .map((f) => {
-        'hyphen': f,
-        'camel': new ReCase(f).camelCase
-      }).toList());
+  await renderTemplate(styleJson, "LayerPropertyConverter.template.java",
+      './android/src/main/java/com/mapbox/mapboxgl/LayerPropertyConverter.java');
 
-  var javaTemplate = await new File('./scripts/templates/java_template.txt').readAsString();
-  var template = new Template(javaTemplate);
+  await renderTemplate(styleJson, "LayerPropertyConverter.template.swift",
+      "./ios/Classes/LayerPropertyConverter.swift");
+}
 
-  var outputFile = new File('./android/src/main/java/com/mapbox/mapboxgl/LayerPropertyConverter.java');
-  outputFile.writeAsString(template.renderString({
-    'lineStyles': properties
-  }));
+Future<void> renderTemplate(Map<String, dynamic> styleJson, String templateName,
+    String outputPath) async {
+  var javaTemplate =
+      await File('./scripts/templates/$templateName').readAsString();
+  var template = Template(javaTemplate);
+
+  var outputFile = File(outputPath);
+  final renderContext = {
+    'lineStyles': buildStyleProperties(styleJson, "layout_line", "paint_line"),
+    'fillStyles': buildStyleProperties(styleJson, "layout_fill", "paint_fill"),
+    'circleStyles':
+        buildStyleProperties(styleJson, "layout_circle", "paint_circle"),
+    'symbolStyles':
+        buildStyleProperties(styleJson, "layout_symbol", "paint_symbol")
+  };
+  outputFile.writeAsString(template.renderString(renderContext));
+}
+
+List<Map<String, String>> buildStyleProperties(
+    Map<String, dynamic> styleJson, String layoutKey, String paintKey) {
+  final Map<String, dynamic> layout = styleJson[layoutKey];
+  final Map<String, dynamic> paint = styleJson[paintKey];
+
+  return layout.keys
+      .followedBy(paint.keys)
+      .map((f) =>
+          <String, String>{'property': f, 'function': new ReCase(f).camelCase})
+      .toList();
 }
