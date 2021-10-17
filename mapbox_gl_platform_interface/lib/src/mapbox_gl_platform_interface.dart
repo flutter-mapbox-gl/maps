@@ -304,4 +304,9 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError(
         'getMetersPerPixelAtLatitude() has not been implemented.');
   }
+
+  Future<void> addSource(String sourceId, String sourceUrl, bool withCluster, int clusterMaxZoom, int clusterRadius) async {
+    throw UnimplementedError(
+        'addSource() has not been implemented.');
+  }
 }

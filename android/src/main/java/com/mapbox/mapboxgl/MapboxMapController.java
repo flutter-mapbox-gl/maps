@@ -77,10 +77,14 @@ import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -999,13 +1003,17 @@ final class MapboxMapController
       case "style#hideLayer": {
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+          break;
         }
 
         String layerId = call.argument("imageLayerId");
         Layer layer = style.getLayer(layerId);
 
-        if (layer == null)
-          return;
+        if (layer == null) {
+          result.error("LAYER DOES NOT EXIST", "The layerId provided doesn't exist. Use getLayers before to verify its existence.", null);
+
+          break;
+        }
 
         layer.setProperties(visibility(NONE));
         result.success(null);
@@ -1014,6 +1022,7 @@ final class MapboxMapController
       case "style#isLayerVisible": {
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+          break;
         }
 
         String layerId = call.argument("imageLayerId");
@@ -1026,13 +1035,13 @@ final class MapboxMapController
         }
 
         boolean isVisible = VISIBLE.equals(layer.getVisibility().getValue());
-;
         result.success(isVisible);
         break;
       }
       case "style#addLayer": {
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+          break;
         }
         style.addLayer(new RasterLayer(call.argument("imageLayerId"), call.argument("imageSourceId")));
         result.success(null);
@@ -1051,6 +1060,26 @@ final class MapboxMapController
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
         style.removeLayer((String) call.argument("imageLayerId"));
+        result.success(null);
+        break;
+      }
+      case "style#addSource": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+        try {
+          style.addSource(
+                  new GeoJsonSource(call.argument("sourceId"),
+                          new URI(call.argument("sourceUrl")),
+                          new GeoJsonOptions()
+                                  .withCluster(call.argument("withCluster"))
+                                  .withClusterMaxZoom(call.argument("clusterMaxZoom"))
+                                  .withClusterRadius(call.argument("clusterRadius"))
+                  ));
+        } catch (URISyntaxException e) {
+          result.error("ADDSOURCE FAILED", "AddSource has failed.", e);
+        };
+
         result.success(null);
         break;
       }

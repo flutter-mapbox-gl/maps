@@ -744,6 +744,24 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layer = self.mapView.style?.layer(withIdentifier: imageLayerId) else { return }
             self.mapView.style?.removeLayer(layer)
             result(nil)
+        case "style#addSource":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let sourceUrl = arguments["sourceUrl"] as? String else { return }
+            guard let withCluster = arguments["withCluster"] as? Bool else { return }
+            guard let clusterMaxZoom = arguments["clusterMaxZoom"] as? Int else { return }
+            guard let clusterRadius = arguments["clusterRadius"] as? Int else { return }
+
+            //Check for duplicateSource error
+            if (self.mapView.style?.source(withIdentifier: sourceId) != nil) {
+                result(FlutterError(code: "duplicateSource", message: "Source with sourceId \(sourceId) already exists", details: "Can't add duplicate source with sourceId: \(sourceId)" ))
+                return
+            }
+
+            let source = MGLShapeSource(identifier: sourceId, url: url ? [NSURL URLWithString:@(sourceUrl->c_str())] : nil)
+            self.mapView.style?.addSource(source)
+
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }

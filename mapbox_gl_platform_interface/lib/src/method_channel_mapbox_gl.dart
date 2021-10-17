@@ -771,4 +771,19 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       return new Future.error(e);
     }
   }
+
+  @override
+  Future<void> addSource(String sourceId, String sourceUrl, bool withCluster, int clusterMaxZoom, int clusterRadius) async {
+    try {
+      return await _channel.invokeMethod('style#addSource', <String, Object>{
+        'sourceId': sourceId,
+        'sourceUrl': sourceUrl,
+        'withCluster': withCluster,
+        'clusterMaxZoom': clusterMaxZoom,
+        'clusterRadius': clusterRadius
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
 }

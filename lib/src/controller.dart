@@ -930,4 +930,10 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxGlPlatform.getInstance(_id)
         .getMetersPerPixelAtLatitude(latitude);
   }
+
+  /// Adds a Mapbox style layer to the map's style at render time.
+  Future<void> addSource(String sourceId, String sourceUrl, bool withCluster, int clusterMaxZoom, int clusterRadius) {
+    return MapboxGlPlatform.getInstance(_id)
+        .addSource(sourceId, sourceUrl, withCluster, clusterMaxZoom, clusterRadius);
+  }
 }
