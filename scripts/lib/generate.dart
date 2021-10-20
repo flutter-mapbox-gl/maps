@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:mustache_template/mustache_template.dart';
 import 'package:recase/recase.dart';
 
 main() async {
-  var styleJson =
-      jsonDecode(await new File('./scripts/input/style.json').readAsString());
+  var styleJson = jsonDecode(await new File(
+          '/Users/ocell/code/flutter-mapbox-gl/scripts/input/style.json')
+      .readAsString());
 
   final renderContext = {
     "layerTypes": [
@@ -63,16 +65,39 @@ Future<void> renderDart(
   outputFile.writeAsString(template.renderString(renderContext));
 }
 
-List<Map<String, String>> buildStyleProperties(
+List<Map<String, dynamic>> buildStyleProperties(
     Map<String, dynamic> styleJson, String key) {
   final Map<String, dynamic> items = styleJson[key];
 
-  return items.keys
-      .map((f) => <String, String>{
-            'value': f,
-            'valueAsCamelCase': new ReCase(f).camelCase
+  return items.entries
+      .map((e) => <String, dynamic>{
+            'value': e.key,
+            'doc': e.value["doc"],
+            'docSplit': chunkSubstr(e.value["doc"], 70)
+                .map((s) => {"part": s})
+                .toList(),
+            'valueAsCamelCase': new ReCase(e.key).camelCase
           })
       .toList();
+}
+
+List<String> chunkSubstr(String input, int size) {
+  final words = input.split(" ");
+  final chunks = <String>[];
+
+  String chunk = "";
+  for (var word in words) {
+    final nextChunk = chunk.length > 0 ? chunk + " " + word : word;
+    if (nextChunk.length > size) {
+      chunks.add(chunk);
+      chunk = word;
+    } else {
+      chunk = nextChunk;
+    }
+  }
+  chunks.add(chunk);
+
+  return chunks;
 }
 
 List<Map<String, String>> buildExpressionProperties(

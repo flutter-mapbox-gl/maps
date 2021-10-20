@@ -720,10 +720,20 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     }
   }
 
-  Future<void> addSource(String sourceId, Map<String, dynamic> geojson) async {
+  @override
+  Future<void> addSource(String sourceId, String source) async {
     await _channel.invokeMethod('source#add', <String, dynamic>{
       'sourceId': sourceId,
-      'geojson': geojson,
+      'geojson': source,
+    });
+  }
+
+  @override
+  Future<void> addGeoJsonSource(
+      String sourceId, Map<String, dynamic> source) async {
+    await _channel.invokeMethod('source#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'geojson': jsonEncode(source),
     });
   }
 
@@ -742,6 +752,28 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties) async {
     await _channel.invokeMethod('lineLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
+  Future<void> addCircleLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties) async {
+    await _channel.invokeMethod('circleLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
+  Future<void> addFillLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties) async {
+    await _channel.invokeMethod('fillLayer#add', <String, dynamic>{
       'sourceId': sourceId,
       'layerId': layerId,
       'properties': properties

@@ -45,3 +45,4 @@ part 'src/mapbox_map.dart';
 part 'src/global.dart';
 part 'src/offline_region.dart';
 part 'src/download_region_status.dart';
+part 'src/layer_helper.dart';
