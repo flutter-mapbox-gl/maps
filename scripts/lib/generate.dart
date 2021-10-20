@@ -9,28 +9,32 @@ main() async {
       jsonDecode(await new File('./scripts/input/style.json').readAsString());
 
   final renderContext = {
-    'lineProperties': buildStyleProperties(styleJson, "layout_line") +
-        buildStyleProperties(styleJson, "paint_line"),
-    'fillProperties': buildStyleProperties(styleJson, "layout_fill") +
-        buildStyleProperties(styleJson, "paint_fill"),
-    'circleProperties': buildStyleProperties(styleJson, "layout_circle") +
-        buildStyleProperties(styleJson, "paint_circle"),
-    'symbolProperties': buildStyleProperties(styleJson, "layout_symbol") +
-        buildStyleProperties(styleJson, "paint_symbol"),
+    "layerTypes": [
+      for (var type in ["symbol", "circle", "line", "fill"])
+        {
+          "type": type,
+          "typePascal": ReCase(type).pascalCase,
+          "properties": buildStyleProperties(styleJson, "layout_$type") +
+              buildStyleProperties(styleJson, "paint_$type")
+        },
+    ],
     'expressions': buildExpressionProperties(styleJson)
   };
 
+  print("generating java");
   await renderLayerPropertyConverter(
     renderContext,
     "java",
     './android/src/main/java/com/mapbox/mapboxgl/LayerPropertyConverter.java',
   );
+  print("generating swift");
   await renderLayerPropertyConverter(
     renderContext,
     "swift",
     "./ios/Classes/LayerPropertyConverter.swift",
   );
 
+  print("generating dart");
   await renderDart(renderContext);
 }
 

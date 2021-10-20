@@ -14,19 +14,19 @@ import java.util.Map;
 import static com.mapbox.mapboxgl.Convert.toMap;
 
 class LayerPropertyConverter {
-
-  static PropertyValue[] interpretLineLayerProperties(Object o) {
+{{#layerTypes}}
+  static PropertyValue[] interpret{{typePascal}}LayerProperties(Object o) {
     final Map<String, String> data = (Map<String, String>) toMap(o);
     final List<PropertyValue> properties = new LinkedList();
 
     for (Map.Entry<String, String> entry : data.entrySet()) {
       Expression expression = Expression.Converter.convert(entry.getValue());
       switch (entry.getKey()) {
-        {{#lineProperties}}
-        case "{{{value}}}":
+        {{#properties}}
+        case "{{value}}":
           properties.add(PropertyFactory.{{valueAsCamelCase}}(expression));
           break;
-        {{/lineProperties}}
+        {{/properties}}
         default:
           break;
       }
@@ -35,64 +35,5 @@ class LayerPropertyConverter {
     return properties.toArray(new PropertyValue[properties.size()]);
   }
 
-  static PropertyValue[] interpretSymbolLayerProperties(Object o) {
-    final Map<String, String> data = (Map<String, String>) toMap(o);
-    final List<PropertyValue> properties = new LinkedList();
-
-    for (Map.Entry<String, String> entry : data.entrySet()) {
-      Expression expression = Expression.Converter.convert(entry.getValue());
-      switch (entry.getKey()) {
-        {{#symbolProperties}}
-        case "{{{value}}}":
-          properties.add(PropertyFactory.{{valueAsCamelCase}}(expression));
-          break;
-        {{/symbolProperties}}
-        default:
-          break;
-      }
-    }
-
-    return properties.toArray(new PropertyValue[properties.size()]);
-  }
-
-  static PropertyValue[] interpretCircleLayerProperties(Object o) {
-    final Map<String, String> data = (Map<String, String>) toMap(o);
-    final List<PropertyValue> properties = new LinkedList();
-
-    for (Map.Entry<String, String> entry : data.entrySet()) {
-      Expression expression = Expression.Converter.convert(entry.getValue());
-      switch (entry.getKey()) {
-        {{#circleProperties}}
-        case "{{{value}}}":
-          properties.add(PropertyFactory.{{valueAsCamelCase}}(expression));
-          break;
-        {{/circleProperties}}
-        default:
-          break;
-      }
-    }
-
-    return properties.toArray(new PropertyValue[properties.size()]);
-  }
-
-  static PropertyValue[] interpretFillLayerProperties(Object o) {
-    final Map<String, String> data = (Map<String, String>) toMap(o);
-    final List<PropertyValue> properties = new LinkedList();
-
-    for (Map.Entry<String, String> entry : data.entrySet()) {
-      Expression expression = Expression.Converter.convert(entry.getValue());
-      switch (entry.getKey()) {
-        {{#fillProperties}}
-        case "{{{value}}}":
-          properties.add(PropertyFactory.{{valueAsCamelCase}}(expression));
-          break;
-        {{/fillProperties}}
-        default:
-          break;
-      }
-    }
-
-    return properties.toArray(new PropertyValue[properties.size()]);
-  }
-
+{{/layerTypes}}
 }

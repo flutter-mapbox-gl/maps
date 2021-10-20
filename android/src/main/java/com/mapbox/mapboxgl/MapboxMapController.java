@@ -416,6 +416,28 @@ final class MapboxMapController
     style.addLayer(lineLayer);
   }
 
+  private void addFillLayer(String layerName,
+                            String sourceName,
+                            PropertyValue[] properties,
+                            Expression filter) {
+    LineLayer fillLayer = new FillLayer(layerName, sourceName);
+
+    fillLayer.setProperties(properties);
+
+    style.addLayer(fillLayer);
+  }
+
+  private void addCircleLayer(String layerName,
+                            String sourceName,
+                            PropertyValue[] properties,
+                            Expression filter) {
+    LineLayer circleLayer = new CircleLayer(layerName, sourceName);
+
+    circleLayer.setProperties(properties);
+
+    style.addLayer(circleLayer);
+  }
+
   private void enableSymbolManager(@NonNull Style style) {
     if (symbolManager == null) {
       symbolManager = new SymbolManager(mapView, mapboxMap, style);
@@ -955,15 +977,29 @@ final class MapboxMapController
       case "symbolLayer#add": {
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
-        final PropertyValue[] properties = Convert.interpretSymbolLayerProperties(call.argument("properties"));
+        final PropertyValue[] properties = LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
         addSymbolLayer(layerId, sourceId, properties, null);
         break;
       }
       case "lineLayer#add": {
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
-        final PropertyValue[] properties = Convert.interpretLineLayerProperties(call.argument("properties"));
+        final PropertyValue[] properties = LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
         addLineLayer(layerId, sourceId, properties, null);
+        break;
+      }
+      case "fillLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final PropertyValue[] properties = LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
+        addFillLayer(layerId, sourceId, properties, null);
+        break;
+      }
+      case "circleLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final PropertyValue[] properties = LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
+        addCircleLayer(layerId, sourceId, properties, null);
         break;
       }
       case "locationComponent#getLastLocation": {

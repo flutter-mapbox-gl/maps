@@ -5,15 +5,16 @@ import Mapbox
 import MapboxAnnotationExtension
 
 class LayerPropertyConverter {
-    class func addLineProperties(lineLayer: MGLLineStyleLayer, properties: [String: String]) {
+{{#layerTypes}}
+    class func add{{typePascal}}Properties({{type}}Layer: MGL{{typePascal}}StyleLayer, properties: [String: String]) {
         for (propertyName, propertyValue) in properties {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
-                {{#lineProperties}}
+                {{#properties}}
                 case "{{{value}}}":
                     lineLayer.{{valueAsCamelCase}} = expression;
                 break;
-                {{/lineProperties}}
+                {{/properties}}
                 case "line-blur":
                     lineLayer.lineBlur = expression
                 default:
@@ -22,51 +23,7 @@ class LayerPropertyConverter {
         }
     }
 
-    class func addCircleProperties(circleLayer: MGLCircleStyleLayer, properties: [String: String]) {
-        for (propertyName, propertyValue) in properties {
-            let expression = interpretExpression(expression: propertyValue)
-            switch propertyName {
-                {{#circleProperties}}
-                case "{{{value}}}":
-                    lineLayer.{{valueAsCamelCase}} = expression;
-                break;
-                {{/circleProperties}}
-                default:
-                    break
-            }
-        }
-    }
-
-    class func addSymbolProperties(symbolLayer: MGLSymbolStyleLayer, properties: [String: String]) {
-        for (propertyName, propertyValue) in properties {
-            let expression = interpretExpression(expression: propertyValue)
-            switch propertyName {
-                {{#symbolProperties}}
-                case "{{{value}}}":
-                    lineLayer.{{valueAsCamelCase}} = expression;
-                break;
-                {{/symbolProperties}}
-                default:
-                    break
-            }
-        }
-    }
-
-    class func addFillProperties(fillLayer: MGLSFillStyleLayer, properties: [String: String]) {
-        for (propertyName, propertyValue) in properties {
-            let expression = interpretExpression(expression: propertyValue)
-            switch propertyName {
-                {{#fillProperties}}
-                case "{{{value}}}":
-                    fillLayer.{{valueAsCamelCase}} = expression;
-                break;
-                {{/fillProperties}}
-                default:
-                    break
-            }
-        }
-    }
-    
+{{/layerTypes}}
     private class func interpretExpression(expression: String) -> NSExpression? {
         do {
             let json = try JSONSerialization.jsonObject(with: expression.data(using: .utf8)!, options: [])

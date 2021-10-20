@@ -5,118 +5,6 @@ import Mapbox
 import MapboxAnnotationExtension
 
 class LayerPropertyConverter {
-    class func addLineProperties(lineLayer: MGLLineStyleLayer, properties: [String: String]) {
-        for (propertyName, propertyValue) in properties {
-            let expression = interpretExpression(expression: propertyValue)
-            switch propertyName {
-                case "line-cap":
-                    lineLayer.lineCap = expression;
-                break;
-                case "line-join":
-                    lineLayer.lineJoin = expression;
-                break;
-                case "line-miter-limit":
-                    lineLayer.lineMiterLimit = expression;
-                break;
-                case "line-round-limit":
-                    lineLayer.lineRoundLimit = expression;
-                break;
-                case "line-sort-key":
-                    lineLayer.lineSortKey = expression;
-                break;
-                case "visibility":
-                    lineLayer.visibility = expression;
-                break;
-                case "line-opacity":
-                    lineLayer.lineOpacity = expression;
-                break;
-                case "line-color":
-                    lineLayer.lineColor = expression;
-                break;
-                case "line-translate":
-                    lineLayer.lineTranslate = expression;
-                break;
-                case "line-translate-anchor":
-                    lineLayer.lineTranslateAnchor = expression;
-                break;
-                case "line-width":
-                    lineLayer.lineWidth = expression;
-                break;
-                case "line-gap-width":
-                    lineLayer.lineGapWidth = expression;
-                break;
-                case "line-offset":
-                    lineLayer.lineOffset = expression;
-                break;
-                case "line-blur":
-                    lineLayer.lineBlur = expression;
-                break;
-                case "line-dasharray":
-                    lineLayer.lineDasharray = expression;
-                break;
-                case "line-pattern":
-                    lineLayer.linePattern = expression;
-                break;
-                case "line-gradient":
-                    lineLayer.lineGradient = expression;
-                break;
-                case "line-blur":
-                    lineLayer.lineBlur = expression
-                default:
-                    break
-            }
-        }
-    }
-
-    class func addCircleProperties(circleLayer: MGLCircleStyleLayer, properties: [String: String]) {
-        for (propertyName, propertyValue) in properties {
-            let expression = interpretExpression(expression: propertyValue)
-            switch propertyName {
-                case "circle-sort-key":
-                    lineLayer.circleSortKey = expression;
-                break;
-                case "visibility":
-                    lineLayer.visibility = expression;
-                break;
-                case "circle-radius":
-                    lineLayer.circleRadius = expression;
-                break;
-                case "circle-color":
-                    lineLayer.circleColor = expression;
-                break;
-                case "circle-blur":
-                    lineLayer.circleBlur = expression;
-                break;
-                case "circle-opacity":
-                    lineLayer.circleOpacity = expression;
-                break;
-                case "circle-translate":
-                    lineLayer.circleTranslate = expression;
-                break;
-                case "circle-translate-anchor":
-                    lineLayer.circleTranslateAnchor = expression;
-                break;
-                case "circle-pitch-scale":
-                    lineLayer.circlePitchScale = expression;
-                break;
-                case "circle-pitch-alignment":
-                    lineLayer.circlePitchAlignment = expression;
-                break;
-                case "circle-stroke-width":
-                    lineLayer.circleStrokeWidth = expression;
-                break;
-                case "circle-stroke-color":
-                    lineLayer.circleStrokeColor = expression;
-                break;
-                case "circle-stroke-opacity":
-                    lineLayer.circleStrokeOpacity = expression;
-                break;
-                default:
-                    break
-            }
-        }
-    }
-
     class func addSymbolProperties(symbolLayer: MGLSymbolStyleLayer, properties: [String: String]) {
         for (propertyName, propertyValue) in properties {
             let expression = interpretExpression(expression: propertyValue)
@@ -289,49 +177,167 @@ class LayerPropertyConverter {
                 case "text-translate-anchor":
                     lineLayer.textTranslateAnchor = expression;
                 break;
+                case "line-blur":
+                    lineLayer.lineBlur = expression
                 default:
                     break
             }
         }
     }
 
-    class func addFillProperties(fillLayer: MGLSFillStyleLayer, properties: [String: String]) {
+    class func addCircleProperties(circleLayer: MGLCircleStyleLayer, properties: [String: String]) {
         for (propertyName, propertyValue) in properties {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
-                case "fill-sort-key":
-                    fillLayer.fillSortKey = expression;
+                case "circle-sort-key":
+                    lineLayer.circleSortKey = expression;
                 break;
                 case "visibility":
-                    fillLayer.visibility = expression;
+                    lineLayer.visibility = expression;
                 break;
-                case "fill-antialias":
-                    fillLayer.fillAntialias = expression;
+                case "circle-radius":
+                    lineLayer.circleRadius = expression;
                 break;
-                case "fill-opacity":
-                    fillLayer.fillOpacity = expression;
+                case "circle-color":
+                    lineLayer.circleColor = expression;
                 break;
-                case "fill-color":
-                    fillLayer.fillColor = expression;
+                case "circle-blur":
+                    lineLayer.circleBlur = expression;
                 break;
-                case "fill-outline-color":
-                    fillLayer.fillOutlineColor = expression;
+                case "circle-opacity":
+                    lineLayer.circleOpacity = expression;
                 break;
-                case "fill-translate":
-                    fillLayer.fillTranslate = expression;
+                case "circle-translate":
+                    lineLayer.circleTranslate = expression;
                 break;
-                case "fill-translate-anchor":
-                    fillLayer.fillTranslateAnchor = expression;
+                case "circle-translate-anchor":
+                    lineLayer.circleTranslateAnchor = expression;
                 break;
-                case "fill-pattern":
-                    fillLayer.fillPattern = expression;
+                case "circle-pitch-scale":
+                    lineLayer.circlePitchScale = expression;
                 break;
+                case "circle-pitch-alignment":
+                    lineLayer.circlePitchAlignment = expression;
+                break;
+                case "circle-stroke-width":
+                    lineLayer.circleStrokeWidth = expression;
+                break;
+                case "circle-stroke-color":
+                    lineLayer.circleStrokeColor = expression;
+                break;
+                case "circle-stroke-opacity":
+                    lineLayer.circleStrokeOpacity = expression;
+                break;
+                case "line-blur":
+                    lineLayer.lineBlur = expression
                 default:
                     break
             }
         }
     }
-    
+
+    class func addLineProperties(lineLayer: MGLLineStyleLayer, properties: [String: String]) {
+        for (propertyName, propertyValue) in properties {
+            let expression = interpretExpression(expression: propertyValue)
+            switch propertyName {
+                case "line-cap":
+                    lineLayer.lineCap = expression;
+                break;
+                case "line-join":
+                    lineLayer.lineJoin = expression;
+                break;
+                case "line-miter-limit":
+                    lineLayer.lineMiterLimit = expression;
+                break;
+                case "line-round-limit":
+                    lineLayer.lineRoundLimit = expression;
+                break;
+                case "line-sort-key":
+                    lineLayer.lineSortKey = expression;
+                break;
+                case "visibility":
+                    lineLayer.visibility = expression;
+                break;
+                case "line-opacity":
+                    lineLayer.lineOpacity = expression;
+                break;
+                case "line-color":
+                    lineLayer.lineColor = expression;
+                break;
+                case "line-translate":
+                    lineLayer.lineTranslate = expression;
+                break;
+                case "line-translate-anchor":
+                    lineLayer.lineTranslateAnchor = expression;
+                break;
+                case "line-width":
+                    lineLayer.lineWidth = expression;
+                break;
+                case "line-gap-width":
+                    lineLayer.lineGapWidth = expression;
+                break;
+                case "line-offset":
+                    lineLayer.lineOffset = expression;
+                break;
+                case "line-blur":
+                    lineLayer.lineBlur = expression;
+                break;
+                case "line-dasharray":
+                    lineLayer.lineDasharray = expression;
+                break;
+                case "line-pattern":
+                    lineLayer.linePattern = expression;
+                break;
+                case "line-gradient":
+                    lineLayer.lineGradient = expression;
+                break;
+                case "line-blur":
+                    lineLayer.lineBlur = expression
+                default:
+                    break
+            }
+        }
+    }
+
+    class func addFillProperties(fillLayer: MGLFillStyleLayer, properties: [String: String]) {
+        for (propertyName, propertyValue) in properties {
+            let expression = interpretExpression(expression: propertyValue)
+            switch propertyName {
+                case "fill-sort-key":
+                    lineLayer.fillSortKey = expression;
+                break;
+                case "visibility":
+                    lineLayer.visibility = expression;
+                break;
+                case "fill-antialias":
+                    lineLayer.fillAntialias = expression;
+                break;
+                case "fill-opacity":
+                    lineLayer.fillOpacity = expression;
+                break;
+                case "fill-color":
+                    lineLayer.fillColor = expression;
+                break;
+                case "fill-outline-color":
+                    lineLayer.fillOutlineColor = expression;
+                break;
+                case "fill-translate":
+                    lineLayer.fillTranslate = expression;
+                break;
+                case "fill-translate-anchor":
+                    lineLayer.fillTranslateAnchor = expression;
+                break;
+                case "fill-pattern":
+                    lineLayer.fillPattern = expression;
+                break;
+                case "line-blur":
+                    lineLayer.lineBlur = expression
+                default:
+                    break
+            }
+        }
+    }
+
     private class func interpretExpression(expression: String) -> NSExpression? {
         do {
             let json = try JSONSerialization.jsonObject(with: expression.data(using: .utf8)!, options: [])

@@ -997,7 +997,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
                 let layer = MGLSymbolStyleLayer(identifier: layerId, source: source)
-                Convert.addSymbolProperties(symbolLayer: layer, properties: properties)
+                LayerPropertyConverter.addSymbolProperties(symbolLayer: layer, properties: properties)
                 style.addLayer(layer)
             }
         }
@@ -1007,7 +1007,27 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
                 let layer = MGLLineStyleLayer(identifier: layerId, source: source)
-                Convert.addLineProperties(lineLayer: layer, properties: properties)
+                LayerPropertyConverter.addLineProperties(lineLayer: layer, properties: properties)
+                style.addLayer(layer)
+            }
+        }
+    }
+
+    func addLineLayer(sourceId: String, layerId: String, properties: [String: String]) {
+        if let style = mapView.style {
+            if let source = style.source(withIdentifier: sourceId) {
+                let layer = MGLFillStyleLayer(identifier: layerId, source: source)
+                LayerPropertyConverter.addFillProperties(fillLayer: layer, properties: properties)
+                style.addLayer(layer)
+            }
+        }
+    }
+
+    func addCircleLayer(sourceId: String, layerId: String, properties: [String: String]) {
+        if let style = mapView.style {
+            if let source = style.source(withIdentifier: sourceId) {
+                let layer = MGLCircleStyleLayer(identifier: layerId, source: source)
+                LayerPropertyConverter.addCircleProperties(cricleLayer: layer, properties: properties)
                 style.addLayer(layer)
             }
         }
@@ -1052,12 +1072,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
     
-    func addLineLayer(sourceId: String, layerId: String, properties: [String: String]) {
-        let source = mapView.style?.source(withIdentifier: sourceId)
-        let layer = MGLLineStyleLayer(identifier: layerId, source: source!)
-        Convert.addLineProperties(lineLayer: layer, properties: properties)
-        mapView.style?.addLayer(layer)
-    }
 
     /*
      *  MapboxMapOptionsSink
