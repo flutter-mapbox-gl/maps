@@ -22,11 +22,16 @@ class LayerPropertyConverter {
     for (Map.Entry<String, String> entry : data.entrySet()) {
       Expression expression = Expression.Converter.convert(entry.getValue());
       switch (entry.getKey()) {
-        {{#properties}}
+        {{#paint_properties}}
         case "{{value}}":
           properties.add(PropertyFactory.{{valueAsCamelCase}}(expression));
           break;
-        {{/properties}}
+        {{/paint_properties}}
+        {{#layout_properties}}
+        case "{{value}}":
+          properties.add(PropertyFactory.{{valueAsCamelCase}}(expression));
+          break;
+        {{/layout_properties}}
         default:
           break;
       }

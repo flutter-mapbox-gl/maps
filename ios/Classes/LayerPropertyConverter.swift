@@ -9,6 +9,48 @@ class LayerPropertyConverter {
         for (propertyName, propertyValue) in properties {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
+                case "icon-opacity":
+                    lineLayer.iconOpacity = expression;
+                break;
+                case "icon-color":
+                    lineLayer.iconColor = expression;
+                break;
+                case "icon-halo-color":
+                    lineLayer.iconHaloColor = expression;
+                break;
+                case "icon-halo-width":
+                    lineLayer.iconHaloWidth = expression;
+                break;
+                case "icon-halo-blur":
+                    lineLayer.iconHaloBlur = expression;
+                break;
+                case "icon-translate":
+                    lineLayer.iconTranslate = expression;
+                break;
+                case "icon-translate-anchor":
+                    lineLayer.iconTranslateAnchor = expression;
+                break;
+                case "text-opacity":
+                    lineLayer.textOpacity = expression;
+                break;
+                case "text-color":
+                    lineLayer.textColor = expression;
+                break;
+                case "text-halo-color":
+                    lineLayer.textHaloColor = expression;
+                break;
+                case "text-halo-width":
+                    lineLayer.textHaloWidth = expression;
+                break;
+                case "text-halo-blur":
+                    lineLayer.textHaloBlur = expression;
+                break;
+                case "text-translate":
+                    lineLayer.textTranslate = expression;
+                break;
+                case "text-translate-anchor":
+                    lineLayer.textTranslateAnchor = expression;
+                break;
                 case "symbol-placement":
                     lineLayer.symbolPlacement = expression;
                 break;
@@ -135,50 +177,7 @@ class LayerPropertyConverter {
                 case "visibility":
                     lineLayer.visibility = expression;
                 break;
-                case "icon-opacity":
-                    lineLayer.iconOpacity = expression;
-                break;
-                case "icon-color":
-                    lineLayer.iconColor = expression;
-                break;
-                case "icon-halo-color":
-                    lineLayer.iconHaloColor = expression;
-                break;
-                case "icon-halo-width":
-                    lineLayer.iconHaloWidth = expression;
-                break;
-                case "icon-halo-blur":
-                    lineLayer.iconHaloBlur = expression;
-                break;
-                case "icon-translate":
-                    lineLayer.iconTranslate = expression;
-                break;
-                case "icon-translate-anchor":
-                    lineLayer.iconTranslateAnchor = expression;
-                break;
-                case "text-opacity":
-                    lineLayer.textOpacity = expression;
-                break;
-                case "text-color":
-                    lineLayer.textColor = expression;
-                break;
-                case "text-halo-color":
-                    lineLayer.textHaloColor = expression;
-                break;
-                case "text-halo-width":
-                    lineLayer.textHaloWidth = expression;
-                break;
-                case "text-halo-blur":
-                    lineLayer.textHaloBlur = expression;
-                break;
-                case "text-translate":
-                    lineLayer.textTranslate = expression;
-                break;
-                case "text-translate-anchor":
-                    lineLayer.textTranslateAnchor = expression;
-                break;
-                case "line-blur":
-                    lineLayer.lineBlur = expression
+             
                 default:
                     break
             }
@@ -189,12 +188,6 @@ class LayerPropertyConverter {
         for (propertyName, propertyValue) in properties {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
-                case "circle-sort-key":
-                    lineLayer.circleSortKey = expression;
-                break;
-                case "visibility":
-                    lineLayer.visibility = expression;
-                break;
                 case "circle-radius":
                     lineLayer.circleRadius = expression;
                 break;
@@ -228,8 +221,13 @@ class LayerPropertyConverter {
                 case "circle-stroke-opacity":
                     lineLayer.circleStrokeOpacity = expression;
                 break;
-                case "line-blur":
-                    lineLayer.lineBlur = expression
+                case "circle-sort-key":
+                    lineLayer.circleSortKey = expression;
+                break;
+                case "visibility":
+                    lineLayer.visibility = expression;
+                break;
+             
                 default:
                     break
             }
@@ -240,24 +238,6 @@ class LayerPropertyConverter {
         for (propertyName, propertyValue) in properties {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
-                case "line-cap":
-                    lineLayer.lineCap = expression;
-                break;
-                case "line-join":
-                    lineLayer.lineJoin = expression;
-                break;
-                case "line-miter-limit":
-                    lineLayer.lineMiterLimit = expression;
-                break;
-                case "line-round-limit":
-                    lineLayer.lineRoundLimit = expression;
-                break;
-                case "line-sort-key":
-                    lineLayer.lineSortKey = expression;
-                break;
-                case "visibility":
-                    lineLayer.visibility = expression;
-                break;
                 case "line-opacity":
                     lineLayer.lineOpacity = expression;
                 break;
@@ -291,8 +271,25 @@ class LayerPropertyConverter {
                 case "line-gradient":
                     lineLayer.lineGradient = expression;
                 break;
-                case "line-blur":
-                    lineLayer.lineBlur = expression
+                case "line-cap":
+                    lineLayer.lineCap = expression;
+                break;
+                case "line-join":
+                    lineLayer.lineJoin = expression;
+                break;
+                case "line-miter-limit":
+                    lineLayer.lineMiterLimit = expression;
+                break;
+                case "line-round-limit":
+                    lineLayer.lineRoundLimit = expression;
+                break;
+                case "line-sort-key":
+                    lineLayer.lineSortKey = expression;
+                break;
+                case "visibility":
+                    lineLayer.visibility = expression;
+                break;
+             
                 default:
                     break
             }
@@ -303,12 +300,6 @@ class LayerPropertyConverter {
         for (propertyName, propertyValue) in properties {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
-                case "fill-sort-key":
-                    lineLayer.fillSortKey = expression;
-                break;
-                case "visibility":
-                    lineLayer.visibility = expression;
-                break;
                 case "fill-antialias":
                     lineLayer.fillAntialias = expression;
                 break;
@@ -330,8 +321,13 @@ class LayerPropertyConverter {
                 case "fill-pattern":
                     lineLayer.fillPattern = expression;
                 break;
-                case "line-blur":
-                    lineLayer.lineBlur = expression
+                case "fill-sort-key":
+                    lineLayer.fillSortKey = expression;
+                break;
+                case "visibility":
+                    lineLayer.visibility = expression;
+                break;
+             
                 default:
                     break
             }

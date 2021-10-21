@@ -10,18 +10,25 @@ main() async {
           '/Users/ocell/code/flutter-mapbox-gl/scripts/input/style.json')
       .readAsString());
 
+  final layerTypes = ["symbol", "circle", "line", "fill"];
+
   final renderContext = {
     "layerTypes": [
-      for (var type in ["symbol", "circle", "line", "fill"])
+      for (var type in layerTypes)
         {
           "type": type,
           "typePascal": ReCase(type).pascalCase,
-          "properties": buildStyleProperties(styleJson, "layout_$type") +
-              buildStyleProperties(styleJson, "paint_$type")
+          "paint_properties": buildStyleProperties(styleJson, "paint_$type"),
+          "layout_properties": buildStyleProperties(styleJson, "layout_$type")
         },
     ],
     'expressions': buildExpressionProperties(styleJson)
   };
+
+  renderContext["all_layout_properties"] = [
+    for (final type in renderContext["layerTypes"]!)
+      ...type["layout_properties"].map((p) => p["value"]).toList()
+  ].toSet().map((p) => {"property": p}).toList();
 
   print("generating java");
   await renderLayerPropertyConverter(
@@ -38,6 +45,7 @@ main() async {
 
   print("generating dart");
   await renderDart(renderContext);
+  await renderWebDart(renderContext);
 }
 
 Future<void> renderLayerPropertyConverter(Map<String, dynamic> renderContext,
@@ -65,6 +73,18 @@ Future<void> renderDart(
   outputFile.writeAsString(template.renderString(renderContext));
 }
 
+Future<void> renderWebDart(
+  Map<String, dynamic> renderContext,
+) async {
+  var templateFile = await File('./scripts/templates/layer_tools.dart.template')
+      .readAsString();
+
+  var template = Template(templateFile);
+  var outputFile = File("./mapbox_gl_web/lib/src/layer_tools.dart");
+
+  outputFile.writeAsString(template.renderString(renderContext));
+}
+
 List<Map<String, dynamic>> buildStyleProperties(
     Map<String, dynamic> styleJson, String key) {
   final Map<String, dynamic> items = styleJson[key];
@@ -73,7 +93,7 @@ List<Map<String, dynamic>> buildStyleProperties(
       .map((e) => <String, dynamic>{
             'value': e.key,
             'doc': e.value["doc"],
-            'docSplit': chunkSubstr(e.value["doc"], 70)
+            'docSplit': buildDocLines(e.value["doc"], 70)
                 .map((s) => {"part": s})
                 .toList(),
             'valueAsCamelCase': new ReCase(e.key).camelCase
@@ -81,16 +101,16 @@ List<Map<String, dynamic>> buildStyleProperties(
       .toList();
 }
 
-List<String> chunkSubstr(String input, int size) {
+List<String> buildDocLines(String input, int lineLength) {
   final words = input.split(" ");
   final chunks = <String>[];
 
   String chunk = "";
   for (var word in words) {
-    final nextChunk = chunk.length > 0 ? chunk + " " + word : word;
-    if (nextChunk.length > size) {
-      chunks.add(chunk);
-      chunk = word;
+    final nextChunk = chunk + " " + word;
+    if (nextChunk.length > lineLength || chunk.endsWith("\n")) {
+      chunks.add(chunk.replaceAll("\n", ""));
+      chunk = " " + word;
     } else {
       chunk = nextChunk;
     }
@@ -100,7 +120,7 @@ List<String> chunkSubstr(String input, int size) {
   return chunks;
 }
 
-List<Map<String, String>> buildExpressionProperties(
+List<Map<String, dynamic>> buildExpressionProperties(
     Map<String, dynamic> styleJson) {
   final Map<String, dynamic> items = styleJson["expression_name"]["values"];
 
@@ -124,10 +144,14 @@ List<Map<String, String>> buildExpressionProperties(
     "!": "not",
   };
 
-  return items.keys
-      .map((f) => <String, String>{
-            'value': f,
-            'valueAsCamelCase': new ReCase(renamed[f] ?? f).camelCase
+  return items.entries
+      .map((e) => <String, dynamic>{
+            'value': e.key,
+            'doc': e.value["doc"],
+            'docSplit': buildDocLines(e.value["doc"], 70)
+                .map((s) => {"part": s})
+                .toList(),
+            'valueAsCamelCase': new ReCase(renamed[e.key] ?? e.key).camelCase
           })
       .toList();
 }

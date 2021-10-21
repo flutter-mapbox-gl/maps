@@ -5,474 +5,827 @@ part of mapbox_gl;
 
 
 class SymbolProperties{
-    /// Label placement relative to its geometry.
-    static const symbolPlacement = "symbol-placement";
-
-    /// Distance between two symbol anchors.
-    static const symbolSpacing = "symbol-spacing";
-
-    /// If true, the symbols will not cross tile edges to avoid mutual
-    /// collisions. Recommended in layers that don't have enough padding in
-    /// the vector tile to prevent collisions, or if it is a point symbol
-    /// layer placed after a line symbol layer. When using a client that
-    /// supports global collision detection, like Mapbox GL JS version 0.42.0
-    /// or greater, enabling this property is not needed to prevent clipped
-    /// labels at tile boundaries.
-    static const symbolAvoidEdges = "symbol-avoid-edges";
-
-    /// Sorts features in ascending order based on this value. Features with
-    /// lower sort keys are drawn and placed first.  When `icon-allow-overlap`
-    /// or `text-allow-overlap` is `false`, features with a lower sort key
-    /// will have priority during placement. When `icon-allow-overlap` or
-    /// `text-allow-overlap` is set to `true`, features with a higher sort key
-    /// will overlap over features with a lower sort key.
-    static const symbolSortKey = "symbol-sort-key";
-
-    /// Controls the order in which overlapping symbols in the same layer are
-    /// rendered
-    static const symbolZOrder = "symbol-z-order";
-
-    /// If true, the icon will be visible even if it collides with other
-    /// previously drawn symbols.
-    static const iconAllowOverlap = "icon-allow-overlap";
-
-    /// If true, other symbols can be visible even if they collide with the
-    /// icon.
-    static const iconIgnorePlacement = "icon-ignore-placement";
-
-    /// If true, text will display without their corresponding icons when the
-    /// icon collides with other symbols and the text does not.
-    static const iconOptional = "icon-optional";
-
-    /// In combination with `symbol-placement`, determines the rotation
-    /// behavior of icons.
-    static const iconRotationAlignment = "icon-rotation-alignment";
-
-    /// Scales the original size of the icon by the provided factor. The new
-    /// pixel size of the image will be the original pixel size multiplied by
-    /// `icon-size`. 1 is the original size; 3 triples the size of the image.
-    static const iconSize = "icon-size";
-
-    /// Scales the icon to fit around the associated text.
-    static const iconTextFit = "icon-text-fit";
-
-    /// Size of the additional area added to dimensions determined by
-    /// `icon-text-fit`, in clockwise order: top, right, bottom, left.
-    static const iconTextFitPadding = "icon-text-fit-padding";
-
-    /// Name of image in sprite to use for drawing an image background.
-    static const iconImage = "icon-image";
-
-    /// Rotates the icon clockwise.
-    static const iconRotate = "icon-rotate";
-
-    /// Size of the additional area around the icon bounding box used for
-    /// detecting symbol collisions.
-    static const iconPadding = "icon-padding";
-
-    /// If true, the icon may be flipped to prevent it from being rendered
-    /// upside-down.
-    static const iconKeepUpright = "icon-keep-upright";
-
-    /// Offset distance of icon from its anchor. Positive values indicate
-    /// right and down, while negative values indicate left and up. Each
-    /// component is multiplied by the value of `icon-size` to obtain the
-    /// final offset in pixels. When combined with `icon-rotate` the offset
-    /// will be as if the rotated direction was up.
-    static const iconOffset = "icon-offset";
-
-    /// Part of the icon placed closest to the anchor.
-    static const iconAnchor = "icon-anchor";
-
-    /// Orientation of icon when map is pitched.
-    static const iconPitchAlignment = "icon-pitch-alignment";
-
-    /// Orientation of text when map is pitched.
-    static const textPitchAlignment = "text-pitch-alignment";
-
-    /// In combination with `symbol-placement`, determines the rotation
-    /// behavior of the individual glyphs forming the text.
-    static const textRotationAlignment = "text-rotation-alignment";
-
-    /// Value to use for a text label. If a plain `string` is provided, it
-    /// will be treated as a `formatted` with default/inherited formatting
-    /// options.
-    static const textField = "text-field";
-
-    /// Font stack to use for displaying text.
-    static const textFont = "text-font";
-
-    /// Font size.
-    static const textSize = "text-size";
-
-    /// The maximum line width for text wrapping.
-    static const textMaxWidth = "text-max-width";
-
-    /// Text leading value for multi-line text.
-    static const textLineHeight = "text-line-height";
-
-    /// Text tracking amount.
-    static const textLetterSpacing = "text-letter-spacing";
-
-    /// Text justification options.
-    static const textJustify = "text-justify";
-
-    /// Radial offset of text, in the direction of the symbol's anchor. Useful
-    /// in combination with `text-variable-anchor`, which defaults to using
-    /// the two-dimensional `text-offset` if present.
-    static const textRadialOffset = "text-radial-offset";
-
-    /// To increase the chance of placing high-priority labels on the map, you
-    /// can provide an array of `text-anchor` locations: the renderer will
-    /// attempt to place the label at each location, in order, before moving
-    /// onto the next label. Use `text-justify: auto` to choose justification
-    /// based on anchor position. To apply an offset, use the
-    /// `text-radial-offset` or the two-dimensional `text-offset`.
-    static const textVariableAnchor = "text-variable-anchor";
-
-    /// Part of the text placed closest to the anchor.
-    static const textAnchor = "text-anchor";
-
-    /// Maximum angle change between adjacent characters.
-    static const textMaxAngle = "text-max-angle";
-
-    /// The property allows control over a symbol's orientation. Note that the
-    /// property values act as a hint, so that a symbol whose language doesn’t
-    /// support the provided orientation will be laid out in its natural
-    /// orientation. Example: English point symbol will be rendered
-    /// horizontally even if array value contains single 'vertical' enum
-    /// value. The order of elements in an array define priority order for the
-    /// placement of an orientation variant.
-    static const textWritingMode = "text-writing-mode";
-
-    /// Rotates the text clockwise.
-    static const textRotate = "text-rotate";
-
-    /// Size of the additional area around the text bounding box used for
-    /// detecting symbol collisions.
-    static const textPadding = "text-padding";
-
-    /// If true, the text may be flipped vertically to prevent it from being
-    /// rendered upside-down.
-    static const textKeepUpright = "text-keep-upright";
-
-    /// Specifies how to capitalize text, similar to the CSS `text-transform`
-    /// property.
-    static const textTransform = "text-transform";
-
-    /// Offset distance of text from its anchor. Positive values indicate
-    /// right and down, while negative values indicate left and up. If used
-    /// with text-variable-anchor, input values will be taken as absolute
-    /// values. Offsets along the x- and y-axis will be applied automatically
-    /// based on the anchor position.
-    static const textOffset = "text-offset";
-
-    /// If true, the text will be visible even if it collides with other
-    /// previously drawn symbols.
-    static const textAllowOverlap = "text-allow-overlap";
-
-    /// If true, other symbols can be visible even if they collide with the
-    /// text.
-    static const textIgnorePlacement = "text-ignore-placement";
-
-    /// If true, icons will display without their corresponding text when the
-    /// text collides with other symbols and the icon does not.
-    static const textOptional = "text-optional";
-
-    /// Whether this layer is displayed.
-    static const visibility = "visibility";
-
-    /// The opacity at which the icon will be drawn.
+    // Paint Properties
+    ///  The opacity at which the icon will be drawn.
     static const iconOpacity = "icon-opacity";
 
-    /// The color of the icon. This can only be used with sdf icons.
+    ///  The color of the icon. This can only be used with sdf icons.
     static const iconColor = "icon-color";
 
-    /// The color of the icon's halo. Icon halos can only be used with SDF
-    /// icons.
+    ///  The color of the icon's halo. Icon halos can only be used with SDF
+    ///  icons.
     static const iconHaloColor = "icon-halo-color";
 
-    /// Distance of halo to the icon outline.
+    ///  Distance of halo to the icon outline.
     static const iconHaloWidth = "icon-halo-width";
 
-    /// Fade out the halo towards the outside.
+    ///  Fade out the halo towards the outside.
     static const iconHaloBlur = "icon-halo-blur";
 
-    /// Distance that the icon's anchor is moved from its original placement.
-    /// Positive values indicate right and down, while negative values
-    /// indicate left and up.
+    ///  Distance that the icon's anchor is moved from its original placement.
+    ///  Positive values indicate right and down, while negative values
+    ///  indicate left and up.
     static const iconTranslate = "icon-translate";
 
-    /// Controls the frame of reference for `icon-translate`.
+    ///  Controls the frame of reference for `icon-translate`.
     static const iconTranslateAnchor = "icon-translate-anchor";
 
-    /// The opacity at which the text will be drawn.
+    ///  The opacity at which the text will be drawn.
     static const textOpacity = "text-opacity";
 
-    /// The color with which the text will be drawn.
+    ///  The color with which the text will be drawn.
     static const textColor = "text-color";
 
-    /// The color of the text's halo, which helps it stand out from
-    /// backgrounds.
+    ///  The color of the text's halo, which helps it stand out from
+    ///  backgrounds.
     static const textHaloColor = "text-halo-color";
 
-    /// Distance of halo to the font outline. Max text halo width is 1/4 of
-    /// the font-size.
+    ///  Distance of halo to the font outline. Max text halo width is 1/4 of
+    ///  the font-size.
     static const textHaloWidth = "text-halo-width";
 
-    /// The halo's fadeout distance towards the outside.
+    ///  The halo's fadeout distance towards the outside.
     static const textHaloBlur = "text-halo-blur";
 
-    /// Distance that the text's anchor is moved from its original placement.
-    /// Positive values indicate right and down, while negative values
-    /// indicate left and up.
+    ///  Distance that the text's anchor is moved from its original placement.
+    ///  Positive values indicate right and down, while negative values
+    ///  indicate left and up.
     static const textTranslate = "text-translate";
 
-    /// Controls the frame of reference for `text-translate`.
+    ///  Controls the frame of reference for `text-translate`.
     static const textTranslateAnchor = "text-translate-anchor";
+
+
+    // Layout Properties
+    ///  Label placement relative to its geometry.
+    static const symbolPlacement = "symbol-placement";
+
+    ///  Distance between two symbol anchors.
+    static const symbolSpacing = "symbol-spacing";
+
+    ///  If true, the symbols will not cross tile edges to avoid mutual
+    ///  collisions. Recommended in layers that don't have enough padding in
+    ///  the vector tile to prevent collisions, or if it is a point symbol
+    ///  layer placed after a line symbol layer. When using a client that
+    ///  supports global collision detection, like Mapbox GL JS version 0.42.0
+    ///  or greater, enabling this property is not needed to prevent clipped
+    ///  labels at tile boundaries.
+    static const symbolAvoidEdges = "symbol-avoid-edges";
+
+    ///  Sorts features in ascending order based on this value. Features with
+    ///  lower sort keys are drawn and placed first.  When
+    ///  `icon-allow-overlap` or `text-allow-overlap` is `false`, features
+    ///  with a lower sort key will have priority during placement. When
+    ///  `icon-allow-overlap` or `text-allow-overlap` is set to `true`,
+    ///  features with a higher sort key will overlap over features with a
+    ///  lower sort key.
+    static const symbolSortKey = "symbol-sort-key";
+
+    ///  Controls the order in which overlapping symbols in the same layer are
+    ///  rendered
+    static const symbolZOrder = "symbol-z-order";
+
+    ///  If true, the icon will be visible even if it collides with other
+    ///  previously drawn symbols.
+    static const iconAllowOverlap = "icon-allow-overlap";
+
+    ///  If true, other symbols can be visible even if they collide with the
+    ///  icon.
+    static const iconIgnorePlacement = "icon-ignore-placement";
+
+    ///  If true, text will display without their corresponding icons when the
+    ///  icon collides with other symbols and the text does not.
+    static const iconOptional = "icon-optional";
+
+    ///  In combination with `symbol-placement`, determines the rotation
+    ///  behavior of icons.
+    static const iconRotationAlignment = "icon-rotation-alignment";
+
+    ///  Scales the original size of the icon by the provided factor. The new
+    ///  pixel size of the image will be the original pixel size multiplied by
+    ///  `icon-size`. 1 is the original size; 3 triples the size of the image.
+    static const iconSize = "icon-size";
+
+    ///  Scales the icon to fit around the associated text.
+    static const iconTextFit = "icon-text-fit";
+
+    ///  Size of the additional area added to dimensions determined by
+    ///  `icon-text-fit`, in clockwise order: top, right, bottom, left.
+    static const iconTextFitPadding = "icon-text-fit-padding";
+
+    ///  Name of image in sprite to use for drawing an image background.
+    static const iconImage = "icon-image";
+
+    ///  Rotates the icon clockwise.
+    static const iconRotate = "icon-rotate";
+
+    ///  Size of the additional area around the icon bounding box used for
+    ///  detecting symbol collisions.
+    static const iconPadding = "icon-padding";
+
+    ///  If true, the icon may be flipped to prevent it from being rendered
+    ///  upside-down.
+    static const iconKeepUpright = "icon-keep-upright";
+
+    ///  Offset distance of icon from its anchor. Positive values indicate
+    ///  right and down, while negative values indicate left and up. Each
+    ///  component is multiplied by the value of `icon-size` to obtain the
+    ///  final offset in pixels. When combined with `icon-rotate` the offset
+    ///  will be as if the rotated direction was up.
+    static const iconOffset = "icon-offset";
+
+    ///  Part of the icon placed closest to the anchor.
+    static const iconAnchor = "icon-anchor";
+
+    ///  Orientation of icon when map is pitched.
+    static const iconPitchAlignment = "icon-pitch-alignment";
+
+    ///  Orientation of text when map is pitched.
+    static const textPitchAlignment = "text-pitch-alignment";
+
+    ///  In combination with `symbol-placement`, determines the rotation
+    ///  behavior of the individual glyphs forming the text.
+    static const textRotationAlignment = "text-rotation-alignment";
+
+    ///  Value to use for a text label. If a plain `string` is provided, it
+    ///  will be treated as a `formatted` with default/inherited formatting
+    ///  options.
+    static const textField = "text-field";
+
+    ///  Font stack to use for displaying text.
+    static const textFont = "text-font";
+
+    ///  Font size.
+    static const textSize = "text-size";
+
+    ///  The maximum line width for text wrapping.
+    static const textMaxWidth = "text-max-width";
+
+    ///  Text leading value for multi-line text.
+    static const textLineHeight = "text-line-height";
+
+    ///  Text tracking amount.
+    static const textLetterSpacing = "text-letter-spacing";
+
+    ///  Text justification options.
+    static const textJustify = "text-justify";
+
+    ///  Radial offset of text, in the direction of the symbol's anchor.
+    ///  Useful in combination with `text-variable-anchor`, which defaults to
+    ///  using the two-dimensional `text-offset` if present.
+    static const textRadialOffset = "text-radial-offset";
+
+    ///  To increase the chance of placing high-priority labels on the map,
+    ///  you can provide an array of `text-anchor` locations: the renderer
+    ///  will attempt to place the label at each location, in order, before
+    ///  moving onto the next label. Use `text-justify: auto` to choose
+    ///  justification based on anchor position. To apply an offset, use the
+    ///  `text-radial-offset` or the two-dimensional `text-offset`.
+    static const textVariableAnchor = "text-variable-anchor";
+
+    ///  Part of the text placed closest to the anchor.
+    static const textAnchor = "text-anchor";
+
+    ///  Maximum angle change between adjacent characters.
+    static const textMaxAngle = "text-max-angle";
+
+    ///  The property allows control over a symbol's orientation. Note that
+    ///  the property values act as a hint, so that a symbol whose language
+    ///  doesn’t support the provided orientation will be laid out in its
+    ///  natural orientation. Example: English point symbol will be rendered
+    ///  horizontally even if array value contains single 'vertical' enum
+    ///  value. The order of elements in an array define priority order for
+    ///  the placement of an orientation variant.
+    static const textWritingMode = "text-writing-mode";
+
+    ///  Rotates the text clockwise.
+    static const textRotate = "text-rotate";
+
+    ///  Size of the additional area around the text bounding box used for
+    ///  detecting symbol collisions.
+    static const textPadding = "text-padding";
+
+    ///  If true, the text may be flipped vertically to prevent it from being
+    ///  rendered upside-down.
+    static const textKeepUpright = "text-keep-upright";
+
+    ///  Specifies how to capitalize text, similar to the CSS `text-transform`
+    ///  property.
+    static const textTransform = "text-transform";
+
+    ///  Offset distance of text from its anchor. Positive values indicate
+    ///  right and down, while negative values indicate left and up. If used
+    ///  with text-variable-anchor, input values will be taken as absolute
+    ///  values. Offsets along the x- and y-axis will be applied automatically
+    ///  based on the anchor position.
+    static const textOffset = "text-offset";
+
+    ///  If true, the text will be visible even if it collides with other
+    ///  previously drawn symbols.
+    static const textAllowOverlap = "text-allow-overlap";
+
+    ///  If true, other symbols can be visible even if they collide with the
+    ///  text.
+    static const textIgnorePlacement = "text-ignore-placement";
+
+    ///  If true, icons will display without their corresponding text when the
+    ///  text collides with other symbols and the icon does not.
+    static const textOptional = "text-optional";
+
+    ///  Whether this layer is displayed.
+    static const visibility = "visibility";
 
 }
 
 
 class CircleProperties{
-    /// Sorts features in ascending order based on this value. Features with a
-    /// higher sort key will appear above features with a lower sort key.
-    static const circleSortKey = "circle-sort-key";
-
-    /// Whether this layer is displayed.
-    static const visibility = "visibility";
-
-    /// Circle radius.
+    // Paint Properties
+    ///  Circle radius.
     static const circleRadius = "circle-radius";
 
-    /// The fill color of the circle.
+    ///  The fill color of the circle.
     static const circleColor = "circle-color";
 
-    /// Amount to blur the circle. 1 blurs the circle such that only the
-    /// centerpoint is full opacity.
+    ///  Amount to blur the circle. 1 blurs the circle such that only the
+    ///  centerpoint is full opacity.
     static const circleBlur = "circle-blur";
 
-    /// The opacity at which the circle will be drawn.
+    ///  The opacity at which the circle will be drawn.
     static const circleOpacity = "circle-opacity";
 
-    /// The geometry's offset. Values are [x, y] where negatives indicate left
-    /// and up, respectively.
+    ///  The geometry's offset. Values are [x, y] where negatives indicate
+    ///  left and up, respectively.
     static const circleTranslate = "circle-translate";
 
-    /// Controls the frame of reference for `circle-translate`.
+    ///  Controls the frame of reference for `circle-translate`.
     static const circleTranslateAnchor = "circle-translate-anchor";
 
-    /// Controls the scaling behavior of the circle when the map is pitched.
+    ///  Controls the scaling behavior of the circle when the map is pitched.
     static const circlePitchScale = "circle-pitch-scale";
 
-    /// Orientation of circle when map is pitched.
+    ///  Orientation of circle when map is pitched.
     static const circlePitchAlignment = "circle-pitch-alignment";
 
-    /// The width of the circle's stroke. Strokes are placed outside of the
-    /// `circle-radius`.
+    ///  The width of the circle's stroke. Strokes are placed outside of the
+    ///  `circle-radius`.
     static const circleStrokeWidth = "circle-stroke-width";
 
-    /// The stroke color of the circle.
+    ///  The stroke color of the circle.
     static const circleStrokeColor = "circle-stroke-color";
 
-    /// The opacity of the circle's stroke.
+    ///  The opacity of the circle's stroke.
     static const circleStrokeOpacity = "circle-stroke-opacity";
+
+
+    // Layout Properties
+    ///  Sorts features in ascending order based on this value. Features with
+    ///  a higher sort key will appear above features with a lower sort key.
+    static const circleSortKey = "circle-sort-key";
+
+    ///  Whether this layer is displayed.
+    static const visibility = "visibility";
 
 }
 
 
 class LineProperties{
-    /// The display of line endings.
-    static const lineCap = "line-cap";
-
-    /// The display of lines when joining.
-    static const lineJoin = "line-join";
-
-    /// Used to automatically convert miter joins to bevel joins for sharp
-    /// angles.
-    static const lineMiterLimit = "line-miter-limit";
-
-    /// Used to automatically convert round joins to miter joins for shallow
-    /// angles.
-    static const lineRoundLimit = "line-round-limit";
-
-    /// Sorts features in ascending order based on this value. Features with a
-    /// higher sort key will appear above features with a lower sort key.
-    static const lineSortKey = "line-sort-key";
-
-    /// Whether this layer is displayed.
-    static const visibility = "visibility";
-
-    /// The opacity at which the line will be drawn.
+    // Paint Properties
+    ///  The opacity at which the line will be drawn.
     static const lineOpacity = "line-opacity";
 
-    /// The color with which the line will be drawn.
+    ///  The color with which the line will be drawn.
     static const lineColor = "line-color";
 
-    /// The geometry's offset. Values are [x, y] where negatives indicate left
-    /// and up, respectively.
+    ///  The geometry's offset. Values are [x, y] where negatives indicate
+    ///  left and up, respectively.
     static const lineTranslate = "line-translate";
 
-    /// Controls the frame of reference for `line-translate`.
+    ///  Controls the frame of reference for `line-translate`.
     static const lineTranslateAnchor = "line-translate-anchor";
 
-    /// Stroke thickness.
+    ///  Stroke thickness.
     static const lineWidth = "line-width";
 
-    /// Draws a line casing outside of a line's actual path. Value indicates
-    /// the width of the inner gap.
+    ///  Draws a line casing outside of a line's actual path. Value indicates
+    ///  the width of the inner gap.
     static const lineGapWidth = "line-gap-width";
 
-    /// The line's offset. For linear features, a positive value offsets the
-    /// line to the right, relative to the direction of the line, and a
-    /// negative value to the left. For polygon features, a positive value
-    /// results in an inset, and a negative value results in an outset.
+    ///  The line's offset. For linear features, a positive value offsets the
+    ///  line to the right, relative to the direction of the line, and a
+    ///  negative value to the left. For polygon features, a positive value
+    ///  results in an inset, and a negative value results in an outset.
     static const lineOffset = "line-offset";
 
-    /// Blur applied to the line, in pixels.
+    ///  Blur applied to the line, in pixels.
     static const lineBlur = "line-blur";
 
-    /// Specifies the lengths of the alternating dashes and gaps that form the
-    /// dash pattern. The lengths are later scaled by the line width. To
-    /// convert a dash length to pixels, multiply the length by the current
-    /// line width. Note that GeoJSON sources with `lineMetrics: true`
-    /// specified won't render dashed lines to the expected scale. Also note
-    /// that zoom-dependent expressions will be evaluated only at integer zoom
-    /// levels.
+    ///  Specifies the lengths of the alternating dashes and gaps that form
+    ///  the dash pattern. The lengths are later scaled by the line width. To
+    ///  convert a dash length to pixels, multiply the length by the current
+    ///  line width. Note that GeoJSON sources with `lineMetrics: true`
+    ///  specified won't render dashed lines to the expected scale. Also note
+    ///  that zoom-dependent expressions will be evaluated only at integer
+    ///  zoom levels.
     static const lineDasharray = "line-dasharray";
 
-    /// Name of image in sprite to use for drawing image lines. For seamless
-    /// patterns, image width must be a factor of two (2, 4, 8, ..., 512).
-    /// Note that zoom-dependent expressions will be evaluated only at integer
-    /// zoom levels.
+    ///  Name of image in sprite to use for drawing image lines. For seamless
+    ///  patterns, image width must be a factor of two (2, 4, 8, ..., 512).
+    ///  Note that zoom-dependent expressions will be evaluated only at
+    ///  integer zoom levels.
     static const linePattern = "line-pattern";
 
-    /// Defines a gradient with which to color a line feature. Can only be
-    /// used with GeoJSON sources that specify `"lineMetrics": true`.
+    ///  Defines a gradient with which to color a line feature. Can only be
+    ///  used with GeoJSON sources that specify `"lineMetrics": true`.
     static const lineGradient = "line-gradient";
+
+
+    // Layout Properties
+    ///  The display of line endings.
+    static const lineCap = "line-cap";
+
+    ///  The display of lines when joining.
+    static const lineJoin = "line-join";
+
+    ///  Used to automatically convert miter joins to bevel joins for sharp
+    ///  angles.
+    static const lineMiterLimit = "line-miter-limit";
+
+    ///  Used to automatically convert round joins to miter joins for shallow
+    ///  angles.
+    static const lineRoundLimit = "line-round-limit";
+
+    ///  Sorts features in ascending order based on this value. Features with
+    ///  a higher sort key will appear above features with a lower sort key.
+    static const lineSortKey = "line-sort-key";
+
+    ///  Whether this layer is displayed.
+    static const visibility = "visibility";
 
 }
 
 
 class FillProperties{
-    /// Sorts features in ascending order based on this value. Features with a
-    /// higher sort key will appear above features with a lower sort key.
-    static const fillSortKey = "fill-sort-key";
-
-    /// Whether this layer is displayed.
-    static const visibility = "visibility";
-
-    /// Whether or not the fill should be antialiased.
+    // Paint Properties
+    ///  Whether or not the fill should be antialiased.
     static const fillAntialias = "fill-antialias";
 
-    /// The opacity of the entire fill layer. In contrast to the `fill-color`,
-    /// this value will also affect the 1px stroke around the fill, if the
-    /// stroke is used.
+    ///  The opacity of the entire fill layer. In contrast to the
+    ///  `fill-color`, this value will also affect the 1px stroke around the
+    ///  fill, if the stroke is used.
     static const fillOpacity = "fill-opacity";
 
-    /// The color of the filled part of this layer. This color can be
-    /// specified as `rgba` with an alpha component and the color's opacity
-    /// will not affect the opacity of the 1px stroke, if it is used.
+    ///  The color of the filled part of this layer. This color can be
+    ///  specified as `rgba` with an alpha component and the color's opacity
+    ///  will not affect the opacity of the 1px stroke, if it is used.
     static const fillColor = "fill-color";
 
-    /// The outline color of the fill. Matches the value of `fill-color` if
-    /// unspecified.
+    ///  The outline color of the fill. Matches the value of `fill-color` if
+    ///  unspecified.
     static const fillOutlineColor = "fill-outline-color";
 
-    /// The geometry's offset. Values are [x, y] where negatives indicate left
-    /// and up, respectively.
+    ///  The geometry's offset. Values are [x, y] where negatives indicate
+    ///  left and up, respectively.
     static const fillTranslate = "fill-translate";
 
-    /// Controls the frame of reference for `fill-translate`.
+    ///  Controls the frame of reference for `fill-translate`.
     static const fillTranslateAnchor = "fill-translate-anchor";
 
-    /// Name of image in sprite to use for drawing image fills. For seamless
-    /// patterns, image width and height must be a factor of two (2, 4, 8,
-    /// ..., 512). Note that zoom-dependent expressions will be evaluated only
-    /// at integer zoom levels.
+    ///  Name of image in sprite to use for drawing image fills. For seamless
+    ///  patterns, image width and height must be a factor of two (2, 4, 8,
+    ///  ..., 512). Note that zoom-dependent expressions will be evaluated
+    ///  only at integer zoom levels.
     static const fillPattern = "fill-pattern";
+
+
+    // Layout Properties
+    ///  Sorts features in ascending order based on this value. Features with
+    ///  a higher sort key will appear above features with a lower sort key.
+    static const fillSortKey = "fill-sort-key";
+
+    ///  Whether this layer is displayed.
+    static const visibility = "visibility";
 
 }
 
 
+
+
 class Expressions{
+    /// Binds expressions to named variables, which can then be referenced in
+    /// the result expression using ["var", "variable_name"].
     static const let = "let";
+
+    /// References variable bound using "let".
     static const varExpression = "var";
+
+    /// Provides a literal array or object value.
     static const literal = "literal";
+
+    /// Asserts that the input is an array (optionally with a specific item
+    /// type and length).  If, when the input expression is evaluated, it is
+    /// not of the asserted type, then this assertion will cause the whole
+    /// expression to be aborted.
     static const array = "array";
+
+    /// Retrieves an item from an array.
     static const at = "at";
+
+    /// Determines whether an item exists in an array or a substring exists
+    /// in a string.
     static const inExpression = "in";
+
+    /// Selects the first output whose corresponding test condition evaluates
+    /// to true, or the fallback value otherwise.
     static const caseExpression = "case";
+
+    /// Selects the output whose label value matches the input value, or the
+    /// fallback value if no match is found. The input can be any expression
+    /// (e.g. `["get", "building_type"]`). Each label must be either:
+    /// * a single literal value; or
+    /// * an array of literal values, whose values must be all strings or all
+    /// numbers (e.g. `[100, 101]` or `["c", "b"]`). The input matches if any
+    /// of the values in the array matches, similar to the `"in"`
+    /// operator.Each label must be unique. If the input type does not
+    /// match the type of the labels, the result will be the fallback value.
     static const match = "match";
+
+    /// Evaluates each expression in turn until the first non-null value is
+    /// obtained, and returns that value.
     static const coalesce = "coalesce";
+
+    /// Produces discrete, stepped results by evaluating a piecewise-constant
+    /// function defined by pairs of input and output values ("stops"). The
+    /// `input` may be any numeric expression (e.g., `["get",
+    /// "population"]`). Stop inputs must be numeric literals in strictly
+    /// ascending order. Returns the output value of the stop just less than
+    /// the input, or the first output if the input is less than the first
+    /// stop.
     static const step = "step";
+
+    /// Produces continuous, smooth results by interpolating between pairs of
+    /// input and output values ("stops"). The `input` may be any numeric
+    /// expression (e.g., `["get", "population"]`). Stop inputs must be
+    /// numeric literals in strictly ascending order. The output type must be
+    /// `number`, `array<number>`, or `color`.Interpolation types:-
+    /// `["linear"]`: interpolates linearly between the pair of stops just
+    /// less than and just greater than the input.- `["exponential", base]`:
+    /// interpolates exponentially between the stops just less than and just
+    /// greater than the input. `base` controls the rate at which the output
+    /// increases: higher values make the output increase more towards the
+    /// high end of the range. With values close to 1 the output increases
+    /// linearly.- `["cubic-bezier", x1, y1, x2, y2]`: interpolates using
+    /// the cubic bezier curve defined by the given control points.
     static const interpolate = "interpolate";
+
+    /// Produces continuous, smooth results by interpolating between pairs of
+    /// input and output values ("stops"). Works like `interpolate`, but the
+    /// output type must be `color`, and the interpolation is performed in
+    /// the Hue-Chroma-Luminance color space.
     static const interpolateHcl = "interpolate-hcl";
+
+    /// Produces continuous, smooth results by interpolating between pairs of
+    /// input and output values ("stops"). Works like `interpolate`, but the
+    /// output type must be `color`, and the interpolation is performed in
+    /// the CIELAB color space.
     static const interpolateLab = "interpolate-lab";
+
+    /// Returns mathematical constant ln(2).
     static const ln2 = "ln2";
+
+    /// Returns the mathematical constant pi.
     static const pi = "pi";
+
+    /// Returns the mathematical constant e.
     static const e = "e";
+
+    /// Returns a string describing the type of the given value.
     static const typeof = "typeof";
+
+    /// Asserts that the input value is a string. If multiple values are
+    /// provided, each one is evaluated in order until a string is obtained.
+    /// If none of the inputs are strings, the expression is an error.
     static const string = "string";
+
+    /// Asserts that the input value is a number. If multiple values are
+    /// provided, each one is evaluated in order until a number is obtained.
+    /// If none of the inputs are numbers, the expression is an error.
     static const number = "number";
+
+    /// Asserts that the input value is a boolean. If multiple values are
+    /// provided, each one is evaluated in order until a boolean is obtained.
+    /// If none of the inputs are booleans, the expression is an error.
     static const boolean = "boolean";
+
+    /// Asserts that the input value is an object. If multiple values are
+    /// provided, each one is evaluated in order until an object is obtained.
+    /// If none of the inputs are objects, the expression is an error.
     static const object = "object";
+
+    /// Returns a `collator` for use in locale-dependent comparison
+    /// operations. The `case-sensitive` and `diacritic-sensitive` options
+    /// default to `false`. The `locale` argument specifies the IETF language
+    /// tag of the locale to use. If none is provided, the default locale is
+    /// used. If the requested locale is not available, the `collator` will
+    /// use a system-defined fallback locale. Use `resolved-locale` to test
+    /// the results of locale fallback behavior.
     static const collator = "collator";
+
+    /// Returns `formatted` text containing annotations for use in
+    /// mixed-format `text-field` entries. For a `text-field` entries of a
+    /// string type, following option object's properties are supported: If
+    /// set, the `text-font` value overrides the font specified by the root
+    /// layout properties. If set, the `font-scale` value specifies a scaling
+    /// factor relative to the `text-size` specified in the root layout
+    /// properties. If set, the `text-color` value overrides the color
+    /// specified by the root paint properties for this layer.
     static const format = "format";
+
+    /// Returns an `image` type for use in `icon-image`, `*-pattern` entries
+    /// and as a section in the `format` expression. If set, the `image`
+    /// argument will check that the requested image exists in the style and
+    /// will return either the resolved image name or `null`, depending on
+    /// whether or not the image is currently in the style. This validation
+    /// process is synchronous and requires the image to have been added to
+    /// the style before requesting it in the `image` argument.
     static const image = "image";
+
+    /// Converts the input number into a string representation using the
+    /// providing formatting rules. If set, the `locale` argument specifies
+    /// the locale to use, as a BCP 47 language tag. If set, the `currency`
+    /// argument specifies an ISO 4217 code to use for currency-style
+    /// formatting. If set, the `min-fraction-digits` and
+    /// `max-fraction-digits` arguments specify the minimum and maximum
+    /// number of fractional digits to include.
     static const numberFormat = "number-format";
+
+    /// Converts the input value to a string. If the input is `null`, the
+    /// result is `""`. If the input is a boolean, the result is `"true"` or
+    /// `"false"`. If the input is a number, it is converted to a string as
+    /// specified by the ["NumberToString"
+    /// algorithm](https://tc39.github.io/ecma262/#sec-tostring-applied-to-the-number-type)
+    /// of the ECMAScript Language Specification. If the input is a color, it
+    /// is converted to a string of the form `"rgba(r,g,b,a)"`, where `r`,
+    /// `g`, and `b` are numerals ranging from 0 to 255, and `a` ranges from
+    /// 0 to 1. Otherwise, the input is converted to a string in the format
+    /// specified by the
+    /// [`JSON.stringify`](https://tc39.github.io/ecma262/#sec-json.stringify)
+    /// function of the ECMAScript Language Specification.
     static const toStringExpression = "to-string";
+
+    /// Converts the input value to a number, if possible. If the input is
+    /// `null` or `false`, the result is 0. If the input is `true`, the
+    /// result is 1. If the input is a string, it is converted to a number as
+    /// specified by the ["ToNumber Applied to the String Type"
+    /// algorithm](https://tc39.github.io/ecma262/#sec-tonumber-applied-to-the-string-type)
+    /// of the ECMAScript Language Specification. If multiple values are
+    /// provided, each one is evaluated in order until the first successful
+    /// conversion is obtained. If none of the inputs can be converted, the
+    /// expression is an error.
     static const toNumber = "to-number";
+
+    /// Converts the input value to a boolean. The result is `false` when
+    /// then input is an empty string, 0, `false`, `null`, or `NaN`;
+    /// otherwise it is `true`.
     static const toBoolean = "to-boolean";
+
+    /// Returns a four-element array containing the input color's red, green,
+    /// blue, and alpha components, in that order.
     static const toRgba = "to-rgba";
+
+    /// Converts the input value to a color. If multiple values are provided,
+    /// each one is evaluated in order until the first successful conversion
+    /// is obtained. If none of the inputs can be converted, the expression
+    /// is an error.
     static const toColor = "to-color";
+
+    /// Creates a color value from red, green, and blue components, which
+    /// must range between 0 and 255, and an alpha component of 1. If any
+    /// component is out of range, the expression is an error.
     static const rgb = "rgb";
+
+    /// Creates a color value from red, green, blue components, which must
+    /// range between 0 and 255, and an alpha component which must range
+    /// between 0 and 1. If any component is out of range, the expression is
+    /// an error.
     static const rgba = "rgba";
+
+    /// Retrieves a property value from the current feature's properties, or
+    /// from another object if a second argument is provided. Returns null if
+    /// the requested property is missing.
     static const get = "get";
+
+    /// Tests for the presence of an property value in the current feature's
+    /// properties, or from another object if a second argument is provided.
     static const has = "has";
+
+    /// Gets the length of an array or string.
     static const length = "length";
+
+    /// Gets the feature properties object.  Note that in some cases, it may
+    /// be more efficient to use ["get", "property_name"] directly.
     static const properties = "properties";
+
+    /// Retrieves a property value from the current feature's state. Returns
+    /// null if the requested property is not present on the feature's state.
+    /// A feature's state is not part of the GeoJSON or vector tile data, and
+    /// must be set programmatically on each feature. Features are identified
+    /// by their `id` attribute, which must be an integer or a string that
+    /// can be cast to an integer. Note that ["feature-state"] can only be
+    /// used with paint properties that support data-driven styling.
     static const featureState = "feature-state";
+
+    /// Gets the feature's geometry type: Point, MultiPoint, LineString,
+    /// MultiLineString, Polygon, MultiPolygon.
     static const geometryType = "geometry-type";
+
+    /// Gets the feature's id, if it has one.
     static const id = "id";
+
+    /// Gets the current zoom level.  Note that in style layout and paint
+    /// properties, ["zoom"] may only appear as the input to a top-level
+    /// "step" or "interpolate" expression.
     static const zoom = "zoom";
+
+    /// Gets the kernel density estimation of a pixel in a heatmap layer,
+    /// which is a relative measure of how many data points are crowded
+    /// around a particular pixel. Can only be used in the `heatmap-color`
+    /// property.
     static const heatmapDensity = "heatmap-density";
+
+    /// Gets the progress along a gradient line. Can only be used in the
+    /// `line-gradient` property.
     static const lineProgress = "line-progress";
+
+    /// Gets the value of a cluster property accumulated so far. Can only be
+    /// used in the `clusterProperties` option of a clustered GeoJSON source.
     static const accumulated = "accumulated";
+
+    /// Returns the sum of the inputs.
     static const plus = "+";
+
+    /// Returns the product of the inputs.
     static const multiply = "*";
+
+    /// For two inputs, returns the result of subtracting the second input
+    /// from the first. For a single input, returns the result of subtracting
+    /// it from 0.
     static const minus = "-";
+
+    /// Returns the result of floating point division of the first input by
+    /// the second.
     static const divide = "/";
+
+    /// Returns the remainder after integer division of the first input by
+    /// the second.
     static const precent = "%";
+
+    /// Returns the result of raising the first input to the power specified
+    /// by the second.
     static const xor = "^";
+
+    /// Returns the square root of the input.
     static const sqrt = "sqrt";
+
+    /// Returns the base-ten logarithm of the input.
     static const log10 = "log10";
+
+    /// Returns the natural logarithm of the input.
     static const ln = "ln";
+
+    /// Returns the base-two logarithm of the input.
     static const log2 = "log2";
+
+    /// Returns the sine of the input.
     static const sin = "sin";
+
+    /// Returns the cosine of the input.
     static const cos = "cos";
+
+    /// Returns the tangent of the input.
     static const tan = "tan";
+
+    /// Returns the arcsine of the input.
     static const asin = "asin";
+
+    /// Returns the arccosine of the input.
     static const acos = "acos";
+
+    /// Returns the arctangent of the input.
     static const atan = "atan";
+
+    /// Returns the minimum value of the inputs.
     static const min = "min";
+
+    /// Returns the maximum value of the inputs.
     static const max = "max";
+
+    /// Rounds the input to the nearest integer. Halfway values are rounded
+    /// away from zero. For example, `["round", -1.5]` evaluates to -2.
     static const round = "round";
+
+    /// Returns the absolute value of the input.
     static const abs = "abs";
+
+    /// Returns the smallest integer that is greater than or equal to the
+    /// input.
     static const ceil = "ceil";
+
+    /// Returns the largest integer that is less than or equal to the input.
     static const floor = "floor";
+
+    /// Returns `true` if the input values are equal, `false` otherwise. The
+    /// comparison is strictly typed: values of different runtime types are
+    /// always considered unequal. Cases where the types are known to be
+    /// different at parse time are considered invalid and will produce a
+    /// parse error. Accepts an optional `collator` argument to control
+    /// locale-dependent string comparisons.
     static const equal = "==";
+
+    /// Returns `true` if the input values are not equal, `false` otherwise.
+    /// The comparison is strictly typed: values of different runtime types
+    /// are always considered unequal. Cases where the types are known to be
+    /// different at parse time are considered invalid and will produce a
+    /// parse error. Accepts an optional `collator` argument to control
+    /// locale-dependent string comparisons.
     static const notEqual = "!=";
+
+    /// Returns `true` if the first input is strictly greater than the
+    /// second, `false` otherwise. The arguments are required to be either
+    /// both strings or both numbers; if during evaluation they are not,
+    /// expression evaluation produces an error. Cases where this constraint
+    /// is known not to hold at parse time are considered in valid and will
+    /// produce a parse error. Accepts an optional `collator` argument to
+    /// control locale-dependent string comparisons.
     static const larger = ">";
+
+    /// Returns `true` if the first input is strictly less than the second,
+    /// `false` otherwise. The arguments are required to be either both
+    /// strings or both numbers; if during evaluation they are not,
+    /// expression evaluation produces an error. Cases where this constraint
+    /// is known not to hold at parse time are considered in valid and will
+    /// produce a parse error. Accepts an optional `collator` argument to
+    /// control locale-dependent string comparisons.
     static const smaller = "<";
+
+    /// Returns `true` if the first input is greater than or equal to the
+    /// second, `false` otherwise. The arguments are required to be either
+    /// both strings or both numbers; if during evaluation they are not,
+    /// expression evaluation produces an error. Cases where this constraint
+    /// is known not to hold at parse time are considered in valid and will
+    /// produce a parse error. Accepts an optional `collator` argument to
+    /// control locale-dependent string comparisons.
     static const largerOrEqual = ">=";
+
+    /// Returns `true` if the first input is less than or equal to the
+    /// second, `false` otherwise. The arguments are required to be either
+    /// both strings or both numbers; if during evaluation they are not,
+    /// expression evaluation produces an error. Cases where this constraint
+    /// is known not to hold at parse time are considered in valid and will
+    /// produce a parse error. Accepts an optional `collator` argument to
+    /// control locale-dependent string comparisons.
     static const smallerOrEqual = "<=";
+
+    /// Returns `true` if all the inputs are `true`, `false` otherwise. The
+    /// inputs are evaluated in order, and evaluation is short-circuiting:
+    /// once an input expression evaluates to `false`, the result is `false`
+    /// and no further input expressions are evaluated.
     static const all = "all";
+
+    /// Returns `true` if any of the inputs are `true`, `false` otherwise.
+    /// The inputs are evaluated in order, and evaluation is
+    /// short-circuiting: once an input expression evaluates to `true`, the
+    /// result is `true` and no further input expressions are evaluated.
     static const any = "any";
+
+    /// Logical negation. Returns `true` if the input is `false`, and `false`
+    /// if the input is `true`.
     static const not = "!";
+
+    /// Returns `true` if the input string is expected to render legibly.
+    /// Returns `false` if the input string contains sections that cannot be
+    /// rendered without potential loss of meaning (e.g. Indic scripts that
+    /// require complex text shaping, or right-to-left scripts if the the
+    /// `mapbox-gl-rtl-text` plugin is not in use in Mapbox GL JS).
     static const isSupportedScript = "is-supported-script";
+
+    /// Returns the input string converted to uppercase. Follows the Unicode
+    /// Default Case Conversion algorithm and the locale-insensitive case
+    /// mappings in the Unicode Character Database.
     static const upcase = "upcase";
+
+    /// Returns the input string converted to lowercase. Follows the Unicode
+    /// Default Case Conversion algorithm and the locale-insensitive case
+    /// mappings in the Unicode Character Database.
     static const downcase = "downcase";
+
+    /// Returns a `string` consisting of the concatenation of the inputs.
+    /// Each input is converted to a string as if by `to-string`.
     static const concat = "concat";
+
+    /// Returns the IETF language tag of the locale being used by the
+    /// provided `collator`. This can be used to determine the default system
+    /// locale, or to determine if a requested locale was successfully
+    /// loaded.
     static const resolvedLocale = "resolved-locale";
+
 }

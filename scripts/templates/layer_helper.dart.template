@@ -6,19 +6,35 @@ part of mapbox_gl;
 
 
 class {{typePascal}}Properties{
-    {{#properties}}
+    // Paint Properties
+    {{#paint_properties}}
     {{#docSplit}}
     /// {{{part}}}
     {{/docSplit}}
     static const {{valueAsCamelCase}} = "{{{value}}}";
 
-    {{/properties}}
+    {{/paint_properties}}
+
+    // Layout Properties
+    {{#layout_properties}}
+    {{#docSplit}}
+    /// {{{part}}}
+    {{/docSplit}}
+    static const {{valueAsCamelCase}} = "{{{value}}}";
+
+    {{/layout_properties}}
 }
 {{/layerTypes}}
 
 
+
+
 class Expressions{
     {{#expressions}}
+    {{#docSplit}}
+    ///{{{part}}}
+    {{/docSplit}}
     static const {{valueAsCamelCase}} = "{{{value}}}";
+
     {{/expressions}}
 }

@@ -10,13 +10,17 @@ class LayerPropertyConverter {
         for (propertyName, propertyValue) in properties {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
-                {{#properties}}
+                {{#paint_properties}}
                 case "{{{value}}}":
                     lineLayer.{{valueAsCamelCase}} = expression;
                 break;
-                {{/properties}}
-                case "line-blur":
-                    lineLayer.lineBlur = expression
+                {{/paint_properties}}
+                {{#layout_properties}}
+                case "{{{value}}}":
+                    lineLayer.{{valueAsCamelCase}} = expression;
+                break;
+                {{/layout_properties}}
+             
                 default:
                     break
             }

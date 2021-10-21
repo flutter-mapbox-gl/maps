@@ -21,6 +21,48 @@ class LayerPropertyConverter {
     for (Map.Entry<String, String> entry : data.entrySet()) {
       Expression expression = Expression.Converter.convert(entry.getValue());
       switch (entry.getKey()) {
+        case "icon-opacity":
+          properties.add(PropertyFactory.iconOpacity(expression));
+          break;
+        case "icon-color":
+          properties.add(PropertyFactory.iconColor(expression));
+          break;
+        case "icon-halo-color":
+          properties.add(PropertyFactory.iconHaloColor(expression));
+          break;
+        case "icon-halo-width":
+          properties.add(PropertyFactory.iconHaloWidth(expression));
+          break;
+        case "icon-halo-blur":
+          properties.add(PropertyFactory.iconHaloBlur(expression));
+          break;
+        case "icon-translate":
+          properties.add(PropertyFactory.iconTranslate(expression));
+          break;
+        case "icon-translate-anchor":
+          properties.add(PropertyFactory.iconTranslateAnchor(expression));
+          break;
+        case "text-opacity":
+          properties.add(PropertyFactory.textOpacity(expression));
+          break;
+        case "text-color":
+          properties.add(PropertyFactory.textColor(expression));
+          break;
+        case "text-halo-color":
+          properties.add(PropertyFactory.textHaloColor(expression));
+          break;
+        case "text-halo-width":
+          properties.add(PropertyFactory.textHaloWidth(expression));
+          break;
+        case "text-halo-blur":
+          properties.add(PropertyFactory.textHaloBlur(expression));
+          break;
+        case "text-translate":
+          properties.add(PropertyFactory.textTranslate(expression));
+          break;
+        case "text-translate-anchor":
+          properties.add(PropertyFactory.textTranslateAnchor(expression));
+          break;
         case "symbol-placement":
           properties.add(PropertyFactory.symbolPlacement(expression));
           break;
@@ -147,48 +189,6 @@ class LayerPropertyConverter {
         case "visibility":
           properties.add(PropertyFactory.visibility(expression));
           break;
-        case "icon-opacity":
-          properties.add(PropertyFactory.iconOpacity(expression));
-          break;
-        case "icon-color":
-          properties.add(PropertyFactory.iconColor(expression));
-          break;
-        case "icon-halo-color":
-          properties.add(PropertyFactory.iconHaloColor(expression));
-          break;
-        case "icon-halo-width":
-          properties.add(PropertyFactory.iconHaloWidth(expression));
-          break;
-        case "icon-halo-blur":
-          properties.add(PropertyFactory.iconHaloBlur(expression));
-          break;
-        case "icon-translate":
-          properties.add(PropertyFactory.iconTranslate(expression));
-          break;
-        case "icon-translate-anchor":
-          properties.add(PropertyFactory.iconTranslateAnchor(expression));
-          break;
-        case "text-opacity":
-          properties.add(PropertyFactory.textOpacity(expression));
-          break;
-        case "text-color":
-          properties.add(PropertyFactory.textColor(expression));
-          break;
-        case "text-halo-color":
-          properties.add(PropertyFactory.textHaloColor(expression));
-          break;
-        case "text-halo-width":
-          properties.add(PropertyFactory.textHaloWidth(expression));
-          break;
-        case "text-halo-blur":
-          properties.add(PropertyFactory.textHaloBlur(expression));
-          break;
-        case "text-translate":
-          properties.add(PropertyFactory.textTranslate(expression));
-          break;
-        case "text-translate-anchor":
-          properties.add(PropertyFactory.textTranslateAnchor(expression));
-          break;
         default:
           break;
       }
@@ -204,12 +204,6 @@ class LayerPropertyConverter {
     for (Map.Entry<String, String> entry : data.entrySet()) {
       Expression expression = Expression.Converter.convert(entry.getValue());
       switch (entry.getKey()) {
-        case "circle-sort-key":
-          properties.add(PropertyFactory.circleSortKey(expression));
-          break;
-        case "visibility":
-          properties.add(PropertyFactory.visibility(expression));
-          break;
         case "circle-radius":
           properties.add(PropertyFactory.circleRadius(expression));
           break;
@@ -243,6 +237,12 @@ class LayerPropertyConverter {
         case "circle-stroke-opacity":
           properties.add(PropertyFactory.circleStrokeOpacity(expression));
           break;
+        case "circle-sort-key":
+          properties.add(PropertyFactory.circleSortKey(expression));
+          break;
+        case "visibility":
+          properties.add(PropertyFactory.visibility(expression));
+          break;
         default:
           break;
       }
@@ -258,24 +258,6 @@ class LayerPropertyConverter {
     for (Map.Entry<String, String> entry : data.entrySet()) {
       Expression expression = Expression.Converter.convert(entry.getValue());
       switch (entry.getKey()) {
-        case "line-cap":
-          properties.add(PropertyFactory.lineCap(expression));
-          break;
-        case "line-join":
-          properties.add(PropertyFactory.lineJoin(expression));
-          break;
-        case "line-miter-limit":
-          properties.add(PropertyFactory.lineMiterLimit(expression));
-          break;
-        case "line-round-limit":
-          properties.add(PropertyFactory.lineRoundLimit(expression));
-          break;
-        case "line-sort-key":
-          properties.add(PropertyFactory.lineSortKey(expression));
-          break;
-        case "visibility":
-          properties.add(PropertyFactory.visibility(expression));
-          break;
         case "line-opacity":
           properties.add(PropertyFactory.lineOpacity(expression));
           break;
@@ -309,6 +291,24 @@ class LayerPropertyConverter {
         case "line-gradient":
           properties.add(PropertyFactory.lineGradient(expression));
           break;
+        case "line-cap":
+          properties.add(PropertyFactory.lineCap(expression));
+          break;
+        case "line-join":
+          properties.add(PropertyFactory.lineJoin(expression));
+          break;
+        case "line-miter-limit":
+          properties.add(PropertyFactory.lineMiterLimit(expression));
+          break;
+        case "line-round-limit":
+          properties.add(PropertyFactory.lineRoundLimit(expression));
+          break;
+        case "line-sort-key":
+          properties.add(PropertyFactory.lineSortKey(expression));
+          break;
+        case "visibility":
+          properties.add(PropertyFactory.visibility(expression));
+          break;
         default:
           break;
       }
@@ -324,12 +324,6 @@ class LayerPropertyConverter {
     for (Map.Entry<String, String> entry : data.entrySet()) {
       Expression expression = Expression.Converter.convert(entry.getValue());
       switch (entry.getKey()) {
-        case "fill-sort-key":
-          properties.add(PropertyFactory.fillSortKey(expression));
-          break;
-        case "visibility":
-          properties.add(PropertyFactory.visibility(expression));
-          break;
         case "fill-antialias":
           properties.add(PropertyFactory.fillAntialias(expression));
           break;
@@ -350,6 +344,12 @@ class LayerPropertyConverter {
           break;
         case "fill-pattern":
           properties.add(PropertyFactory.fillPattern(expression));
+          break;
+        case "fill-sort-key":
+          properties.add(PropertyFactory.fillSortKey(expression));
+          break;
+        case "visibility":
+          properties.add(PropertyFactory.visibility(expression));
           break;
         default:
           break;

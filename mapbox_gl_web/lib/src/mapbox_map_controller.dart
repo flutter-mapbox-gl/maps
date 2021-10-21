@@ -766,4 +766,49 @@ class MapboxMapController extends MapboxGlPlatform
     var zoom = _map.getZoom();
     return circumference * cos(latitude * (pi / 180)) / pow(2, zoom + 9);
   }
+
+  Future<void> addSource(String sourceId, String source) async {
+    _map.addSource(sourceId, source);
+  }
+
+  Future<void> addGeoJsonSource(
+      String sourceId, Map<String, dynamic> source) async {
+    _map.addSource(sourceId, source);
+  }
+
+  Future<void> addCircleLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties) async {
+    return _addLayer(sourceId, layerId, properties, "circle");
+  }
+
+  Future<void> addFillLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties) async {
+    return _addLayer(sourceId, layerId, properties, "fill");
+  }
+
+  Future<void> addLineLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties) async {
+    return _addLayer(sourceId, layerId, properties, "line");
+  }
+
+  Future<void> addSymbolLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties) async {
+    return _addLayer(sourceId, layerId, properties, "symbol");
+  }
+
+  Future<void> _addLayer(String sourceId, String layerId,
+      Map<String, dynamic> properties, String layerType) async {
+    final layout = Map.fromEntries(
+        properties.entries.where((entry) => isLayoutProperty(entry.value)));
+    final paint = Map.fromEntries(
+        properties.entries.where((entry) => isLayoutProperty(entry.value)));
+
+    _map.addLayer({
+      'id': layerId,
+      'type': layerType,
+      'source': sourceId,
+      'layout': layout,
+      'paint': paint
+    });
+  }
 }
