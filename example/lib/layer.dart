@@ -85,11 +85,12 @@ class LayerState extends State {
     controller.addSymbolLayer("points", "symbols", {
       SymbolProperties.iconImage: "{type}-15",
       SymbolProperties.iconSize: 2,
+      SymbolProperties.iconAllowOverlap: true
     });
   }
 }
 
-const _fills = {
+final _fills = {
   "type": "FeatureCollection",
   "features": [
     {

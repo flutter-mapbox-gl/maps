@@ -260,8 +260,8 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   Future<void> addGeoJsonSource(
-      String sourceId, Map<String, dynamic> source) async {
-    await MapboxGlPlatform.getInstance(_id).addGeoJsonSource(sourceId, source);
+      String sourceId, Map<String, dynamic> geojson) async {
+    await MapboxGlPlatform.getInstance(_id).addGeoJsonSource(sourceId, geojson);
   }
 
   Future<void> addSymbolLayer(

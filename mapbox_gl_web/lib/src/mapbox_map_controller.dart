@@ -768,8 +768,8 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   Future<void> addGeoJsonSource(
-      String sourceId, Map<String, dynamic> source) async {
-    _map.addSource(sourceId, source);
+      String sourceId, Map<String, dynamic> geojson) async {
+    _map.addSource(sourceId, {"type": 'geojson', "data": geojson});
   }
 
   Future<void> addCircleLayer(
@@ -795,9 +795,9 @@ class MapboxMapController extends MapboxGlPlatform
   Future<void> _addLayer(String sourceId, String layerId,
       Map<String, dynamic> properties, String layerType) async {
     final layout = Map.fromEntries(
-        properties.entries.where((entry) => isLayoutProperty(entry.value)));
+        properties.entries.where((entry) => isLayoutProperty(entry.key)));
     final paint = Map.fromEntries(
-        properties.entries.where((entry) => isLayoutProperty(entry.value)));
+        properties.entries.where((entry) => !isLayoutProperty(entry.key)));
 
     _map.addLayer({
       'id': layerId,
