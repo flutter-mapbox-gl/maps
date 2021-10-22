@@ -1,10 +1,15 @@
-## 0.12.0, April 12, 2020
+## 0.13.0, October 21, 2021
+* Migrate to null-safety [#607](https://github.com/tobrun/flutter-mapbox-gl/pull/607)
+* Support override of attribution click action (iOS) [#605](https://github.com/tobrun/flutter-mapbox-gl/pull/605)
+* Fix requestMyLocationLatLng in the platform interface [#697](https://github.com/tobrun/flutter-mapbox-gl/pull/697)
+
+## 0.12.0, April 12, 2021
 * Batch creation/removal for circles, fills and lines [#576](https://github.com/tobrun/flutter-mapbox-gl/pull/576)
 
-## 0.11.0, March 30, 2020
+## 0.11.0, March 30, 2021
 * Add batch mode of screen locations [#554](https://github.com/tobrun/flutter-mapbox-gl/pull/554)
 
-## 0.10.0, February 12, 2020
+## 0.10.0, February 12, 2021
 * Added web support for fills [#501](https://github.com/tobrun/flutter-mapbox-gl/pull/501)
 * Add heading to UserLocation and expose UserLocation type [#522](https://github.com/tobrun/flutter-mapbox-gl/pull/522)
 * Update tracked camera position in camera#onIdle [#500](https://github.com/tobrun/flutter-mapbox-gl/pull/500)
