@@ -35,12 +35,12 @@ class LayerPropertyConverter {
           break;
         {{/paint_properties}}
         {{#layout_properties}}
-        {{^isStringProperty}}
+        {{^isVisibilityProperty}}
         {{^requiresLiteral}}
         case "{{value}}":
           properties.add(PropertyFactory.{{valueAsCamelCase}}(expression));
         {{/requiresLiteral}}
-        {{/isStringProperty}}
+        {{/isVisibilityProperty}}
         {{#requiresLiteral}}
         case "{{value}}":
           if(jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isString()){
@@ -49,10 +49,10 @@ class LayerPropertyConverter {
             properties.add(PropertyFactory.iconImage(expression));
           }
         {{/requiresLiteral}}
-        {{#isStringProperty}}
+        {{#isVisibilityProperty}}
         case "{{value}}":
           properties.add(PropertyFactory.{{valueAsCamelCase}}(entry.getValue()));
-        {{/isStringProperty}}
+        {{/isVisibilityProperty}}
           break;
         {{/layout_properties}}
         default:

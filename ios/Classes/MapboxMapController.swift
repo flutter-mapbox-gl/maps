@@ -499,18 +499,39 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             removeAllForController(controller:lineAnnotationController, ids:ids)
             result(nil)
+
         case "symbolLayer#add":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
-
             addSymbolLayer(sourceId: sourceId, layerId: layerId, properties: properties)
+            result(nil)
+
         case "lineLayer#add":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
+            addLineLayer(sourceId: sourceId, layerId: layerId, properties: properties)
+            result(nil)
+
+         case "fillLayer#add":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+            addFillLayer(sourceId: sourceId, layerId: layerId, properties: properties)
+            result(nil)
+
+        case "circleLayer#add":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+            addCircleLayer(sourceId: sourceId, layerId: layerId, properties: properties)
+            result(nil)
+
 
         case "line#getGeometry":
             guard let lineAnnotationController = lineAnnotationController else { return }
@@ -984,15 +1005,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
-    func addSource(sourceId: String, geojson: String) {
-        do {
-            let parsed = try MGLShape.init(data: geojson.data(using: .utf8)!, encoding: String.Encoding.utf8.rawValue)
-            let source = MGLShapeSource(identifier: sourceId, shape: parsed, options: [:])
-            mapView.style?.addSource(source)
-        } catch {
-        }
-    }
-
     func addSymbolLayer(sourceId: String, layerId: String, properties: [String: String]) {
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
@@ -1013,7 +1025,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
-    func addLineLayer(sourceId: String, layerId: String, properties: [String: String]) {
+    func addFillLayer(sourceId: String, layerId: String, properties: [String: String]) {
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
                 let layer = MGLFillStyleLayer(identifier: layerId, source: source)
@@ -1027,7 +1039,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
                 let layer = MGLCircleStyleLayer(identifier: layerId, source: source)
-                LayerPropertyConverter.addCircleProperties(cricleLayer: layer, properties: properties)
+                LayerPropertyConverter.addCircleProperties(circleLayer: layer, properties: properties)
                 style.addLayer(layer)
             }
         }

@@ -62,7 +62,15 @@ class LayerState extends State {
         18,
         'green'
       ],
-      FillProperties.fillOpacity: 0.4
+      FillProperties.fillOpacity: [
+        'interpolate',
+        ['exponential', 0.5],
+        ['zoom'],
+        11,
+        0.5,
+        18,
+        0.5
+      ],
     });
 
     controller.addLineLayer("fills", "lines", {

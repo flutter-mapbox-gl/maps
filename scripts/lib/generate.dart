@@ -95,16 +95,54 @@ List<Map<String, dynamic>> buildStyleProperties(
   return items.entries.map((e) => buildStyleProperty(e.key, e.value)).toList();
 }
 
+const renamedIosProperties = {
+  "iconImage": "iconImageName",
+  "iconRotate": "iconRotation",
+  "iconSize": "iconScale",
+  "iconKeepUpright": "keepsIconUpright",
+  "iconTranslate": "iconTranslation",
+  "iconTranslateAnchor": "iconTranslationAnchor",
+  "iconAllowOverlap": "iconAllowsOverlap",
+  "iconIgnorePlacement": "iconIgnoresPlacement",
+  "textTranslate": "textTranslation",
+  "textTranslateAnchor": "textTranslationAnchor",
+  "textIgnorePlacement": "textIgnoresPlacement",
+  "textField": "text",
+  "textFont": "textFontNames",
+  "textSize": "textFontSize",
+  "textMaxWidth": "maximumTextWidth",
+  "textJustify": "textJustification",
+  "textMaxAngle": "maximumTextAngle",
+  "textWritingMode": "textWritingModes",
+  "textRotate": "textRotation",
+  "textKeepUpright": "keepsTextUpright",
+  "textAllowOverlap": "textAllowsOverlap",
+  "symbolAvoidEdges": "symbolAvoidsEdges",
+  "circleTranslate": "circleTranslation",
+  "circleTranslateAnchor": "circleTranslationAnchor",
+  "circlePitchScale": "circleScaleAlignment",
+  "lineTranslate": "lineTranslation",
+  "lineTranslateAnchor": "lineTranslationAnchor",
+  "lineDasharray": "lineDashPattern",
+  "fillAntialias": "fillAntialiased",
+  "fillTranslate": "fillTranslation",
+  "fillTranslateAnchor": "fillTranslationAnchor",
+  "visibility": "isVisible",
+};
+
 Map<String, dynamic> buildStyleProperty(
     String key, Map<String, dynamic> value) {
+  final camelCase = ReCase(key).camelCase;
   return <String, dynamic>{
     'value': key,
-    'isStringProperty': key == "visibility",
+    'isVisibilityProperty': key == "visibility",
     'requiresLiteral': key == "icon-image",
+    'isIosAsCamelCase': renamedIosProperties.containsKey(camelCase),
+    'iosAsCamelCase': renamedIosProperties[camelCase],
     'doc': value["doc"],
     'docSplit':
         buildDocLines(value["doc"], 70).map((s) => {"part": s}).toList(),
-    'valueAsCamelCase': new ReCase(key).camelCase
+    'valueAsCamelCase': camelCase
   };
 }
 

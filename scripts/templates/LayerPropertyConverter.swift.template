@@ -12,12 +12,27 @@ class LayerPropertyConverter {
             switch propertyName {
                 {{#paint_properties}}
                 case "{{{value}}}":
-                    lineLayer.{{valueAsCamelCase}} = expression;
+                {{#isIosAsCamelCase}}
+                    {{type}}Layer.{{iosAsCamelCase}} = expression;
+                {{/isIosAsCamelCase}}
+                {{^isIosAsCamelCase}}
+                    {{type}}Layer.{{valueAsCamelCase}} = expression;
+                {{/isIosAsCamelCase}}
                 break;
                 {{/paint_properties}}
                 {{#layout_properties}}
                 case "{{{value}}}":
-                    lineLayer.{{valueAsCamelCase}} = expression;
+                {{^isVisibilityProperty}}
+                {{#isIosAsCamelCase}}
+                    {{type}}Layer.{{iosAsCamelCase}} = expression;
+                {{/isIosAsCamelCase}}
+                {{^isIosAsCamelCase}}
+                    {{type}}Layer.{{valueAsCamelCase}} = expression;
+                {{/isIosAsCamelCase}}
+                {{/isVisibilityProperty}}
+                {{#isVisibilityProperty}}
+                    {{type}}Layer.{{iosAsCamelCase}} = propertyValue == "visible";
+                {{/isVisibilityProperty}}
                 break;
                 {{/layout_properties}}
              

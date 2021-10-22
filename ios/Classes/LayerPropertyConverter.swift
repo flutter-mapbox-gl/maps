@@ -10,172 +10,172 @@ class LayerPropertyConverter {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
                 case "icon-opacity":
-                    lineLayer.iconOpacity = expression;
+                    symbolLayer.iconOpacity = expression;
                 break;
                 case "icon-color":
-                    lineLayer.iconColor = expression;
+                    symbolLayer.iconColor = expression;
                 break;
                 case "icon-halo-color":
-                    lineLayer.iconHaloColor = expression;
+                    symbolLayer.iconHaloColor = expression;
                 break;
                 case "icon-halo-width":
-                    lineLayer.iconHaloWidth = expression;
+                    symbolLayer.iconHaloWidth = expression;
                 break;
                 case "icon-halo-blur":
-                    lineLayer.iconHaloBlur = expression;
+                    symbolLayer.iconHaloBlur = expression;
                 break;
                 case "icon-translate":
-                    lineLayer.iconTranslate = expression;
+                    symbolLayer.iconTranslation = expression;
                 break;
                 case "icon-translate-anchor":
-                    lineLayer.iconTranslateAnchor = expression;
+                    symbolLayer.iconTranslationAnchor = expression;
                 break;
                 case "text-opacity":
-                    lineLayer.textOpacity = expression;
+                    symbolLayer.textOpacity = expression;
                 break;
                 case "text-color":
-                    lineLayer.textColor = expression;
+                    symbolLayer.textColor = expression;
                 break;
                 case "text-halo-color":
-                    lineLayer.textHaloColor = expression;
+                    symbolLayer.textHaloColor = expression;
                 break;
                 case "text-halo-width":
-                    lineLayer.textHaloWidth = expression;
+                    symbolLayer.textHaloWidth = expression;
                 break;
                 case "text-halo-blur":
-                    lineLayer.textHaloBlur = expression;
+                    symbolLayer.textHaloBlur = expression;
                 break;
                 case "text-translate":
-                    lineLayer.textTranslate = expression;
+                    symbolLayer.textTranslation = expression;
                 break;
                 case "text-translate-anchor":
-                    lineLayer.textTranslateAnchor = expression;
+                    symbolLayer.textTranslationAnchor = expression;
                 break;
                 case "symbol-placement":
-                    lineLayer.symbolPlacement = expression;
+                    symbolLayer.symbolPlacement = expression;
                 break;
                 case "symbol-spacing":
-                    lineLayer.symbolSpacing = expression;
+                    symbolLayer.symbolSpacing = expression;
                 break;
                 case "symbol-avoid-edges":
-                    lineLayer.symbolAvoidEdges = expression;
+                    symbolLayer.symbolAvoidsEdges = expression;
                 break;
                 case "symbol-sort-key":
-                    lineLayer.symbolSortKey = expression;
+                    symbolLayer.symbolSortKey = expression;
                 break;
                 case "symbol-z-order":
-                    lineLayer.symbolZOrder = expression;
+                    symbolLayer.symbolZOrder = expression;
                 break;
                 case "icon-allow-overlap":
-                    lineLayer.iconAllowOverlap = expression;
+                    symbolLayer.iconAllowsOverlap = expression;
                 break;
                 case "icon-ignore-placement":
-                    lineLayer.iconIgnorePlacement = expression;
+                    symbolLayer.iconIgnoresPlacement = expression;
                 break;
                 case "icon-optional":
-                    lineLayer.iconOptional = expression;
+                    symbolLayer.iconOptional = expression;
                 break;
                 case "icon-rotation-alignment":
-                    lineLayer.iconRotationAlignment = expression;
+                    symbolLayer.iconRotationAlignment = expression;
                 break;
                 case "icon-size":
-                    lineLayer.iconSize = expression;
+                    symbolLayer.iconScale = expression;
                 break;
                 case "icon-text-fit":
-                    lineLayer.iconTextFit = expression;
+                    symbolLayer.iconTextFit = expression;
                 break;
                 case "icon-text-fit-padding":
-                    lineLayer.iconTextFitPadding = expression;
+                    symbolLayer.iconTextFitPadding = expression;
                 break;
                 case "icon-image":
-                    lineLayer.iconImage = expression;
+                    symbolLayer.iconImageName = expression;
                 break;
                 case "icon-rotate":
-                    lineLayer.iconRotate = expression;
+                    symbolLayer.iconRotation = expression;
                 break;
                 case "icon-padding":
-                    lineLayer.iconPadding = expression;
+                    symbolLayer.iconPadding = expression;
                 break;
                 case "icon-keep-upright":
-                    lineLayer.iconKeepUpright = expression;
+                    symbolLayer.keepsIconUpright = expression;
                 break;
                 case "icon-offset":
-                    lineLayer.iconOffset = expression;
+                    symbolLayer.iconOffset = expression;
                 break;
                 case "icon-anchor":
-                    lineLayer.iconAnchor = expression;
+                    symbolLayer.iconAnchor = expression;
                 break;
                 case "icon-pitch-alignment":
-                    lineLayer.iconPitchAlignment = expression;
+                    symbolLayer.iconPitchAlignment = expression;
                 break;
                 case "text-pitch-alignment":
-                    lineLayer.textPitchAlignment = expression;
+                    symbolLayer.textPitchAlignment = expression;
                 break;
                 case "text-rotation-alignment":
-                    lineLayer.textRotationAlignment = expression;
+                    symbolLayer.textRotationAlignment = expression;
                 break;
                 case "text-field":
-                    lineLayer.textField = expression;
+                    symbolLayer.text = expression;
                 break;
                 case "text-font":
-                    lineLayer.textFont = expression;
+                    symbolLayer.textFontNames = expression;
                 break;
                 case "text-size":
-                    lineLayer.textSize = expression;
+                    symbolLayer.textFontSize = expression;
                 break;
                 case "text-max-width":
-                    lineLayer.textMaxWidth = expression;
+                    symbolLayer.maximumTextWidth = expression;
                 break;
                 case "text-line-height":
-                    lineLayer.textLineHeight = expression;
+                    symbolLayer.textLineHeight = expression;
                 break;
                 case "text-letter-spacing":
-                    lineLayer.textLetterSpacing = expression;
+                    symbolLayer.textLetterSpacing = expression;
                 break;
                 case "text-justify":
-                    lineLayer.textJustify = expression;
+                    symbolLayer.textJustification = expression;
                 break;
                 case "text-radial-offset":
-                    lineLayer.textRadialOffset = expression;
+                    symbolLayer.textRadialOffset = expression;
                 break;
                 case "text-variable-anchor":
-                    lineLayer.textVariableAnchor = expression;
+                    symbolLayer.textVariableAnchor = expression;
                 break;
                 case "text-anchor":
-                    lineLayer.textAnchor = expression;
+                    symbolLayer.textAnchor = expression;
                 break;
                 case "text-max-angle":
-                    lineLayer.textMaxAngle = expression;
+                    symbolLayer.maximumTextAngle = expression;
                 break;
                 case "text-writing-mode":
-                    lineLayer.textWritingMode = expression;
+                    symbolLayer.textWritingModes = expression;
                 break;
                 case "text-rotate":
-                    lineLayer.textRotate = expression;
+                    symbolLayer.textRotation = expression;
                 break;
                 case "text-padding":
-                    lineLayer.textPadding = expression;
+                    symbolLayer.textPadding = expression;
                 break;
                 case "text-keep-upright":
-                    lineLayer.textKeepUpright = expression;
+                    symbolLayer.keepsTextUpright = expression;
                 break;
                 case "text-transform":
-                    lineLayer.textTransform = expression;
+                    symbolLayer.textTransform = expression;
                 break;
                 case "text-offset":
-                    lineLayer.textOffset = expression;
+                    symbolLayer.textOffset = expression;
                 break;
                 case "text-allow-overlap":
-                    lineLayer.textAllowOverlap = expression;
+                    symbolLayer.textAllowsOverlap = expression;
                 break;
                 case "text-ignore-placement":
-                    lineLayer.textIgnorePlacement = expression;
+                    symbolLayer.textIgnoresPlacement = expression;
                 break;
                 case "text-optional":
-                    lineLayer.textOptional = expression;
+                    symbolLayer.textOptional = expression;
                 break;
                 case "visibility":
-                    lineLayer.visibility = expression;
+                    symbolLayer.isVisible = propertyValue == "visible";
                 break;
              
                 default:
@@ -189,43 +189,43 @@ class LayerPropertyConverter {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
                 case "circle-radius":
-                    lineLayer.circleRadius = expression;
+                    circleLayer.circleRadius = expression;
                 break;
                 case "circle-color":
-                    lineLayer.circleColor = expression;
+                    circleLayer.circleColor = expression;
                 break;
                 case "circle-blur":
-                    lineLayer.circleBlur = expression;
+                    circleLayer.circleBlur = expression;
                 break;
                 case "circle-opacity":
-                    lineLayer.circleOpacity = expression;
+                    circleLayer.circleOpacity = expression;
                 break;
                 case "circle-translate":
-                    lineLayer.circleTranslate = expression;
+                    circleLayer.circleTranslation = expression;
                 break;
                 case "circle-translate-anchor":
-                    lineLayer.circleTranslateAnchor = expression;
+                    circleLayer.circleTranslationAnchor = expression;
                 break;
                 case "circle-pitch-scale":
-                    lineLayer.circlePitchScale = expression;
+                    circleLayer.circleScaleAlignment = expression;
                 break;
                 case "circle-pitch-alignment":
-                    lineLayer.circlePitchAlignment = expression;
+                    circleLayer.circlePitchAlignment = expression;
                 break;
                 case "circle-stroke-width":
-                    lineLayer.circleStrokeWidth = expression;
+                    circleLayer.circleStrokeWidth = expression;
                 break;
                 case "circle-stroke-color":
-                    lineLayer.circleStrokeColor = expression;
+                    circleLayer.circleStrokeColor = expression;
                 break;
                 case "circle-stroke-opacity":
-                    lineLayer.circleStrokeOpacity = expression;
+                    circleLayer.circleStrokeOpacity = expression;
                 break;
                 case "circle-sort-key":
-                    lineLayer.circleSortKey = expression;
+                    circleLayer.circleSortKey = expression;
                 break;
                 case "visibility":
-                    lineLayer.visibility = expression;
+                    circleLayer.isVisible = propertyValue == "visible";
                 break;
              
                 default:
@@ -245,10 +245,10 @@ class LayerPropertyConverter {
                     lineLayer.lineColor = expression;
                 break;
                 case "line-translate":
-                    lineLayer.lineTranslate = expression;
+                    lineLayer.lineTranslation = expression;
                 break;
                 case "line-translate-anchor":
-                    lineLayer.lineTranslateAnchor = expression;
+                    lineLayer.lineTranslationAnchor = expression;
                 break;
                 case "line-width":
                     lineLayer.lineWidth = expression;
@@ -263,7 +263,7 @@ class LayerPropertyConverter {
                     lineLayer.lineBlur = expression;
                 break;
                 case "line-dasharray":
-                    lineLayer.lineDasharray = expression;
+                    lineLayer.lineDashPattern = expression;
                 break;
                 case "line-pattern":
                     lineLayer.linePattern = expression;
@@ -287,7 +287,7 @@ class LayerPropertyConverter {
                     lineLayer.lineSortKey = expression;
                 break;
                 case "visibility":
-                    lineLayer.visibility = expression;
+                    lineLayer.isVisible = propertyValue == "visible";
                 break;
              
                 default:
@@ -301,31 +301,31 @@ class LayerPropertyConverter {
             let expression = interpretExpression(expression: propertyValue)
             switch propertyName {
                 case "fill-antialias":
-                    lineLayer.fillAntialias = expression;
+                    fillLayer.fillAntialiased = expression;
                 break;
                 case "fill-opacity":
-                    lineLayer.fillOpacity = expression;
+                    fillLayer.fillOpacity = expression;
                 break;
                 case "fill-color":
-                    lineLayer.fillColor = expression;
+                    fillLayer.fillColor = expression;
                 break;
                 case "fill-outline-color":
-                    lineLayer.fillOutlineColor = expression;
+                    fillLayer.fillOutlineColor = expression;
                 break;
                 case "fill-translate":
-                    lineLayer.fillTranslate = expression;
+                    fillLayer.fillTranslation = expression;
                 break;
                 case "fill-translate-anchor":
-                    lineLayer.fillTranslateAnchor = expression;
+                    fillLayer.fillTranslationAnchor = expression;
                 break;
                 case "fill-pattern":
-                    lineLayer.fillPattern = expression;
+                    fillLayer.fillPattern = expression;
                 break;
                 case "fill-sort-key":
-                    lineLayer.fillSortKey = expression;
+                    fillLayer.fillSortKey = expression;
                 break;
                 case "visibility":
-                    lineLayer.visibility = expression;
+                    fillLayer.isVisible = propertyValue == "visible";
                 break;
              
                 default:
