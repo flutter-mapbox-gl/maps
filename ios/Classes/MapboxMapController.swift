@@ -712,7 +712,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
             guard let layer = self.mapView.style?.layer(withIdentifier: imageLayerId) else { return }
             self.mapView.style?.removeLayer(layer)
-        case "source#add":
+        case "source#addGeoJson":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
             guard let geojson = arguments["geojson"] as? String else { return }

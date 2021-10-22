@@ -19,7 +19,7 @@ main() async {
           "type": type,
           "typePascal": ReCase(type).pascalCase,
           "paint_properties": buildStyleProperties(styleJson, "paint_$type"),
-          "layout_properties": buildStyleProperties(styleJson, "layout_$type")
+          "layout_properties": buildStyleProperties(styleJson, "layout_$type"),
         },
     ],
     'expressions': buildExpressionProperties(styleJson)
@@ -48,8 +48,11 @@ main() async {
   await renderWebDart(renderContext);
 }
 
-Future<void> renderLayerPropertyConverter(Map<String, dynamic> renderContext,
-    String templateType, String outputPath) async {
+Future<void> renderLayerPropertyConverter(
+  Map<String, List> renderContext,
+  String templateType,
+  String outputPath,
+) async {
   var templateFile = await File(
           './scripts/templates/LayerPropertyConverter.$templateType.template')
       .readAsString();
@@ -89,16 +92,20 @@ List<Map<String, dynamic>> buildStyleProperties(
     Map<String, dynamic> styleJson, String key) {
   final Map<String, dynamic> items = styleJson[key];
 
-  return items.entries
-      .map((e) => <String, dynamic>{
-            'value': e.key,
-            'doc': e.value["doc"],
-            'docSplit': buildDocLines(e.value["doc"], 70)
-                .map((s) => {"part": s})
-                .toList(),
-            'valueAsCamelCase': new ReCase(e.key).camelCase
-          })
-      .toList();
+  return items.entries.map((e) => buildStyleProperty(e.key, e.value)).toList();
+}
+
+Map<String, dynamic> buildStyleProperty(
+    String key, Map<String, dynamic> value) {
+  return <String, dynamic>{
+    'value': key,
+    'isStringProperty': key == "visibility",
+    'requiresLiteral': key == "icon-image",
+    'doc': value["doc"],
+    'docSplit':
+        buildDocLines(value["doc"], 70).map((s) => {"part": s}).toList(),
+    'valueAsCamelCase': new ReCase(key).camelCase
+  };
 }
 
 List<String> buildDocLines(String input, int lineLength) {

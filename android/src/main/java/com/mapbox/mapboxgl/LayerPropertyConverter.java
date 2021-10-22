@@ -11,15 +11,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+
+
 import static com.mapbox.mapboxgl.Convert.toMap;
 
 class LayerPropertyConverter {
   static PropertyValue[] interpretSymbolLayerProperties(Object o) {
     final Map<String, String> data = (Map<String, String>) toMap(o);
     final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
 
     for (Map.Entry<String, String> entry : data.entrySet()) {
-      Expression expression = Expression.Converter.convert(entry.getValue());
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
       switch (entry.getKey()) {
         case "icon-opacity":
           properties.add(PropertyFactory.iconOpacity(expression));
@@ -100,7 +107,11 @@ class LayerPropertyConverter {
           properties.add(PropertyFactory.iconTextFitPadding(expression));
           break;
         case "icon-image":
-          properties.add(PropertyFactory.iconImage(expression));
+          if(jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isString()){
+            properties.add(PropertyFactory.iconImage(jsonElement.getAsString()));
+          }else{
+            properties.add(PropertyFactory.iconImage(expression));
+          }
           break;
         case "icon-rotate":
           properties.add(PropertyFactory.iconRotate(expression));
@@ -187,7 +198,7 @@ class LayerPropertyConverter {
           properties.add(PropertyFactory.textOptional(expression));
           break;
         case "visibility":
-          properties.add(PropertyFactory.visibility(expression));
+          properties.add(PropertyFactory.visibility(entry.getValue()));
           break;
         default:
           break;
@@ -200,9 +211,11 @@ class LayerPropertyConverter {
   static PropertyValue[] interpretCircleLayerProperties(Object o) {
     final Map<String, String> data = (Map<String, String>) toMap(o);
     final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
 
     for (Map.Entry<String, String> entry : data.entrySet()) {
-      Expression expression = Expression.Converter.convert(entry.getValue());
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
       switch (entry.getKey()) {
         case "circle-radius":
           properties.add(PropertyFactory.circleRadius(expression));
@@ -241,7 +254,7 @@ class LayerPropertyConverter {
           properties.add(PropertyFactory.circleSortKey(expression));
           break;
         case "visibility":
-          properties.add(PropertyFactory.visibility(expression));
+          properties.add(PropertyFactory.visibility(entry.getValue()));
           break;
         default:
           break;
@@ -254,9 +267,11 @@ class LayerPropertyConverter {
   static PropertyValue[] interpretLineLayerProperties(Object o) {
     final Map<String, String> data = (Map<String, String>) toMap(o);
     final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
 
     for (Map.Entry<String, String> entry : data.entrySet()) {
-      Expression expression = Expression.Converter.convert(entry.getValue());
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
       switch (entry.getKey()) {
         case "line-opacity":
           properties.add(PropertyFactory.lineOpacity(expression));
@@ -307,7 +322,7 @@ class LayerPropertyConverter {
           properties.add(PropertyFactory.lineSortKey(expression));
           break;
         case "visibility":
-          properties.add(PropertyFactory.visibility(expression));
+          properties.add(PropertyFactory.visibility(entry.getValue()));
           break;
         default:
           break;
@@ -320,9 +335,11 @@ class LayerPropertyConverter {
   static PropertyValue[] interpretFillLayerProperties(Object o) {
     final Map<String, String> data = (Map<String, String>) toMap(o);
     final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
 
     for (Map.Entry<String, String> entry : data.entrySet()) {
-      Expression expression = Expression.Converter.convert(entry.getValue());
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
       switch (entry.getKey()) {
         case "fill-antialias":
           properties.add(PropertyFactory.fillAntialias(expression));
@@ -349,7 +366,7 @@ class LayerPropertyConverter {
           properties.add(PropertyFactory.fillSortKey(expression));
           break;
         case "visibility":
-          properties.add(PropertyFactory.visibility(expression));
+          properties.add(PropertyFactory.visibility(entry.getValue()));
           break;
         default:
           break;

@@ -11,6 +11,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+
+
 import static com.mapbox.mapboxgl.Convert.toMap;
 
 class LayerPropertyConverter {
@@ -18,9 +23,11 @@ class LayerPropertyConverter {
   static PropertyValue[] interpret{{typePascal}}LayerProperties(Object o) {
     final Map<String, String> data = (Map<String, String>) toMap(o);
     final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
 
     for (Map.Entry<String, String> entry : data.entrySet()) {
-      Expression expression = Expression.Converter.convert(entry.getValue());
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
       switch (entry.getKey()) {
         {{#paint_properties}}
         case "{{value}}":
@@ -28,8 +35,24 @@ class LayerPropertyConverter {
           break;
         {{/paint_properties}}
         {{#layout_properties}}
+        {{^isStringProperty}}
+        {{^requiresLiteral}}
         case "{{value}}":
           properties.add(PropertyFactory.{{valueAsCamelCase}}(expression));
+        {{/requiresLiteral}}
+        {{/isStringProperty}}
+        {{#requiresLiteral}}
+        case "{{value}}":
+          if(jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isString()){
+            properties.add(PropertyFactory.iconImage(jsonElement.getAsString()));
+          }else{
+            properties.add(PropertyFactory.iconImage(expression));
+          }
+        {{/requiresLiteral}}
+        {{#isStringProperty}}
+        case "{{value}}":
+          properties.add(PropertyFactory.{{valueAsCamelCase}}(entry.getValue()));
+        {{/isStringProperty}}
           break;
         {{/layout_properties}}
         default:

@@ -73,10 +73,12 @@ import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.CircleLayer;
+import com.mapbox.mapboxsdk.style.layers.FillLayer;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import io.flutter.plugin.common.MethodCall;
@@ -387,8 +389,8 @@ final class MapboxMapController
     methodChannel.invokeMethod("map#onUserLocationUpdated", arguments);
   }
   
-  private void addSource(String sourceName, String geojson) {
-    FeatureCollection featureCollection = FeatureCollection.fromJson(geojson);
+  private void addGeoJsonSource(String sourceName, String source) {
+    FeatureCollection featureCollection = FeatureCollection.fromJson(source);
     GeoJsonSource geoJsonSource = new GeoJsonSource(sourceName, featureCollection);
 
     style.addSource(geoJsonSource);
@@ -420,7 +422,7 @@ final class MapboxMapController
                             String sourceName,
                             PropertyValue[] properties,
                             Expression filter) {
-    LineLayer fillLayer = new FillLayer(layerName, sourceName);
+    FillLayer fillLayer = new FillLayer(layerName, sourceName);
 
     fillLayer.setProperties(properties);
 
@@ -431,7 +433,7 @@ final class MapboxMapController
                             String sourceName,
                             PropertyValue[] properties,
                             Expression filter) {
-    LineLayer circleLayer = new CircleLayer(layerName, sourceName);
+    CircleLayer circleLayer = new CircleLayer(layerName, sourceName);
 
     circleLayer.setProperties(properties);
 
@@ -962,16 +964,17 @@ final class MapboxMapController
         break;
       }
       case "fill#update": {
-        Log.e(TAG, "update fill");
         final String fillId = call.argument("fill");
         final FillController fill = fill(fillId);
         Convert.interpretFillOptions(call.argument("options"), fill);
         fill.update(fillManager);
         result.success(null);
-      case "source#add": {
+        break;
+      }
+      case "source#addGeoJson": {
         final String sourceId = call.argument("sourceId");
         final String geojson = call.argument("geojson");
-        addSource(sourceId, geojson);
+        addGeoJsonSource(sourceId, geojson);
         break;
       }
       case "symbolLayer#add": {

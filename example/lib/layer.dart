@@ -17,22 +17,6 @@ class LayerBody extends StatefulWidget {
 
 class LayerState extends State {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
-  static final Map<String, dynamic> geojsonLines = {
-    "type": "FeatureCollection",
-    "features": [
-      {
-        "type": "Feature",
-        "properties": {},
-        "geometry": {
-          "type": "LineString",
-          "coordinates": [
-            [151.19213104248047, -33.87112820031405],
-            [151.4770858764648, -33.853737857223145]
-          ]
-        }
-      }
-    ]
-  };
 
   late MapboxMapController controller;
 
@@ -65,17 +49,134 @@ class LayerState extends State {
   }
 
   void _onStyleLoadedCallback() {
-    controller.addGeoJsonSource("lines", geojsonLines);
-    controller.addLineLayer("lines", "layer_1", {
+    controller.addGeoJsonSource("fills", _fills);
+    controller.addGeoJsonSource("points", _points);
+
+    controller.addFillLayer("fills", "fills", {
+      FillProperties.fillColor: [
+        'interpolate',
+        ['exponential', 0.5],
+        ['zoom'],
+        11,
+        'red',
+        18,
+        'green'
+      ],
+      FillProperties.fillOpacity: 0.4
+    });
+
+    controller.addLineLayer("fills", "lines", {
       LineProperties.lineWidth: [
         Expressions.interpolate,
         ["linear"],
         [Expressions.zoom],
-        15.0,
-        1.0,
-        23.0,
+        11.0,
+        2.0,
+        20.0,
         10.0
       ]
     });
+
+    controller.addCircleLayer("fills", "circles", {
+      CircleProperties.circleRadius: 4.0,
+      CircleProperties.circleColor: "#ff0000"
+    });
+
+    controller.addSymbolLayer("points", "symbols", {
+      SymbolProperties.iconImage: "{type}-15",
+      SymbolProperties.iconSize: 2,
+    });
   }
 }
+
+const _fills = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [151.178099204457737, -33.901517742631846],
+            [151.179025547977773, -33.872845324482071],
+            [151.147000529140399, -33.868230472039514],
+            [151.150838238009328, -33.883172899638311],
+            [151.14223647675135, -33.894158309528244],
+            [151.155999294764086, -33.904812805307806],
+            [151.178099204457737, -33.901517742631846]
+          ],
+          [
+            [151.162657925954278, -33.879168932438581],
+            [151.155323416087612, -33.890737666431583],
+            [151.173659690754278, -33.897637567778119],
+            [151.162657925954278, -33.879168932438581]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [151.18735077583878, -33.891143558434102],
+            [151.197374605989864, -33.878357032551868],
+            [151.213021560372084, -33.886475683791488],
+            [151.204953599518745, -33.899463918807818],
+            [151.18735077583878, -33.891143558434102]
+          ]
+        ]
+      }
+    }
+  ]
+};
+
+final _points = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "restaurant",
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [151.184913929732943, -33.874874486427181]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "airport",
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [151.215730044667879, -33.874616048776858]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "bakery",
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [151.228803547973598, -33.892188026142584]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "college",
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [151.186470299174118, -33.902781145804774]
+      }
+    }
+  ]
+};

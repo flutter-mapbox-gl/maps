@@ -767,10 +767,6 @@ class MapboxMapController extends MapboxGlPlatform
     return circumference * cos(latitude * (pi / 180)) / pow(2, zoom + 9);
   }
 
-  Future<void> addSource(String sourceId, String source) async {
-    _map.addSource(sourceId, source);
-  }
-
   Future<void> addGeoJsonSource(
       String sourceId, Map<String, dynamic> source) async {
     _map.addSource(sourceId, source);

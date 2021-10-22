@@ -259,10 +259,6 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.moveCamera(cameraUpdate);
   }
 
-  Future<void> addSource(String sourceId, String source) async {
-    await MapboxGlPlatform.getInstance(_id).addSource(sourceId, source);
-  }
-
   Future<void> addGeoJsonSource(
       String sourceId, Map<String, dynamic> source) async {
     await MapboxGlPlatform.getInstance(_id).addGeoJsonSource(sourceId, source);
