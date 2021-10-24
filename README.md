@@ -29,8 +29,8 @@ An alternative method to provide access tokens that was required until the v0.7 
 ### SDK Download token
 
 You must also configure a secret access token having the *Download: read* scope for
-(Android)[https://docs.mapbox.com/android/maps/guides/install/] and/or 
-(iOS)[https://docs.mapbox.com/ios/maps/guides/install/].
+[Android](https://docs.mapbox.com/android/maps/guides/install/) and/or 
+[iOS](https://docs.mapbox.com/ios/maps/guides/install/).
 
 If this configuration is not present, an error like the following appears during 
 the build process:
