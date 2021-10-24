@@ -62,18 +62,11 @@ class LayerState extends State {
         18,
         'green'
       ],
-      FillProperties.fillOpacity: [
-        'interpolate',
-        ['exponential', 0.5],
-        ['zoom'],
-        11,
-        0.5,
-        18,
-        0.5
-      ],
+      FillProperties.fillOpacity: 0.4
     });
 
     controller.addLineLayer("fills", "lines", {
+      LineProperties.lineColor: Colors.lightBlue.toHexStringRGB(),
       LineProperties.lineWidth: [
         Expressions.interpolate,
         ["linear"],
@@ -87,7 +80,7 @@ class LayerState extends State {
 
     controller.addCircleLayer("fills", "circles", {
       CircleProperties.circleRadius: 4.0,
-      CircleProperties.circleColor: "#ff0000"
+      CircleProperties.circleColor: Colors.blue.toHexStringRGB()
     });
 
     controller.addSymbolLayer("points", "symbols", {
