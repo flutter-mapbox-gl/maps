@@ -7,7 +7,7 @@ import MapboxAnnotationExtension
 class LayerPropertyConverter {
     class func addSymbolProperties(symbolLayer: MGLSymbolStyleLayer, properties: [String: String]) {
         for (propertyName, propertyValue) in properties {
-            let expression = interpretExpression(expression: propertyValue)
+            let expression = interpretExpression(propertyName: propertyName, expression: propertyValue)
             switch propertyName {
                 case "icon-opacity":
                     symbolLayer.iconOpacity = expression;
@@ -186,7 +186,7 @@ class LayerPropertyConverter {
 
     class func addCircleProperties(circleLayer: MGLCircleStyleLayer, properties: [String: String]) {
         for (propertyName, propertyValue) in properties {
-            let expression = interpretExpression(expression: propertyValue)
+            let expression = interpretExpression(propertyName: propertyName, expression: propertyValue)
             switch propertyName {
                 case "circle-radius":
                     circleLayer.circleRadius = expression;
@@ -236,7 +236,7 @@ class LayerPropertyConverter {
 
     class func addLineProperties(lineLayer: MGLLineStyleLayer, properties: [String: String]) {
         for (propertyName, propertyValue) in properties {
-            let expression = interpretExpression(expression: propertyValue)
+            let expression = interpretExpression(propertyName: propertyName, expression: propertyValue)
             switch propertyName {
                 case "line-opacity":
                     lineLayer.lineOpacity = expression;
@@ -298,7 +298,7 @@ class LayerPropertyConverter {
 
     class func addFillProperties(fillLayer: MGLFillStyleLayer, properties: [String: String]) {
         for (propertyName, propertyValue) in properties {
-            let expression = interpretExpression(expression: propertyValue)
+            let expression = interpretExpression(propertyName: propertyName, expression: propertyValue)
             switch propertyName {
                 case "fill-antialias":
                     fillLayer.fillAntialiased = expression;
@@ -334,9 +334,13 @@ class LayerPropertyConverter {
         }
     }
 
-    private class func interpretExpression(expression: String) -> NSExpression? {
+    private class func interpretExpression(propertyName: String, expression: String) -> NSExpression? {
+        let isColor = propertyName.contains("color");
         do {
-            let json = try JSONSerialization.jsonObject(with: expression.data(using: .utf8)!, options: [])
+            let json = try JSONSerialization.jsonObject(with: expression.data(using: .utf8)!, options: .fragmentsAllowed)
+            if(isColor && json is String){
+                return NSExpression(forConstantValue: UIColor(hexString: json as! String))
+            }
             return NSExpression.init(mglJSONObject: json)
         } catch {
         }
