@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
@@ -45,9 +47,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
 ];
 
 class MapsDemo extends StatelessWidget {
-  //FIXME: Add your Mapbox access token here
-  static const String ACCESS_TOKEN =
-      "pk.eyJ1Ijoib2NlbGwiLCJhIjoiY2pvdTE5bnhoMTc1cDNrcWlha2todGFkYiJ9.hW9Q853ix58dukevFHX1pw";
+  static const String ACCESS_TOKEN = String.fromEnvironment("ACCESS_TOKEN");
 
   void _pushPage(BuildContext context, ExamplePage page) async {
     if (!kIsWeb) {
@@ -68,12 +68,51 @@ class MapsDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('MapboxMaps examples')),
-      body: ListView.builder(
-        itemCount: _allPages.length,
-        itemBuilder: (_, int index) => ListTile(
-          leading: _allPages[index].leading,
-          title: Text(_allPages[index].title),
-          onTap: () => _pushPage(context, _allPages[index]),
+      body: ACCESS_TOKEN.isEmpty
+          ? buildAccessTokenWarning()
+          : ListView.builder(
+              itemCount: _allPages.length,
+              itemBuilder: (_, int index) => ListTile(
+                leading: _allPages[index].leading,
+                title: Text(_allPages[index].title),
+                onTap: () => _pushPage(context, _allPages[index]),
+              ),
+            ),
+    );
+  }
+
+  Widget buildAccessTokenWarning() {
+    return Container(
+      color: Colors.red[900],
+      child: SizedBox.expand(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Please pass in your access token with",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white)),
+            Text("--dart-define=ACCESS_TOKEN=YOUR_TOKEN",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white)),
+            Text(
+                "passed into flutter run or add it to args in vscode's launch.json",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white)),
+          ]
+              .map((w) => Padding(
+                    padding: EdgeInsets.all(8),
+                    child: w,
+                  ))
+              .toList(),
         ),
       ),
     );
