@@ -45,5 +45,6 @@ part 'src/mapbox_map.dart';
 part 'src/global.dart';
 part 'src/offline_region.dart';
 part 'src/download_region_status.dart';
-part 'src/layer_helper.dart';
+part 'src/layer_expressions.dart';
+part 'src/layer_properties.dart';
 part 'src/color_tools.dart';

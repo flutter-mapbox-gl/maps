@@ -265,27 +265,27 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   Future<void> addSymbolLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties) async {
+      String sourceId, String layerId, SymbolLayerProperties properties) async {
     await MapboxGlPlatform.getInstance(_id)
-        .addSymbolLayer(sourceId, layerId, properties);
+        .addSymbolLayer(sourceId, layerId, properties.toJson());
   }
 
   Future<void> addLineLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties) async {
+      String sourceId, String layerId, LineLayerProperties properties) async {
     await MapboxGlPlatform.getInstance(_id)
-        .addLineLayer(sourceId, layerId, properties);
+        .addLineLayer(sourceId, layerId, properties.toJson());
   }
 
   Future<void> addFillLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties) async {
+      String sourceId, String layerId, FillLayerProperties properties) async {
     await MapboxGlPlatform.getInstance(_id)
-        .addFillLayer(sourceId, layerId, properties);
+        .addFillLayer(sourceId, layerId, properties.toJson());
   }
 
   Future<void> addCircleLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties) async {
+      String sourceId, String layerId, CircleLayerProperties properties) async {
     await MapboxGlPlatform.getInstance(_id)
-        .addCircleLayer(sourceId, layerId, properties);
+        .addCircleLayer(sourceId, layerId, properties.toJson());
   }
 
   /// Updates user location tracking mode.

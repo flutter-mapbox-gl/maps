@@ -25,65 +25,50 @@ main() async {
     'expressions': buildExpressionProperties(styleJson)
   };
 
+  // required for deduplication
   renderContext["all_layout_properties"] = [
     for (final type in renderContext["layerTypes"]!)
       ...type["layout_properties"].map((p) => p["value"]).toList()
   ].toSet().map((p) => {"property": p}).toList();
 
-  print("generating java");
-  await renderLayerPropertyConverter(
+  await render(
     renderContext,
-    "java",
-    './android/src/main/java/com/mapbox/mapboxgl/LayerPropertyConverter.java',
+    "android/src/main/java/com/mapbox/mapboxgl",
+    "LayerPropertyConverter.java",
   );
-  print("generating swift");
-  await renderLayerPropertyConverter(
+  await render(
     renderContext,
-    "swift",
-    "./ios/Classes/LayerPropertyConverter.swift",
+    "ios/Classes",
+    "LayerPropertyConverter.swift",
   );
-
-  print("generating dart");
-  await renderDart(renderContext);
-  await renderWebDart(renderContext);
+  await render(
+    renderContext,
+    "lib/src",
+    "layer_expressions.dart",
+  );
+  await render(
+    renderContext,
+    "lib/src",
+    "layer_properties.dart",
+  );
+  await render(
+    renderContext,
+    "mapbox_gl_web/lib/src",
+    "layer_tools.dart",
+  );
 }
 
-Future<void> renderLayerPropertyConverter(
+Future<void> render(
   Map<String, List> renderContext,
-  String templateType,
   String outputPath,
+  String filename,
 ) async {
-  var templateFile = await File(
-          './scripts/templates/LayerPropertyConverter.$templateType.template')
-      .readAsString();
-
-  var template = Template(templateFile);
-  var outputFile = File(outputPath);
-
-  outputFile.writeAsString(template.renderString(renderContext));
-}
-
-Future<void> renderDart(
-  Map<String, dynamic> renderContext,
-) async {
+  print("Rendering $filename");
   var templateFile =
-      await File('./scripts/templates/layer_helper.dart.template')
-          .readAsString();
+      await File('./scripts/templates/$filename.template').readAsString();
 
   var template = Template(templateFile);
-  var outputFile = File("./lib/src/layer_helper.dart");
-
-  outputFile.writeAsString(template.renderString(renderContext));
-}
-
-Future<void> renderWebDart(
-  Map<String, dynamic> renderContext,
-) async {
-  var templateFile = await File('./scripts/templates/layer_tools.dart.template')
-      .readAsString();
-
-  var template = Template(templateFile);
-  var outputFile = File("./mapbox_gl_web/lib/src/layer_tools.dart");
+  var outputFile = File('$outputPath/$filename');
 
   outputFile.writeAsString(template.renderString(renderContext));
 }
@@ -140,22 +125,63 @@ Map<String, dynamic> buildStyleProperty(
     'isIosAsCamelCase': renamedIosProperties.containsKey(camelCase),
     'iosAsCamelCase': renamedIosProperties[camelCase],
     'doc': value["doc"],
-    'docSplit':
-        buildDocLines(value["doc"], 70).map((s) => {"part": s}).toList(),
+    'docSplit': buildDocSplit(value).map((s) => {"part": s}).toList(),
     'valueAsCamelCase': camelCase
   };
 }
 
-List<String> buildDocLines(String input, int lineLength) {
+List<String> buildDocSplit(Map<String, dynamic> item) {
+  final defaultValue = item["default"];
+  final maxValue = item["maximum"];
+  final minValue = item["minimum"];
+  final type = item["type"];
+  final Map<dynamic, dynamic>? sdkSupport = item["sdk-support"];
+
+  final Map<String, dynamic>? values = item["values"];
+  final result = splitIntoChunks(item["doc"]!, 70);
+  if (type != null) {
+    result.add("");
+    result.add("Type: $type");
+    if (defaultValue != null) result.add("  default: $defaultValue");
+    if (minValue != null) result.add("  minimum: $minValue");
+    if (maxValue != null) result.add("  maximum: $maxValue");
+    if (values != null) {
+      result.add("Options:");
+      for (var value in values.entries) {
+        result.add("  ${value.key}");
+        result.addAll(
+            splitIntoChunks("${value.value["doc"]}", 70, prefix: "     "));
+      }
+    }
+  }
+  if (sdkSupport != null) {
+    final Map<String, dynamic>? basic = sdkSupport["basic functionality"];
+    final Map<String, dynamic>? dataDriven = sdkSupport["data-driven styling"];
+
+    result.add("");
+    result.add("Sdk Support");
+    if (basic != null && basic.isNotEmpty) {
+      result.add("  basic functionality with " + basic.keys.join(" "));
+    }
+    if (dataDriven != null && dataDriven.isNotEmpty) {
+      result.add("  data-driven styling with " + dataDriven.keys.join(" "));
+    }
+  }
+
+  return result;
+}
+
+List<String> splitIntoChunks(String input, int lineLength,
+    {String prefix = ""}) {
   final words = input.split(" ");
   final chunks = <String>[];
 
   String chunk = "";
   for (var word in words) {
-    final nextChunk = chunk + " " + word;
+    final nextChunk = chunk.length == 0 ? prefix + word : chunk + " " + word;
     if (nextChunk.length > lineLength || chunk.endsWith("\n")) {
       chunks.add(chunk.replaceAll("\n", ""));
-      chunk = " " + word;
+      chunk = prefix + word;
     } else {
       chunk = nextChunk;
     }
@@ -193,9 +219,7 @@ List<Map<String, dynamic>> buildExpressionProperties(
       .map((e) => <String, dynamic>{
             'value': e.key,
             'doc': e.value["doc"],
-            'docSplit': buildDocLines(e.value["doc"], 70)
-                .map((s) => {"part": s})
-                .toList(),
+            'docSplit': buildDocSplit(e.value).map((s) => {"part": s}).toList(),
             'valueAsCamelCase': new ReCase(renamed[e.key] ?? e.key).camelCase
           })
       .toList();

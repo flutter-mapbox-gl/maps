@@ -52,46 +52,56 @@ class LayerState extends State {
     controller.addGeoJsonSource("fills", _fills);
     controller.addGeoJsonSource("points", _points);
 
-    controller.addFillLayer("fills", "fills", {
-      FillProperties.fillColor: [
-        'interpolate',
+    controller.addFillLayer(
+      "fills",
+      "fills",
+      FillLayerProperties(fillColor: [
+        Expressions.interpolate,
         ['exponential', 0.5],
-        ['zoom'],
+        [Expressions.zoom],
         11,
         'red',
         18,
         'green'
-      ],
-      FillProperties.fillOpacity: 0.4
-    });
+      ], fillOpacity: 0.4),
+    );
 
-    controller.addLineLayer("fills", "lines", {
-      LineProperties.lineColor: Colors.lightBlue.toHexStringRGB(),
-      LineProperties.lineWidth: [
-        Expressions.interpolate,
-        ["linear"],
-        [Expressions.zoom],
-        11.0,
-        2.0,
-        20.0,
-        10.0
-      ]
-    });
+    controller.addLineLayer(
+      "fills",
+      "lines",
+      LineLayerProperties(
+          lineColor: Colors.lightBlue.toHexStringRGB(),
+          lineWidth: [
+            Expressions.interpolate,
+            ["linear"],
+            [Expressions.zoom],
+            11.0,
+            2.0,
+            20.0,
+            10.0
+          ]),
+    );
 
-    controller.addCircleLayer("fills", "circles", {
-      CircleProperties.circleRadius: 4.0,
-      CircleProperties.circleColor: Colors.blue.toHexStringRGB()
-    });
+    controller.addCircleLayer(
+        "fills",
+        "circles",
+        CircleLayerProperties(
+          circleRadius: 4,
+          circleColor: Colors.blue.toHexStringRGB(),
+        ));
 
-    controller.addSymbolLayer("points", "symbols", {
-      SymbolProperties.iconImage: "{type}-15",
-      SymbolProperties.iconSize: 2,
-      SymbolProperties.iconAllowOverlap: true
-    });
+    controller.addSymbolLayer(
+        "points",
+        "symbols",
+        SymbolLayerProperties(
+          iconImage: "{type}-15",
+          iconSize: 2,
+          iconAllowOverlap: true,
+        ));
   }
 }
 
-final _fills = {
+const _fills = {
   "type": "FeatureCollection",
   "features": [
     {
@@ -137,7 +147,7 @@ final _fills = {
   ]
 };
 
-final _points = {
+const _points = {
   "type": "FeatureCollection",
   "features": [
     {
