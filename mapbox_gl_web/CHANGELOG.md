@@ -1,10 +1,15 @@
-## 0.12.0, April 12, 2020
+## 0.13.0, October 21, 2021
+* Migrate to null-safety [#607](https://github.com/tobrun/flutter-mapbox-gl/pull/607)
+* Add missing removeLines removeCircles and removeFills [#622](https://github.com/tobrun/flutter-mapbox-gl/pull/622)
+* Fix Warning: Operand of null-aware operation '!' has type 'Locale' which excludes null [#676](https://github.com/tobrun/flutter-mapbox-gl/pull/676)
+
+## 0.12.0, April 12, 2021
 * Dependencies: updated image package [#598](https://github.com/tobrun/flutter-mapbox-gl/pull/598)
 * Fix feature manager on release build [#593](https://github.com/tobrun/flutter-mapbox-gl/pull/593)
 * Emit onTap only for the feature above the others [#589](https://github.com/tobrun/flutter-mapbox-gl/pull/589)
 * Add annotationOrder to web [#588](https://github.com/tobrun/flutter-mapbox-gl/pull/588)
 
-## 0.11.0, March 30, 2020
+## 0.11.0, March 30, 2021
 * Fix Mapbox GL JS CSS embedding on web [#551](https://github.com/tobrun/flutter-mapbox-gl/pull/551)
 * Add batch mode of screen locations [#554](https://github.com/tobrun/flutter-mapbox-gl/pull/554)
 
