@@ -854,19 +854,19 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             switch annotationType {
             case "AnnotationType.fill":
                 fillAnnotationController = MGLPolygonAnnotationController(mapView: self.mapView)
-                fillAnnotationController!.annotationsInteractionEnabled = true
+                fillAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.fill")
                 fillAnnotationController?.delegate = self
             case "AnnotationType.line":
                 lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
-                lineAnnotationController!.annotationsInteractionEnabled = true
+                lineAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.line")
                 lineAnnotationController?.delegate = self
             case "AnnotationType.circle":
                 circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
-                circleAnnotationController!.annotationsInteractionEnabled = true
+                circleAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.circle")
                 circleAnnotationController?.delegate = self
             case "AnnotationType.symbol":
                 symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
-                symbolAnnotationController!.annotationsInteractionEnabled = true
+                symbolAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.symbol")
                 symbolAnnotationController?.delegate = self
             default:
                 print("Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'")  
