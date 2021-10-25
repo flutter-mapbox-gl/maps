@@ -3,7 +3,7 @@
 
 part of mapbox_gl;
 
-class SymbolLayerProperties{
+class SymbolLayerProperties {
   // Paint Properties
   /// The opacity at which the icon will be drawn.
   /// 
@@ -76,9 +76,9 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: map
   /// Options:
-  ///   map
+  ///   "map"
   ///      Icons are translated relative to the map.
-  ///   viewport
+  ///   "viewport"
   ///      Icons are translated relative to the viewport.
   /// 
   /// Sdk Support
@@ -157,9 +157,9 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: map
   /// Options:
-  ///   map
+  ///   "map"
   ///      The text is translated relative to the map.
-  ///   viewport
+  ///   "viewport"
   ///      The text is translated relative to the viewport.
   /// 
   /// Sdk Support
@@ -172,12 +172,12 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: point
   /// Options:
-  ///   point
+  ///   "point"
   ///      The label is placed at the point where the geometry is located.
-  ///   line
+  ///   "line"
   ///      The label is placed along the line of the geometry. Can only be
   ///      used on `LineString` and `Polygon` geometries.
-  ///   line-center
+  ///   "line-center"
   ///      The label is placed at the center of the line of the geometry.
   ///      Can only be used on `LineString` and `Polygon` geometries. Note
   ///      that a single feature in a vector tile may contain multiple line
@@ -232,13 +232,13 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: auto
   /// Options:
-  ///   auto
+  ///   "auto"
   ///      If `symbol-sort-key` is set, sort based on that. Otherwise sort
   ///      symbols by their y-position relative to the viewport.
-  ///   viewport-y
+  ///   "viewport-y"
   ///      Symbols will be sorted by their y-position relative to the
   ///      viewport.
-  ///   source
+  ///   "source"
   ///      Symbols will be rendered in the same order as the source data
   ///      with no sorting applied.
   /// 
@@ -282,14 +282,14 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: auto
   /// Options:
-  ///   map
+  ///   "map"
   ///      When `symbol-placement` is set to `point`, aligns icons
   ///      east-west. When `symbol-placement` is set to `line` or
   ///      `line-center`, aligns icon x-axes with the line.
-  ///   viewport
+  ///   "viewport"
   ///      Produces icons whose x-axes are aligned with the x-axis of the
   ///      viewport, regardless of the value of `symbol-placement`.
-  ///   auto
+  ///   "auto"
   ///      When `symbol-placement` is set to `point`, this is equivalent to
   ///      `viewport`. When `symbol-placement` is set to `line` or
   ///      `line-center`, this is equivalent to `map`.
@@ -316,15 +316,15 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: none
   /// Options:
-  ///   none
+  ///   "none"
   ///      The icon is displayed at its intrinsic aspect ratio.
-  ///   width
+  ///   "width"
   ///      The icon is scaled in the x-dimension to fit the width of the
   ///      text.
-  ///   height
+  ///   "height"
   ///      The icon is scaled in the y-dimension to fit the height of the
   ///      text.
-  ///   both
+  ///   "both"
   ///      The icon is scaled in both x- and y-dimensions.
   /// 
   /// Sdk Support
@@ -400,24 +400,24 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: center
   /// Options:
-  ///   center
+  ///   "center"
   ///      The center of the icon is placed closest to the anchor.
-  ///   left
+  ///   "left"
   ///      The left side of the icon is placed closest to the anchor.
-  ///   right
+  ///   "right"
   ///      The right side of the icon is placed closest to the anchor.
-  ///   top
+  ///   "top"
   ///      The top of the icon is placed closest to the anchor.
-  ///   bottom
+  ///   "bottom"
   ///      The bottom of the icon is placed closest to the anchor.
-  ///   top-left
+  ///   "top-left"
   ///      The top left corner of the icon is placed closest to the anchor.
-  ///   top-right
+  ///   "top-right"
   ///      The top right corner of the icon is placed closest to the anchor.
-  ///   bottom-left
+  ///   "bottom-left"
   ///      The bottom left corner of the icon is placed closest to the
   ///      anchor.
-  ///   bottom-right
+  ///   "bottom-right"
   ///      The bottom right corner of the icon is placed closest to the
   ///      anchor.
   /// 
@@ -431,11 +431,11 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: auto
   /// Options:
-  ///   map
+  ///   "map"
   ///      The icon is aligned to the plane of the map.
-  ///   viewport
+  ///   "viewport"
   ///      The icon is aligned to the plane of the viewport.
-  ///   auto
+  ///   "auto"
   ///      Automatically matches the value of `icon-rotation-alignment`.
   /// 
   /// Sdk Support
@@ -447,11 +447,11 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: auto
   /// Options:
-  ///   map
+  ///   "map"
   ///      The text is aligned to the plane of the map.
-  ///   viewport
+  ///   "viewport"
   ///      The text is aligned to the plane of the viewport.
-  ///   auto
+  ///   "auto"
   ///      Automatically matches the value of `text-rotation-alignment`.
   /// 
   /// Sdk Support
@@ -464,14 +464,14 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: auto
   /// Options:
-  ///   map
+  ///   "map"
   ///      When `symbol-placement` is set to `point`, aligns text east-west.
   ///      When `symbol-placement` is set to `line` or `line-center`, aligns
   ///      text x-axes with the line.
-  ///   viewport
+  ///   "viewport"
   ///      Produces glyphs whose x-axes are aligned with the x-axis of the
   ///      viewport, regardless of the value of `symbol-placement`.
-  ///   auto
+  ///   "auto"
   ///      When `symbol-placement` is set to `point`, this is equivalent to
   ///      `viewport`. When `symbol-placement` is set to `line` or
   ///      `line-center`, this is equivalent to `map`.
@@ -548,13 +548,13 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: center
   /// Options:
-  ///   auto
+  ///   "auto"
   ///      The text is aligned towards the anchor position.
-  ///   left
+  ///   "left"
   ///      The text is aligned to the left.
-  ///   center
+  ///   "center"
   ///      The text is centered.
-  ///   right
+  ///   "right"
   ///      The text is aligned to the right.
   /// 
   /// Sdk Support
@@ -583,24 +583,24 @@ class SymbolLayerProperties{
   /// 
   /// Type: array
   /// Options:
-  ///   center
+  ///   "center"
   ///      The center of the text is placed closest to the anchor.
-  ///   left
+  ///   "left"
   ///      The left side of the text is placed closest to the anchor.
-  ///   right
+  ///   "right"
   ///      The right side of the text is placed closest to the anchor.
-  ///   top
+  ///   "top"
   ///      The top of the text is placed closest to the anchor.
-  ///   bottom
+  ///   "bottom"
   ///      The bottom of the text is placed closest to the anchor.
-  ///   top-left
+  ///   "top-left"
   ///      The top left corner of the text is placed closest to the anchor.
-  ///   top-right
+  ///   "top-right"
   ///      The top right corner of the text is placed closest to the anchor.
-  ///   bottom-left
+  ///   "bottom-left"
   ///      The bottom left corner of the text is placed closest to the
   ///      anchor.
-  ///   bottom-right
+  ///   "bottom-right"
   ///      The bottom right corner of the text is placed closest to the
   ///      anchor.
   /// 
@@ -613,24 +613,24 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: center
   /// Options:
-  ///   center
+  ///   "center"
   ///      The center of the text is placed closest to the anchor.
-  ///   left
+  ///   "left"
   ///      The left side of the text is placed closest to the anchor.
-  ///   right
+  ///   "right"
   ///      The right side of the text is placed closest to the anchor.
-  ///   top
+  ///   "top"
   ///      The top of the text is placed closest to the anchor.
-  ///   bottom
+  ///   "bottom"
   ///      The bottom of the text is placed closest to the anchor.
-  ///   top-left
+  ///   "top-left"
   ///      The top left corner of the text is placed closest to the anchor.
-  ///   top-right
+  ///   "top-right"
   ///      The top right corner of the text is placed closest to the anchor.
-  ///   bottom-left
+  ///   "bottom-left"
   ///      The bottom left corner of the text is placed closest to the
   ///      anchor.
-  ///   bottom-right
+  ///   "bottom-right"
   ///      The bottom right corner of the text is placed closest to the
   ///      anchor.
   /// 
@@ -658,10 +658,10 @@ class SymbolLayerProperties{
   /// 
   /// Type: array
   /// Options:
-  ///   horizontal
+  ///   "horizontal"
   ///      If a text's language supports horizontal writing mode, symbols
   ///      with point placement would be laid out horizontally.
-  ///   vertical
+  ///   "vertical"
   ///      If a text's language supports vertical writing mode, symbols with
   ///      point placement would be laid out vertically.
   /// 
@@ -706,11 +706,11 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: none
   /// Options:
-  ///   none
+  ///   "none"
   ///      The text is not altered.
-  ///   uppercase
+  ///   "uppercase"
   ///      Forces all letters to be displayed in uppercase.
-  ///   lowercase
+  ///   "lowercase"
   ///      Forces all letters to be displayed in lowercase.
   /// 
   /// Sdk Support
@@ -767,9 +767,9 @@ class SymbolLayerProperties{
   /// Type: enum
   ///   default: visible
   /// Options:
-  ///   visible
+  ///   "visible"
   ///      The layer is shown.
-  ///   none
+  ///   "none"
   ///      The layer is not shown.
   /// 
   /// Sdk Support
@@ -1027,7 +1027,7 @@ class SymbolLayerProperties{
 
 }
 
-class CircleLayerProperties{
+class CircleLayerProperties {
   // Paint Properties
   /// Circle radius.
   /// 
@@ -1088,9 +1088,9 @@ class CircleLayerProperties{
   /// Type: enum
   ///   default: map
   /// Options:
-  ///   map
+  ///   "map"
   ///      The circle is translated relative to the map.
-  ///   viewport
+  ///   "viewport"
   ///      The circle is translated relative to the viewport.
   /// 
   /// Sdk Support
@@ -1102,10 +1102,10 @@ class CircleLayerProperties{
   /// Type: enum
   ///   default: map
   /// Options:
-  ///   map
+  ///   "map"
   ///      Circles are scaled according to their apparent distance to the
   ///      camera.
-  ///   viewport
+  ///   "viewport"
   ///      Circles are not scaled.
   /// 
   /// Sdk Support
@@ -1117,9 +1117,9 @@ class CircleLayerProperties{
   /// Type: enum
   ///   default: viewport
   /// Options:
-  ///   map
+  ///   "map"
   ///      The circle is aligned to the plane of the map.
-  ///   viewport
+  ///   "viewport"
   ///      The circle is aligned to the plane of the viewport.
   /// 
   /// Sdk Support
@@ -1176,9 +1176,9 @@ class CircleLayerProperties{
   /// Type: enum
   ///   default: visible
   /// Options:
-  ///   visible
+  ///   "visible"
   ///      The layer is shown.
-  ///   none
+  ///   "none"
   ///      The layer is not shown.
   /// 
   /// Sdk Support
@@ -1264,7 +1264,7 @@ class CircleLayerProperties{
 
 }
 
-class LineLayerProperties{
+class LineLayerProperties {
   // Paint Properties
   /// The opacity at which the line will be drawn.
   /// 
@@ -1303,9 +1303,9 @@ class LineLayerProperties{
   /// Type: enum
   ///   default: map
   /// Options:
-  ///   map
+  ///   "map"
   ///      The line is translated relative to the map.
-  ///   viewport
+  ///   "viewport"
   ///      The line is translated relative to the viewport.
   /// 
   /// Sdk Support
@@ -1401,14 +1401,14 @@ class LineLayerProperties{
   /// Type: enum
   ///   default: butt
   /// Options:
-  ///   butt
+  ///   "butt"
   ///      A cap with a squared-off end which is drawn to the exact endpoint
   ///      of the line.
-  ///   round
+  ///   "round"
   ///      A cap with a rounded end which is drawn beyond the endpoint of
   ///      the line at a radius of one-half of the line's width and centered
   ///      on the endpoint of the line.
-  ///   square
+  ///   "square"
   ///      A cap with a squared-off end which is drawn beyond the endpoint
   ///      of the line at a distance of one-half of the line's width.
   /// 
@@ -1421,14 +1421,14 @@ class LineLayerProperties{
   /// Type: enum
   ///   default: miter
   /// Options:
-  ///   bevel
+  ///   "bevel"
   ///      A join with a squared-off end which is drawn beyond the endpoint
   ///      of the line at a distance of one-half of the line's width.
-  ///   round
+  ///   "round"
   ///      A join with a rounded end which is drawn beyond the endpoint of
   ///      the line at a radius of one-half of the line's width and centered
   ///      on the endpoint of the line.
-  ///   miter
+  ///   "miter"
   ///      A join with a sharp, angled corner which is drawn with the outer
   ///      sides beyond the endpoint of the path until they meet.
   /// 
@@ -1472,9 +1472,9 @@ class LineLayerProperties{
   /// Type: enum
   ///   default: visible
   /// Options:
-  ///   visible
+  ///   "visible"
   ///      The layer is shown.
-  ///   none
+  ///   "none"
   ///      The layer is not shown.
   /// 
   /// Sdk Support
@@ -1576,7 +1576,7 @@ class LineLayerProperties{
 
 }
 
-class FillLayerProperties{
+class FillLayerProperties {
   // Paint Properties
   /// Whether or not the fill should be antialiased.
   /// 
@@ -1638,9 +1638,9 @@ class FillLayerProperties{
   /// Type: enum
   ///   default: map
   /// Options:
-  ///   map
+  ///   "map"
   ///      The fill is translated relative to the map.
-  ///   viewport
+  ///   "viewport"
   ///      The fill is translated relative to the viewport.
   /// 
   /// Sdk Support
@@ -1675,9 +1675,9 @@ class FillLayerProperties{
   /// Type: enum
   ///   default: visible
   /// Options:
-  ///   visible
+  ///   "visible"
   ///      The layer is shown.
-  ///   none
+  ///   "none"
   ///      The layer is not shown.
   /// 
   /// Sdk Support

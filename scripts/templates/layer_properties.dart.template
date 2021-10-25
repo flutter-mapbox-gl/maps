@@ -4,7 +4,7 @@
 part of mapbox_gl;
 {{#layerTypes}}
 
-class {{typePascal}}LayerProperties{
+class {{typePascal}}LayerProperties {
   // Paint Properties
   {{#paint_properties}}
   {{#docSplit}}

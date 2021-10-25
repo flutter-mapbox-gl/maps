@@ -148,7 +148,7 @@ List<String> buildDocSplit(Map<String, dynamic> item) {
     if (values != null) {
       result.add("Options:");
       for (var value in values.entries) {
-        result.add("  ${value.key}");
+        result.add("  \"${value.key}\"");
         result.addAll(
             splitIntoChunks("${value.value["doc"]}", 70, prefix: "     "));
       }
