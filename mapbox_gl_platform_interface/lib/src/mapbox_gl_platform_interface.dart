@@ -24,6 +24,8 @@ abstract class MapboxGlPlatform {
 
   final onFillTappedPlatform = ArgumentCallbacks<String>();
 
+  final onFeatureTappedPlatform = ArgumentCallbacks<dynamic>();
+
   final onCameraMoveStartedPlatform = ArgumentCallbacks<void>();
 
   final onCameraMovePlatform = ArgumentCallbacks<CameraPosition>();

@@ -22,30 +22,35 @@ class LayerState extends State {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Center(
-            child: SizedBox(
-              width: 300.0,
-              height: 500.0,
-              child: MapboxMap(
-                accessToken: MapsDemo.ACCESS_TOKEN,
-                onMapCreated: _onMapCreated,
-                onStyleLoadedCallback: _onStyleLoadedCallback,
-                initialCameraPosition: CameraPosition(
-                  target: center,
-                  zoom: 11.0,
-                ),
-              ),
-            ),
-          ),
-        ]);
+    return MapboxMap(
+      accessToken: MapsDemo.ACCESS_TOKEN,
+      onMapCreated: _onMapCreated,
+      onMapClick: (point, latLong) =>
+          print(point.toString() + latLong.toString()),
+      onStyleLoadedCallback: _onStyleLoadedCallback,
+      initialCameraPosition: CameraPosition(
+        target: center,
+        zoom: 11.0,
+      ),
+    );
   }
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
+
+    controller.onFeatureTapped.add(onFeatureTap);
+  }
+
+  void onFeatureTap(dynamic featureId) {
+    final snackBar = SnackBar(
+      content: Text(
+        'Tapped feature with id $featureId',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: Theme.of(context).primaryColor,
+    );
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _onStyleLoadedCallback() {
@@ -101,12 +106,13 @@ class LayerState extends State {
   }
 }
 
-const _fills = {
+final _fills = {
   "type": "FeatureCollection",
   "features": [
     {
       "type": "Feature",
-      "properties": {},
+      "id": 0, // web currently only supports number ids
+      "properties": <String, dynamic>{},
       "geometry": {
         "type": "Polygon",
         "coordinates": [
@@ -130,7 +136,8 @@ const _fills = {
     },
     {
       "type": "Feature",
-      "properties": {},
+      "id": 1,
+      "properties": <String, dynamic>{},
       "geometry": {
         "type": "Polygon",
         "coordinates": [
@@ -152,6 +159,7 @@ const _points = {
   "features": [
     {
       "type": "Feature",
+      "id": 2,
       "properties": {
         "type": "restaurant",
       },
@@ -162,6 +170,7 @@ const _points = {
     },
     {
       "type": "Feature",
+      "id": 3,
       "properties": {
         "type": "airport",
       },
@@ -172,6 +181,7 @@ const _points = {
     },
     {
       "type": "Feature",
+      "id": 4,
       "properties": {
         "type": "bakery",
       },
@@ -182,6 +192,7 @@ const _points = {
     },
     {
       "type": "Feature",
+      "id": 5,
       "properties": {
         "type": "college",
       },

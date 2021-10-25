@@ -2,9 +2,13 @@
 // ./scripts/lib/generate.dart
 
 part of mapbox_gl;
+
+abstract class LayerProperties {
+  Map<String, dynamic> toJson();
+}
 {{#layerTypes}}
 
-class {{typePascal}}LayerProperties {
+class {{typePascal}}LayerProperties implements LayerProperties {
   // Paint Properties
   {{#paint_properties}}
   {{#docSplit}}

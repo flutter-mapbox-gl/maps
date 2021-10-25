@@ -11,6 +11,7 @@ class MapboxMapController extends MapboxGlPlatform
   late MapboxMap _map;
 
   List<String> annotationOrder = [];
+  final _featureLayerIdentifiers = Set<String>();
   late SymbolManager symbolManager;
   late LineManager lineManager;
   late CircleManager circleManager;
@@ -447,11 +448,17 @@ class MapboxMapController extends MapboxGlPlatform
     });
   }
 
-  void _onMapClick(e) {
-    onMapClickPlatform({
-      'point': Point<double>(e.point.x, e.point.y),
-      'latLng': LatLng(e.lngLat.lat, e.lngLat.lng),
-    });
+  void _onMapClick(Event e) {
+    final features = _map.queryRenderedFeatures(
+        [e.point.x, e.point.y], {"layers": _featureLayerIdentifiers.toList()});
+    if (features.isNotEmpty) {
+      onFeatureTappedPlatform(features.first.id);
+    } else {
+      onMapClickPlatform({
+        'point': Point<double>(e.point.x.toDouble(), e.point.y.toDouble()),
+        'latLng': LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble()),
+      });
+    }
   }
 
   void _onMapLongClick(e) {
@@ -767,6 +774,12 @@ class MapboxMapController extends MapboxGlPlatform
     return circumference * cos(latitude * (pi / 180)) / pow(2, zoom + 9);
   }
 
+  @override
+  Future<void> removeLayer(String layerId) async {
+    _featureLayerIdentifiers.remove(layerId);
+    _map.removeLayer(layerId);
+  }
+
   Future<void> addGeoJsonSource(
       String sourceId, Map<String, dynamic> geojson) async {
     _map.addSource(sourceId, {"type": 'geojson', "data": geojson});
@@ -799,6 +812,7 @@ class MapboxMapController extends MapboxGlPlatform
     final paint = Map.fromEntries(
         properties.entries.where((entry) => !isLayoutProperty(entry.key)));
 
+    _featureLayerIdentifiers.add(layerId);
     _map.addLayer({
       'id': layerId,
       'type': layerType,

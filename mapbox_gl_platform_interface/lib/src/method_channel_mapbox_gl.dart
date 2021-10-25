@@ -35,6 +35,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           onFillTappedPlatform(fillId);
         }
         break;
+      case 'feature#onTap':
+        final featureId = call.arguments['featureId'];
+        if (featureId != null) {
+          onFeatureTappedPlatform(featureId);
+        }
+        break;
       case 'camera#onMoveStarted':
         onCameraMoveStartedPlatform(null);
         break;
@@ -684,10 +690,10 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> removeLayer(String imageLayerId) async {
+  Future<void> removeLayer(String layerId) async {
     try {
       return await _channel.invokeMethod(
-          'style#removeLayer', <String, Object>{'imageLayerId': imageLayerId});
+          'style#removeLayer', <String, Object>{'imageLayerId': layerId});
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
@@ -718,14 +724,6 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
-  }
-
-  @override
-  Future<void> addSource(String sourceId, String source) async {
-    await _channel.invokeMethod('source#add', <String, dynamic>{
-      'sourceId': sourceId,
-      'geojson': source,
-    });
   }
 
   @override

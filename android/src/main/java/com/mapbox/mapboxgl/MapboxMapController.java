@@ -90,6 +90,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -150,6 +152,7 @@ final class MapboxMapController
   private Style style;
   private List<String> annotationOrder;
   private List<String> annotationConsumeTapEvents;
+  private Set<String> featureLayerIdentifiers;
 
   MapboxMapController(
     int id,
@@ -166,6 +169,7 @@ final class MapboxMapController
     this.context = context;
     this.styleStringInitial = styleStringInitial;
     this.mapView = new MapView(context, options);
+    this.featureLayerIdentifiers = new HashSet<>();
     this.symbols = new HashMap<>();
     this.lines = new HashMap<>();
     this.circles = new HashMap<>();
@@ -401,10 +405,10 @@ final class MapboxMapController
                               PropertyValue[] properties,
                               Expression filter) {
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
-
     symbolLayer.setProperties(properties);
 
     style.addLayer(symbolLayer);
+    featureLayerIdentifiers.add(layerName);
   }
 
   private void addLineLayer(String layerName,
@@ -412,10 +416,10 @@ final class MapboxMapController
                             PropertyValue[] properties,
                             Expression filter) {
     LineLayer lineLayer = new LineLayer(layerName, sourceName);
-
     lineLayer.setProperties(properties);
 
     style.addLayer(lineLayer);
+    featureLayerIdentifiers.add(layerName);
   }
 
   private void addFillLayer(String layerName,
@@ -423,10 +427,10 @@ final class MapboxMapController
                             PropertyValue[] properties,
                             Expression filter) {
     FillLayer fillLayer = new FillLayer(layerName, sourceName);
-
     fillLayer.setProperties(properties);
 
     style.addLayer(fillLayer);
+    featureLayerIdentifiers.add(layerName);
   }
 
   private void addCircleLayer(String layerName,
@@ -434,9 +438,9 @@ final class MapboxMapController
                             PropertyValue[] properties,
                             Expression filter) {
     CircleLayer circleLayer = new CircleLayer(layerName, sourceName);
-
     circleLayer.setProperties(properties);
 
+    featureLayerIdentifiers.add(layerName);
     style.addLayer(circleLayer);
   }
 
@@ -1076,7 +1080,10 @@ final class MapboxMapController
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
-        style.removeLayer((String) call.argument("imageLayerId"));
+        String layerId = call.argument("layerId");
+        style.removeLayer((String) call.argument("layerId"));
+        featureLayerIdentifiers.remove(layerId);
+
         result.success(null);
         break;
       }
@@ -1187,12 +1194,25 @@ final class MapboxMapController
   @Override
   public boolean onMapClick(@NonNull LatLng point) {
     PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
-    final Map<String, Object> arguments = new HashMap<>(5);
-    arguments.put("x", pointf.x);
-    arguments.put("y", pointf.y);
-    arguments.put("lng", point.getLongitude());
-    arguments.put("lat", point.getLatitude());
-    methodChannel.invokeMethod("map#onMapClick", arguments);
+    RectF rectF = new RectF(
+      pointf.x - 10,
+      pointf.y - 10,
+      pointf.x + 10,
+      pointf.y + 10
+    );
+    List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, featureLayerIdentifiers.toArray(new String[0]));
+    if(!featureList.isEmpty()){
+      final Map<String, Object> arguments = new HashMap<>(1);
+      arguments.put("featureId", featureList.get(featureList.size() - 1).id());
+      methodChannel.invokeMethod("feature#onTap", arguments);
+    } else { 
+      final Map<String, Object> arguments = new HashMap<>(5);
+      arguments.put("x", pointf.x);
+      arguments.put("y", pointf.y);
+      arguments.put("lng", point.getLongitude());
+      arguments.put("lat", point.getLatitude());
+      methodChannel.invokeMethod("map#onMapClick", arguments);
+    }
     return true;
   }
 

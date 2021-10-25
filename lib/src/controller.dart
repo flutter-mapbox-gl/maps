@@ -86,6 +86,10 @@ class MapboxMapController extends ChangeNotifier {
       }
     });
 
+    _mapboxGlPlatform.onFeatureTappedPlatform.add((featureId) {
+      onFeatureTapped(featureId);
+    });
+
     _mapboxGlPlatform.onCameraMoveStartedPlatform.add((_) {
       _isCameraMoving = true;
       notifyListeners();
@@ -177,6 +181,10 @@ class MapboxMapController extends ChangeNotifier {
   /// Callbacks to receive tap events for fills placed on this map.
   final ArgumentCallbacks<Fill> onFillTapped = ArgumentCallbacks<Fill>();
 
+  /// Callbacks to receive tap events for features (geojson layer) placed on this map.
+  final ArgumentCallbacks<dynamic> onFeatureTapped =
+      ArgumentCallbacks<dynamic>();
+
   /// Callbacks to receive tap events for info windows on symbols
   final ArgumentCallbacks<Symbol> onInfoWindowTapped =
       ArgumentCallbacks<Symbol>();
@@ -261,31 +269,31 @@ class MapboxMapController extends ChangeNotifier {
 
   Future<void> addGeoJsonSource(
       String sourceId, Map<String, dynamic> geojson) async {
-    await MapboxGlPlatform.getInstance(_id).addGeoJsonSource(sourceId, geojson);
+    await _mapboxGlPlatform.addGeoJsonSource(sourceId, geojson);
   }
 
   Future<void> addSymbolLayer(
       String sourceId, String layerId, SymbolLayerProperties properties) async {
-    await MapboxGlPlatform.getInstance(_id)
-        .addSymbolLayer(sourceId, layerId, properties.toJson());
+    await _mapboxGlPlatform.addSymbolLayer(
+        sourceId, layerId, properties.toJson());
   }
 
   Future<void> addLineLayer(
       String sourceId, String layerId, LineLayerProperties properties) async {
-    await MapboxGlPlatform.getInstance(_id)
-        .addLineLayer(sourceId, layerId, properties.toJson());
+    await _mapboxGlPlatform.addLineLayer(
+        sourceId, layerId, properties.toJson());
   }
 
   Future<void> addFillLayer(
       String sourceId, String layerId, FillLayerProperties properties) async {
-    await MapboxGlPlatform.getInstance(_id)
-        .addFillLayer(sourceId, layerId, properties.toJson());
+    await _mapboxGlPlatform.addFillLayer(
+        sourceId, layerId, properties.toJson());
   }
 
   Future<void> addCircleLayer(
       String sourceId, String layerId, CircleLayerProperties properties) async {
-    await MapboxGlPlatform.getInstance(_id)
-        .addCircleLayer(sourceId, layerId, properties.toJson());
+    await _mapboxGlPlatform.addCircleLayer(
+        sourceId, layerId, properties.toJson());
   }
 
   /// Updates user location tracking mode.
@@ -843,20 +851,19 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Adds a Mapbox style layer to the map's style at render time.
-  Future<void> addLayer(String imageLayerId, String imageSourceId) {
-    return _mapboxGlPlatform.addLayer(imageLayerId, imageSourceId);
+  Future<void> addLayer(String layerId, String sourceId) {
+    return _mapboxGlPlatform.addLayer(layerId, sourceId);
   }
 
   /// Adds a Mapbox style layer below the layer provided with belowLayerId to the map's style at render time,
   Future<void> addLayerBelow(
-      String imageLayerId, String imageSourceId, String belowLayerId) {
-    return _mapboxGlPlatform.addLayerBelow(
-        imageLayerId, imageSourceId, belowLayerId);
+      String layerId, String sourceId, String belowLayerId) {
+    return _mapboxGlPlatform.addLayerBelow(layerId, sourceId, belowLayerId);
   }
 
   /// Removes a Mapbox style layer
-  Future<void> removeLayer(String imageLayerId) {
-    return _mapboxGlPlatform.removeLayer(imageLayerId);
+  Future<void> removeLayer(String layerId) {
+    return _mapboxGlPlatform.removeLayer(layerId);
   }
 
   /// Returns the point on the screen that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
