@@ -46,7 +46,8 @@ final List<ExamplePage> _allPages = <ExamplePage>[
 
 class MapsDemo extends StatelessWidget {
   //FIXME: Add your Mapbox access token here
-  static const String ACCESS_TOKEN = "YOUR_TOKEN_HERE";
+  static const String ACCESS_TOKEN =
+      "pk.eyJ1Ijoib2NlbGwiLCJhIjoiY2pvdTE5bnhoMTc1cDNrcWlha2todGFkYiJ9.hW9Q853ix58dukevFHX1pw";
 
   void _pushPage(BuildContext context, ExamplePage page) async {
     if (!kIsWeb) {

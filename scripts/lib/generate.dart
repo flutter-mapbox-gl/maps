@@ -157,7 +157,7 @@ List<String> buildDocSplit(Map<String, dynamic> item) {
     final Map<String, dynamic>? dataDriven = sdkSupport["data-driven styling"];
 
     result.add("");
-    result.add("Sdk Support");
+    result.add("Sdk Support:");
     if (basic != null && basic.isNotEmpty) {
       result.add("  basic functionality with " + basic.keys.join(", "));
     }
