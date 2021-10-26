@@ -19,12 +19,10 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -77,53 +75,50 @@ import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
+import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-
+import com.mapbox.mapboxsdk.style.sources.ImageSource;
+import com.mapbox.mapboxsdk.style.sources.Source;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.platform.PlatformView;
-
-import com.mapbox.mapboxsdk.style.layers.RasterLayer;
-import com.mapbox.mapboxsdk.style.sources.ImageSource;
-
+import io.flutter.plugin.platform.PlatformView;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-
-import io.flutter.plugin.common.BinaryMessenger;
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.platform.PlatformView;
-
-import com.mapbox.mapboxsdk.style.sources.Source;
 
 /**
  * Controller of a single MapboxMaps MapView instance.
  */
 @SuppressLint("MissingPermission")
 final class MapboxMapController
-  implements DefaultLifecycleObserver,
-  MapboxMap.OnCameraIdleListener,
-  MapboxMap.OnCameraMoveListener,
-  MapboxMap.OnCameraMoveStartedListener,
-  OnAnnotationClickListener,
-  MapboxMap.OnMapClickListener,
-  MapboxMap.OnMapLongClickListener,
-  MapboxMapOptionsSink,
-  MethodChannel.MethodCallHandler,
-  OnMapReadyCallback,
-  OnCameraTrackingChangedListener,
-  OnSymbolTappedListener,
-  OnLineTappedListener,
-  OnCircleTappedListener,
-  OnFillTappedListener,
-  PlatformView {
+  implements
+    DefaultLifecycleObserver,
+    MapboxMap.OnCameraIdleListener,
+    MapboxMap.OnCameraMoveListener,
+    MapboxMap.OnCameraMoveStartedListener,
+    OnAnnotationClickListener,
+    MapboxMap.OnMapClickListener,
+    MapboxMap.OnMapLongClickListener,
+    MapboxMapOptionsSink,
+    MethodChannel.MethodCallHandler,
+    OnMapReadyCallback,
+    OnCameraTrackingChangedListener,
+    OnSymbolTappedListener,
+    OnLineTappedListener,
+    OnCircleTappedListener,
+    OnFillTappedListener,
+    PlatformView {
+
   private static final String TAG = "MapboxMapController";
   private final int id;
   private final MethodChannel methodChannel;
@@ -149,7 +144,8 @@ final class MapboxMapController
   private final String styleStringInitial;
   private LocationComponent locationComponent = null;
   private LocationEngine locationEngine = null;
-  private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
+  private LocationEngineCallback<LocationEngineResult> locationEngineCallback =
+    null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
   private List<String> annotationOrder;
@@ -164,7 +160,8 @@ final class MapboxMapController
     String accessToken,
     String styleStringInitial,
     List<String> annotationOrder,
-    List<String> annotationConsumeTapEvents) {
+    List<String> annotationConsumeTapEvents
+  ) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
@@ -176,7 +173,8 @@ final class MapboxMapController
     this.fills = new HashMap<>();
     this.density = context.getResources().getDisplayMetrics().density;
     this.lifecycleProvider = lifecycleProvider;
-    methodChannel = new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
+    methodChannel =
+      new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
     this.annotationOrder = annotationOrder;
     this.annotationConsumeTapEvents = annotationConsumeTapEvents;
@@ -280,13 +278,17 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
 
-    mapView.addOnStyleImageMissingListener((id) -> {
-      DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-      final Bitmap bitmap = getScaledImage(id, displayMetrics.density);
-      if (bitmap != null) {
-        mapboxMap.getStyle().addImage(id, bitmap);
+    mapView.addOnStyleImageMissingListener(
+      id -> {
+        DisplayMetrics displayMetrics = context
+          .getResources()
+          .getDisplayMetrics();
+        final Bitmap bitmap = getScaledImage(id, displayMetrics.density);
+        if (bitmap != null) {
+          mapboxMap.getStyle().addImage(id, bitmap);
+        }
       }
-    });
+    );
 
     setStyleString(styleStringInitial);
     // updateMyLocationEnabled();
@@ -298,27 +300,66 @@ final class MapboxMapController
     if (styleString == null || styleString.isEmpty()) {
       Log.e(TAG, "setStyleString - string empty or null");
     } else if (styleString.startsWith("{") || styleString.startsWith("[")) {
-      mapboxMap.setStyle(new Style.Builder().fromJson(styleString), onStyleLoadedCallback);
+      mapboxMap.setStyle(
+        new Style.Builder().fromJson(styleString),
+        onStyleLoadedCallback
+      );
     } else if (styleString.startsWith("/")) {
       // Absolute path
-      mapboxMap.setStyle(new Style.Builder().fromUri("file://" + styleString), onStyleLoadedCallback);
+      mapboxMap.setStyle(
+        new Style.Builder().fromUri("file://" + styleString),
+        onStyleLoadedCallback
+      );
     } else if (
       !styleString.startsWith("http://") &&
-      !styleString.startsWith("https://")&&
-      !styleString.startsWith("mapbox://")) {
+      !styleString.startsWith("https://") &&
+      !styleString.startsWith("mapbox://")
+    ) {
       // We are assuming that the style will be loaded from an asset here.
-      String key = MapboxMapsPlugin.flutterAssets.getAssetFilePathByName(styleString);
-      mapboxMap.setStyle(new Style.Builder().fromUri("asset://" + key), onStyleLoadedCallback);
+      String key = MapboxMapsPlugin.flutterAssets.getAssetFilePathByName(
+        styleString
+      );
+      mapboxMap.setStyle(
+        new Style.Builder().fromUri("asset://" + key),
+        onStyleLoadedCallback
+      );
     } else {
-      mapboxMap.setStyle(new Style.Builder().fromUri(styleString), onStyleLoadedCallback);
+      mapboxMap.setStyle(
+        new Style.Builder().fromUri(styleString),
+        onStyleLoadedCallback
+      );
     }
+  }
+
+  private void toggleLayerVisibility(List<String> layerIds) {
+    mapboxMap.getStyle(
+      new Style.OnStyleLoaded() {
+        @Override
+        public void onStyleLoaded(@NonNull Style style) {
+          layerIds.forEach(
+            layerId -> {
+              System.out.println("Toggle Layer: " + layerId);
+
+              Layer layer = style.getLayer(layerId);
+              if (layer != null) {
+                if (VISIBLE.equals(layer.getVisibility().getValue())) {
+                  layer.setProperties(visibility(NONE));
+                } else {
+                  layer.setProperties(visibility(VISIBLE));
+                }
+              }
+            }
+          );
+        }
+      }
+    );
   }
 
   Style.OnStyleLoaded onStyleLoadedCallback = new Style.OnStyleLoaded() {
     @Override
     public void onStyleLoaded(@NonNull Style style) {
       MapboxMapController.this.style = style;
-      for(String annotationType : annotationOrder) {
+      for (String annotationType : annotationOrder) {
         switch (annotationType) {
           case "AnnotationType.fill":
             enableFillManager(style);
@@ -333,14 +374,18 @@ final class MapboxMapController
             enableSymbolManager(style);
             break;
           default:
-            throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
+            throw new IllegalArgumentException(
+              "Unknown annotation type: " +
+              annotationType +
+              ", must be either 'fill', 'line', 'circle' or 'symbol'"
+            );
         }
       }
 
       for (Layer singleLayer : style.getLayers()) {
-					Log.d(TAG, "onMapReady: layer id = " + singleLayer.getId());
-				}
-      
+        Log.d(TAG, "onMapReady: layer id = " + singleLayer.getId());
+      }
+
       if (myLocationEnabled) {
         enableLocationComponent(style);
       }
@@ -348,21 +393,26 @@ final class MapboxMapController
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
       mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
-	    localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
+      localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
     }
   };
 
-  @SuppressWarnings( {"MissingPermission"})
+  @SuppressWarnings({ "MissingPermission" })
   private void enableLocationComponent(@NonNull Style style) {
     if (hasLocationPermission()) {
       locationEngine = LocationEngineProvider.getBestLocationEngine(context);
-      LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(context)
+      LocationComponentOptions locationComponentOptions = LocationComponentOptions
+        .builder(context)
         .trackingGesturesManagement(true)
         .build();
       locationComponent = mapboxMap.getLocationComponent();
-      locationComponent.activateLocationComponent(context, style, locationComponentOptions);
+      locationComponent.activateLocationComponent(
+        context,
+        style,
+        locationComponentOptions
+      );
       locationComponent.setLocationComponentEnabled(true);
       // locationComponent.setRenderMode(RenderMode.COMPASS); // remove or keep default?
       locationComponent.setLocationEngine(locationEngine);
@@ -379,7 +429,10 @@ final class MapboxMapController
 
   private void addSource(String sourceName, String geojson) {
     FeatureCollection featureCollection = FeatureCollection.fromJson(geojson);
-    GeoJsonSource geoJsonSource = new GeoJsonSource(sourceName, featureCollection);
+    GeoJsonSource geoJsonSource = new GeoJsonSource(
+      sourceName,
+      featureCollection
+    );
 
     style.addSource(geoJsonSource);
   }
@@ -400,7 +453,7 @@ final class MapboxMapController
 
       layer.setProperties(props);
     } else {
-      Log.e("MapboxMapController","No layer named " + layerName);
+      Log.e("MapboxMapController", "No layer named " + layerName);
     }
   }
 
@@ -411,55 +464,72 @@ final class MapboxMapController
       final GeoJsonSource geoJsonSource = (GeoJsonSource) source;
       geoJsonSource.setGeoJson(features);
     } else {
-      Log.e("MapboxMapController","Source is null or not an instance of GeoJsonSource.");
+      Log.e(
+        "MapboxMapController",
+        "Source is null or not an instance of GeoJsonSource."
+      );
     }
   }
 
   // add a custom symbol layer
-  private void addSymbolLayer(String layerName,
-                              String sourceName,
-                              PropertyValue[] properties,
-                              Expression filter,
-                              String placeAboveLayerId, String placeBelowLayerId) {
+  private void addSymbolLayer(
+    String layerName,
+    String sourceName,
+    PropertyValue[] properties,
+    Expression filter,
+    String placeAboveLayerId,
+    String placeBelowLayerId
+  ) {
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
-    if(filter != null) symbolLayer.setFilter(filter);
+    if (filter != null) symbolLayer.setFilter(filter);
 
-    addCustomLayer(symbolLayer, properties, placeAboveLayerId, placeBelowLayerId);
+    addCustomLayer(
+      symbolLayer,
+      properties,
+      placeAboveLayerId,
+      placeBelowLayerId
+    );
   }
 
   // add a custom line layer
-  private void addLineLayer(String layerName,
-                            String sourceName,
-                            PropertyValue[] properties,
-                            Expression filter,
-                            String placeAboveLayerId, String placeBelowLayerId) {
+  private void addLineLayer(
+    String layerName,
+    String sourceName,
+    PropertyValue[] properties,
+    Expression filter,
+    String placeAboveLayerId,
+    String placeBelowLayerId
+  ) {
     LineLayer lineLayer = new LineLayer(layerName, sourceName);
-    if(filter != null) lineLayer.setFilter(filter);
+    if (filter != null) lineLayer.setFilter(filter);
 
     addCustomLayer(lineLayer, properties, placeAboveLayerId, placeBelowLayerId);
   }
 
   // add a custom fill layer
-  private void addFillLayer(String layerName, 
-                            String sourceName, 
-                            PropertyValue[] properties, 
-                            Expression filter,
-                            String placeAboveLayerId, String placeBelowLayerId
-                            ) {
+  private void addFillLayer(
+    String layerName,
+    String sourceName,
+    PropertyValue[] properties,
+    Expression filter,
+    String placeAboveLayerId,
+    String placeBelowLayerId
+  ) {
     FillLayer fillLayer = new FillLayer(layerName, sourceName);
-    if(filter != null) fillLayer.setFilter(filter);
+    if (filter != null) fillLayer.setFilter(filter);
 
     addCustomLayer(fillLayer, properties, placeAboveLayerId, placeBelowLayerId);
   }
 
-  private void addCustomLayer(Layer layer,
-                              PropertyValue[] properties,
-                              String placeAboveLayerId, 
-                              String placeBelowLayerId) {
+  private void addCustomLayer(
+    Layer layer,
+    PropertyValue[] properties,
+    String placeAboveLayerId,
+    String placeBelowLayerId
+  ) {
+    if (properties != null) layer.setProperties(properties);
 
-    if(properties != null) layer.setProperties(properties);
-
-    if(placeBelowLayerId != null) {
+    if (placeBelowLayerId != null) {
       style.addLayerBelow(layer, placeBelowLayerId);
     } else if (placeAboveLayerId != null) {
       style.addLayerAbove(layer, placeAboveLayerId);
@@ -468,18 +538,26 @@ final class MapboxMapController
     }
   }
 
-  private void onUserLocationUpdate(Location location){
-    if(location==null){
+  private void onUserLocationUpdate(Location location) {
+    if (location == null) {
       return;
     }
 
     final Map<String, Object> userLocation = new HashMap<>(6);
-    userLocation.put("position", new double[]{location.getLatitude(), location.getLongitude()});
+    userLocation.put(
+      "position",
+      new double[] { location.getLatitude(), location.getLongitude() }
+    );
     userLocation.put("altitude", location.getAltitude());
     userLocation.put("bearing", location.getBearing());
     userLocation.put("horizontalAccuracy", location.getAccuracy());
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      userLocation.put("verticalAccuracy", (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ? location.getVerticalAccuracyMeters() : null);
+      userLocation.put(
+        "verticalAccuracy",
+        (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+          ? location.getVerticalAccuracyMeters()
+          : null
+      );
     }
     userLocation.put("timestamp", location.getTime());
 
@@ -495,7 +573,9 @@ final class MapboxMapController
       symbolManager.setIconIgnorePlacement(true);
       symbolManager.setTextAllowOverlap(true);
       symbolManager.setTextIgnorePlacement(true);
-      symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
+      symbolManager.addClickListener(
+        MapboxMapController.this::onAnnotationClick
+      );
     }
   }
 
@@ -509,12 +589,14 @@ final class MapboxMapController
   private void enableCircleManager(@NonNull Style style) {
     if (circleManager == null) {
       circleManager = new CircleManager(mapView, mapboxMap, style);
-      circleManager.addClickListener(MapboxMapController.this::onAnnotationClick);
+      circleManager.addClickListener(
+        MapboxMapController.this::onAnnotationClick
+      );
     }
   }
 
   private void enableFillManager(@NonNull Style style) {
-    if (fillManager ==  null) {
+    if (fillManager == null) {
       fillManager = new FillManager(mapView, mapboxMap, style);
       fillManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
@@ -530,87 +612,169 @@ final class MapboxMapController
         }
         mapReadyResult = result;
         break;
-      case "map#update": {
-        Convert.interpretMapboxMapOptions(call.argument("options"), this);
-        result.success(Convert.toJson(getCameraPosition()));
-        break;
-      }
-      case "map#updateMyLocationTrackingMode": {
-        int myLocationTrackingMode = call.argument("mode");
-        setMyLocationTrackingMode(myLocationTrackingMode);
-        result.success(null);
-        break;
-      }
-	    case "map#matchMapLanguageWithDeviceDefault": {
-        try {
-		      localizationPlugin.matchMapLanguageWithDeviceDefault();
-			    result.success(null);
-		    } catch (RuntimeException exception) {
-		      Log.d(TAG, exception.toString());
-			    result.error("MAPBOX LOCALIZATION PLUGIN ERROR", exception.toString(), null);
-		    }
-        break;
-      }
-	    case "map#setMapLanguage": {
-  	    final String language = call.argument("language");
-        try {
-		      localizationPlugin.setMapLanguage(language);
-		      result.success(null);
-		    } catch (RuntimeException exception) {
-		      Log.d(TAG, exception.toString());
-			    result.error("MAPBOX LOCALIZATION PLUGIN ERROR", exception.toString(), null);
-		    }
-        break;
-      }
-      case "map#getVisibleRegion": {
-        Map<String, Object> reply = new HashMap<>();
-        VisibleRegion visibleRegion = mapboxMap.getProjection().getVisibleRegion();
-        reply.put("sw", Arrays.asList(visibleRegion.nearLeft.getLatitude(), visibleRegion.nearLeft.getLongitude()));
-        reply.put("ne", Arrays.asList(visibleRegion.farRight.getLatitude(), visibleRegion.farRight.getLongitude()));
-        result.success(reply);
-        break;
-      }
-      case "map#toScreenLocation": {
-        Map<String, Object> reply = new HashMap<>();
-        PointF pointf = mapboxMap.getProjection().toScreenLocation(new LatLng(call.argument("latitude"),call.argument("longitude")));
-        reply.put("x", pointf.x);
-        reply.put("y", pointf.y);
-        result.success(reply);
-        break;
-      }
-      case "map#toScreenLocationBatch": {
-        double[] param = (double[])call.argument("coordinates");
-        double[] reply = new double[param.length];
-
-        for (int i = 0; i < param.length; i += 2) {
-          PointF pointf = mapboxMap.getProjection().toScreenLocation(new LatLng(param[i], param[i + 1]));
-          reply[i] = pointf.x;
-          reply[i + 1] = pointf.y;
+      case "map#update":
+        {
+          Convert.interpretMapboxMapOptions(call.argument("options"), this);
+          result.success(Convert.toJson(getCameraPosition()));
+          break;
         }
+      case "map#updateMyLocationTrackingMode":
+        {
+          int myLocationTrackingMode = call.argument("mode");
+          setMyLocationTrackingMode(myLocationTrackingMode);
+          result.success(null);
+          break;
+        }
+      case "map#matchMapLanguageWithDeviceDefault":
+        {
+          try {
+            localizationPlugin.matchMapLanguageWithDeviceDefault();
+            result.success(null);
+          } catch (RuntimeException exception) {
+            Log.d(TAG, exception.toString());
+            result.error(
+              "MAPBOX LOCALIZATION PLUGIN ERROR",
+              exception.toString(),
+              null
+            );
+          }
+          break;
+        }
+      case "map#setMapLanguage":
+        {
+          final String language = call.argument("language");
+          try {
+            localizationPlugin.setMapLanguage(language);
+            result.success(null);
+          } catch (RuntimeException exception) {
+            Log.d(TAG, exception.toString());
+            result.error(
+              "MAPBOX LOCALIZATION PLUGIN ERROR",
+              exception.toString(),
+              null
+            );
+          }
+          break;
+        }
+      case "map#getVisibleRegion":
+        {
+          Map<String, Object> reply = new HashMap<>();
+          VisibleRegion visibleRegion = mapboxMap
+            .getProjection()
+            .getVisibleRegion();
+          reply.put(
+            "sw",
+            Arrays.asList(
+              visibleRegion.nearLeft.getLatitude(),
+              visibleRegion.nearLeft.getLongitude()
+            )
+          );
+          reply.put(
+            "ne",
+            Arrays.asList(
+              visibleRegion.farRight.getLatitude(),
+              visibleRegion.farRight.getLongitude()
+            )
+          );
+          result.success(reply);
+          break;
+        }
+      case "map#toScreenLocation":
+        {
+          Map<String, Object> reply = new HashMap<>();
+          PointF pointf = mapboxMap
+            .getProjection()
+            .toScreenLocation(
+              new LatLng(call.argument("latitude"), call.argument("longitude"))
+            );
+          reply.put("x", pointf.x);
+          reply.put("y", pointf.y);
+          result.success(reply);
+          break;
+        }
+      case "map#toScreenLocationBatch":
+        {
+          double[] param = (double[]) call.argument("coordinates");
+          double[] reply = new double[param.length];
 
-        result.success(reply);
-        break;
-      }
-      case "map#toLatLng": {
-        Map<String, Object> reply = new HashMap<>();
-        LatLng latlng = mapboxMap.getProjection().fromScreenLocation(new PointF( ((Double) call.argument("x")).floatValue(), ((Double) call.argument("y")).floatValue()));
-        reply.put("latitude", latlng.getLatitude());
-        reply.put("longitude", latlng.getLongitude());
-        result.success(reply);
-        break;
-      }
-      case "map#getMetersPerPixelAtLatitude": {
-        Map<String, Object> reply = new HashMap<>();
-        Double retVal = mapboxMap.getProjection().getMetersPerPixelAtLatitude((Double)call.argument("latitude"));
-        reply.put("metersperpixel", retVal);
-        result.success(reply);
-        break;
-      }
-      case "camera#move": {
-        final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
-        if (cameraUpdate != null) {
-          // camera transformation not handled yet
-          mapboxMap.moveCamera(cameraUpdate, new OnCameraMoveFinishedListener(){
+          for (int i = 0; i < param.length; i += 2) {
+            PointF pointf = mapboxMap
+              .getProjection()
+              .toScreenLocation(new LatLng(param[i], param[i + 1]));
+            reply[i] = pointf.x;
+            reply[i + 1] = pointf.y;
+          }
+
+          result.success(reply);
+          break;
+        }
+      case "map#toLatLng":
+        {
+          Map<String, Object> reply = new HashMap<>();
+          LatLng latlng = mapboxMap
+            .getProjection()
+            .fromScreenLocation(
+              new PointF(
+                ((Double) call.argument("x")).floatValue(),
+                ((Double) call.argument("y")).floatValue()
+              )
+            );
+          reply.put("latitude", latlng.getLatitude());
+          reply.put("longitude", latlng.getLongitude());
+          result.success(reply);
+          break;
+        }
+      case "map#getMetersPerPixelAtLatitude":
+        {
+          Map<String, Object> reply = new HashMap<>();
+          Double retVal = mapboxMap
+            .getProjection()
+            .getMetersPerPixelAtLatitude((Double) call.argument("latitude"));
+          reply.put("metersperpixel", retVal);
+          result.success(reply);
+          break;
+        }
+      case "camera#move":
+        {
+          final CameraUpdate cameraUpdate = Convert.toCameraUpdate(
+            call.argument("cameraUpdate"),
+            mapboxMap,
+            density
+          );
+          if (cameraUpdate != null) {
+            // camera transformation not handled yet
+            mapboxMap.moveCamera(
+              cameraUpdate,
+              new OnCameraMoveFinishedListener() {
+                @Override
+                public void onFinish() {
+                  super.onFinish();
+                  result.success(true);
+                }
+
+                @Override
+                public void onCancel() {
+                  super.onCancel();
+                  result.success(false);
+                }
+              }
+            );
+            // moveCamera(cameraUpdate);
+          } else {
+            result.success(false);
+          }
+          break;
+        }
+      case "camera#animate":
+        {
+          final CameraUpdate cameraUpdate = Convert.toCameraUpdate(
+            call.argument("cameraUpdate"),
+            mapboxMap,
+            density
+          );
+          final Integer duration = call.argument("duration");
+
+          final OnCameraMoveFinishedListener onCameraMoveFinishedListener = new OnCameraMoveFinishedListener() {
             @Override
             public void onFinish() {
               super.onFinish();
@@ -622,433 +786,609 @@ final class MapboxMapController
               super.onCancel();
               result.success(false);
             }
-          });
-
-         // moveCamera(cameraUpdate);
-        }else {
-          result.success(false);
-        }
-        break;
-      }
-      case "camera#animate": {
-        final CameraUpdate cameraUpdate = Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
-        final Integer duration = call.argument("duration");
-
-        final OnCameraMoveFinishedListener onCameraMoveFinishedListener = new OnCameraMoveFinishedListener(){
-          @Override
-          public void onFinish() {
-            super.onFinish();
-            result.success(true);
-          }
-
-          @Override
-          public void onCancel() {
-            super.onCancel();
+          };
+          if (cameraUpdate != null && duration != null) {
+            // camera transformation not handled yet
+            mapboxMap.animateCamera(
+              cameraUpdate,
+              duration,
+              onCameraMoveFinishedListener
+            );
+          } else if (cameraUpdate != null) {
+            // camera transformation not handled yet
+            mapboxMap.animateCamera(cameraUpdate, onCameraMoveFinishedListener);
+          } else {
             result.success(false);
           }
-        };
-        if (cameraUpdate != null && duration != null) {
-          // camera transformation not handled yet
-          mapboxMap.animateCamera(cameraUpdate, duration, onCameraMoveFinishedListener);
-        } else if (cameraUpdate != null) {
-          // camera transformation not handled yet
-          mapboxMap.animateCamera(cameraUpdate, onCameraMoveFinishedListener);
-        } else {
-          result.success(false);
+          break;
         }
-        break;
-      }
-      case "map#queryRenderedFeatures": {
-        Map<String, Object> reply = new HashMap<>();
-        List<Feature> features;
+      case "map#queryRenderedFeatures":
+        {
+          Map<String, Object> reply = new HashMap<>();
+          List<Feature> features;
 
-        String[] layerIds = ((List<String>) call.argument("layerIds")).toArray(new String[0]);
+          String[] layerIds =
+            ((List<String>) call.argument("layerIds")).toArray(new String[0]);
 
-        List<Object> filter = call.argument("filter");
-        JsonElement jsonElement = filter == null ? null : new Gson().toJsonTree(filter);
-        JsonArray jsonArray = null;
-        if (jsonElement != null && jsonElement.isJsonArray()) {
-          jsonArray = jsonElement.getAsJsonArray();
-        }
-        Expression filterExpression = jsonArray == null ? null : Expression.Converter.convert(jsonArray);
-        if (call.hasArgument("x")) {
-          Double x = call.argument("x");
-          Double y = call.argument("y");
-          PointF pixel = new PointF(x.floatValue(), y.floatValue());
-          features = mapboxMap.queryRenderedFeatures(pixel, filterExpression, layerIds);
-        } else {
-          Double left = call.argument("left");
-          Double top = call.argument("top");
-          Double right = call.argument("right");
-          Double bottom = call.argument("bottom");
-          RectF rectF = new RectF(left.floatValue(), top.floatValue(), right.floatValue(), bottom.floatValue());
-          features = mapboxMap.queryRenderedFeatures(rectF, filterExpression, layerIds);
-        }
-        List<String> featuresJson = new ArrayList<>();
-        for (Feature feature : features) {
-          featuresJson.add(feature.toJson());
-        }
-        reply.put("features", featuresJson);
-        result.success(reply);
-        break;
-      }
-      case "map#setTelemetryEnabled": {
-        final boolean enabled = call.argument("enabled");
-        Mapbox.getTelemetry().setUserTelemetryRequestState(enabled);
-        result.success(null);
-        break;
-      }
-      case "map#getTelemetryEnabled": {
-        final TelemetryEnabler.State telemetryState = TelemetryEnabler.retrieveTelemetryStateFromPreferences();
-        result.success(telemetryState == TelemetryEnabler.State.ENABLED);
-        break;
-      }
-      case "map#invalidateAmbientCache": {
-        OfflineManager fileSource = OfflineManager.getInstance(context);
-
-        fileSource.invalidateAmbientCache(new OfflineManager.FileSourceCallback() {
-          @Override
-          public void onSuccess() {
-            result.success(null);
+          List<Object> filter = call.argument("filter");
+          JsonElement jsonElement = filter == null
+            ? null
+            : new Gson().toJsonTree(filter);
+          JsonArray jsonArray = null;
+          if (jsonElement != null && jsonElement.isJsonArray()) {
+            jsonArray = jsonElement.getAsJsonArray();
           }
+          Expression filterExpression = jsonArray == null
+            ? null
+            : Expression.Converter.convert(jsonArray);
+          if (call.hasArgument("x")) {
+            Double x = call.argument("x");
+            Double y = call.argument("y");
+            PointF pixel = new PointF(x.floatValue(), y.floatValue());
+            features =
+              mapboxMap.queryRenderedFeatures(
+                pixel,
+                filterExpression,
+                layerIds
+              );
+          } else {
+            Double left = call.argument("left");
+            Double top = call.argument("top");
+            Double right = call.argument("right");
+            Double bottom = call.argument("bottom");
+            RectF rectF = new RectF(
+              left.floatValue(),
+              top.floatValue(),
+              right.floatValue(),
+              bottom.floatValue()
+            );
+            features =
+              mapboxMap.queryRenderedFeatures(
+                rectF,
+                filterExpression,
+                layerIds
+              );
+          }
+          List<String> featuresJson = new ArrayList<>();
+          for (Feature feature : features) {
+            featuresJson.add(feature.toJson());
+          }
+          reply.put("features", featuresJson);
+          result.success(reply);
+          break;
+        }
+      case "map#setTelemetryEnabled":
+        {
+          final boolean enabled = call.argument("enabled");
+          Mapbox.getTelemetry().setUserTelemetryRequestState(enabled);
+          result.success(null);
+          break;
+        }
+      case "map#getTelemetryEnabled":
+        {
+          final TelemetryEnabler.State telemetryState = TelemetryEnabler.retrieveTelemetryStateFromPreferences();
+          result.success(telemetryState == TelemetryEnabler.State.ENABLED);
+          break;
+        }
+      case "map#invalidateAmbientCache":
+        {
+          OfflineManager fileSource = OfflineManager.getInstance(context);
 
-          @Override
-          public void onError(@NonNull String message) {
-            result.error("MAPBOX CACHE ERROR", message, null);
-          }
-        });
-        break;
-      }
-      case "symbols#addAll": {
-        List<String> newSymbolIds = new ArrayList<String>();
-        final List<Object> options = call.argument("options");
-        List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
-        if (options != null) {
-          SymbolBuilder symbolBuilder;
-          for (Object o : options) {
-            symbolBuilder =  new SymbolBuilder();
-            Convert.interpretSymbolOptions(o, symbolBuilder);
-            symbolOptionsList.add(symbolBuilder.getSymbolOptions());
-          }
-          if (!symbolOptionsList.isEmpty()) {
-            List<Symbol> newSymbols = symbolManager.create(symbolOptionsList);
-            String symbolId;
-            for (Symbol symbol : newSymbols) {
-              symbolId = String.valueOf(symbol.getId());
-              newSymbolIds.add(symbolId);
-              symbols.put(symbolId, new SymbolController(symbol, annotationConsumeTapEvents.contains("AnnotationType.symbol"), this));
+          fileSource.invalidateAmbientCache(
+            new OfflineManager.FileSourceCallback() {
+              @Override
+              public void onSuccess() {
+                result.success(null);
+              }
+
+              @Override
+              public void onError(@NonNull String message) {
+                result.error("MAPBOX CACHE ERROR", message, null);
+              }
+            }
+          );
+          break;
+        }
+      case "symbols#addAll":
+        {
+          List<String> newSymbolIds = new ArrayList<String>();
+          final List<Object> options = call.argument("options");
+          List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
+          if (options != null) {
+            SymbolBuilder symbolBuilder;
+            for (Object o : options) {
+              symbolBuilder = new SymbolBuilder();
+              Convert.interpretSymbolOptions(o, symbolBuilder);
+              symbolOptionsList.add(symbolBuilder.getSymbolOptions());
+            }
+            if (!symbolOptionsList.isEmpty()) {
+              List<Symbol> newSymbols = symbolManager.create(symbolOptionsList);
+              String symbolId;
+              for (Symbol symbol : newSymbols) {
+                symbolId = String.valueOf(symbol.getId());
+                newSymbolIds.add(symbolId);
+                symbols.put(
+                  symbolId,
+                  new SymbolController(
+                    symbol,
+                    annotationConsumeTapEvents.contains(
+                      "AnnotationType.symbol"
+                    ),
+                    this
+                  )
+                );
+              }
             }
           }
+          result.success(newSymbolIds);
+          break;
         }
-        result.success(newSymbolIds);
-        break;
-      }
-      case "symbols#removeAll": {
-        final ArrayList<String> symbolIds = call.argument("symbols");
-        SymbolController symbolController;
+      case "symbols#removeAll":
+        {
+          final ArrayList<String> symbolIds = call.argument("symbols");
+          SymbolController symbolController;
 
-        List<Symbol> symbolList = new ArrayList<Symbol>();
-        for(String symbolId : symbolIds){
+          List<Symbol> symbolList = new ArrayList<Symbol>();
+          for (String symbolId : symbolIds) {
             symbolController = symbols.remove(symbolId);
             if (symbolController != null) {
               symbolList.add(symbolController.getSymbol());
             }
+          }
+          if (!symbolList.isEmpty()) {
+            symbolManager.delete(symbolList);
+          }
+          result.success(null);
+          break;
         }
-        if(!symbolList.isEmpty()) {
-          symbolManager.delete(symbolList);
+      case "symbol#update":
+        {
+          final String symbolId = call.argument("symbol");
+          final SymbolController symbol = symbol(symbolId);
+          Convert.interpretSymbolOptions(call.argument("options"), symbol);
+          symbol.update(symbolManager);
+          result.success(null);
+          break;
         }
-        result.success(null);
-        break;
-      }
-      case "symbol#update": {
-        final String symbolId = call.argument("symbol");
-        final SymbolController symbol = symbol(symbolId);
-        Convert.interpretSymbolOptions(call.argument("options"), symbol);
-        symbol.update(symbolManager);
-        result.success(null);
-        break;
-      }
-      case "symbol#getGeometry": {
-        final String symbolId = call.argument("symbol");
-        final SymbolController symbol = symbol(symbolId);
-        final LatLng symbolLatLng = symbol.getGeometry();
-        Map<String, Double> hashMapLatLng = new HashMap<>();
-        hashMapLatLng.put("latitude", symbolLatLng.getLatitude());
-        hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
-        result.success(hashMapLatLng);
-      }
-      case "symbolManager#iconAllowOverlap": {
-        final Boolean value = call.argument("iconAllowOverlap");
-        symbolManager.setIconAllowOverlap(value);
-        result.success(null);
-        break;
-      }
-      case "symbolManager#iconIgnorePlacement": {
-        final Boolean value = call.argument("iconIgnorePlacement");
-        symbolManager.setIconIgnorePlacement(value);
-        result.success(null);
-        break;
-      }
-      case "symbolManager#textAllowOverlap": {
-        final Boolean value = call.argument("textAllowOverlap");
-        symbolManager.setTextAllowOverlap(value);
-        result.success(null);
-        break;
-      }
-      case "symbolManager#textIgnorePlacement": {
-        final Boolean iconAllowOverlap = call.argument("textIgnorePlacement");
-        symbolManager.setTextIgnorePlacement(iconAllowOverlap);
-        result.success(null);
-        break;
-      }
-      case "line#add": {
-        final LineBuilder lineBuilder = newLineBuilder();
-        Convert.interpretLineOptions(call.argument("options"), lineBuilder);
-        final Line line = lineBuilder.build();
-        final String lineId = String.valueOf(line.getId());
-        lines.put(lineId, new LineController(line,  annotationConsumeTapEvents.contains("AnnotationType.line"), this));
-        result.success(lineId);
-        break;
-      }
-      case "line#remove": {
-        final String lineId = call.argument("line");
-        removeLine(lineId);
-        result.success(null);
-        break;
-      }
-      case "line#update": {
-        final String lineId = call.argument("line");
-        final LineController line = line(lineId);
-        Convert.interpretLineOptions(call.argument("options"), line);
-        line.update(lineManager);
-        result.success(null);
-        break;
-      }
-      case "line#getGeometry": {
-        final String lineId = call.argument("line");
-        final LineController line = line(lineId);
-        final List<LatLng> lineLatLngs = line.getGeometry();
-        final List<Object> resultList = new ArrayList<>();
-        for (LatLng latLng: lineLatLngs){
+      case "symbol#getGeometry":
+        {
+          final String symbolId = call.argument("symbol");
+          final SymbolController symbol = symbol(symbolId);
+          final LatLng symbolLatLng = symbol.getGeometry();
           Map<String, Double> hashMapLatLng = new HashMap<>();
-          hashMapLatLng.put("latitude", latLng.getLatitude());
-          hashMapLatLng.put("longitude", latLng.getLongitude());
-          resultList.add(hashMapLatLng);
+          hashMapLatLng.put("latitude", symbolLatLng.getLatitude());
+          hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
+          result.success(hashMapLatLng);
         }
-        result.success(resultList);
-        break;
-      }
-      case "circle#add": {
-        final CircleBuilder circleBuilder = newCircleBuilder();
-        Convert.interpretCircleOptions(call.argument("options"), circleBuilder);
-        final Circle circle = circleBuilder.build();
-        final String circleId = String.valueOf(circle.getId());
-        circles.put(circleId, new CircleController(circle,  annotationConsumeTapEvents.contains("AnnotationType.circle"), this));
-        result.success(circleId);
-        break;
-      }
-      case "circle#remove": {
-        final String circleId = call.argument("circle");
-        removeCircle(circleId);
-        result.success(null);
-        break;
-      }
-      case "circle#update": {
-        Log.e(TAG, "update circle");
-        final String circleId = call.argument("circle");
-        final CircleController circle = circle(circleId);
-        Convert.interpretCircleOptions(call.argument("options"), circle);
-        circle.update(circleManager);
-        result.success(null);
-        break;
-      }
-      case "circle#getGeometry": {
-        final String circleId = call.argument("circle");
-        final CircleController circle = circle(circleId);
-        final LatLng circleLatLng = circle.getGeometry();
-        Map<String, Double> hashMapLatLng = new HashMap<>();
-        hashMapLatLng.put("latitude", circleLatLng.getLatitude());
-        hashMapLatLng.put("longitude", circleLatLng.getLongitude());
-        result.success(hashMapLatLng);
-        break;
-      }
-      case "source#add": {
-        final String sourceId = call.argument("sourceId");
-        final String geojson = call.argument("geojson");
-        addSource(sourceId, geojson);
-        result.success(null);
-        break;
-      }
-      case "layer#addProperties": {
-        final String layerId = call.argument("layerId");
-        final String properties = call.argument("properties");
-        addLayerProperties(layerId, properties);
-        result.success(null);
-        break;
-      }
-      case "source#addFeatures": {
-        final String sourceId = call.argument("sourceId");
-        final String features = call.argument("features");
-        addSourceFeatures(sourceId, features);
-        result.success(null);
-        break;
-      }
-      case "symbolLayer#add": {
-        final String sourceId = call.argument("sourceId");
-        final String layerId = call.argument("layerId");
-
-        PropertyValue[] properties = null;
-        if (call.argument("properties") != null) {
-          properties = Convert.interpretSymbolLayerProperties(call.argument("properties"));
+      case "symbolManager#iconAllowOverlap":
+        {
+          final Boolean value = call.argument("iconAllowOverlap");
+          symbolManager.setIconAllowOverlap(value);
+          result.success(null);
+          break;
         }
-
-        final String filterString = call.argument("filter");
-        Expression filter = null;
-        if (filterString != null) {
-          filter = Expression.Converter.convert(filterString);
+      case "symbolManager#iconIgnorePlacement":
+        {
+          final Boolean value = call.argument("iconIgnorePlacement");
+          symbolManager.setIconIgnorePlacement(value);
+          result.success(null);
+          break;
         }
-
-        addSymbolLayer(layerId, sourceId, properties, filter, call.argument("place_above_layer_id"), call.argument("place_below_layer_id"));
-        result.success(null);
-        break;
-      }
-      case "lineLayer#add": {
-        final String sourceId = call.argument("sourceId");
-        final String layerId = call.argument("layerId");
-
-         PropertyValue[] properties = null;
-        if (call.argument("properties") != null) {
-          properties = Convert.interpretLineLayerProperties(call.argument("properties"));
+      case "symbolManager#textAllowOverlap":
+        {
+          final Boolean value = call.argument("textAllowOverlap");
+          symbolManager.setTextAllowOverlap(value);
+          result.success(null);
+          break;
         }
-
-        final String filterString = call.argument("filter");
-        Expression filter = null;
-        if (filterString != null) {
-          filter = Expression.Converter.convert(filterString);
+      case "symbolManager#textIgnorePlacement":
+        {
+          final Boolean iconAllowOverlap = call.argument("textIgnorePlacement");
+          symbolManager.setTextIgnorePlacement(iconAllowOverlap);
+          result.success(null);
+          break;
         }
-
-        addLineLayer(layerId, sourceId, properties, filter, call.argument("place_above_layer_id"), call.argument("place_below_layer_id"));
-        result.success(null);
-        break;
-      }
-      case "fillLayer#add": {
-        final String layerId = call.argument("layerId");
-        final String sourceId = call.argument("sourceId");
-
-        PropertyValue[] properties = null;
-        if (call.argument("properties") != null) {
-          properties = Convert.interpretFillLayerProperties(call.argument("properties"));
+      case "line#add":
+        {
+          final LineBuilder lineBuilder = newLineBuilder();
+          Convert.interpretLineOptions(call.argument("options"), lineBuilder);
+          final Line line = lineBuilder.build();
+          final String lineId = String.valueOf(line.getId());
+          lines.put(
+            lineId,
+            new LineController(
+              line,
+              annotationConsumeTapEvents.contains("AnnotationType.line"),
+              this
+            )
+          );
+          result.success(lineId);
+          break;
         }
-
-        final String filterString = call.argument("filter");
-        Expression filter = null;
-        if (filterString != null) {
-          filter = Expression.Converter.convert(filterString);
+      case "line#remove":
+        {
+          final String lineId = call.argument("line");
+          removeLine(lineId);
+          result.success(null);
+          break;
         }
+      case "line#update":
+        {
+          final String lineId = call.argument("line");
+          final LineController line = line(lineId);
+          Convert.interpretLineOptions(call.argument("options"), line);
+          line.update(lineManager);
+          result.success(null);
+          break;
+        }
+      case "line#getGeometry":
+        {
+          final String lineId = call.argument("line");
+          final LineController line = line(lineId);
+          final List<LatLng> lineLatLngs = line.getGeometry();
+          final List<Object> resultList = new ArrayList<>();
+          for (LatLng latLng : lineLatLngs) {
+            Map<String, Double> hashMapLatLng = new HashMap<>();
+            hashMapLatLng.put("latitude", latLng.getLatitude());
+            hashMapLatLng.put("longitude", latLng.getLongitude());
+            resultList.add(hashMapLatLng);
+          }
+          result.success(resultList);
+          break;
+        }
+      case "circle#add":
+        {
+          final CircleBuilder circleBuilder = newCircleBuilder();
+          Convert.interpretCircleOptions(
+            call.argument("options"),
+            circleBuilder
+          );
+          final Circle circle = circleBuilder.build();
+          final String circleId = String.valueOf(circle.getId());
+          circles.put(
+            circleId,
+            new CircleController(
+              circle,
+              annotationConsumeTapEvents.contains("AnnotationType.circle"),
+              this
+            )
+          );
+          result.success(circleId);
+          break;
+        }
+      case "circle#remove":
+        {
+          final String circleId = call.argument("circle");
+          removeCircle(circleId);
+          result.success(null);
+          break;
+        }
+      case "circle#update":
+        {
+          Log.e(TAG, "update circle");
+          final String circleId = call.argument("circle");
+          final CircleController circle = circle(circleId);
+          Convert.interpretCircleOptions(call.argument("options"), circle);
+          circle.update(circleManager);
+          result.success(null);
+          break;
+        }
+      case "circle#getGeometry":
+        {
+          final String circleId = call.argument("circle");
+          final CircleController circle = circle(circleId);
+          final LatLng circleLatLng = circle.getGeometry();
+          Map<String, Double> hashMapLatLng = new HashMap<>();
+          hashMapLatLng.put("latitude", circleLatLng.getLatitude());
+          hashMapLatLng.put("longitude", circleLatLng.getLongitude());
+          result.success(hashMapLatLng);
+          break;
+        }
+      case "source#add":
+        {
+          final String sourceId = call.argument("sourceId");
+          final String geojson = call.argument("geojson");
+          addSource(sourceId, geojson);
+          result.success(null);
+          break;
+        }
+      case "layer#addProperties":
+        {
+          final String layerId = call.argument("layerId");
+          final String properties = call.argument("properties");
+          addLayerProperties(layerId, properties);
+          result.success(null);
+          break;
+        }
+      case "source#addFeatures":
+        {
+          final String sourceId = call.argument("sourceId");
+          final String features = call.argument("features");
+          addSourceFeatures(sourceId, features);
+          result.success(null);
+          break;
+        }
+      case "symbolLayer#add":
+        {
+          final String sourceId = call.argument("sourceId");
+          final String layerId = call.argument("layerId");
 
-        addFillLayer(layerId, sourceId, properties, filter, call.argument("place_above_layer_id"), call.argument("place_below_layer_id"));
-        result.success(null);
-        break;
-      }
-      case "fill#add": {
-        final FillBuilder fillBuilder = newFillBuilder();
-        Convert.interpretFillOptions(call.argument("options"), fillBuilder);
-        final Fill fill = fillBuilder.build();
-        final String fillId = String.valueOf(fill.getId());
-        fills.put(fillId, new FillController(fill,  annotationConsumeTapEvents.contains("AnnotationType.fill"), this));
-        result.success(fillId);
-        break;
-      }
-      case "fill#remove": {
-        final String fillId = call.argument("fill");
-        removeFill(fillId);
-        result.success(null);
-        break;
-      }
-      case "fill#update": {
-        Log.e(TAG, "update fill");
-        final String fillId = call.argument("fill");
-        final FillController fill = fill(fillId);
-        Convert.interpretFillOptions(call.argument("options"), fill);
-        fill.update(fillManager);
-        result.success(null);
-        break;
-      }
-      case "locationComponent#getLastLocation": {
-        Log.e(TAG, "location component: getLastLocation");
-        if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
-          Map<String, Object> reply = new HashMap<>();
-          locationEngine.getLastLocation(new LocationEngineCallback<LocationEngineResult>() {
-            @Override
-            public void onSuccess(LocationEngineResult locationEngineResult) {
-              Location lastLocation = locationEngineResult.getLastLocation();
-              if (lastLocation != null) {
-                reply.put("latitude", lastLocation.getLatitude());
-                reply.put("longitude", lastLocation.getLongitude());
-                reply.put("altitude", lastLocation.getAltitude());
-                result.success(reply);
-              } else {
-                result.error("", "", null); // ???
+          PropertyValue[] properties = null;
+          if (call.argument("properties") != null) {
+            properties =
+              Convert.interpretSymbolLayerProperties(
+                call.argument("properties")
+              );
+          }
+
+          final String filterString = call.argument("filter");
+          Expression filter = null;
+          if (filterString != null) {
+            filter = Expression.Converter.convert(filterString);
+          }
+
+          addSymbolLayer(
+            layerId,
+            sourceId,
+            properties,
+            filter,
+            call.argument("place_above_layer_id"),
+            call.argument("place_below_layer_id")
+          );
+          result.success(null);
+          break;
+        }
+      case "lineLayer#add":
+        {
+          final String sourceId = call.argument("sourceId");
+          final String layerId = call.argument("layerId");
+
+          PropertyValue[] properties = null;
+          if (call.argument("properties") != null) {
+            properties =
+              Convert.interpretLineLayerProperties(call.argument("properties"));
+          }
+
+          final String filterString = call.argument("filter");
+          Expression filter = null;
+          if (filterString != null) {
+            filter = Expression.Converter.convert(filterString);
+          }
+
+          addLineLayer(
+            layerId,
+            sourceId,
+            properties,
+            filter,
+            call.argument("place_above_layer_id"),
+            call.argument("place_below_layer_id")
+          );
+          result.success(null);
+          break;
+        }
+      case "fillLayer#add":
+        {
+          final String layerId = call.argument("layerId");
+          final String sourceId = call.argument("sourceId");
+
+          PropertyValue[] properties = null;
+          if (call.argument("properties") != null) {
+            properties =
+              Convert.interpretFillLayerProperties(call.argument("properties"));
+          }
+
+          final String filterString = call.argument("filter");
+          Expression filter = null;
+          if (filterString != null) {
+            filter = Expression.Converter.convert(filterString);
+          }
+
+          addFillLayer(
+            layerId,
+            sourceId,
+            properties,
+            filter,
+            call.argument("place_above_layer_id"),
+            call.argument("place_below_layer_id")
+          );
+          result.success(null);
+          break;
+        }
+      case "fill#add":
+        {
+          final FillBuilder fillBuilder = newFillBuilder();
+          Convert.interpretFillOptions(call.argument("options"), fillBuilder);
+          final Fill fill = fillBuilder.build();
+          final String fillId = String.valueOf(fill.getId());
+          fills.put(
+            fillId,
+            new FillController(
+              fill,
+              annotationConsumeTapEvents.contains("AnnotationType.fill"),
+              this
+            )
+          );
+          result.success(fillId);
+          break;
+        }
+      case "fill#remove":
+        {
+          final String fillId = call.argument("fill");
+          removeFill(fillId);
+          result.success(null);
+          break;
+        }
+      case "fill#update":
+        {
+          Log.e(TAG, "update fill");
+          final String fillId = call.argument("fill");
+          final FillController fill = fill(fillId);
+          Convert.interpretFillOptions(call.argument("options"), fill);
+          fill.update(fillManager);
+          result.success(null);
+          break;
+        }
+      case "locationComponent#getLastLocation":
+        {
+          Log.e(TAG, "location component: getLastLocation");
+          if (
+            this.myLocationEnabled &&
+            locationComponent != null &&
+            locationEngine != null
+          ) {
+            Map<String, Object> reply = new HashMap<>();
+            locationEngine.getLastLocation(
+              new LocationEngineCallback<LocationEngineResult>() {
+                @Override
+                public void onSuccess(
+                  LocationEngineResult locationEngineResult
+                ) {
+                  Location lastLocation = locationEngineResult.getLastLocation();
+                  if (lastLocation != null) {
+                    reply.put("latitude", lastLocation.getLatitude());
+                    reply.put("longitude", lastLocation.getLongitude());
+                    reply.put("altitude", lastLocation.getAltitude());
+                    result.success(reply);
+                  } else {
+                    result.error("", "", null); // ???
+                  }
+                }
+
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                  result.error("", "", null); // ???
+                }
               }
-            }
+            );
+          }
+          break;
+        }
+      case "style#addImage":
+        {
+          if (style == null) {
+            result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
+              null
+            );
+          }
+          style.addImage(
+            call.argument("name"),
+            BitmapFactory.decodeByteArray(
+              call.argument("bytes"),
+              0,
+              call.argument("length")
+            ),
+            call.argument("sdf")
+          );
+          result.success(null);
+          break;
+        }
+      case "style#addImageSource":
+        {
+          if (style == null) {
+            result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
+              null
+            );
+          }
+          List<LatLng> coordinates = Convert.toLatLngList(
+            call.argument("coordinates")
+          );
+          style.addSource(
+            new ImageSource(
+              call.argument("imageSourceId"),
+              new LatLngQuad(
+                coordinates.get(0),
+                coordinates.get(1),
+                coordinates.get(2),
+                coordinates.get(3)
+              ),
+              BitmapFactory.decodeByteArray(
+                call.argument("bytes"),
+                0,
+                call.argument("length")
+              )
+            )
+          );
+          result.success(null);
+          break;
+        }
+      case "style#removeImageSource":
+        {
+          if (style == null) {
+            result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
+              null
+            );
+          }
+          style.removeSource((String) call.argument("imageSourceId"));
+          result.success(null);
+          break;
+        }
+      case "style#addLayer":
+        {
+          if (style == null) {
+            result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
+              null
+            );
+          }
+          style.addLayer(
+            new RasterLayer(
+              call.argument("imageLayerId"),
+              call.argument("imageSourceId")
+            )
+          );
+          result.success(null);
+          break;
+        }
+      case "style#addLayerBelow":
+        {
+          if (style == null) {
+            result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
+              null
+            );
+          }
+          style.addLayerBelow(
+            new RasterLayer(
+              call.argument("imageLayerId"),
+              call.argument("imageSourceId")
+            ),
+            call.argument("belowLayerId")
+          );
+          result.success(null);
+          break;
+        }
+      case "style#removeLayer":
+        {
+          if (style == null) {
+            result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
+              null
+            );
+          }
+          style.removeLayer((String) call.argument("imageLayerId"));
+          result.success(null);
+          break;
+        }
+      case "layer#toggleVisibility":
+        {
+          final List<String> layerIds = call.argument("layerIds");
 
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-              result.error("", "", null); // ???
-            }
-          });
+          if (layerIds != null) {
+            toggleLayerVisibility(layerIds);
+          }
+          result.success(null);
+
+          break;
         }
-        break;
-      }
-      case "style#addImage": {
-        if(style==null) {
-          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
-        }
-        style.addImage(call.argument("name"), BitmapFactory.decodeByteArray(call.argument("bytes"),0,call.argument("length")), call.argument("sdf"));
-        result.success(null);
-        break;
-      }
-      case "style#addImageSource": {
-        if (style == null) {
-          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
-        }
-        List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"));
-        style.addSource(new ImageSource(call.argument("imageSourceId"), new LatLngQuad(coordinates.get(0), coordinates.get(1), coordinates.get(2), coordinates.get(3)), BitmapFactory.decodeByteArray(call.argument("bytes"), 0, call.argument("length"))));
-        result.success(null);
-        break;
-      }
-      case "style#removeImageSource": {
-        if (style == null) {
-          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
-        }
-        style.removeSource((String) call.argument("imageSourceId"));
-        result.success(null);
-        break;
-      }
-      case "style#addLayer": {
-        if (style == null) {
-          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
-        }
-        style.addLayer(new RasterLayer(call.argument("imageLayerId"), call.argument("imageSourceId")));
-        result.success(null);
-        break;
-      }
-      case "style#addLayerBelow": {
-        if (style == null) {
-          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
-        }
-        style.addLayerBelow(new RasterLayer(call.argument("imageLayerId"), call.argument("imageSourceId")), call.argument("belowLayerId"));
-        result.success(null);
-        break;
-      }
-      case "style#removeLayer": {
-        if (style == null) {
-          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
-        }
-        style.removeLayer((String) call.argument("imageLayerId"));
-        result.success(null);
-        break;
-      }
       default:
         result.notImplemented();
     }
@@ -1057,7 +1397,8 @@ final class MapboxMapController
   @Override
   public void onCameraMoveStarted(int reason) {
     final Map<String, Object> arguments = new HashMap<>(2);
-    boolean isGesture = reason == MapboxMap.OnCameraMoveStartedListener.REASON_API_GESTURE;
+    boolean isGesture =
+      reason == MapboxMap.OnCameraMoveStartedListener.REASON_API_GESTURE;
     arguments.put("isGesture", isGesture);
     methodChannel.invokeMethod("camera#onMoveStarted", arguments);
   }
@@ -1091,33 +1432,44 @@ final class MapboxMapController
   @Override
   public void onCameraTrackingDismissed() {
     this.myLocationTrackingMode = 0;
-    methodChannel.invokeMethod("map#onCameraTrackingDismissed", new HashMap<>());
+    methodChannel.invokeMethod(
+      "map#onCameraTrackingDismissed",
+      new HashMap<>()
+    );
   }
 
   @Override
   public boolean onAnnotationClick(Annotation annotation) {
     if (annotation instanceof Symbol) {
-      final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
+      final SymbolController symbolController = symbols.get(
+        String.valueOf(annotation.getId())
+      );
       if (symbolController != null) {
         return symbolController.onTap();
       }
     }
 
     if (annotation instanceof Line) {
-      final LineController lineController = lines.get(String.valueOf(annotation.getId()));
+      final LineController lineController = lines.get(
+        String.valueOf(annotation.getId())
+      );
       if (lineController != null) {
         return lineController.onTap();
       }
     }
 
     if (annotation instanceof Circle) {
-      final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
+      final CircleController circleController = circles.get(
+        String.valueOf(annotation.getId())
+      );
       if (circleController != null) {
         return circleController.onTap();
       }
     }
     if (annotation instanceof Fill) {
-      final FillController fillController = fills.get(String.valueOf(annotation.getId()));
+      final FillController fillController = fills.get(
+        String.valueOf(annotation.getId())
+      );
       if (fillController != null) {
         return fillController.onTap();
       }
@@ -1239,7 +1591,7 @@ final class MapboxMapController
       return;
     }
     mapView.onResume();
-    if(myLocationEnabled){
+    if (myLocationEnabled) {
       startListeningForLocationUpdates();
     }
   }
@@ -1356,27 +1708,32 @@ final class MapboxMapController
 
   @Override
   public void setCompassGravity(int gravity) {
-    switch(gravity) {
+    switch (gravity) {
       case 0:
-        mapboxMap.getUiSettings().setCompassGravity(Gravity.TOP | Gravity.START);
+        mapboxMap
+          .getUiSettings()
+          .setCompassGravity(Gravity.TOP | Gravity.START);
         break;
       default:
       case 1:
         mapboxMap.getUiSettings().setCompassGravity(Gravity.TOP | Gravity.END);
         break;
       case 2:
-        mapboxMap.getUiSettings().setCompassGravity(Gravity.BOTTOM | Gravity.START);
+        mapboxMap
+          .getUiSettings()
+          .setCompassGravity(Gravity.BOTTOM | Gravity.START);
         break;
       case 3:
-        mapboxMap.getUiSettings().setCompassGravity(Gravity.BOTTOM | Gravity.END);
+        mapboxMap
+          .getUiSettings()
+          .setCompassGravity(Gravity.BOTTOM | Gravity.END);
         break;
     }
   }
 
   @Override
   public void setCompassViewMargins(int x, int y) {
-    switch(mapboxMap.getUiSettings().getCompassGravity())
-    {
+    switch (mapboxMap.getUiSettings().getCompassGravity()) {
       case Gravity.TOP | Gravity.START:
         mapboxMap.getUiSettings().setCompassMargins(x, y, 0, 0);
         break;
@@ -1399,57 +1756,88 @@ final class MapboxMapController
   }
 
   private void updateMyLocationEnabled() {
-    if(this.locationComponent == null && myLocationEnabled){
+    if (this.locationComponent == null && myLocationEnabled) {
       enableLocationComponent(mapboxMap.getStyle());
     }
 
-    if(myLocationEnabled){
+    if (myLocationEnabled) {
       startListeningForLocationUpdates();
-    }else {
+    } else {
       stopListeningForLocationUpdates();
     }
 
     locationComponent.setLocationComponentEnabled(myLocationEnabled);
   }
 
-  private void startListeningForLocationUpdates(){
-    if(locationEngineCallback == null && locationComponent!=null && locationComponent.getLocationEngine()!=null){
-      locationEngineCallback = new LocationEngineCallback<LocationEngineResult>() {
-        @Override
-        public void onSuccess(LocationEngineResult result) {
-          onUserLocationUpdate(result.getLastLocation());
-        }
+  private void startListeningForLocationUpdates() {
+    if (
+      locationEngineCallback == null &&
+      locationComponent != null &&
+      locationComponent.getLocationEngine() != null
+    ) {
+      locationEngineCallback =
+        new LocationEngineCallback<LocationEngineResult>() {
+          @Override
+          public void onSuccess(LocationEngineResult result) {
+            onUserLocationUpdate(result.getLastLocation());
+          }
 
-        @Override
-        public void onFailure(@NonNull Exception exception) {
-        }
-      };
-      locationComponent.getLocationEngine().requestLocationUpdates(locationComponent.getLocationEngineRequest(), locationEngineCallback , null);
+          @Override
+          public void onFailure(@NonNull Exception exception) {}
+        };
+      locationComponent
+        .getLocationEngine()
+        .requestLocationUpdates(
+          locationComponent.getLocationEngineRequest(),
+          locationEngineCallback,
+          null
+        );
     }
   }
 
-  private void stopListeningForLocationUpdates(){
-    if(locationEngineCallback != null && locationComponent!=null && locationComponent.getLocationEngine()!=null){
-      locationComponent.getLocationEngine().removeLocationUpdates(locationEngineCallback);
+  private void stopListeningForLocationUpdates() {
+    if (
+      locationEngineCallback != null &&
+      locationComponent != null &&
+      locationComponent.getLocationEngine() != null
+    ) {
+      locationComponent
+        .getLocationEngine()
+        .removeLocationUpdates(locationEngineCallback);
       locationEngineCallback = null;
     }
   }
 
   private void updateMyLocationTrackingMode() {
-    int[] mapboxTrackingModes = new int[] {CameraMode.NONE, CameraMode.TRACKING, CameraMode.TRACKING_COMPASS, CameraMode.TRACKING_GPS};
-    locationComponent.setCameraMode(mapboxTrackingModes[this.myLocationTrackingMode]);
+    int[] mapboxTrackingModes = new int[] {
+      CameraMode.NONE,
+      CameraMode.TRACKING,
+      CameraMode.TRACKING_COMPASS,
+      CameraMode.TRACKING_GPS,
+    };
+    locationComponent.setCameraMode(
+      mapboxTrackingModes[this.myLocationTrackingMode]
+    );
   }
 
   private void updateMyLocationRenderMode() {
-    int[] mapboxRenderModes = new int[] {RenderMode.NORMAL, RenderMode.COMPASS, RenderMode.GPS};
-    locationComponent.setRenderMode(mapboxRenderModes[this.myLocationRenderMode]);
+    int[] mapboxRenderModes = new int[] {
+      RenderMode.NORMAL,
+      RenderMode.COMPASS,
+      RenderMode.GPS,
+    };
+    locationComponent.setRenderMode(
+      mapboxRenderModes[this.myLocationRenderMode]
+    );
   }
 
   private boolean hasLocationPermission() {
-    return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-      == PackageManager.PERMISSION_GRANTED
-      || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-      == PackageManager.PERMISSION_GRANTED;
+    return (
+      checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
+      PackageManager.PERMISSION_GRANTED ||
+      checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) ==
+      PackageManager.PERMISSION_GRANTED
+    );
   }
 
   private int checkSelfPermission(String permission) {
@@ -1457,7 +1845,10 @@ final class MapboxMapController
       throw new IllegalArgumentException("permission is null");
     }
     return context.checkPermission(
-      permission, android.os.Process.myPid(), android.os.Process.myUid());
+      permission,
+      android.os.Process.myPid(),
+      android.os.Process.myUid()
+    );
   }
 
   /**
@@ -1480,7 +1871,8 @@ final class MapboxMapController
       String assetPath;
       if (i == 1) {
         // If density is 1.0x then simply take the default asset path
-        assetPath = MapboxMapsPlugin.flutterAssets.getAssetFilePathByName(imageId);
+        assetPath =
+          MapboxMapsPlugin.flutterAssets.getAssetFilePathByName(imageId);
       } else {
         // Build a resolution aware asset path as follows:
         // <directory asset>/<ratio>/<image name>
@@ -1492,8 +1884,11 @@ final class MapboxMapController
         }
         stringBuilder.append(((float) i) + "x");
         stringBuilder.append("/");
-        stringBuilder.append(imagePathList.get(imagePathList.size()-1));
-        assetPath = MapboxMapsPlugin.flutterAssets.getAssetFilePathByName(stringBuilder.toString());
+        stringBuilder.append(imagePathList.get(imagePathList.size() - 1));
+        assetPath =
+          MapboxMapsPlugin.flutterAssets.getAssetFilePathByName(
+            stringBuilder.toString()
+          );
       }
       // Build up a list of resolution aware asset paths.
       assetPathList.add(assetPath);
@@ -1504,7 +1899,8 @@ final class MapboxMapController
     for (String assetPath : assetPathList) {
       try {
         // Read path (throws exception if doesn't exist).
-        assetFileDescriptor = mapView.getContext().getAssets().openFd(assetPath);
+        assetFileDescriptor =
+          mapView.getContext().getAssets().openFd(assetPath);
         InputStream assetStream = assetFileDescriptor.createInputStream();
         bitmap = BitmapFactory.decodeStream(assetStream);
         assetFileDescriptor.close(); // Close for memory
@@ -1519,13 +1915,13 @@ final class MapboxMapController
   /**
    * Simple Listener to listen for the status of camera movements.
    */
-  public class OnCameraMoveFinishedListener implements MapboxMap.CancelableCallback{
-    @Override
-    public void onFinish() {
-    }
+  public class OnCameraMoveFinishedListener
+    implements MapboxMap.CancelableCallback {
 
     @Override
-    public void onCancel() {
-    }
+    public void onFinish() {}
+
+    @Override
+    public void onCancel() {}
   }
 }
