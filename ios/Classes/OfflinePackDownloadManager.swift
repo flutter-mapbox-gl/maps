@@ -134,7 +134,6 @@ class OfflinePackDownloader {
         ))
         if let region = OfflineRegion.fromOfflinePack(pack) {
             OfflineManagerUtils.deleteRegion(result: result, id: region.id)
-            OfflineManagerUtils.releaseDownloader(id:region.id)
         }
     }
     

@@ -70,6 +70,7 @@ class OfflineManagerUtils {
             }
         })
         if let packToRemoveUnwrapped = packToRemove {
+            // deletion is only safe if the download is suspended
             packToRemoveUnwrapped.suspend()
             OfflineManagerUtils.releaseDownloader(id: id)
 
