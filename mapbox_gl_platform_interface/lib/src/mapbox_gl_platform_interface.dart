@@ -315,7 +315,7 @@ abstract class MapboxGlPlatform {
         'getMetersPerPixelAtLatitude() has not been implemented.');
   }
 
-  Future<bool> toggleLayerVisibility(List<String> layerIds) async {
+  Future<void> toggleLayerVisibility(List<String> layerIds) async {
     throw UnimplementedError('toggleLayerVisibility() has not been implemented.');
   }
 }
