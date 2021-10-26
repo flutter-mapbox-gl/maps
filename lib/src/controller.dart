@@ -894,4 +894,8 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> toggleLayerVisibility(List<String> layerIds) async {
     return MapboxGlPlatform.getInstance(_id).toggleLayerVisibility(layerIds);
   }
+
+  Future<void> setStyleString(String styleString) async {
+    return MapbogGLPlatform.getInstance(_id).setStyleString(styleString);
+  }
 }

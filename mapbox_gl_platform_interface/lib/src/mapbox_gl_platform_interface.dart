@@ -318,4 +318,7 @@ abstract class MapboxGlPlatform {
   Future<void> toggleLayerVisibility(List<String> layerIds) async {
     throw UnimplementedError('toggleLayerVisibility() has not been implemented.');
   }
+  Future<void> setStyleString(String styleString) async { 
+    throw UnimplementedError('setStyleString() has not been implemented.');
+  }
 }

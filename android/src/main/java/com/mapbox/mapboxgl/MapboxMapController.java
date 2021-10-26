@@ -1393,6 +1393,17 @@ final class MapboxMapController
 
           break;
         }
+      case "style#set":
+        {
+          final String styleString = call.argument("style");
+
+          if (styleString != null) {
+            setStyleString(styleString);
+          }
+          result.success(null);
+
+          break;
+        }
       default:
         result.notImplemented();
     }

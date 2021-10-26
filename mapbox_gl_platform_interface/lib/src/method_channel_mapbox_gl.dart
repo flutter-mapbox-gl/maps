@@ -726,4 +726,11 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       'layerIds': layerIds,
     });
   }
+
+  @override
+  Future<void> setStyleString(String styleString) async {
+    return await _channel.invokeMethod('style#set', <String, dynamic>{
+      'style': styleString,
+    });
+  }
 }
