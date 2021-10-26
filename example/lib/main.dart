@@ -86,29 +86,17 @@ class MapsDemo extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Please pass in your access token with",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
-            Text("--dart-define=ACCESS_TOKEN=YOUR_TOKEN",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
-            Text(
-                "passed into flutter run or add it to args in vscode's launch.json",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
+            "Please pass in your access token with",
+            "--dart-define=ACCESS_TOKEN=YOUR_TOKEN",
+            "passed into flutter run or add it to args in vscode's launch.json",
           ]
-              .map((w) => Padding(
+              .map((text) => Padding(
                     padding: EdgeInsets.all(8),
-                    child: w,
+                    child: Text(text,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white)),
                   ))
               .toList(),
         ),
