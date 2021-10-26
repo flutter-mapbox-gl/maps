@@ -336,6 +336,10 @@ final class MapboxMapController
             throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
         }
       }
+
+      for (Layer singleLayer : style.getLayers()) {
+					Log.d(TAG, "onMapReady: layer id = " + singleLayer.getId());
+				}
       
       if (myLocationEnabled) {
         enableLocationComponent(style);
