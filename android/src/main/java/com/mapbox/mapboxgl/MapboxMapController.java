@@ -4,6 +4,9 @@
 
 package com.mapbox.mapboxgl;
 
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
