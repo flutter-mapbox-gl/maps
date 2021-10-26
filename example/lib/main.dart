@@ -64,7 +64,7 @@ class MapsDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('MapboxMaps examples')),
-      body: ACCESS_TOKEN.isEmpty
+      body: ACCESS_TOKEN.isEmpty || ACCESS_TOKEN.contains("YOUR_TOKEN")
           ? buildAccessTokenWarning()
           : ListView.separated(
               itemCount: _allPages.length,
@@ -87,12 +87,13 @@ class MapsDemo extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             "Please pass in your access token with",
-            "--dart-define=ACCESS_TOKEN=YOUR_TOKEN",
+            "--dart-define=ACCESS_TOKEN=ADD_YOUR_TOKEN_HERE",
             "passed into flutter run or add it to args in vscode's launch.json",
           ]
               .map((text) => Padding(
                     padding: EdgeInsets.all(8),
                     child: Text(text,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
