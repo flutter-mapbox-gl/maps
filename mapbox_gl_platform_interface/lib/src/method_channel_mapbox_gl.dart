@@ -693,7 +693,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   Future<void> removeLayer(String layerId) async {
     try {
       return await _channel.invokeMethod(
-          'style#removeLayer', <String, Object>{'imageLayerId': layerId});
+          'style#removeLayer', <String, Object>{'layerId': layerId});
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
