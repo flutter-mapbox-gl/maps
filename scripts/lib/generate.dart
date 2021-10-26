@@ -5,9 +5,8 @@ import 'package:mustache_template/mustache_template.dart';
 import 'package:recase/recase.dart';
 
 main() async {
-  var styleJson = jsonDecode(await new File(
-          '/Users/ocell/code/flutter-mapbox-gl/scripts/input/style.json')
-      .readAsString());
+  var styleJson =
+      jsonDecode(await new File('scripts/input/style.json').readAsString());
 
   final layerTypes = ["symbol", "circle", "line", "fill"];
 

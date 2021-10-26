@@ -283,8 +283,7 @@ abstract class MapboxGlPlatform {
 
   Future<void> addGeoJsonSource(
       String sourceId, Map<String, dynamic> geojson) async {
-    throw UnimplementedError(
-        'setSymbolTextIgnorePlacement() has not been implemented.');
+    throw UnimplementedError('addGeoJsonSource() has not been implemented.');
   }
 
   Future<void> addSymbolLayer(

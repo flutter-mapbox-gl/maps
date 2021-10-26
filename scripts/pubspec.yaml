@@ -1,5 +1,6 @@
 name: mapbox_code_gen
-description: Just a place to practice
+description: code generation for flutter-mapbox-gl
+
 version: 0.0.1
 
 environment:
