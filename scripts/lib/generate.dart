@@ -159,10 +159,10 @@ List<String> buildDocSplit(Map<String, dynamic> item) {
     result.add("");
     result.add("Sdk Support");
     if (basic != null && basic.isNotEmpty) {
-      result.add("  basic functionality with " + basic.keys.join(" "));
+      result.add("  basic functionality with " + basic.keys.join(", "));
     }
     if (dataDriven != null && dataDriven.isNotEmpty) {
-      result.add("  data-driven styling with " + dataDriven.keys.join(" "));
+      result.add("  data-driven styling with " + dataDriven.keys.join(", "));
     }
   }
 

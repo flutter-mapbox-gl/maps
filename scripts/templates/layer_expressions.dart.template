@@ -4,11 +4,11 @@
 part of mapbox_gl;
 
 class Expressions{
-    {{#expressions}}
-    {{#docSplit}}
-    /// {{{part}}}
-    {{/docSplit}}
-    static const {{valueAsCamelCase}} = "{{{value}}}";
+  {{#expressions}}
+  {{#docSplit}}
+  /// {{{part}}}
+  {{/docSplit}}
+  static const {{valueAsCamelCase}} = "{{{value}}}";
 
-    {{/expressions}}
+  {{/expressions}}
 }

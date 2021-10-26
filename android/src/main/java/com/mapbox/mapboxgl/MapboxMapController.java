@@ -1081,7 +1081,7 @@ final class MapboxMapController
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
         String layerId = call.argument("layerId");
-        style.removeLayer((String) call.argument("layerId"));
+        style.removeLayer(layerId);
         featureLayerIdentifiers.remove(layerId);
 
         result.success(null);

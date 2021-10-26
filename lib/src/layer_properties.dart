@@ -17,8 +17,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   maximum: 1
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconOpacity;
 
   /// The color of the icon. This can only be used with sdf icons.
@@ -27,8 +27,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: #000000
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconColor;
 
   /// The color of the icon's halo. Icon halos can only be used with SDF
@@ -38,8 +38,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: rgba(0, 0, 0, 0)
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconHaloColor;
 
   /// Distance of halo to the icon outline.
@@ -49,8 +49,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconHaloWidth;
 
   /// Fade out the halo towards the outside.
@@ -60,8 +60,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconHaloBlur;
 
   /// Distance that the icon's anchor is moved from its original placement.
@@ -72,7 +72,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: [0, 0]
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconTranslate;
 
   /// Controls the frame of reference for `icon-translate`.
@@ -86,7 +86,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      Icons are translated relative to the viewport.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconTranslateAnchor;
 
   /// The opacity at which the text will be drawn.
@@ -97,8 +97,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   maximum: 1
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textOpacity;
 
   /// The color with which the text will be drawn.
@@ -107,8 +107,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: #000000
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textColor;
 
   /// The color of the text's halo, which helps it stand out from
@@ -118,8 +118,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: rgba(0, 0, 0, 0)
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textHaloColor;
 
   /// Distance of halo to the font outline. Max text halo width is 1/4 of
@@ -130,8 +130,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textHaloWidth;
 
   /// The halo's fadeout distance towards the outside.
@@ -141,8 +141,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textHaloBlur;
 
   /// Distance that the text's anchor is moved from its original placement.
@@ -153,7 +153,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: [0, 0]
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textTranslate;
 
   /// Controls the frame of reference for `text-translate`.
@@ -167,7 +167,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      The text is translated relative to the viewport.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textTranslateAnchor;
 
   // Layout Properties
@@ -188,7 +188,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      geometries.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic symbolPlacement;
 
   /// Distance between two symbol anchors.
@@ -198,7 +198,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 1
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic symbolSpacing;
 
   /// If true, the symbols will not cross tile edges to avoid mutual
@@ -213,7 +213,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: false
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic symbolAvoidEdges;
 
   /// Sorts features in ascending order based on this value. Features with
@@ -226,8 +226,8 @@ class SymbolLayerProperties implements LayerProperties {
   /// Type: number
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic symbolSortKey;
 
   /// Controls the order in which overlapping symbols in the same layer are
@@ -247,7 +247,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      with no sorting applied.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic symbolZOrder;
 
   /// If true, the icon will be visible even if it collides with other
@@ -257,7 +257,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: false
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconAllowOverlap;
 
   /// If true, other symbols can be visible even if they collide with the
@@ -267,7 +267,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: false
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconIgnorePlacement;
 
   /// If true, text will display without their corresponding icons when the
@@ -277,7 +277,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: false
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconOptional;
 
   /// In combination with `symbol-placement`, determines the rotation
@@ -299,7 +299,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      `line-center`, this is equivalent to `map`.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconRotationAlignment;
 
   /// Scales the original size of the icon by the provided factor. The new
@@ -311,8 +311,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconSize;
 
   /// Scales the icon to fit around the associated text.
@@ -332,7 +332,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      The icon is scaled in both x- and y-dimensions.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconTextFit;
 
   /// Size of the additional area added to dimensions determined by
@@ -342,7 +342,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: [0, 0, 0, 0]
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconTextFitPadding;
 
   /// Name of image in sprite to use for drawing an image background.
@@ -350,8 +350,8 @@ class SymbolLayerProperties implements LayerProperties {
   /// Type: resolvedImage
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconImage;
 
   /// Rotates the icon clockwise.
@@ -360,8 +360,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconRotate;
 
   /// Size of the additional area around the icon bounding box used for
@@ -372,7 +372,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconPadding;
 
   /// If true, the icon may be flipped to prevent it from being rendered
@@ -382,7 +382,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: false
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconKeepUpright;
 
   /// Offset distance of icon from its anchor. Positive values indicate
@@ -395,8 +395,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: [0, 0]
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconOffset;
 
   /// Part of the icon placed closest to the anchor.
@@ -426,8 +426,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///      anchor.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic iconAnchor;
 
   /// Orientation of icon when map is pitched.
@@ -443,7 +443,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      Automatically matches the value of `icon-rotation-alignment`.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic iconPitchAlignment;
 
   /// Orientation of text when map is pitched.
@@ -459,7 +459,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      Automatically matches the value of `text-rotation-alignment`.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textPitchAlignment;
 
   /// In combination with `symbol-placement`, determines the rotation
@@ -481,7 +481,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      `line-center`, this is equivalent to `map`.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textRotationAlignment;
 
   /// Value to use for a text label. If a plain `string` is provided, it
@@ -492,8 +492,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default:
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textField;
 
   /// Font stack to use for displaying text.
@@ -502,8 +502,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: [Open Sans Regular, Arial Unicode MS Regular]
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textFont;
 
   /// Font size.
@@ -513,8 +513,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textSize;
 
   /// The maximum line width for text wrapping.
@@ -524,8 +524,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textMaxWidth;
 
   /// Text leading value for multi-line text.
@@ -534,7 +534,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: 1.2
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textLineHeight;
 
   /// Text tracking amount.
@@ -543,8 +543,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textLetterSpacing;
 
   /// Text justification options.
@@ -562,8 +562,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///      The text is aligned to the right.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textJustify;
 
   /// Radial offset of text, in the direction of the symbol's anchor. Useful
@@ -574,8 +574,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textRadialOffset;
 
   /// To increase the chance of placing high-priority labels on the map, you
@@ -609,7 +609,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      anchor.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textVariableAnchor;
 
   /// Part of the text placed closest to the anchor.
@@ -639,8 +639,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///      anchor.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textAnchor;
 
   /// Maximum angle change between adjacent characters.
@@ -649,7 +649,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: 45
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textMaxAngle;
 
   /// The property allows control over a symbol's orientation. Note that the
@@ -670,7 +670,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      point placement would be laid out vertically.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textWritingMode;
 
   /// Rotates the text clockwise.
@@ -679,8 +679,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textRotate;
 
   /// Size of the additional area around the text bounding box used for
@@ -691,7 +691,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textPadding;
 
   /// If true, the text may be flipped vertically to prevent it from being
@@ -701,7 +701,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: true
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textKeepUpright;
 
   /// Specifies how to capitalize text, similar to the CSS `text-transform`
@@ -718,8 +718,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///      Forces all letters to be displayed in lowercase.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textTransform;
 
   /// Offset distance of text from its anchor. Positive values indicate
@@ -732,8 +732,8 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: [0, 0]
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic textOffset;
 
   /// If true, the text will be visible even if it collides with other
@@ -743,7 +743,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: false
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textAllowOverlap;
 
   /// If true, other symbols can be visible even if they collide with the
@@ -753,7 +753,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: false
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textIgnorePlacement;
 
   /// If true, icons will display without their corresponding text when the
@@ -763,7 +763,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///   default: false
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic textOptional;
 
   /// Whether this layer is displayed.
@@ -777,7 +777,7 @@ class SymbolLayerProperties implements LayerProperties {
   ///      The layer is not shown.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic visibility;
 
   const SymbolLayerProperties({
@@ -1041,8 +1041,8 @@ class CircleLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic circleRadius;
 
   /// The fill color of the circle.
@@ -1051,8 +1051,8 @@ class CircleLayerProperties implements LayerProperties {
   ///   default: #000000
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic circleColor;
 
   /// Amount to blur the circle. 1 blurs the circle such that only the
@@ -1062,8 +1062,8 @@ class CircleLayerProperties implements LayerProperties {
   ///   default: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic circleBlur;
 
   /// The opacity at which the circle will be drawn.
@@ -1074,8 +1074,8 @@ class CircleLayerProperties implements LayerProperties {
   ///   maximum: 1
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic circleOpacity;
 
   /// The geometry's offset. Values are [x, y] where negatives indicate left
@@ -1085,7 +1085,7 @@ class CircleLayerProperties implements LayerProperties {
   ///   default: [0, 0]
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic circleTranslate;
 
   /// Controls the frame of reference for `circle-translate`.
@@ -1099,7 +1099,7 @@ class CircleLayerProperties implements LayerProperties {
   ///      The circle is translated relative to the viewport.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic circleTranslateAnchor;
 
   /// Controls the scaling behavior of the circle when the map is pitched.
@@ -1114,7 +1114,7 @@ class CircleLayerProperties implements LayerProperties {
   ///      Circles are not scaled.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic circlePitchScale;
 
   /// Orientation of circle when map is pitched.
@@ -1128,7 +1128,7 @@ class CircleLayerProperties implements LayerProperties {
   ///      The circle is aligned to the plane of the viewport.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic circlePitchAlignment;
 
   /// The width of the circle's stroke. Strokes are placed outside of the
@@ -1139,8 +1139,8 @@ class CircleLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic circleStrokeWidth;
 
   /// The stroke color of the circle.
@@ -1149,8 +1149,8 @@ class CircleLayerProperties implements LayerProperties {
   ///   default: #000000
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic circleStrokeColor;
 
   /// The opacity of the circle's stroke.
@@ -1161,8 +1161,8 @@ class CircleLayerProperties implements LayerProperties {
   ///   maximum: 1
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic circleStrokeOpacity;
 
   // Layout Properties
@@ -1187,7 +1187,7 @@ class CircleLayerProperties implements LayerProperties {
   ///      The layer is not shown.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic visibility;
 
   const CircleLayerProperties({
@@ -1280,8 +1280,8 @@ class LineLayerProperties implements LayerProperties {
   ///   maximum: 1
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic lineOpacity;
 
   /// The color with which the line will be drawn.
@@ -1290,8 +1290,8 @@ class LineLayerProperties implements LayerProperties {
   ///   default: #000000
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic lineColor;
 
   /// The geometry's offset. Values are [x, y] where negatives indicate left
@@ -1301,7 +1301,7 @@ class LineLayerProperties implements LayerProperties {
   ///   default: [0, 0]
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic lineTranslate;
 
   /// Controls the frame of reference for `line-translate`.
@@ -1315,7 +1315,7 @@ class LineLayerProperties implements LayerProperties {
   ///      The line is translated relative to the viewport.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic lineTranslateAnchor;
 
   /// Stroke thickness.
@@ -1325,8 +1325,8 @@ class LineLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic lineWidth;
 
   /// Draws a line casing outside of a line's actual path. Value indicates
@@ -1337,8 +1337,8 @@ class LineLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic lineGapWidth;
 
   /// The line's offset. For linear features, a positive value offsets the
@@ -1350,8 +1350,8 @@ class LineLayerProperties implements LayerProperties {
   ///   default: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic lineOffset;
 
   /// Blur applied to the line, in pixels.
@@ -1361,8 +1361,8 @@ class LineLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic lineBlur;
 
   /// Specifies the lengths of the alternating dashes and gaps that form the
@@ -1377,7 +1377,7 @@ class LineLayerProperties implements LayerProperties {
   ///   minimum: 0
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic lineDasharray;
 
   /// Name of image in sprite to use for drawing image lines. For seamless
@@ -1388,8 +1388,8 @@ class LineLayerProperties implements LayerProperties {
   /// Type: resolvedImage
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android macos ios
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, macos, ios
   final dynamic linePattern;
 
   /// Defines a gradient with which to color a line feature. Can only be
@@ -1398,7 +1398,7 @@ class LineLayerProperties implements LayerProperties {
   /// Type: color
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic lineGradient;
 
   // Layout Properties
@@ -1419,7 +1419,7 @@ class LineLayerProperties implements LayerProperties {
   ///      of the line at a distance of one-half of the line's width.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic lineCap;
 
   /// The display of lines when joining.
@@ -1439,8 +1439,8 @@ class LineLayerProperties implements LayerProperties {
   ///      sides beyond the endpoint of the path until they meet.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic lineJoin;
 
   /// Used to automatically convert miter joins to bevel joins for sharp
@@ -1450,7 +1450,7 @@ class LineLayerProperties implements LayerProperties {
   ///   default: 2
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic lineMiterLimit;
 
   /// Used to automatically convert round joins to miter joins for shallow
@@ -1460,7 +1460,7 @@ class LineLayerProperties implements LayerProperties {
   ///   default: 1.05
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic lineRoundLimit;
 
   /// Sorts features in ascending order based on this value. Features with a
@@ -1484,7 +1484,7 @@ class LineLayerProperties implements LayerProperties {
   ///      The layer is not shown.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic visibility;
 
   const LineLayerProperties({
@@ -1589,7 +1589,7 @@ class FillLayerProperties implements LayerProperties {
   ///   default: true
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic fillAntialias;
 
   /// The opacity of the entire fill layer. In contrast to the `fill-color`,
@@ -1602,8 +1602,8 @@ class FillLayerProperties implements LayerProperties {
   ///   maximum: 1
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic fillOpacity;
 
   /// The color of the filled part of this layer. This color can be
@@ -1614,8 +1614,8 @@ class FillLayerProperties implements LayerProperties {
   ///   default: #000000
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic fillColor;
 
   /// The outline color of the fill. Matches the value of `fill-color` if
@@ -1624,8 +1624,8 @@ class FillLayerProperties implements LayerProperties {
   /// Type: color
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android ios macos
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
   final dynamic fillOutlineColor;
 
   /// The geometry's offset. Values are [x, y] where negatives indicate left
@@ -1635,7 +1635,7 @@ class FillLayerProperties implements LayerProperties {
   ///   default: [0, 0]
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic fillTranslate;
 
   /// Controls the frame of reference for `fill-translate`.
@@ -1649,7 +1649,7 @@ class FillLayerProperties implements LayerProperties {
   ///      The fill is translated relative to the viewport.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic fillTranslateAnchor;
 
   /// Name of image in sprite to use for drawing image fills. For seamless
@@ -1660,8 +1660,8 @@ class FillLayerProperties implements LayerProperties {
   /// Type: resolvedImage
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
-  ///   data-driven styling with js android macos ios
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, macos, ios
   final dynamic fillPattern;
 
   // Layout Properties
@@ -1686,7 +1686,7 @@ class FillLayerProperties implements LayerProperties {
   ///      The layer is not shown.
   ///
   /// Sdk Support
-  ///   basic functionality with js android ios macos
+  ///   basic functionality with js, android, ios, macos
   final dynamic visibility;
 
   const FillLayerProperties({

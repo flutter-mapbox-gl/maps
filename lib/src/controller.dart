@@ -850,15 +850,15 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.removeImageSource(imageSourceId);
   }
 
-  /// Adds a Mapbox style layer to the map's style at render time.
-  Future<void> addLayer(String layerId, String sourceId) {
-    return _mapboxGlPlatform.addLayer(layerId, sourceId);
+  /// Adds a Mapbox image layer to the map's style at render time. Only works for image sources!
+  Future<void> addLayer(String layerId, String imageSourceId) {
+    return _mapboxGlPlatform.addLayer(layerId, imageSourceId);
   }
 
-  /// Adds a Mapbox style layer below the layer provided with belowLayerId to the map's style at render time,
+  /// Adds a Mapbox image layer below the layer provided with belowLayerId to the map's style at render time. Only works for image sources!
   Future<void> addLayerBelow(
-      String layerId, String sourceId, String belowLayerId) {
-    return _mapboxGlPlatform.addLayerBelow(layerId, sourceId, belowLayerId);
+      String layerId, String sourceId, String imageSourceId) {
+    return _mapboxGlPlatform.addLayerBelow(layerId, sourceId, imageSourceId);
   }
 
   /// Removes a Mapbox style layer
