@@ -896,6 +896,6 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   Future<void> setStyleString(String styleString) async {
-    return MapbogGLPlatform.getInstance(_id).setStyleString(styleString);
+    return MapboxGlPlatform.getInstance(_id).setStyleString(styleString);
   }
 }
