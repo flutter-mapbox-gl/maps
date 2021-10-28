@@ -43,6 +43,13 @@ final List<ExamplePage> _allPages = <ExamplePage>[
 ];
 
 class MapsDemo extends StatelessWidget {
+  // FIXME: You need to pass in your access token via the command line argument
+  // --dart-define=ACCESS_TOKEN=ADD_YOUR_TOKEN_HERE
+  // It is also possible to pass it in while running the app via an IDE by
+  // passing the same args there.
+  //
+  // Alternatively you can replace `String.fromEnvironment("ACCESS_TOKEN")`
+  // in the following line with your access token directly.
   static const String ACCESS_TOKEN = String.fromEnvironment("ACCESS_TOKEN");
 
   void _pushPage(BuildContext context, ExamplePage page) async {
