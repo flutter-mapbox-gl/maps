@@ -205,7 +205,7 @@ class _MapboxMapState extends State<MapboxMap> {
       Completer<MapboxMapController>();
 
   late _MapboxMapOptions _mapboxMapOptions;
-  MapboxGlPlatform _mapboxGlPlatform = MapboxGlPlatform.createInstance();
+  final MapboxGlPlatform _mapboxGlPlatform = MapboxGlPlatform.createInstance();
 
   @override
   Widget build(BuildContext context) {

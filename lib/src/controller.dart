@@ -157,15 +157,15 @@ class MapboxMapController extends ChangeNotifier {
   final OnMapClickCallback? onMapClick;
   final OnMapLongClickCallback? onMapLongClick;
 
-  OnUserLocationUpdated? onUserLocationUpdated;
-  OnAttributionClickCallback? onAttributionClick;
+  final OnUserLocationUpdated? onUserLocationUpdated;
+  final OnAttributionClickCallback? onAttributionClick;
 
-  OnCameraTrackingDismissedCallback? onCameraTrackingDismissed;
-  OnCameraTrackingChangedCallback? onCameraTrackingChanged;
+  final OnCameraTrackingDismissedCallback? onCameraTrackingDismissed;
+  final OnCameraTrackingChangedCallback? onCameraTrackingChanged;
 
-  OnCameraIdleCallback? onCameraIdle;
+  final OnCameraIdleCallback? onCameraIdle;
 
-  OnMapIdleCallback? onMapIdle;
+  final OnMapIdleCallback? onMapIdle;
 
   /// Callbacks to receive tap events for symbols placed on this map.
   final ArgumentCallbacks<Symbol> onSymbolTapped = ArgumentCallbacks<Symbol>();
@@ -187,7 +187,7 @@ class MapboxMapController extends ChangeNotifier {
   final Map<String, Symbol> _symbols = <String, Symbol>{};
 
   /// Callbacks to receive tap events for lines placed on this map.
-  ArgumentCallbacks<Line> onLineTapped = ArgumentCallbacks<Line>();
+  final ArgumentCallbacks<Line> onLineTapped = ArgumentCallbacks<Line>();
 
   /// The current set of lines on this map.
   ///
