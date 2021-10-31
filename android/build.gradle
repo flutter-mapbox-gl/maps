@@ -8,12 +8,12 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath 'com.android.tools.build:gradle:4.2.0'
     }
 }
 
 rootProject.allprojects {
-    def token = System.getenv('SDK_REGISTRY_TOKEN')
+    def token = System.getenv('SDK_REGISTRY_TOKEN') ?: project.properties['MAPBOX_DOWNLOADS_TOKEN']
     if (token == null || token.empty) {
         throw new Exception("SDK Registry token is null. See README.md for more information.")
     }
@@ -38,6 +38,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 29
+    ndkVersion "20.1.5948944"
 
     defaultConfig {
         minSdkVersion 20

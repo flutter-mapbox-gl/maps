@@ -51,11 +51,12 @@ jobs:
           echo "machine api.mapbox.com
           login mapbox
           password $SDK_REGISTRY_TOKEN" >> ~/.netrc
+          chmod 600 ~/.netrc
           cd ./example
           flutter build ios --release --no-codesign
         env:
           SDK_REGISTRY_TOKEN: ${{ secrets.SDK_REGISTRY_IOS}}
-          
+
   build-web:
     name: "Build web"
     runs-on: ubuntu-latest

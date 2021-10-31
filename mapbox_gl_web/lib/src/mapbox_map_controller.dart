@@ -110,7 +110,7 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future<void> matchMapLanguageWithDeviceDefault() async {
-    setMapLanguage(ui.window.locale!.languageCode);
+    setMapLanguage(ui.window.locale.languageCode);
   }
 
   @override
@@ -166,6 +166,12 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
+  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
+    var coordinates = symbolManager.getFeature(symbol.id)!.geometry.coordinates;
+    return LatLng(coordinates[1], coordinates[0]);
+  }
+
+  @override
   Future<void> removeSymbols(Iterable<String> symbolsIds) async {
     symbolManager.removeAll(symbolsIds);
   }
@@ -187,6 +193,13 @@ class MapboxMapController extends MapboxGlPlatform
   @override
   Future<void> updateLine(Line line, LineOptions changes) async {
     lineManager.update(line.id, changes);
+  }
+
+  @override
+  Future<List<LatLng>> getLineLatLngs(Line line) async {
+    List<dynamic> coordinates =
+        lineManager.getFeature(line.id)!.geometry.coordinates;
+    return coordinates.map((c) => LatLng(c[1], c[0])).toList();
   }
 
   @override

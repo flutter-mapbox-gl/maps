@@ -153,10 +153,9 @@ class MapboxMapController extends ChangeNotifier {
     });
   }
 
-  OnStyleLoadedCallback? onStyleLoadedCallback;
-
-  OnMapClickCallback? onMapClick;
-  OnMapLongClickCallback? onMapLongClick;
+  final OnStyleLoadedCallback? onStyleLoadedCallback;
+  final OnMapClickCallback? onMapClick;
+  final OnMapLongClickCallback? onMapLongClick;
 
   OnUserLocationUpdated? onUserLocationUpdated;
   OnAttributionClickCallback? onAttributionClick;
@@ -859,21 +858,5 @@ class MapboxMapController extends ChangeNotifier {
   void dispose() {
     super.dispose();
     _mapboxGlPlatform.dispose();
-    onStyleLoadedCallback = null;
-    onMapClick = null;
-    onMapLongClick = null;
-    onUserLocationUpdated = null;
-    onAttributionClick = null;
-    onCameraTrackingDismissed = null;
-    onCameraTrackingChanged = null;
-    onCameraIdle = null;
-    onMapIdle = null;
-
-    onSymbolTapped.clear();
-    onCircleTapped.clear();
-    onFillTapped.clear();
-    onInfoWindowTapped.clear();
-    onLineTapped.clear();
-
   }
 }

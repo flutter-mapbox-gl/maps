@@ -1323,7 +1323,7 @@ final class MapboxMapController
 
   @Override
   public void setAttributionButtonMargins(int x, int y) {
-    mapboxMap.getUiSettings().setAttributionMargins(0, 0, x, y);
+    mapboxMap.getUiSettings().setAttributionMargins(x, 0, 0, y);
   }
 
   private void updateMyLocationEnabled() {
