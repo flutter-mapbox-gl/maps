@@ -309,12 +309,15 @@ class Convert {
       final Point point = toPoint(compassViewMarginsData, metrics.density);
       sink.setCompassViewMargins(point.x, point.y);
     }
+    final Object attributionButtonGravity = data.get("attributionButtonPosition");
+    if(attributionButtonGravity != null){
+      sink.setAttributionButtonGravity(toInt(attributionButtonGravity));
+    }
     final Object attributionButtonMargins = data.get("attributionButtonMargins");
     if(attributionButtonMargins != null){
       final List attributionButtonMarginsData = toList(attributionButtonMargins);
       final Point point = toPoint(attributionButtonMarginsData, metrics.density);
-      final int attributionButtonWidth = toPixels(21, metrics.density);
-      sink.setAttributionButtonMargins(metrics.widthPixels - point.x - attributionButtonWidth, point.y);
+      sink.setAttributionButtonMargins(point.x, point.y);
     }
   }
 

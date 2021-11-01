@@ -33,5 +33,7 @@ abstract class MapboxMapOptionsSink {
 
   void setCompassViewMargins(int x, int y);
 
+  void setAttributionButtonGravity(int gravity);
+
   void setAttributionButtonMargins(int x, int y);
 }

@@ -630,6 +630,11 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
+  void setAttributionButtonGravity(int gravity) {
+    print('setAttributionButtonGravity not available in web');
+  }
+
+  @override
   void setCompassViewMargins(int x, int y) {
     print('setCompassViewMargins not available in web');
   }

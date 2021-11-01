@@ -62,6 +62,9 @@ class Convert {
       sink.setCompassViewMargins(
           options['compassViewMargins'][0], options['compassViewMargins'][1]);
     }
+    if (options.containsKey('attributionButtonPosition')) {
+      sink.setAttributionButtonGravity(options['attributionButtonPosition']);
+    }
     if (options.containsKey('attributionButtonMargins')) {
       sink.setAttributionButtonMargins(options['attributionButtonMargins'][0],
           options['attributionButtonMargins'][1]);
