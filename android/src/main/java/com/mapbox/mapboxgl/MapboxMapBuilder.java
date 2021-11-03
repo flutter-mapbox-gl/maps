@@ -118,7 +118,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   public void setMyLocationRenderMode(int myLocationRenderMode) {
     this.myLocationRenderMode = myLocationRenderMode;
   }
-  
+
   public void setLogoViewMargins(int x, int y) {
         options.logoMargins(new int[] {
             (int) x, //left
@@ -134,7 +134,6 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
       case 0:
         options.compassGravity(Gravity.TOP | Gravity.START);
         break;
-      default:
       case 1:
         options.compassGravity(Gravity.TOP | Gravity.END);
         break;
@@ -154,6 +153,8 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
       case Gravity.TOP | Gravity.START:
         options.compassMargins(new int[] {(int) x, (int) y, 0, 0});
         break;
+      // If the application code has not specified gravity, assume the platform
+      // default for the compass which is top-right
       default:
       case Gravity.TOP | Gravity.END:
         options.compassMargins(new int[] {0, (int) y, (int) x, 0});
@@ -173,7 +174,6 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
       case 0:
         options.attributionGravity(Gravity.TOP | Gravity.START);
         break;
-      default:
       case 1:
         options.attributionGravity(Gravity.TOP | Gravity.END);
         break;
@@ -193,10 +193,12 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
       case Gravity.TOP | Gravity.START:
         options.attributionMargins(new int[] {(int) x, (int) y, 0, 0});
         break;
-      default:
       case Gravity.TOP | Gravity.END:
         options.attributionMargins(new int[] {0, (int) y, (int) x, 0});
         break;
+      // If the application code has not specified gravity, assume the platform
+      // default for the attribution button which is bottom left
+      default:
       case Gravity.BOTTOM | Gravity.START:
         options.attributionMargins(new int[] {(int) x, 0, 0, (int) y});
         break;
