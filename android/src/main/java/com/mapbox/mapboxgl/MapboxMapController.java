@@ -979,6 +979,7 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String geojson = call.argument("geojson");
         addGeoJsonSource(sourceId, geojson);
+        result.success(null);
         break;
       }
       case "symbolLayer#add": {
@@ -986,6 +987,7 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final PropertyValue[] properties = LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
         addSymbolLayer(layerId, sourceId, properties, null);
+        result.success(null);
         break;
       }
       case "lineLayer#add": {
@@ -993,6 +995,7 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final PropertyValue[] properties = LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
         addLineLayer(layerId, sourceId, properties, null);
+        result.success(null);
         break;
       }
       case "fillLayer#add": {
@@ -1000,6 +1003,7 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final PropertyValue[] properties = LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
         addFillLayer(layerId, sourceId, properties, null);
+        result.success(null);
         break;
       }
       case "circleLayer#add": {
@@ -1007,6 +1011,7 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final PropertyValue[] properties = LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
         addCircleLayer(layerId, sourceId, properties, null);
+        result.success(null);
         break;
       }
       case "locationComponent#getLastLocation": {
