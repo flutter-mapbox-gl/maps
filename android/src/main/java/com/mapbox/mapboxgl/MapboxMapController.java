@@ -1208,7 +1208,7 @@ final class MapboxMapController
     List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, featureLayerIdentifiers.toArray(new String[0]));
     if(!featureList.isEmpty()){
       final Map<String, Object> arguments = new HashMap<>(1);
-      arguments.put("featureId", featureList.get(featureList.size() - 1).id());
+      arguments.put("featureId", featureList.get(0).id());
       methodChannel.invokeMethod("feature#onTap", arguments);
     } else { 
       final Map<String, Object> arguments = new HashMap<>(5);
