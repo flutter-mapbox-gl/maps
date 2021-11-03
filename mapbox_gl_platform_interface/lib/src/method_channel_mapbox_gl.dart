@@ -653,10 +653,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> removeImageSource(String imageSourceId) async {
+  Future<void> removeSource(String sourceId) async {
     try {
-      return await _channel.invokeMethod('style#removeImageSource',
-          <String, Object>{'imageSourceId': imageSourceId});
+      return await _channel.invokeMethod(
+        'style#removeSource',
+        <String, Object>{'sourceId': sourceId},
+      );
     } on PlatformException catch (e) {
       return new Future.error(e);
     }

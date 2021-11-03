@@ -246,10 +246,6 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('addImageSource() has not been implemented.');
   }
 
-  Future<void> removeImageSource(String imageSourceId) async {
-    throw UnimplementedError('removeImageSource() has not been implemented.');
-  }
-
   Future<void> addLayer(String imageLayerId, String imageSourceId) async {
     throw UnimplementedError('addLayer() has not been implemented.');
   }
@@ -284,6 +280,10 @@ abstract class MapboxGlPlatform {
   Future<void> addGeoJsonSource(
       String sourceId, Map<String, dynamic> geojson) async {
     throw UnimplementedError('addGeoJsonSource() has not been implemented.');
+  }
+
+  Future<void> removeSource(String sourceId) async {
+    throw UnimplementedError('removeSource() has not been implemented.');
   }
 
   Future<void> addSymbolLayer(

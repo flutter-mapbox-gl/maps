@@ -846,8 +846,14 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Removes previously added image source by id
+  @Deprecated("This method was renamed to removeSource")
   Future<void> removeImageSource(String imageSourceId) {
-    return _mapboxGlPlatform.removeImageSource(imageSourceId);
+    return _mapboxGlPlatform.removeSource(imageSourceId);
+  }
+
+  /// Removes previously added source by id
+  Future<void> removeSource(String sourceId) {
+    return _mapboxGlPlatform.removeSource(sourceId);
   }
 
   /// Adds a Mapbox image layer to the map's style at render time.

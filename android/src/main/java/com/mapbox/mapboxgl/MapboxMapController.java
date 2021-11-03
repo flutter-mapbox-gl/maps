@@ -1052,11 +1052,11 @@ final class MapboxMapController
         result.success(null);
         break;
       }
-      case "style#removeImageSource": {
+      case "style#removeSource": {
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
-        style.removeSource((String) call.argument("imageSourceId"));
+        style.removeSource((String) call.argument("sourceId"));
         result.success(null);
         break;
       }

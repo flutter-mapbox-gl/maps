@@ -367,6 +367,11 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
+  Future<void> removeSource(String sourceId) {
+    return _map.removeSource(sourceId);
+  }
+
+  @override
   Future<void> setSymbolIconAllowOverlap(bool enable) async {
     //TODO: to implement
     print('setSymbolIconAllowOverlap not implemented yet');
@@ -780,26 +785,31 @@ class MapboxMapController extends MapboxGlPlatform
     _map.removeLayer(layerId);
   }
 
+  @override
   Future<void> addGeoJsonSource(
       String sourceId, Map<String, dynamic> geojson) async {
     _map.addSource(sourceId, {"type": 'geojson', "data": geojson});
   }
 
+  @override
   Future<void> addCircleLayer(
       String sourceId, String layerId, Map<String, dynamic> properties) async {
     return _addLayer(sourceId, layerId, properties, "circle");
   }
 
+  @override
   Future<void> addFillLayer(
       String sourceId, String layerId, Map<String, dynamic> properties) async {
     return _addLayer(sourceId, layerId, properties, "fill");
   }
 
+  @override
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties) async {
     return _addLayer(sourceId, layerId, properties, "line");
   }
 
+  @override
   Future<void> addSymbolLayer(
       String sourceId, String layerId, Map<String, dynamic> properties) async {
     return _addLayer(sourceId, layerId, properties, "symbol");
