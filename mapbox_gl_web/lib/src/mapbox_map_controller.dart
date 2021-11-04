@@ -625,8 +625,13 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  void setCompassGravity(int gravity) {
-    _updateNavigationControl(position: CompassViewPosition.values[gravity]);
+  void setCompassAlignment(CompassViewPosition position) {
+    _updateNavigationControl(position: position);
+  }
+
+  @override
+  void setAttributionButtonAlignment(AttributionButtonPosition position) {
+    print('setAttributionButtonAlignment not available in web');
   }
 
   @override

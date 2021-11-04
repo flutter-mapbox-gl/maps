@@ -31,6 +31,7 @@ class MapboxMap extends StatefulWidget {
     this.logoViewMargins,
     this.compassViewPosition,
     this.compassViewMargins,
+    this.attributionButtonPosition,
     this.attributionButtonMargins,
     this.onMapClick,
     this.onUserLocationUpdated,
@@ -156,7 +157,13 @@ class MapboxMap extends StatefulWidget {
   /// Set the layout margins for the Mapbox Compass
   final Point? compassViewMargins;
 
-  /// Set the layout margins for the Mapbox Attribution Buttons
+  /// Set the position for the Mapbox Attribution Button
+  final AttributionButtonPosition? attributionButtonPosition;
+
+  /// Set the layout margins for the Mapbox Attribution Buttons. If you set this
+  /// value, you may also want to set [attributionButtonPosition] to harmonize
+  /// the layout between iOS and Android, since the underlying frameworks have
+  /// different defaults.
   final Point? attributionButtonMargins;
 
   /// Which gestures should be consumed by the map.
@@ -299,6 +306,7 @@ class _MapboxMapOptions {
     this.logoViewMargins,
     this.compassViewPosition,
     this.compassViewMargins,
+    this.attributionButtonPosition,
     this.attributionButtonMargins,
   });
 
@@ -319,6 +327,7 @@ class _MapboxMapOptions {
       logoViewMargins: map.logoViewMargins,
       compassViewPosition: map.compassViewPosition,
       compassViewMargins: map.compassViewMargins,
+      attributionButtonPosition: map.attributionButtonPosition,
       attributionButtonMargins: map.attributionButtonMargins,
     );
   }
@@ -352,6 +361,8 @@ class _MapboxMapOptions {
   final CompassViewPosition? compassViewPosition;
 
   final Point? compassViewMargins;
+
+  final AttributionButtonPosition? attributionButtonPosition;
 
   final Point? attributionButtonMargins;
 
@@ -387,6 +398,7 @@ class _MapboxMapOptions {
     addIfNonNull('logoViewMargins', pointToArray(logoViewMargins));
     addIfNonNull('compassViewPosition', compassViewPosition?.index);
     addIfNonNull('compassViewMargins', pointToArray(compassViewMargins));
+    addIfNonNull('attributionButtonPosition', attributionButtonPosition?.index);
     addIfNonNull(
         'attributionButtonMargins', pointToArray(attributionButtonMargins));
     return optionsMap;

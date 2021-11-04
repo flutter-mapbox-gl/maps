@@ -33,6 +33,7 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         MyLocationTrackingMode,
         MyLocationRenderMode,
         CompassViewPosition,
+        AttributionButtonPosition,
         Circle,
         CircleOptions,
         Line,

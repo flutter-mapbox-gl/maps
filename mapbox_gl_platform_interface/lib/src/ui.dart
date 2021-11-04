@@ -67,6 +67,14 @@ enum CompassViewPosition {
   BottomRight,
 }
 
+/// Attribution Button Position
+enum AttributionButtonPosition {
+  TopLeft,
+  TopRight,
+  BottomLeft,
+  BottomRight,
+}
+
 /// Bounds for the map camera target.
 // Used with [MapboxMapOptions] to wrap a [LatLngBounds] value. This allows
 // distinguishing between specifying an unbounded target (null `LatLngBounds`)

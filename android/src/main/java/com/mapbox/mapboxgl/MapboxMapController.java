@@ -321,7 +321,7 @@ final class MapboxMapController
             throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
         }
       }
-      
+
       if (myLocationEnabled) {
         enableLocationComponent(style);
       }
@@ -421,7 +421,7 @@ final class MapboxMapController
         mapReadyResult = result;
         break;
       case "map#update": {
-        Convert.interpretMapboxMapOptions(call.argument("options"), this);
+        Convert.interpretMapboxMapOptions(call.argument("options"), this, context);
         result.success(Convert.toJson(getCameraPosition()));
         break;
       }
@@ -706,7 +706,7 @@ final class MapboxMapController
         result.success(null);
         break;
       }
-      case "line#addAll": { 
+      case "line#addAll": {
         List<String> newIds = new ArrayList<String>();
         final List<Object> options = call.argument("options");
         List<LineOptions> optionList = new ArrayList<LineOptions>();
@@ -778,7 +778,7 @@ final class MapboxMapController
         result.success(circleId);
         break;
       }
-      case "circle#addAll": { 
+      case "circle#addAll": {
         List<String> newIds = new ArrayList<String>();
         final List<Object> options = call.argument("options");
         List<CircleOptions> optionList = new ArrayList<CircleOptions>();
@@ -854,7 +854,7 @@ final class MapboxMapController
         break;
       }
 
-      case "fill#addAll": { 
+      case "fill#addAll": {
         List<String> newIds = new ArrayList<String>();
         final List<Object> options = call.argument("options");
         List<FillOptions> optionList = new ArrayList<FillOptions>();
@@ -1330,8 +1330,42 @@ final class MapboxMapController
   }
 
   @Override
+  public void setAttributionButtonGravity(int gravity) {
+    switch(gravity) {
+      case 0:
+        mapboxMap.getUiSettings().setAttributionGravity(Gravity.TOP | Gravity.START);
+        break;
+      default:
+      case 1:
+        mapboxMap.getUiSettings().setAttributionGravity(Gravity.TOP | Gravity.END);
+        break;
+      case 2:
+        mapboxMap.getUiSettings().setAttributionGravity(Gravity.BOTTOM | Gravity.START);
+        break;
+      case 3:
+        mapboxMap.getUiSettings().setAttributionGravity(Gravity.BOTTOM | Gravity.END);
+        break;
+    }
+  }
+
+  @Override
   public void setAttributionButtonMargins(int x, int y) {
-    mapboxMap.getUiSettings().setAttributionMargins(x, 0, 0, y);
+    switch(mapboxMap.getUiSettings().getAttributionGravity())
+    {
+      case Gravity.TOP | Gravity.START:
+        mapboxMap.getUiSettings().setAttributionMargins(x, y, 0, 0);
+        break;
+      default:
+      case Gravity.TOP | Gravity.END:
+        mapboxMap.getUiSettings().setAttributionMargins(0, y, x, 0);
+        break;
+      case Gravity.BOTTOM | Gravity.START:
+        mapboxMap.getUiSettings().setAttributionMargins(x, 0, 0, y);
+        break;
+      case Gravity.BOTTOM | Gravity.END:
+        mapboxMap.getUiSettings().setAttributionMargins(0, 0, x, y);
+        break;
+    }
   }
 
   private void updateMyLocationEnabled() {
