@@ -10,6 +10,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     
     private var mapView: MGLMapView
     private var isMapReady = false
+    private var isStyleReady = false
     private var mapReadyResult: FlutterResult?
     
     private var initialTilt: CGFloat?
@@ -91,6 +92,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "map#waitForMap":
             if isMapReady {
                 result(nil)
+                //Style could happen to been ready before the map was ready due to the order of methods invoked
+                //We should invoke onStyleLoaded
+                if isStyleReady {
+                    if let channel = channel {
+                        channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+                    }
+                }
             } else {
                 mapReadyResult = result
             }
@@ -873,10 +881,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
         }
 
-        mapReadyResult?(nil)
-        if let channel = channel {
-            channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+        //If map is ready and map#waitForMap was called, we invoke onStyleLoaded callback directly
+        //If not, we will have to call it when map#waitForMap is done
+        if let mapReadyResult = mapReadyResult {
+            mapReadyResult(nil)
+            if let channel = channel {
+                channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+            }
         }
+
+        isStyleReady = true
     }
     
     func mapView(_ mapView: MGLMapView, shouldChangeFrom oldCamera: MGLMapCamera, to newCamera: MGLMapCamera) -> Bool {
