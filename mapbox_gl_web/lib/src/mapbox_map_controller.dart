@@ -792,43 +792,67 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
+  Future<void> setGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
+    final source = _map.getSource(sourceId) as GeoJsonSource;
+    final data = FeatureCollection(features: [
+      for (final f in geojson["features"] ?? [])
+        Feature(
+            geometry: Geometry(
+                type: f["geometry"]["type"],
+                coordinates: f["geometry"]["coordinates"]),
+            properties: f["properties"],
+            id: f["id"])
+    ]);
+    source.setData(data);
+  }
+
+  @override
   Future<void> addCircleLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties) async {
-    return _addLayer(sourceId, layerId, properties, "circle");
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId}) async {
+    return _addLayer(sourceId, layerId, properties, "circle",
+        belowLayerId: belowLayerId);
   }
 
   @override
   Future<void> addFillLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties) async {
-    return _addLayer(sourceId, layerId, properties, "fill");
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId}) async {
+    return _addLayer(sourceId, layerId, properties, "fill",
+        belowLayerId: belowLayerId);
   }
 
   @override
   Future<void> addLineLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties) async {
-    return _addLayer(sourceId, layerId, properties, "line");
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId}) async {
+    return _addLayer(sourceId, layerId, properties, "line",
+        belowLayerId: belowLayerId);
   }
 
   @override
   Future<void> addSymbolLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties) async {
-    return _addLayer(sourceId, layerId, properties, "symbol");
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId}) async {
+    return _addLayer(sourceId, layerId, properties, "symbol",
+        belowLayerId: belowLayerId);
   }
 
   Future<void> _addLayer(String sourceId, String layerId,
-      Map<String, dynamic> properties, String layerType) async {
+      Map<String, dynamic> properties, String layerType,
+      {String? belowLayerId}) async {
     final layout = Map.fromEntries(
         properties.entries.where((entry) => isLayoutProperty(entry.key)));
     final paint = Map.fromEntries(
         properties.entries.where((entry) => !isLayoutProperty(entry.key)));
 
-    _featureLayerIdentifiers.add(layerId);
     _map.addLayer({
       'id': layerId,
       'type': layerType,
       'source': sourceId,
       'layout': layout,
       'paint': paint
-    });
+    }, belowLayerId);
   }
 }

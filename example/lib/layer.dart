@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:mapbox_gl_example/main.dart';
@@ -19,6 +22,7 @@ class LayerState extends State {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
   late MapboxMapController controller;
+  Timer? timer;
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +57,12 @@ class LayerState extends State {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _onStyleLoadedCallback() {
-    controller.addGeoJsonSource("fills", _fills);
-    controller.addGeoJsonSource("points", _points);
+  void _onStyleLoadedCallback() async {
+    await controller.addGeoJsonSource("fills", _fills);
+    await controller.addGeoJsonSource("points", _points);
+    await controller.addGeoJsonSource("moving", _movingFeature(0));
 
-    controller.addFillLayer(
+    await controller.addFillLayer(
       "fills",
       "fills",
       FillLayerProperties(fillColor: [
@@ -69,9 +74,10 @@ class LayerState extends State {
         18,
         'green'
       ], fillOpacity: 0.4),
+      belowLayerId: "water",
     );
 
-    controller.addLineLayer(
+    await controller.addLineLayer(
       "fills",
       "lines",
       LineLayerProperties(
@@ -87,23 +93,84 @@ class LayerState extends State {
           ]),
     );
 
-    controller.addCircleLayer(
-        "fills",
-        "circles",
-        CircleLayerProperties(
-          circleRadius: 4,
-          circleColor: Colors.blue.toHexStringRGB(),
-        ));
+    await controller.addCircleLayer(
+      "fills",
+      "circles",
+      CircleLayerProperties(
+        circleRadius: 4,
+        circleColor: Colors.blue.toHexStringRGB(),
+      ),
+    );
 
-    controller.addSymbolLayer(
-        "points",
-        "symbols",
+    await controller.addSymbolLayer(
+      "points",
+      "symbols",
+      SymbolLayerProperties(
+        iconImage: "{type}-15",
+        iconSize: 2,
+        iconAllowOverlap: true,
+      ),
+    );
+
+    await controller.addSymbolLayer(
+        "moving",
+        "moving",
         SymbolLayerProperties(
-          iconImage: "{type}-15",
+          textField: "{name}",
+          textHaloWidth: 1,
+          textSize: 10,
+          textHaloColor: Colors.white.toHexStringRGB(),
+          textOffset: [
+            Expressions.literal,
+            [0, 2]
+          ],
+          iconImage: "bicycle-15",
           iconSize: 2,
           iconAllowOverlap: true,
+          textAllowOverlap: true,
         ));
+    timer = Timer.periodic(
+        Duration(milliseconds: 10),
+        (t) => controller.setGeoJsonSource(
+            "moving", _movingFeature(t.tick / 2000)));
   }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+}
+
+Map<String, dynamic> _movingFeature(double t) {
+  List<double> makeLatLong(double t) {
+    final angle = t * 2 * pi;
+    const r = 0.025;
+    const center_x = 151.1849;
+    const center_y = -33.8748;
+    return [
+      center_x + r * sin(angle),
+      center_y + r * cos(angle),
+    ];
+  }
+
+  return {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {"name": "POGAČAR Tadej"},
+        "id": 10,
+        "geometry": {"type": "Point", "coordinates": makeLatLong(t)}
+      },
+      {
+        "type": "Feature",
+        "properties": {"name": "VAN AERT Wout"},
+        "id": 11,
+        "geometry": {"type": "Point", "coordinates": makeLatLong(t + 0.15)}
+      },
+    ]
+  };
 }
 
 final _fills = {

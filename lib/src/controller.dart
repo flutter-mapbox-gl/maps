@@ -272,28 +272,53 @@ class MapboxMapController extends ChangeNotifier {
     await _mapboxGlPlatform.addGeoJsonSource(sourceId, geojson);
   }
 
+  Future<void> setGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
+    await _mapboxGlPlatform.setGeoJsonSource(sourceId, geojson);
+  }
+
   Future<void> addSymbolLayer(
-      String sourceId, String layerId, SymbolLayerProperties properties) async {
+      String sourceId, String layerId, SymbolLayerProperties properties,
+      {String? belowLayerId}) async {
     await _mapboxGlPlatform.addSymbolLayer(
-        sourceId, layerId, properties.toJson());
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+    );
   }
 
   Future<void> addLineLayer(
-      String sourceId, String layerId, LineLayerProperties properties) async {
+      String sourceId, String layerId, LineLayerProperties properties,
+      {String? belowLayerId}) async {
     await _mapboxGlPlatform.addLineLayer(
-        sourceId, layerId, properties.toJson());
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+    );
   }
 
   Future<void> addFillLayer(
-      String sourceId, String layerId, FillLayerProperties properties) async {
+      String sourceId, String layerId, FillLayerProperties properties,
+      {String? belowLayerId}) async {
     await _mapboxGlPlatform.addFillLayer(
-        sourceId, layerId, properties.toJson());
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+    );
   }
 
   Future<void> addCircleLayer(
-      String sourceId, String layerId, CircleLayerProperties properties) async {
+      String sourceId, String layerId, CircleLayerProperties properties,
+      {String? belowLayerId}) async {
     await _mapboxGlPlatform.addCircleLayer(
-        sourceId, layerId, properties.toJson());
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+    );
   }
 
   /// Updates user location tracking mode.
