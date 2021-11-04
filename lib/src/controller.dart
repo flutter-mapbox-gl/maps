@@ -267,16 +267,40 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.moveCamera(cameraUpdate);
   }
 
+  /// Adds a new geojson source
+  ///
+  /// The json in [geojson] has to comply with the schema for FeatureCollection
+  /// as specified in https://datatracker.ietf.org/doc/html/rfc7946#section-3.3
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
   Future<void> addGeoJsonSource(
       String sourceId, Map<String, dynamic> geojson) async {
     await _mapboxGlPlatform.addGeoJsonSource(sourceId, geojson);
   }
 
+  /// Sets new geojson data to and existing source
+  ///
+  /// This only works as exected if the source has been created with
+  /// [addGeoJsonSource] before. This is very useful if you want to update and
+  /// existing source with modified data.
+  ///
+  /// The json in [geojson] has to comply with the schema for FeatureCollection
+  /// as specified in https://datatracker.ietf.org/doc/html/rfc7946#section-3.3
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
   Future<void> setGeoJsonSource(
       String sourceId, Map<String, dynamic> geojson) async {
     await _mapboxGlPlatform.setGeoJsonSource(sourceId, geojson);
   }
 
+  /// Add a symbol layer to the map with the given properties
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Note: [belowLayerId] is currently ignored on the web
   Future<void> addSymbolLayer(
       String sourceId, String layerId, SymbolLayerProperties properties,
       {String? belowLayerId}) async {
@@ -288,6 +312,12 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
+  /// Add a line layer to the map with the given properties
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Note: [belowLayerId] is currently ignored on the web
   Future<void> addLineLayer(
       String sourceId, String layerId, LineLayerProperties properties,
       {String? belowLayerId}) async {
@@ -299,6 +329,12 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
+  /// Add a fill layer to the map with the given properties
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Note: [belowLayerId] is currently ignored on the web
   Future<void> addFillLayer(
       String sourceId, String layerId, FillLayerProperties properties,
       {String? belowLayerId}) async {
@@ -310,6 +346,12 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
+  /// Add a circle layer to the map with the given properties
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Note: [belowLayerId] is currently ignored on the web
   Future<void> addCircleLayer(
       String sourceId, String layerId, CircleLayerProperties properties,
       {String? belowLayerId}) async {
