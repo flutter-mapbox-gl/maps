@@ -295,6 +295,7 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Updates the language of the map labels to match the specified language.
   /// Supported language strings are available here: https://github.com/mapbox/mapbox-plugins-android/blob/e29c18d25098eb023a831796ff807e30d8207c36/plugin-localization/src/main/java/com/mapbox/mapboxsdk/plugins/localization/MapLocale.java#L39-L87
+  /// Attention: This may only be called after onStyleLoaded() has been invoked.
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
