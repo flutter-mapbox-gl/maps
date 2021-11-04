@@ -116,7 +116,7 @@ class LayerState extends State {
         "moving",
         "moving",
         SymbolLayerProperties(
-          textField: "{name}",
+          textField: [Expressions.get, "name"],
           textHaloWidth: 1,
           textSize: 10,
           textHaloColor: Colors.white.toHexStringRGB(),
