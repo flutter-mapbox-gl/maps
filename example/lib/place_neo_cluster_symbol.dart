@@ -31,13 +31,11 @@ class PlaceSymbolBody extends StatefulWidget {
 }
 
 class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
-  PlaceSymbolBodyState();
-
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
-  MapboxMapController controller;
+  late MapboxMapController controller;
   int _symbolCount = 0;
-  Symbol _selectedSymbol;
+  Symbol? _selectedSymbol;
   bool _iconAllowOverlap = false;
 
   void _onMapCreated(MapboxMapController controller) {
@@ -52,7 +50,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   @override
   void dispose() {
-    controller?.onSymbolTapped?.remove(_onSymbolTapped);
+    controller.onSymbolTapped.remove(_onSymbolTapped);
     super.dispose();
   }
 
@@ -86,12 +84,12 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _updateSelectedSymbol(SymbolOptions changes) {
-    controller.updateNeoClusterSymbol(_selectedSymbol, changes);
+    if (_selectedSymbol != null) controller.updateNeoClusterSymbol(_selectedSymbol!, changes);
   }
 
   void _add(String iconImage) {
     List<int> availableNumbers = Iterable<int>.generate(12).toList();
-    controller.neoClusterSymbols.forEach((s) => availableNumbers.removeWhere((i) => i == s.data['count']));
+    controller.neoClusterSymbols.forEach((s) => availableNumbers.removeWhere((i) => i == s.data?['count']));
     if (availableNumbers.isNotEmpty) {
       controller
           .addNeoClusterSymbol(_getSymbolOptions(iconImage, availableNumbers.first), {'count': availableNumbers.first});
@@ -114,7 +112,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   Future<void> _addAll(String iconImage) async {
     List<int> symbolsToAddNumbers = Iterable<int>.generate(12).toList();
-    controller.neoClusterSymbols.forEach((s) => symbolsToAddNumbers.removeWhere((i) => i == s.data['count']));
+    controller.neoClusterSymbols.forEach((s) => symbolsToAddNumbers.removeWhere((i) => i == s.data?['count']));
 
     if (symbolsToAddNumbers.isNotEmpty) {
       final List<SymbolOptions> symbolOptionsList =
@@ -128,7 +126,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _remove() {
-    controller.removeNeoClusterSymbol(_selectedSymbol);
+    if (_selectedSymbol == null) return;
+    controller.removeNeoClusterSymbol(_selectedSymbol!);
     setState(() {
       _selectedSymbol = null;
       _symbolCount -= 1;
@@ -144,7 +143,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _changePosition() {
-    final LatLng current = _selectedSymbol.options.geometry;
+    if (_selectedSymbol == null) return;
+    final LatLng current = _selectedSymbol!.options.geometry ?? LatLng(0, 0);
     final Offset offset = Offset(
       center.latitude - current.latitude,
       center.longitude - current.longitude,
@@ -160,7 +160,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _changeIconOffset() {
-    Offset currentAnchor = _selectedSymbol.options.iconOffset;
+    Offset? currentAnchor = _selectedSymbol?.options.iconOffset;
     if (currentAnchor == null) {
       // default value
       currentAnchor = Offset(0.0, 0.0);
@@ -170,7 +170,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   Future<void> _changeIconAnchor() async {
-    String current = _selectedSymbol.options.iconAnchor;
+    String? current = _selectedSymbol?.options.iconAnchor;
     if (current == null || current == 'center') {
       current = 'bottom';
     } else {
@@ -182,7 +182,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   Future<void> _toggleDraggable() async {
-    bool draggable = _selectedSymbol.options.draggable;
+    bool? draggable = _selectedSymbol?.options.draggable;
     if (draggable == null) {
       // default value
       draggable = false;
@@ -194,7 +194,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   Future<void> _changeAlpha() async {
-    double current = _selectedSymbol.options.iconOpacity;
+    double? current = _selectedSymbol?.options.iconOpacity;
     if (current == null) {
       // default value
       current = 1.0;
@@ -206,7 +206,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   Future<void> _changeRotation() async {
-    double current = _selectedSymbol.options.iconRotate;
+    double? current = _selectedSymbol?.options.iconRotate;
     if (current == null) {
       // default value
       current = 0;
@@ -217,7 +217,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   Future<void> _toggleVisible() async {
-    double current = _selectedSymbol.options.iconOpacity;
+    double? current = _selectedSymbol?.options.iconOpacity;
     if (current == null) {
       // default value
       current = 1.0;
@@ -229,7 +229,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   Future<void> _changeZIndex() async {
-    int current = _selectedSymbol.options.zIndex;
+    int? current = _selectedSymbol?.options.zIndex;
     if (current == null) {
       // default value
       current = 0;
@@ -240,7 +240,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   void _getLatLng() async {
-    LatLng latLng = await controller.getSymbolLatLng(_selectedSymbol);
+    if (_selectedSymbol == null) return;
+    LatLng latLng = await controller.getSymbolLatLng(_selectedSymbol!);
     Scaffold.of(context).showSnackBar(
       SnackBar(
         content: Text(latLng.toString()),

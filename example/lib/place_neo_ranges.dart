@@ -25,8 +25,6 @@ class PlaceNeoRangeBody extends StatefulWidget {
 }
 
 class PlaceNeoRangeBodyState extends State<PlaceNeoRangeBody> {
-  PlaceNeoRangeBodyState();
-
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
   static final NeoRanges neoRanges = NeoRanges(
@@ -58,7 +56,7 @@ class PlaceNeoRangeBodyState extends State<PlaceNeoRangeBody> {
     ),
   );
 
-  MapboxMapController controller;
+  late MapboxMapController controller;
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;

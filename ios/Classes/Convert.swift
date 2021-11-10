@@ -70,6 +70,9 @@ class Convert {
         {
             delegate.setAttributionButtonPosition(position: position)
         }
+        if let attributionButtonPosition = options["attributionButtonPosition"] as? UInt, let position = MGLOrnamentPosition(rawValue: attributionButtonPosition) {
+            delegate.setAttributionButtonPosition(position: position)
+        }
     }
 
     class func parseCameraUpdate(cameraUpdate: [Any], mapView: MGLMapView) -> MGLMapCamera? {
