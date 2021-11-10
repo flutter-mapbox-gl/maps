@@ -63,7 +63,6 @@ class ClickAnnotationBodyState extends State<ClickAnnotationBody> {
   }
 
   void _onLineTapped(Line line) {
-    print("line");
     _showSnackBar('line', line.id);
   }
 

@@ -17,7 +17,7 @@ import 'line.dart';
 import 'local_style.dart';
 import 'map_ui.dart';
 import 'move_camera.dart';
-import 'overlay_annotations.dart';
+import 'click_annotations.dart';
 import 'page.dart';
 import 'place_circle.dart';
 import 'place_source.dart';
