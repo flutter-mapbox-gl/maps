@@ -1,0 +1,11 @@
+name: mapbox_code_gen
+description: code generation for flutter-mapbox-gl
+
+version: 0.0.1
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+
+dependencies:
+  mustache_template: ^2.0.0
+  recase: ^4.0.0

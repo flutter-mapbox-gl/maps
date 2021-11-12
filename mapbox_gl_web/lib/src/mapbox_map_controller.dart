@@ -11,6 +11,7 @@ class MapboxMapController extends MapboxGlPlatform
   late MapboxMap _map;
 
   List<String> annotationOrder = [];
+  final _featureLayerIdentifiers = Set<String>();
   late SymbolManager symbolManager;
   late LineManager lineManager;
   late CircleManager circleManager;
@@ -366,6 +367,11 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
+  Future<void> removeSource(String sourceId) {
+    return _map.removeSource(sourceId);
+  }
+
+  @override
   Future<void> setSymbolIconAllowOverlap(bool enable) async {
     //TODO: to implement
     print('setSymbolIconAllowOverlap not implemented yet');
@@ -447,11 +453,17 @@ class MapboxMapController extends MapboxGlPlatform
     });
   }
 
-  void _onMapClick(e) {
-    onMapClickPlatform({
-      'point': Point<double>(e.point.x, e.point.y),
-      'latLng': LatLng(e.lngLat.lat, e.lngLat.lng),
-    });
+  void _onMapClick(Event e) {
+    final features = _map.queryRenderedFeatures(
+        [e.point.x, e.point.y], {"layers": _featureLayerIdentifiers.toList()});
+    if (features.isNotEmpty) {
+      onFeatureTappedPlatform(features.first.id);
+    } else {
+      onMapClickPlatform({
+        'point': Point<double>(e.point.x.toDouble(), e.point.y.toDouble()),
+        'latLng': LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble()),
+      });
+    }
   }
 
   void _onMapLongClick(e) {
@@ -770,5 +782,82 @@ class MapboxMapController extends MapboxGlPlatform
     var circumference = 40075017.686;
     var zoom = _map.getZoom();
     return circumference * cos(latitude * (pi / 180)) / pow(2, zoom + 9);
+  }
+
+  @override
+  Future<void> removeLayer(String layerId) async {
+    _featureLayerIdentifiers.remove(layerId);
+    _map.removeLayer(layerId);
+  }
+
+  @override
+  Future<void> addGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
+    _map.addSource(sourceId, {"type": 'geojson', "data": geojson});
+  }
+
+  @override
+  Future<void> setGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
+    final source = _map.getSource(sourceId) as GeoJsonSource;
+    final data = FeatureCollection(features: [
+      for (final f in geojson["features"] ?? [])
+        Feature(
+            geometry: Geometry(
+                type: f["geometry"]["type"],
+                coordinates: f["geometry"]["coordinates"]),
+            properties: f["properties"],
+            id: f["id"])
+    ]);
+    source.setData(data);
+  }
+
+  @override
+  Future<void> addCircleLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId}) async {
+    return _addLayer(sourceId, layerId, properties, "circle",
+        belowLayerId: belowLayerId);
+  }
+
+  @override
+  Future<void> addFillLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId}) async {
+    return _addLayer(sourceId, layerId, properties, "fill",
+        belowLayerId: belowLayerId);
+  }
+
+  @override
+  Future<void> addLineLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId}) async {
+    return _addLayer(sourceId, layerId, properties, "line",
+        belowLayerId: belowLayerId);
+  }
+
+  @override
+  Future<void> addSymbolLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId}) async {
+    return _addLayer(sourceId, layerId, properties, "symbol",
+        belowLayerId: belowLayerId);
+  }
+
+  Future<void> _addLayer(String sourceId, String layerId,
+      Map<String, dynamic> properties, String layerType,
+      {String? belowLayerId}) async {
+    final layout = Map.fromEntries(
+        properties.entries.where((entry) => isLayoutProperty(entry.key)));
+    final paint = Map.fromEntries(
+        properties.entries.where((entry) => !isLayoutProperty(entry.key)));
+
+    _map.addLayer({
+      'id': layerId,
+      'type': layerType,
+      'source': sourceId,
+      'layout': layout,
+      'paint': paint
+    }, belowLayerId);
   }
 }

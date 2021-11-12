@@ -34,6 +34,7 @@ import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.telemetry.TelemetryEnabler;
 import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
@@ -71,11 +72,26 @@ import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.CircleLayer;
+import com.mapbox.mapboxsdk.style.layers.FillLayer;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.PropertyValue;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.PluginRegistry;
+import io.flutter.plugin.platform.PlatformView;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -137,6 +153,7 @@ final class MapboxMapController
   private Style style;
   private List<String> annotationOrder;
   private List<String> annotationConsumeTapEvents;
+  private Set<String> featureLayerIdentifiers;
 
   MapboxMapController(
     int id,
@@ -153,6 +170,7 @@ final class MapboxMapController
     this.context = context;
     this.styleStringInitial = styleStringInitial;
     this.mapView = new MapView(context, options);
+    this.featureLayerIdentifiers = new HashSet<>();
     this.symbols = new HashMap<>();
     this.lines = new HashMap<>();
     this.circles = new HashMap<>();
@@ -376,6 +394,91 @@ final class MapboxMapController
     final Map<String, Object> arguments = new HashMap<>(1);
     arguments.put("userLocation", userLocation);
     methodChannel.invokeMethod("map#onUserLocationUpdated", arguments);
+  }
+  
+  private void addGeoJsonSource(String sourceName, String source) {
+    FeatureCollection featureCollection = FeatureCollection.fromJson(source);
+    GeoJsonSource geoJsonSource = new GeoJsonSource(sourceName, featureCollection);
+
+    style.addSource(geoJsonSource);
+  }
+
+  private void setGeoJsonSource(String sourceName, String source) {
+    FeatureCollection featureCollection = FeatureCollection.fromJson(source);
+    GeoJsonSource geoJsonSource = style.getSourceAs(sourceName);
+
+    geoJsonSource.setGeoJson(featureCollection);
+  }
+
+  private void addSymbolLayer(String layerName,
+                              String sourceName,
+                              String belowLayerId,
+                              PropertyValue[] properties,
+                              Expression filter) {
+    SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
+    symbolLayer.setProperties(properties);
+
+    if(belowLayerId != null){
+      style.addLayerBelow(symbolLayer, belowLayerId);
+    }
+    else
+    {
+      style.addLayer(symbolLayer);
+    }
+    featureLayerIdentifiers.add(layerName);
+  }
+
+  private void addLineLayer(String layerName,
+                            String sourceName,
+                            String belowLayerId,
+                            PropertyValue[] properties,
+                            Expression filter) {
+    LineLayer lineLayer = new LineLayer(layerName, sourceName);
+    lineLayer.setProperties(properties);
+    if(belowLayerId != null){
+      style.addLayerBelow(lineLayer, belowLayerId);
+    }
+    else
+    {
+      style.addLayer(lineLayer);
+    }
+    featureLayerIdentifiers.add(layerName);
+  }
+
+  private void addFillLayer(String layerName,
+                            String sourceName,
+                            String belowLayerId,
+                            PropertyValue[] properties,
+                            Expression filter) {
+    FillLayer fillLayer = new FillLayer(layerName, sourceName);
+    fillLayer.setProperties(properties);
+
+    if(belowLayerId != null){
+      style.addLayerBelow(fillLayer, belowLayerId);
+    }
+    else
+    {
+      style.addLayer(fillLayer);
+    }
+    featureLayerIdentifiers.add(layerName);
+  }
+
+  private void addCircleLayer(String layerName,
+                            String sourceName,
+                            String belowLayerId,
+                            PropertyValue[] properties,
+                            Expression filter) {
+    CircleLayer circleLayer = new CircleLayer(layerName, sourceName);
+    circleLayer.setProperties(properties);
+
+    featureLayerIdentifiers.add(layerName);
+    if(belowLayerId != null){
+      style.addLayerBelow(circleLayer, belowLayerId);
+    }
+    else
+    {
+      style.addLayer(circleLayer);
+    }
   }
 
   private void enableSymbolManager(@NonNull Style style) {
@@ -902,11 +1005,60 @@ final class MapboxMapController
         break;
       }
       case "fill#update": {
-        Log.e(TAG, "update fill");
         final String fillId = call.argument("fill");
         final FillController fill = fill(fillId);
         Convert.interpretFillOptions(call.argument("options"), fill);
         fill.update(fillManager);
+        result.success(null);
+        break;
+      }
+      case "source#addGeoJson": {
+        final String sourceId = call.argument("sourceId");
+        final String geojson = call.argument("geojson");
+        addGeoJsonSource(sourceId, geojson);
+        result.success(null);
+        break;
+      }
+      case "source#setGeoJson": {
+        final String sourceId = call.argument("sourceId");
+        final String geojson = call.argument("geojson");
+        setGeoJsonSource(sourceId, geojson);
+        result.success(null);
+        break;
+      }
+      case "symbolLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final PropertyValue[] properties = LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
+        addSymbolLayer(layerId, sourceId, belowLayerId, properties, null);
+        result.success(null);
+        break;
+      }
+      case "lineLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final PropertyValue[] properties = LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
+        addLineLayer(layerId, sourceId, belowLayerId, properties, null);
+        result.success(null);
+        break;
+      }
+      case "fillLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final PropertyValue[] properties = LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
+        addFillLayer(layerId, sourceId, belowLayerId, properties, null);
+        result.success(null);
+        break;
+      }
+      case "circleLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final PropertyValue[] properties = LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
+        addCircleLayer(layerId, sourceId, belowLayerId, properties, null);
         result.success(null);
         break;
       }
@@ -953,11 +1105,19 @@ final class MapboxMapController
         result.success(null);
         break;
       }
-      case "style#removeImageSource": {
+      case "style#removeSource": {
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
-        style.removeSource((String) call.argument("imageSourceId"));
+        style.removeSource((String) call.argument("sourceId"));
+        result.success(null);
+        break;
+      }
+      case "style#setSource": {
+        if (style == null) {
+          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+        }
+        style.removeSource((String) call.argument("sourceId"));
         result.success(null);
         break;
       }
@@ -981,7 +1141,10 @@ final class MapboxMapController
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
-        style.removeLayer((String) call.argument("imageLayerId"));
+        String layerId = call.argument("layerId");
+        style.removeLayer(layerId);
+        featureLayerIdentifiers.remove(layerId);
+
         result.success(null);
         break;
       }
@@ -1097,12 +1260,25 @@ final class MapboxMapController
   @Override
   public boolean onMapClick(@NonNull LatLng point) {
     PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
-    final Map<String, Object> arguments = new HashMap<>(5);
-    arguments.put("x", pointf.x);
-    arguments.put("y", pointf.y);
-    arguments.put("lng", point.getLongitude());
-    arguments.put("lat", point.getLatitude());
-    methodChannel.invokeMethod("map#onMapClick", arguments);
+    RectF rectF = new RectF(
+      pointf.x - 10,
+      pointf.y - 10,
+      pointf.x + 10,
+      pointf.y + 10
+    );
+    List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, featureLayerIdentifiers.toArray(new String[0]));
+    if(!featureList.isEmpty()){
+      final Map<String, Object> arguments = new HashMap<>(1);
+      arguments.put("featureId", featureList.get(0).id());
+      methodChannel.invokeMethod("feature#onTap", arguments);
+    } else { 
+      final Map<String, Object> arguments = new HashMap<>(5);
+      arguments.put("x", pointf.x);
+      arguments.put("y", pointf.y);
+      arguments.put("lng", point.getLongitude());
+      arguments.put("lat", point.getLatitude());
+      methodChannel.invokeMethod("map#onMapClick", arguments);
+    }
     return true;
   }
 
