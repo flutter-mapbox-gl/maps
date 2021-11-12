@@ -21,6 +21,7 @@ import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -95,6 +96,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Collections;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -321,19 +323,23 @@ final class MapboxMapController
     @Override
     public void onStyleLoaded(@NonNull Style style) {
       MapboxMapController.this.style = style;
-      for(String annotationType : annotationOrder) {
+      final List<String> orderReversed = new ArrayList<String>(annotationOrder);
+      Collections.reverse(orderReversed);
+      String belowLayer = null;
+
+      for(String annotationType : orderReversed) {
         switch (annotationType) {
           case "AnnotationType.fill":
-            enableFillManager(style);
+            belowLayer = enableFillManager(style, belowLayer);
             break;
           case "AnnotationType.line":
-            enableLineManager(style);
+            belowLayer = enableLineManager(style, belowLayer);
             break;
           case "AnnotationType.circle":
-            enableCircleManager(style);
+            belowLayer = enableCircleManager(style, belowLayer);
             break;
           case "AnnotationType.symbol":
-            enableSymbolManager(style);
+            belowLayer = enableSymbolManager(style, belowLayer);
             break;
           default:
             throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
@@ -481,36 +487,40 @@ final class MapboxMapController
     }
   }
 
-  private void enableSymbolManager(@NonNull Style style) {
+  private String enableSymbolManager(@NonNull Style style, @Nullable String belowLayer) {
     if (symbolManager == null) {
-      symbolManager = new SymbolManager(mapView, mapboxMap, style);
+      symbolManager = new SymbolManager(mapView, mapboxMap, style, belowLayer);
       symbolManager.setIconAllowOverlap(true);
       symbolManager.setIconIgnorePlacement(true);
       symbolManager.setTextAllowOverlap(true);
       symbolManager.setTextIgnorePlacement(true);
       symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
+    return symbolManager.getLayerId();
   }
 
-  private void enableLineManager(@NonNull Style style) {
+  private String enableLineManager(@NonNull Style style, @Nullable String belowLayer) {
     if (lineManager == null) {
-      lineManager = new LineManager(mapView, mapboxMap, style);
+      lineManager = new LineManager(mapView, mapboxMap, style, belowLayer);
       lineManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
+    return lineManager.getLayerId();
   }
 
-  private void enableCircleManager(@NonNull Style style) {
+  private String enableCircleManager(@NonNull Style style, @Nullable String belowLayer) {
     if (circleManager == null) {
-      circleManager = new CircleManager(mapView, mapboxMap, style);
+      circleManager = new CircleManager(mapView, mapboxMap, style, belowLayer);
       circleManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
+    return circleManager.getLayerId();
   }
 
-  private void enableFillManager(@NonNull Style style) {
+  private String enableFillManager(@NonNull Style style, @Nullable String belowLayer) {
     if (fillManager ==  null) {
-      fillManager = new FillManager(mapView, mapboxMap, style);
+      fillManager = new FillManager(mapView, mapboxMap, style, belowLayer);
       fillManager.addClickListener(MapboxMapController.this::onAnnotationClick);
     }
+    return fillManager.getLayerId();
   }
 
   @Override
