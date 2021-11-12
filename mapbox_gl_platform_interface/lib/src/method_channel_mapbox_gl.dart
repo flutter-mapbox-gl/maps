@@ -729,11 +729,22 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
-      {String? promoteId}) async {
+  Future<void> addGeoJsonSource(
+    String sourceId,
+    Map<String, dynamic> geojson, {
+    required bool cluster,
+    required double clusterRadius,
+    required double clusterMaxZoom,
+    Map<String, List>? clusterProperties,
+    String? promoteId,
+  }) async {
     await _channel.invokeMethod('source#addGeoJson', <String, dynamic>{
       'sourceId': sourceId,
       'geojson': jsonEncode(geojson),
+      "cluster": cluster,
+      "clusterRadius": clusterRadius,
+      "clusterMaxZoom": clusterMaxZoom,
+      "clusterProperties": clusterProperties,
     });
   }
 

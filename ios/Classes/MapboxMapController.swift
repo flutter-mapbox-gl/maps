@@ -745,6 +745,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
             guard let geojson = arguments["geojson"] as? String else { return }
+            guard let cluster = arguments["cluster"] as? Bool else { return }
+            guard let clusterRadius = arguments["clusterRadius"] as? Double else { return }
+            guard let clusterMaxZoom = arguments["clusterMaxZoom"] as? Double else { return }
+            guard let clusterProperties = arguments["clusterProperties"] as? [String: Any] else { return }
+
             addSource(sourceId: sourceId, geojson: geojson)
             result(nil)
 
@@ -1135,10 +1140,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
     
-    func addSource(sourceId: String, geojson: String) {
+    func addSource(sourceId: String, geojson: String, cluster: Bool, clusterRadius: Double, clusterMaxZoom: Double) {
         do {
             let parsed = try MGLShape.init(data: geojson.data(using: .utf8)!, encoding: String.Encoding.utf8.rawValue)
-            let source = MGLShapeSource(identifier: sourceId, shape: parsed, options: [:])
+       
+            let source = MGLShapeSource(identifier: sourceId, shape: parsed, options: options)
+            source.cluster = cluster;
+
             mapView.style?.addSource(source)
         } catch {
         }

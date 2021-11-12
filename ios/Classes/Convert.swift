@@ -326,6 +326,28 @@ class Convert {
             delegate.isDraggable = draggable
         }
     }
+
+    class func interpretClusterOptions(options: Any?) -> [MGLShapeSourceOption : Any]? {
+        guard let cluster = options["cluster"] as? Bool else { return }
+        guard let clusterRadius = options["clusterRadius"] as? Double else { return }
+        guard let clusterMaxZoom = options["clusterMaxZoom"] as? Double else { return }
+        guard let clusterProperties = options["clusterProperties"] as? [String: [Any]] else { return }
+        let clusterPropertiesDictionary = [String: [NSExpression]]
+        for (propertyName, propertyValue) in clusterProperties {
+            if(propertyValue.length == 2){
+                let firstExpression = LayerPropertyConverter.interpretExpression("", propertyValue[0])
+                let secondExpression = LayerPropertyConverter.interpretExpression("", propertyValue[1])
+                clusterPropertiesDictionary[propertyName] = [firstExpression, secondExpression]
+            }
+        }
+
+        let options: [MGLShapeSourceOption : Any] = [.clustered : cluster,
+                                    .clusterRadius : clusterRadius,
+                                    .clusterMaxZoom : clusterMaxZoom
+                                    .clusterProperties: clusterPropertiesDictionary
+                                    ]
+        return options;
+    }
     
     class func getCoordinates(options: Any?)  -> [CLLocationCoordinate2D] {
         var coordinates: [CLLocationCoordinate2D] = []

@@ -277,10 +277,26 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
-  Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
-      {String? promoteId}) async {
-    await _mapboxGlPlatform.addGeoJsonSource(sourceId, geojson,
-        promoteId: promoteId);
+  ///
+  /// clusterProperties are currently only supported on web
+  Future<void> addGeoJsonSource(
+    String sourceId,
+    Map<String, dynamic> geojson, {
+    bool cluster = false,
+    double clusterRadius = 50,
+    double clusterMaxZoom = 18,
+    String? promoteId,
+    Map<String, List> clusterProperties = const {},
+  }) async {
+    await _mapboxGlPlatform.addGeoJsonSource(
+      sourceId,
+      geojson,
+      promoteId: promoteId,
+      cluster: cluster,
+      clusterRadius: clusterRadius,
+      clusterMaxZoom: clusterMaxZoom,
+      clusterProperties: clusterProperties,
+    );
   }
 
   /// Sets new geojson data to and existing source
