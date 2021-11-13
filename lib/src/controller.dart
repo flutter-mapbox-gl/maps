@@ -158,7 +158,6 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   final OnStyleLoadedCallback? onStyleLoadedCallback;
-
   final OnMapClickCallback? onMapClick;
   final OnMapLongClickCallback? onMapLongClick;
 
@@ -976,5 +975,11 @@ class MapboxMapController extends ChangeNotifier {
   /// The distance between pixels decreases as the latitude approaches the poles. This relationship parallels the relationship between longitudinal coordinates at different latitudes.
   Future<double> getMetersPerPixelAtLatitude(double latitude) async {
     return _mapboxGlPlatform.getMetersPerPixelAtLatitude(latitude);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _mapboxGlPlatform.dispose();
   }
 }

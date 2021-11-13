@@ -240,6 +240,15 @@ class _MapboxMapState extends State<MapboxMap> {
   }
 
   @override
+  void dispose() async {
+    super.dispose();
+    if (_controller.isCompleted) {
+        final controller = await _controller.future;
+        controller.dispose();
+    }
+  }
+
+  @override
   void didUpdateWidget(MapboxMap oldWidget) {
     super.didUpdateWidget(oldWidget);
     final _MapboxMapOptions newOptions = _MapboxMapOptions.fromWidget(widget);
