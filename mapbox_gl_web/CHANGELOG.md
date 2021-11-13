@@ -1,3 +1,8 @@
+## 0.14.0, November 13, 2021
+* Add support for Layers, properties and expressions backed by GeoJsonSource [#723](https://github.com/tobrun/flutter-mapbox-gl/pull/723)
+* Add attribution button gravity, position normally [#731](https://github.com/tobrun/flutter-mapbox-gl/pull/731)
+* Add getSymbolLatLng and getLineLatLngs for web [#720](https://github.com/tobrun/flutter-mapbox-gl/pull/720)
+
 ## 0.13.0, October 21, 2021
 * Migrate to null-safety [#607](https://github.com/tobrun/flutter-mapbox-gl/pull/607)
 * Add missing removeLines removeCircles and removeFills [#622](https://github.com/tobrun/flutter-mapbox-gl/pull/622)
