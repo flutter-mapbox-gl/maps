@@ -29,9 +29,11 @@ abstract class MapboxMapOptionsSink {
 
   void setLogoViewMargins(int x, int y);
 
-  void setCompassGravity(int gravity);
+  void setCompassAlignment(CompassViewPosition position);
 
   void setCompassViewMargins(int x, int y);
+
+  void setAttributionButtonAlignment(AttributionButtonPosition position);
 
   void setAttributionButtonMargins(int x, int y);
 }

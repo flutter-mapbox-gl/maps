@@ -9,6 +9,7 @@ import 'package:mapbox_gl_example/custom_marker.dart';
 import 'package:mapbox_gl_example/full_map.dart';
 import 'package:mapbox_gl_example/offline_regions.dart';
 import 'package:mapbox_gl_example/place_batch.dart';
+import 'package:mapbox_gl_example/layer.dart';
 
 import 'animate_camera.dart';
 import 'annotation_order_maps.dart';
@@ -17,6 +18,7 @@ import 'line.dart';
 import 'local_style.dart';
 import 'map_ui.dart';
 import 'move_camera.dart';
+import 'click_annotations.dart';
 import 'page.dart';
 import 'place_circle.dart';
 import 'place_source.dart';
@@ -33,6 +35,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   PlaceSourcePage(),
   LinePage(),
   LocalStylePage(),
+  LayerPage(),
   PlaceCirclePage(),
   PlaceFillPage(),
   ScrollingMapPage(),
@@ -40,6 +43,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   AnnotationOrderPage(),
   CustomMarkerPage(),
   BatchAddPage(),
+  ClickAnnotationPage()
 ];
 
 class MapsDemo extends StatelessWidget {

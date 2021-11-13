@@ -56,11 +56,16 @@ class Convert {
           options['logoViewMargins'][0], options['logoViewMargins'][1]);
     }
     if (options.containsKey('compassViewPosition')) {
-      sink.setCompassGravity(options['compassViewPosition']);
+      final position = CompassViewPosition.values[options['compassViewPosition']];
+      sink.setCompassAlignment(position);
     }
     if (options.containsKey('compassViewMargins')) {
       sink.setCompassViewMargins(
           options['compassViewMargins'][0], options['compassViewMargins'][1]);
+    }
+    if (options.containsKey('attributionButtonPosition')) {
+      final position = AttributionButtonPosition.values[options['attributionButtonPosition']];
+      sink.setAttributionButtonAlignment(position);
     }
     if (options.containsKey('attributionButtonMargins')) {
       sink.setAttributionButtonMargins(options['attributionButtonMargins'][0],

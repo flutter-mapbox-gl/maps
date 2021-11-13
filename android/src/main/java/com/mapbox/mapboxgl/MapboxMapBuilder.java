@@ -118,7 +118,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   public void setMyLocationRenderMode(int myLocationRenderMode) {
     this.myLocationRenderMode = myLocationRenderMode;
   }
-  
+
   public void setLogoViewMargins(int x, int y) {
         options.logoMargins(new int[] {
             (int) x, //left
@@ -134,7 +134,6 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
       case 0:
         options.compassGravity(Gravity.TOP | Gravity.START);
         break;
-      default:
       case 1:
         options.compassGravity(Gravity.TOP | Gravity.END);
         break;
@@ -154,6 +153,8 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
       case Gravity.TOP | Gravity.START:
         options.compassMargins(new int[] {(int) x, (int) y, 0, 0});
         break;
+      // If the application code has not specified gravity, assume the platform
+      // default for the compass which is top-right
       default:
       case Gravity.TOP | Gravity.END:
         options.compassMargins(new int[] {0, (int) y, (int) x, 0});
@@ -168,13 +169,43 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   }
 
   @Override
+  public void setAttributionButtonGravity(int gravity) {
+    switch(gravity){
+      case 0:
+        options.attributionGravity(Gravity.TOP | Gravity.START);
+        break;
+      case 1:
+        options.attributionGravity(Gravity.TOP | Gravity.END);
+        break;
+      case 2:
+        options.attributionGravity(Gravity.BOTTOM | Gravity.START);
+        break;
+      case 3:
+        options.attributionGravity(Gravity.BOTTOM | Gravity.END);
+        break;
+    }
+  }
+
+  @Override
   public void setAttributionButtonMargins(int x, int y) {
-    options.attributionMargins(new int[] {
-            (int) x, //left
-            (int) 0, //top
-            (int) 0, //right
-            (int) y, //bottom
-    });
+    switch(options.getAttributionGravity())
+    {
+      case Gravity.TOP | Gravity.START:
+        options.attributionMargins(new int[] {(int) x, (int) y, 0, 0});
+        break;
+      case Gravity.TOP | Gravity.END:
+        options.attributionMargins(new int[] {0, (int) y, (int) x, 0});
+        break;
+      // If the application code has not specified gravity, assume the platform
+      // default for the attribution button which is bottom left
+      default:
+      case Gravity.BOTTOM | Gravity.START:
+        options.attributionMargins(new int[] {(int) x, 0, 0, (int) y});
+        break;
+      case Gravity.BOTTOM | Gravity.END:
+        options.attributionMargins(new int[] {0, 0, (int) x, (int) y});
+        break;
+    }
   }
 
   public void setAnnotationOrder(List<String> annotations) {

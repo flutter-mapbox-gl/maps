@@ -86,6 +86,10 @@ class MapboxMapController extends ChangeNotifier {
       }
     });
 
+    _mapboxGlPlatform.onFeatureTappedPlatform.add((featureId) {
+      onFeatureTapped(featureId);
+    });
+
     _mapboxGlPlatform.onCameraMoveStartedPlatform.add((_) {
       _isCameraMoving = true;
       notifyListeners();
@@ -176,6 +180,10 @@ class MapboxMapController extends ChangeNotifier {
   /// Callbacks to receive tap events for fills placed on this map.
   final ArgumentCallbacks<Fill> onFillTapped = ArgumentCallbacks<Fill>();
 
+  /// Callbacks to receive tap events for features (geojson layer) placed on this map.
+  final ArgumentCallbacks<dynamic> onFeatureTapped =
+      ArgumentCallbacks<dynamic>();
+
   /// Callbacks to receive tap events for info windows on symbols
   final ArgumentCallbacks<Symbol> onInfoWindowTapped =
       ArgumentCallbacks<Symbol>();
@@ -258,6 +266,102 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.moveCamera(cameraUpdate);
   }
 
+  /// Adds a new geojson source
+  ///
+  /// The json in [geojson] has to comply with the schema for FeatureCollection
+  /// as specified in https://datatracker.ietf.org/doc/html/rfc7946#section-3.3
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> addGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
+    await _mapboxGlPlatform.addGeoJsonSource(sourceId, geojson);
+  }
+
+  /// Sets new geojson data to and existing source
+  ///
+  /// This only works as exected if the source has been created with
+  /// [addGeoJsonSource] before. This is very useful if you want to update and
+  /// existing source with modified data.
+  ///
+  /// The json in [geojson] has to comply with the schema for FeatureCollection
+  /// as specified in https://datatracker.ietf.org/doc/html/rfc7946#section-3.3
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> setGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
+    await _mapboxGlPlatform.setGeoJsonSource(sourceId, geojson);
+  }
+
+  /// Add a symbol layer to the map with the given properties
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Note: [belowLayerId] is currently ignored on the web
+  Future<void> addSymbolLayer(
+      String sourceId, String layerId, SymbolLayerProperties properties,
+      {String? belowLayerId}) async {
+    await _mapboxGlPlatform.addSymbolLayer(
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+    );
+  }
+
+  /// Add a line layer to the map with the given properties
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Note: [belowLayerId] is currently ignored on the web
+  Future<void> addLineLayer(
+      String sourceId, String layerId, LineLayerProperties properties,
+      {String? belowLayerId}) async {
+    await _mapboxGlPlatform.addLineLayer(
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+    );
+  }
+
+  /// Add a fill layer to the map with the given properties
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Note: [belowLayerId] is currently ignored on the web
+  Future<void> addFillLayer(
+      String sourceId, String layerId, FillLayerProperties properties,
+      {String? belowLayerId}) async {
+    await _mapboxGlPlatform.addFillLayer(
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+    );
+  }
+
+  /// Add a circle layer to the map with the given properties
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Note: [belowLayerId] is currently ignored on the web
+  Future<void> addCircleLayer(
+      String sourceId, String layerId, CircleLayerProperties properties,
+      {String? belowLayerId}) async {
+    await _mapboxGlPlatform.addCircleLayer(
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+    );
+  }
+
   /// Updates user location tracking mode.
   ///
   /// The returned [Future] completes after the change has been made on the
@@ -294,6 +398,7 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Updates the language of the map labels to match the specified language.
   /// Supported language strings are available here: https://github.com/mapbox/mapbox-plugins-android/blob/e29c18d25098eb023a831796ff807e30d8207c36/plugin-localization/src/main/java/com/mapbox/mapboxsdk/plugins/localization/MapLocale.java#L39-L87
+  /// Attention: This may only be called after onStyleLoaded() has been invoked.
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
@@ -808,25 +913,43 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Removes previously added image source by id
+  @Deprecated("This method was renamed to removeSource")
   Future<void> removeImageSource(String imageSourceId) {
-    return _mapboxGlPlatform.removeImageSource(imageSourceId);
+    return _mapboxGlPlatform.removeSource(imageSourceId);
   }
 
-  /// Adds a Mapbox style layer to the map's style at render time.
+  /// Removes previously added source by id
+  Future<void> removeSource(String sourceId) {
+    return _mapboxGlPlatform.removeSource(sourceId);
+  }
+
+  /// Adds a Mapbox image layer to the map's style at render time.
+  Future<void> addImageLayer(String layerId, String imageSourceId) {
+    return _mapboxGlPlatform.addLayer(layerId, imageSourceId);
+  }
+
+  /// Adds a Mapbox image layer below the layer provided with belowLayerId to the map's style at render time.
+  Future<void> addImageLayerBelow(
+      String layerId, String sourceId, String imageSourceId) {
+    return _mapboxGlPlatform.addLayerBelow(layerId, sourceId, imageSourceId);
+  }
+
+  /// Adds a Mapbox image layer to the map's style at render time. Only works for image sources!
+  @Deprecated("This method was renamed to addImageLayer for clarity.")
   Future<void> addLayer(String imageLayerId, String imageSourceId) {
     return _mapboxGlPlatform.addLayer(imageLayerId, imageSourceId);
   }
 
-  /// Adds a Mapbox style layer below the layer provided with belowLayerId to the map's style at render time,
+  /// Adds a Mapbox image layer below the layer provided with belowLayerId to the map's style at render time. Only works for image sources!
+  @Deprecated("This method was renamed to addImageLayerBelow for clarity.")
   Future<void> addLayerBelow(
-      String imageLayerId, String imageSourceId, String belowLayerId) {
-    return _mapboxGlPlatform.addLayerBelow(
-        imageLayerId, imageSourceId, belowLayerId);
+      String layerId, String sourceId, String imageSourceId) {
+    return _mapboxGlPlatform.addLayerBelow(layerId, sourceId, imageSourceId);
   }
 
   /// Removes a Mapbox style layer
-  Future<void> removeLayer(String imageLayerId) {
-    return _mapboxGlPlatform.removeLayer(imageLayerId);
+  Future<void> removeLayer(String layerId) {
+    return _mapboxGlPlatform.removeLayer(layerId);
   }
 
   /// Returns the point on the screen that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
