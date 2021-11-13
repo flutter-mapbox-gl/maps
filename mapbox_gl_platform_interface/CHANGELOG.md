@@ -1,3 +1,9 @@
+## 0.14.0, November 13, 2021
+* Remove memory leaks by disposing internal components [#706](https://github.com/tobrun/flutter-mapbox-gl/pull/706) 
+* Add support for Layers, properties and expressions backed by GeoJsonSource [#723](https://github.com/tobrun/flutter-mapbox-gl/pull/723)
+* Add attribution button gravity, position normally [#731](https://github.com/tobrun/flutter-mapbox-gl/pull/731)
+* Remove MapboxGlPlatform.getInstance [#710](https://github.com/tobrun/flutter-mapbox-gl/pull/710)
+
 ## 0.13.0, October 21, 2021
 * Migrate to null-safety [#607](https://github.com/tobrun/flutter-mapbox-gl/pull/607)
 * Support override of attribution click action (iOS) [#605](https://github.com/tobrun/flutter-mapbox-gl/pull/605)

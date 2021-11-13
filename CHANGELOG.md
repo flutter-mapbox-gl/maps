@@ -1,3 +1,20 @@
+## 0.14.0, November 13, 2021
+* Remove memory leaks by disposing internal components [#706](https://github.com/tobrun/flutter-mapbox-gl/pull/706) 
+* Improved annotation click order [#748](https://github.com/tobrun/flutter-mapbox-gl/pull/748)
+* Add support for Layers, properties and expressions backed by GeoJsonSource [#723](https://github.com/tobrun/flutter-mapbox-gl/pull/723)
+* Add attribution button gravity, position normally [#731](https://github.com/tobrun/flutter-mapbox-gl/pull/731)
+* Add documentation for setMapLanguage [#740](https://github.com/tobrun/flutter-mapbox-gl/pull/740)
+* Make sure onStyleLoaded callback is invoked when map is loaded and ready [#690](https://github.com/tobrun/flutter-mapbox-gl/pull/690)
+* Enable onMapIdle callback for android [#729](https://github.com/tobrun/flutter-mapbox-gl/pull/729)
+* Set attribution margin to use left margin [#714](https://github.com/tobrun/flutter-mapbox-gl/pull/714)
+* Getting the ACCESS_TOKEN from env [#726](https://github.com/tobrun/flutter-mapbox-gl/pull/726)
+* Fixed crashes with offline manager [#724](https://github.com/tobrun/flutter-mapbox-gl/pull/724)
+* Add divider for example list [#712](https://github.com/tobrun/flutter-mapbox-gl/pull/712)
+* Fix respecting annotationConsumeTapEvents on iOS [#716](https://github.com/tobrun/flutter-mapbox-gl/pull/716)
+* Add getSymbolLatLng and getLineLatLngs for web [#720](https://github.com/tobrun/flutter-mapbox-gl/pull/720)
+* Fix typo in downloads token property name according to docs [#721](https://github.com/tobrun/flutter-mapbox-gl/pull/721)
+* Remove MapboxGlPlatform.getInstance [#710](https://github.com/tobrun/flutter-mapbox-gl/pull/710)
+
 ## 0.13.0, October 21, 2021
 * Migrate to null-safety [#607](https://github.com/tobrun/flutter-mapbox-gl/pull/607)
 * Add missing removeLines removeCircles and removeFills [#622](https://github.com/tobrun/flutter-mapbox-gl/pull/622)
