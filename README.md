@@ -11,31 +11,11 @@ This Flutter plugin allows to show embedded interactive and customizable vector 
 
 ## How to use
 
-This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to add a package into your flutter application. The project does require Mapbox accesstoken to build and run
+This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to add a package into your flutter application. 
 
-## Running the example app
+### Private Mapbox access token
 
-- Install [Flutter](https://flutter.io/get-started/) and validate its installation with `flutter doctor`
-- Clone the repository with `git clone git@github.com:tobrun/flutter-mapbox-gl.git`
-- Get a public Mapbox access token (see next section)
-- Add a secret Mapbox access token for downloading the SDK
-- Connect a mobile device or start an emulator, simulator or chrome
-- Locate the id of a the device with `flutter devices`
-- Run the app with `cd flutter_mapbox/example && flutter packages get && flutter run -d {device_id} --dart-define=ACCESS_TOKEN=ADD_YOUR_TOKEN_HERE`
-
-## Adding a Mapbox Access Token
-
-This project uses Mapbox vector tiles, which requires a Mapbox account and a Mapbox access token. Obtain a free access token on [your Mapbox account page](https://www.mapbox.com/account/access-tokens/).
-> **Even if you do not use Mapbox vector tiles but vector tiles from a different source (like self-hosted tiles) with this plugin, you will need to specify any non-empty string as Access Token as explained below!**
-
-
-The **recommended** way to provide your access token is through the `MapboxMap` constructor's `accessToken` parameter, which is available starting from the v0.8 release. Note that you should always use the same token throughout your entire app.
-
-An alternative method to provide access tokens that was required until the v0.7 release is described in [this wiki article](https://github.com/tobrun/flutter-mapbox-gl/wiki/Mapbox-access-tokens).
-
-### SDK Download token
-
-You must also configure a secret access token having the *Download: read* scope for
+This project does require a Mapbox access token to download the underlying Android/iOS SDKs. The secret access token must have the *Download: read* scope for
 [Android](https://docs.mapbox.com/android/maps/guides/install/) and/or 
 [iOS](https://docs.mapbox.com/ios/maps/guides/install/).
 
@@ -55,23 +35,14 @@ A problem occurred evaluating project ':mapbox_gl'.
 curl: (22) The requested URL returned error: 401 Unauthorized
 ```
 
+### Public Mapbox access token
 
-## Avoid Android UnsatisfiedLinkError
+Next to a private access token you will need to provide an public access token
+to retrieve the style and underlying resources. This can be done with running your application with an additional define statement:
 
-Update buildTypes in `android\app\build.gradle`
-
-```gradle
-buildTypes {
-    release {
-        // other configs
-        ndk {
-            abiFilters 'armeabi-v7a','arm64-v8a','x86_64', 'x86'
-        }
-    }
-}
 ```
-
-
+flutter run -d {device_id} --dart-define=ACCESS_TOKEN=ADD_YOUR_TOKEN_HERE`
+```
 
 ## Supported API
 
@@ -81,10 +52,21 @@ buildTypes {
 | Camera | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Gesture | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | User Location | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| Symbol | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-| Circle | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-| Line | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-| Fill | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Style DSL   | :x:  | :x:  | :x:  |
+| Raster Layer  | :x:  | :x:  | :x: | 
+| Symbol Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Circle Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Line Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Fill Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Vector Source   |  :x:  | :x:  | :x:  |
+| Raster Source  |  :x:  | :x:  | :x:  |   |   |   |   |
+| GeoJson Source  | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Image Source   | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Expressions   |  :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Symbol Annotation | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Circle Annotation | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Line Annotation | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Fill Annotation | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 
 ## Map Styles
 
@@ -97,7 +79,7 @@ Map styles can be supplied by setting the `styleString` in the `MapOptions`. The
 
 ## Offline Sideloading
 
-Support for offline maps is available by *"side loading"* the required map tiles and including them in your `assets` folder.
+Support for offline maps is available by side loading the required map tiles and including them in your `assets` folder.
 
 * Create your tiles package by following the guide available [here](https://docs.mapbox.com/ios/maps/overview/offline/).
 
@@ -175,7 +157,7 @@ xml ...
     <string>[Your explanation here]</string>
 ```
 
-Mapbox [recommends](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location) the explanation "Shows your location on the map and helps improve the map".
+[Recommended](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location)  explanation about "Shows your location on the map and helps improve the map".
 
 
 ## Contributing
