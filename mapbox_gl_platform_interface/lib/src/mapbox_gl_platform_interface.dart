@@ -321,4 +321,8 @@ abstract class MapboxGlPlatform {
   Future<void> setStyleString(String styleString) async { 
     throw UnimplementedError('setStyleString() has not been implemented.');
   }
+
+  Future<void> setFilter(List<String> layerIds, String filterString) async { 
+    throw UnimplementedError('setFilter() has not been implemented.');
+  }
 }

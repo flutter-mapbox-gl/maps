@@ -23,7 +23,8 @@ class LayerBody extends StatefulWidget {
 
 class LayerState extends State {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
-
+  static const String CUSTOM_SYMBOL_SOURCE = 'my-custom-symbol-source';
+  
   final FeatureCollection featureCollection = FeatureCollection([
     Feature(
       GeometryPoint(
@@ -96,8 +97,6 @@ class LayerState extends State {
       "icon-image": '["get", "image-name"]'
     });
   }
-
-  final String CUSTOM_SYMBOL_SOURCE = 'my-custom-symbol-source';
 
   _onMapClick(Point<double> point, LatLng latlng) {
     featureCollection.addFeature(Feature(

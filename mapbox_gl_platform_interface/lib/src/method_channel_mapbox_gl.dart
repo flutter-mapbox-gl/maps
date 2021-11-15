@@ -733,4 +733,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       'style': styleString,
     });
   }
+
+  @override
+  Future<void> setFilter(List<String> layerIds, String filterString) async {
+    return await _channel.invokeMethod('layer#setFilter', <String, dynamic>{
+      'layerIds': layerIds,
+      'filter': filterString,
+    });
+  }
 }

@@ -302,8 +302,10 @@ final class MapboxMapController
   public void setStyleString(String styleString) {
     // Check if json, url, absolute path or asset path:
     if (styleString == null || styleString.isEmpty()) {
-      Log.e(TAG, "setStyleString - string empty or null");
-    } else if (styleString.startsWith("{") || styleString.startsWith("[")) {
+      return;
+    }
+
+    if (styleString.startsWith("{") || styleString.startsWith("[")) {
       mapboxMap.setStyle(
         new Style.Builder().fromJson(styleString),
         onStyleLoadedCallback
@@ -335,6 +337,34 @@ final class MapboxMapController
     }
   }
 
+  private void setFilter(List<String> layerIds, Expression filter) {
+    mapboxMap.getStyle(
+      new Style.OnStyleLoaded() {
+        @Override
+        public void onStyleLoaded(@NonNull Style style) {
+          layerIds.forEach(
+            layerId -> {
+              Layer layer = style.getLayer(layerId);
+
+              if (layer != null) {
+                if (layer instanceof SymbolLayer) {
+                  SymbolLayer symbolLayer = (SymbolLayer) layer;
+                  symbolLayer.setFilter(filter);
+                } else if (layer instanceof LineLayer) {
+                  LineLayer lineLayer = (LineLayer) layer;
+                  lineLayer.setFilter(filter);
+                } else if (layer instanceof FillLayer) {
+                  FillLayer fillLayer = (FillLayer) layer;
+                  fillLayer.setFilter(filter);
+                }
+              }
+            }
+          );
+        }
+      }
+    );
+  }
+
   private void toggleLayerVisibility(List<String> layerIds) {
     mapboxMap.getStyle(
       new Style.OnStyleLoaded() {
@@ -342,8 +372,6 @@ final class MapboxMapController
         public void onStyleLoaded(@NonNull Style style) {
           layerIds.forEach(
             layerId -> {
-              System.out.println("Toggle Layer: " + layerId);
-
               Layer layer = style.getLayer(layerId);
               if (layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
@@ -384,10 +412,6 @@ final class MapboxMapController
               ", must be either 'fill', 'line', 'circle' or 'symbol'"
             );
         }
-      }
-
-      for (Layer singleLayer : style.getLayers()) {
-        Log.d(TAG, "onMapReady: layer id = " + singleLayer.getId());
       }
 
       if (myLocationEnabled) {
@@ -1399,6 +1423,20 @@ final class MapboxMapController
 
           if (styleString != null) {
             setStyleString(styleString);
+          }
+          result.success(null);
+
+          break;
+        }
+      case "layer#setFilter":
+        {
+          final List<String> layerIds = call.argument("layerIds");
+          final String filterString = call.argument("filter");
+          Expression filter = null;
+
+          if (layerIds != null && filterString != null) {
+            filter = Expression.Converter.convert(filterString);
+            setFilter(layerIds, filter);
           }
           result.success(null);
 

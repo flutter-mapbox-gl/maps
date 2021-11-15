@@ -898,4 +898,8 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> setStyleString(String styleString) async {
     return MapboxGlPlatform.getInstance(_id).setStyleString(styleString);
   }
+
+  Future<void> setFilter(List<String> layerIds, String filterString) async {
+    return MapboxGlPlatform.getInstance(_id).setFilter(layerIds, filterString);
+  }
 }

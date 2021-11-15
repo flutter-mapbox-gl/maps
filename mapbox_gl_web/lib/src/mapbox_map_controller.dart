@@ -621,7 +621,7 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  void setStyleString(String styleString) {
+  Future<void> setStyleString(String styleString) async {
     _map.setStyle(styleString);
   }
 
