@@ -71,6 +71,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
+import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
@@ -522,6 +523,25 @@ final class MapboxMapController
     }
     return fillManager.getLayerId();
   }
+
+  private Feature firstFeatureOnLayers(RectF in) {
+    final List<Layer> layers = style.getLayers();
+    final List<String> layersInOrder = new ArrayList<String>();
+    for (Layer layer : layers){
+      String id = layer.getId();
+      if(featureLayerIdentifiers.contains(id))
+        layersInOrder.add(id);
+    }
+    Collections.reverse(layersInOrder);
+
+    for(String id: layersInOrder){
+      List<Feature> features = mapboxMap.queryRenderedFeatures(in, id);
+      if(!features.isEmpty()){
+        return features.get(0);
+      }
+    }
+    return null;
+  } 
 
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
@@ -1276,10 +1296,10 @@ final class MapboxMapController
       pointf.x + 10,
       pointf.y + 10
     );
-    List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, featureLayerIdentifiers.toArray(new String[0]));
-    if(!featureList.isEmpty()){
+    Feature feature = firstFeatureOnLayers(rectF);
+    if(feature != null){
       final Map<String, Object> arguments = new HashMap<>(1);
-      arguments.put("featureId", featureList.get(0).id());
+      arguments.put("featureId", feature.id());
       methodChannel.invokeMethod("feature#onTap", arguments);
     } else { 
       final Map<String, Object> arguments = new HashMap<>(5);
