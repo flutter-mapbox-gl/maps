@@ -525,19 +525,21 @@ final class MapboxMapController
   }
 
   private Feature firstFeatureOnLayers(RectF in) {
-    final List<Layer> layers = style.getLayers();
-    final List<String> layersInOrder = new ArrayList<String>();
-    for (Layer layer : layers){
-      String id = layer.getId();
-      if(featureLayerIdentifiers.contains(id))
-        layersInOrder.add(id);
-    }
-    Collections.reverse(layersInOrder);
+    if(style != null){
+      final List<Layer> layers = style.getLayers();
+      final List<String> layersInOrder = new ArrayList<String>();
+      for (Layer layer : layers){
+        String id = layer.getId();
+        if(featureLayerIdentifiers.contains(id))
+          layersInOrder.add(id);
+      }
+      Collections.reverse(layersInOrder);
 
-    for(String id: layersInOrder){
-      List<Feature> features = mapboxMap.queryRenderedFeatures(in, id);
-      if(!features.isEmpty()){
-        return features.get(0);
+      for(String id: layersInOrder){
+        List<Feature> features = mapboxMap.queryRenderedFeatures(in, id);
+        if(!features.isEmpty()){
+          return features.get(0);
+        }
       }
     }
     return null;
