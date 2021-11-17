@@ -466,7 +466,10 @@ final class MapboxMapController
   }
 
   // Add properties to an existing layer
-  private void addLayerProperties(String layerName, String properties) {
+  private void addLayerProperties(
+    String layerName,
+    HashMap<String, Object> properties
+  ) {
     final Layer layer = mapboxMap.getStyle().getLayer(layerName);
 
     if (layer != null) {
@@ -1123,7 +1126,9 @@ final class MapboxMapController
       case "layer#addProperties":
         {
           final String layerId = call.argument("layerId");
-          final String properties = call.argument("properties");
+          final HashMap<String, Object> properties = call.argument(
+            "properties"
+          );
           addLayerProperties(layerId, properties);
           result.success(null);
           break;

@@ -234,7 +234,7 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('addSource() has not been implemented.');
   }
 
-  Future<void> addLayerProperties(String layerId, String properties) async {
+  Future<void> addLayerProperties(String layerId, Map<String, dynamic> properties) async {
     throw UnimplementedError('addLayerProperties() has not been implemented.');
   }
 

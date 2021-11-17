@@ -293,7 +293,7 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Add properties to existing layer
-  Future<void> addLayerProperties(String layerId, String properties) async {
+  Future<void> addLayerProperties(String layerId, Map<String, dynamic> properties) async {
     await MapboxGlPlatform.getInstance(_id)
         .addLayerProperties(layerId, properties);
   }
