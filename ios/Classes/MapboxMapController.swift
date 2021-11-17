@@ -810,6 +810,25 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         return trackCameraPosition ? mapView.camera : nil
         
     }
+    /*
+    *  Scan layers from top to bottom and return the first matching feature
+    */
+    private func firstFeatureOnLayers(at: CGPoint) -> MGLFeature? {
+        guard let style = mapView.style else { return  nil}
+       
+        // get layers in order (featureLayerIdentifiers is unordered)
+        let clickableLayers = style.layers.filter{ layer in
+            return featureLayerIdentifiers.contains(layer.identifier)
+        }
+
+        for layer in clickableLayers.reversed() {
+            let features = mapView.visibleFeatures(at: at, styleLayerIdentifiers: [layer.identifier])
+            if let feature = features.first {
+                return feature
+            }
+        }
+        return nil
+    }
     
     /*
     *  UITapGestureRecognizer
@@ -818,15 +837,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     @objc @IBAction func handleMapTap(sender: UITapGestureRecognizer) {
         // Get the CGPoint where the user tapped.
         let point = sender.location(in: mapView)
-        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
 
-        let features = mapView.visibleFeatures(at: point, styleLayerIdentifiers: featureLayerIdentifiers)
-
-        if let feature = features.last, let id = feature.identifier {
+        if let feature = firstFeatureOnLayers(at: point), let id = feature.identifier {
             channel?.invokeMethod("feature#onTap", arguments: [
                         "featureId": id
             ])
         } else {
+            let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
             channel?.invokeMethod("map#onMapClick", arguments: [
                         "x": point.x,
                         "y": point.y,
