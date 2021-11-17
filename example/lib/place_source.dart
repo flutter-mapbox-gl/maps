@@ -72,7 +72,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     if(layerAdded) {
       removeLayer(imageLayerId);
     }
-    layerAdded = true;
+    setState(() => layerAdded = true);
     return controller.addImageLayer(imageLayerId, imageSourceId);
   }
 
@@ -81,12 +81,12 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     if(layerAdded) {
       removeLayer(imageLayerId);
     }
-    layerAdded = true;
+    setState(() => layerAdded = true);
     return controller.addImageLayerBelow(imageLayerId, imageSourceId, belowLayerId);
   }
 
   Future<void> removeLayer(String imageLayerId) {
-    layerAdded = false;
+    setState(() => layerAdded = false);
     return controller.removeLayer(imageLayerId);
   }
 
