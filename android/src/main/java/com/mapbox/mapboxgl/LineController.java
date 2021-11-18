@@ -16,7 +16,7 @@ import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.plugins.annotation.Line;
 import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
-import com.mapbox.mapboxsdk.utils.ColorUtils;
+import android.graphics.Color;
 
 /**
  * Controller of a single Line on the map.
@@ -59,7 +59,7 @@ class LineController implements LineOptionsSink {
   
   @Override
   public void setLineColor(String lineColor) {
-    line.setLineColor(ColorUtils.rgbaToColor(lineColor));
+    line.setLineColor(Color.parseColor(lineColor));
   }
 
   @Override

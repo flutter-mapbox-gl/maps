@@ -325,6 +325,16 @@ class Convert {
         if let draggable = options["draggable"] as? Bool {
             delegate.isDraggable = draggable
         }
+    
+        if let geometry = options["geometry"] as? [[Double]], geometry.count > 0 {
+            var coordinates: [CLLocationCoordinate2D] = []
+            for coordinate in geometry {
+                coordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
+            }
+            if let feature = delegate.feature as? MGLPolylineFeature {
+                feature.setCoordinates(&coordinates, count: UInt(coordinates.count))
+            }
+        }
     }
     
     class func interpretFillOptions(options: Any?, delegate: MGLPolygonStyleAnnotation) {
