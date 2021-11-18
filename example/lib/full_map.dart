@@ -23,11 +23,17 @@ class FullMap extends StatefulWidget {
 class FullMapState extends State<FullMap> {
   MapboxMapController? mapController;
   var isLight = true;
-  static const lightStyle = "mapbox://styles/mapbox/light-v10";
-  static const darkStyle = "mapbox://styles/mapbox/dark-v10";
 
-  void _onMapCreated(MapboxMapController controller) {
+  _onMapCreated(MapboxMapController controller) {
     mapController = controller;
+  }
+
+  _onStyleLoadedCallback() {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Style loaded :)"),
+      backgroundColor: Theme.of(context).primaryColor,
+      duration: Duration(seconds: 1),
+    ));
   }
 
   @override
@@ -43,18 +49,11 @@ class FullMapState extends State<FullMap> {
           ),
         ),
         body: MapboxMap(
-          styleString: isLight ? lightStyle : darkStyle,
+          styleString: isLight ? MapboxStyles.LIGHT : MapboxStyles.DARK,
           accessToken: MapsDemo.ACCESS_TOKEN,
           onMapCreated: _onMapCreated,
           initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
-          onStyleLoadedCallback: onStyleLoadedCallback,
+          onStyleLoadedCallback: _onStyleLoadedCallback,
         ));
-  }
-
-  void onStyleLoadedCallback() {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Style loaded :)"),
-      backgroundColor: Theme.of(context).primaryColor,
-    ));
   }
 }
