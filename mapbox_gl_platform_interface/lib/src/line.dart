@@ -6,7 +6,7 @@
 
 part of mapbox_gl_platform_interface;
 
-class Line {
+class Line implements Annotation {
   Line(this._id, this.options, [this._data]);
 
   /// A unique identifier for this line.
@@ -25,7 +25,32 @@ class Line {
   ///
   /// The returned value does not reflect any changes made to the line through
   /// touch events. Add listeners to the owning map controller to track those.
-  LineOptions options;
+  final LineOptions options;
+
+  Line copyWith({String? id, Map? data, LineOptions? options}) {
+    return Line(
+      id ?? this.id,
+      options ?? this.options,
+      data ?? this.data,
+    );
+  }
+
+  Map<String, dynamic> toGeoJson() {
+    final geojson = options.toGeoJson();
+    geojson["id"] = id;
+
+    return geojson;
+  }
+
+  @override
+  Line translate(LatLng delta) {
+    final options = this.options.copyWith(LineOptions(
+        geometry: this.options.geometry?.map((e) => e + delta).toList()));
+    return copyWith(options: options);
+  }
+
+  @override
+  bool get draggable => options.draggable ?? false;
 }
 
 /// Configuration options for [Line] instances.
@@ -99,5 +124,26 @@ class LineOptions {
         'geometry', geometry?.map((LatLng latLng) => latLng.toJson()).toList());
     addIfPresent('draggable', draggable);
     return json;
+  }
+
+  Map<String, dynamic> toGeoJson() {
+    return {
+      "type": "Feature",
+      "properties": {
+        if (lineJoin != null) "lineJoin": lineJoin,
+        if (lineOpacity != null) "lineOpacity": lineOpacity,
+        if (lineColor != null) "lineColor": lineColor,
+        if (lineWidth != null) "lineWidth": lineWidth,
+        if (lineGapWidth != null) "lineGapWidth": lineGapWidth,
+        if (lineOffset != null) "lineOffset": lineOffset,
+        if (lineBlur != null) "lineBlur": lineBlur,
+        if (linePattern != null) "linePattern": linePattern,
+      },
+      "geometry": {
+        "type": "LineString",
+        if (geometry != null)
+          "coordinates": geometry?.map((c) => c.toGeoJsonCoordinates()).toList()
+      }
+    };
   }
 }

@@ -34,18 +34,19 @@ class LineBodyState extends State<LineBody> {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
   MapboxMapController? controller;
+  LineManager? lineManager;
+  int lineId = 0;
+
   int _lineCount = 0;
   Line? _selectedLine;
   final String _linePatternImage = "assets/fill/cat_silhouette_pattern.png";
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
-    controller.onLineTapped.add(_onLineTapped);
   }
 
   @override
   void dispose() {
-    controller?.onLineTapped.remove(_onLineTapped);
     super.dispose();
   }
 
@@ -63,17 +64,17 @@ class LineBodyState extends State<LineBody> {
     setState(() {
       _selectedLine = line;
     });
-    await _updateSelectedLine(
-      LineOptions(lineColor: "#ffe100"),
-    );
   }
 
-  _updateSelectedLine(LineOptions changes) async {
-    if (_selectedLine != null) controller!.updateLine(_selectedLine!, changes);
+  Future<void> _updateSelectedLine(LineOptions changes) {
+    _selectedLine = _selectedLine!
+        .copyWith(options: _selectedLine!.options.copyWith(changes));
+    return lineManager!.set(_selectedLine!);
   }
 
   void _add() {
-    controller!.addLine(
+    lineManager!.add(Line(
+      lineId.toString(),
       LineOptions(
           geometry: [
             LatLng(-33.86711, 151.1947171),
@@ -82,11 +83,13 @@ class LineBodyState extends State<LineBody> {
             LatLng(-33.86711, 152.1947171),
           ],
           lineColor: "#ff0000",
-          lineWidth: 14.0,
+          lineWidth: 30.0,
           lineOpacity: 0.5,
           draggable: true),
-    );
+    ));
+
     setState(() {
+      lineId++;
       _lineCount += 1;
     });
   }
@@ -103,7 +106,7 @@ class LineBodyState extends State<LineBody> {
   }
 
   void _remove() {
-    controller!.removeLine(_selectedLine!);
+    lineManager!.remove(_selectedLine!);
     setState(() {
       _selectedLine = null;
       _lineCount -= 1;
@@ -223,9 +226,10 @@ class LineBodyState extends State<LineBody> {
                           onPressed: (_selectedLine == null)
                               ? null
                               : () async {
-                                  var latLngs = await controller!
-                                      .getLineLatLngs(_selectedLine!);
-                                  for (var latLng in latLngs) {
+                                  var current =
+                                      lineManager!.byId(_selectedLine!.id)!;
+                                  for (var latLng
+                                      in current.options.geometry!) {
                                     print(latLng.toString());
                                   }
                                 },

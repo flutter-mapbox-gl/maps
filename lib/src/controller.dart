@@ -406,6 +406,20 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
+  Future<void> addLayer(
+      String sourceId, String layerId, LayerProperties properties,
+      {String? belowLayerId}) async {
+    if (properties is FillLayerProperties) {
+      addFillLayer(sourceId, layerId, properties);
+    } else if (properties is LineLayerProperties) {
+      addLineLayer(sourceId, layerId, properties);
+    } else if (properties is SymbolLayerProperties) {
+      addSymbolLayer(sourceId, layerId, properties);
+    } else if (properties is CircleLayerProperties) {
+      addCircleLayer(sourceId, layerId, properties);
+    }
+  }
+
   /// Updates user location tracking mode.
   ///
   /// The returned [Future] completes after the change has been made on the
@@ -615,7 +629,7 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> updateLine(Line line, LineOptions changes) async {
     assert(_lines[line.id] == line);
     await _mapboxGlPlatform.updateLine(line, changes);
-    line.options = line.options.copyWith(changes);
+    _lines[line.id] = line.copyWith(options: line.options.copyWith(changes));
     notifyListeners();
   }
 

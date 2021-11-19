@@ -36,6 +36,10 @@ class LatLng {
     return <double>[latitude, longitude];
   }
 
+  dynamic toGeoJsonCoordinates() {
+    return <double>[longitude, latitude];
+  }
+
   static LatLng _fromJson(List<dynamic> json) {
     return LatLng(json[0], json[1]);
   }

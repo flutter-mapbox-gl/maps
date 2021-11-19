@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
 
+part 'src/annotation.dart';
 part 'src/callbacks.dart';
 part 'src/camera.dart';
 part 'src/circle.dart';
