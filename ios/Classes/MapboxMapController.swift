@@ -54,7 +54,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             singleTap.require(toFail: recognizer)
         }
         mapView.addGestureRecognizer(singleTap)
-        
+
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleMapLongPress(sender:)))
         for recognizer in mapView.gestureRecognizers! where recognizer is UILongPressGestureRecognizer {
             longPress.require(toFail: recognizer)
@@ -430,7 +430,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             
             if let options = arguments["options"] as? [String: Any] {
-                let line = MGLLineStyleAnnotation()
+                var coordinates = Convert.getCoordinates(options: options)
+                let line = MGLLineStyleAnnotation(coordinates: &coordinates, count:  UInt(coordinates.count))
                 Convert.interpretLineOptions(options: options, delegate: line)
                 lineAnnotationController.addStyleAnnotation(line)
                 lineAnnotationController.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.line")
@@ -448,7 +449,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 var lines: [MGLLineStyleAnnotation] = [];
 
                 for options in allOptions {
-                    let line = MGLLineStyleAnnotation()
+                    var coordinates = Convert.getCoordinates(options: options)
+                    let line = MGLLineStyleAnnotation(coordinates: &coordinates, count:  UInt(coordinates.count))
                     Convert.interpretLineOptions(options: options, delegate: line)
                     lines.append(line)
                 }
@@ -469,6 +471,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             
             for line in lineAnnotationController.styleAnnotations() {
                 if line.identifier == lineId {
+                    Convert.interpretGeometryUpdate(options: arguments["options"], delegate: line as! MGLLineStyleAnnotation)
                     Convert.interpretLineOptions(options: arguments["options"], delegate: line as! MGLLineStyleAnnotation)
                     lineAnnotationController.updateStyleAnnotation(line)
                     break;
@@ -859,7 +862,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         
     }
     
-    
     /*
      *  MGLAnnotationControllerDelegate
      */
@@ -933,6 +935,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             case "AnnotationType.line":
                 lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
                 lineAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.line")
+                
                 lineAnnotationController?.delegate = self
             case "AnnotationType.circle":
                 circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
