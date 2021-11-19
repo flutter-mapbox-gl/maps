@@ -891,8 +891,8 @@ class MapboxMapController extends ChangeNotifier {
         .getMetersPerPixelAtLatitude(latitude);
   }
 
-  Future<void> toggleLayerVisibility(List<String> layerIds) async {
-    return MapboxGlPlatform.getInstance(_id).toggleLayerVisibility(layerIds);
+  Future<void> toggleLayerVisibility(List<String> layerIds, bool isVisible) async {
+    return MapboxGlPlatform.getInstance(_id).toggleLayerVisibility(layerIds, isVisible);
   }
 
   Future<void> setStyleString(String styleString) async {

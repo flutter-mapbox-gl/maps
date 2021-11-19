@@ -365,7 +365,7 @@ final class MapboxMapController
     );
   }
 
-  private void toggleLayerVisibility(List<String> layerIds) {
+  private void toggleLayerVisibility(List<String> layerIds, boolean isVisible) {
     mapboxMap.getStyle(
       new Style.OnStyleLoaded() {
         @Override
@@ -374,10 +374,10 @@ final class MapboxMapController
             layerId -> {
               Layer layer = style.getLayer(layerId);
               if (layer != null) {
-                if (VISIBLE.equals(layer.getVisibility().getValue())) {
-                  layer.setProperties(visibility(NONE));
-                } else {
+                if (isVisible) {
                   layer.setProperties(visibility(VISIBLE));
+                } else {
+                  layer.setProperties(visibility(NONE));
                 }
               }
             }
@@ -1414,9 +1414,10 @@ final class MapboxMapController
       case "layer#toggleVisibility":
         {
           final List<String> layerIds = call.argument("layerIds");
+          final boolean isVisible = call.argument("isVisible");
 
           if (layerIds != null) {
-            toggleLayerVisibility(layerIds);
+            toggleLayerVisibility(layerIds, isVisible);
           }
           result.success(null);
 

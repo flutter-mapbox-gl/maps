@@ -721,9 +721,10 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> toggleLayerVisibility(List<String> layerIds) async {
+  Future<void> toggleLayerVisibility(List<String> layerIds, bool isVisible) async {
     return await _channel.invokeMethod('layer#toggleVisibility', <String, dynamic>{
       'layerIds': layerIds,
+      'isVisible': isVisible,
     });
   }
 
