@@ -11,6 +11,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var mapView: MGLMapView
     private var isMapReady = false
     private var isStyleReady = false
+    private var isStyleReadyNotified = false    
     private var mapReadyResult: FlutterResult?
     
     private var initialTilt: CGFloat?
@@ -96,9 +97,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 result(nil)
                 //Style could happen to been ready before the map was ready due to the order of methods invoked
                 //We should invoke onStyleLoaded
-                if isStyleReady {
+                if isStyleReady && !isStyleReadyNotified {
                     if let channel = channel {
                         channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+                        isStyleReadyNotified = true
                     }
                 }
             } else {
@@ -929,6 +931,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
      *  MGLMapViewDelegate
      */
     func mapView(_ mapView: MGLMapView, didFinishLoading style: MGLStyle) {
+        isStyleReadyNotified = false
         isMapReady = true
         updateMyLocationEnabled()
         
@@ -965,9 +968,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         //If not, we will have to call it when map#waitForMap is done
         if let mapReadyResult = mapReadyResult {
             mapReadyResult(nil)
-            if let channel = channel {
-                channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+            if (!isStyleReadyNotified) {
+                if let channel = channel {
+                    channel.invokeMethod("map#onStyleLoaded", arguments: nil)
+                    isStyleReadyNotified = true
+                }
             }
+            
         }
 
         isStyleReady = true

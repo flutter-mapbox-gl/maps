@@ -22,21 +22,38 @@ class FullMap extends StatefulWidget {
 
 class FullMapState extends State<FullMap> {
   MapboxMapController? mapController;
+  var isLight = true;
 
-  void _onMapCreated(MapboxMapController controller) {
+  _onMapCreated(MapboxMapController controller) {
     mapController = controller;
+  }
+
+  _onStyleLoadedCallback() {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Style loaded :)"),
+      backgroundColor: Theme.of(context).primaryColor,
+      duration: Duration(seconds: 1),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: FloatingActionButton(
+            child: Icon(Icons.swap_horiz),
+            onPressed: () => setState(
+              () => isLight = !isLight,
+            ),
+          ),
+        ),
         body: MapboxMap(
-      accessToken: MapsDemo.ACCESS_TOKEN,
-      onMapCreated: _onMapCreated,
-      initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
-      onStyleLoadedCallback: onStyleLoadedCallback,
-    ));
+          styleString: isLight ? MapboxStyles.LIGHT : MapboxStyles.DARK,
+          accessToken: MapsDemo.ACCESS_TOKEN,
+          onMapCreated: _onMapCreated,
+          initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
+          onStyleLoadedCallback: _onStyleLoadedCallback,
+        ));
   }
-
-  void onStyleLoadedCallback() {}
 }
