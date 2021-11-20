@@ -46,26 +46,20 @@ class LineBodyState extends State<LineBody> {
     super.dispose();
   }
 
-  void _onLineTapped(Line line) {
-    if (_selectedLine != null) {
-      _updateSelectedLine(
-        const LineOptions(
-          lineWidth: 28.0,
-        ),
-      );
-    }
+  _onLineTapped(Line line) async {
+    await _updateSelectedLine(
+      LineOptions(lineColor: "#ff0000"),
+    );
     setState(() {
       _selectedLine = line;
     });
-    _updateSelectedLine(
-      LineOptions(
-          // linecolor: ,
-          ),
+    await _updateSelectedLine(
+      LineOptions(lineColor: "#ffe100"),
     );
   }
 
-  void _updateSelectedLine(LineOptions changes) {
-    controller!.updateLine(_selectedLine!, changes);
+  _updateSelectedLine(LineOptions changes) async {
+    if (_selectedLine != null) controller!.updateLine(_selectedLine!, changes);
   }
 
   void _add() {
@@ -87,6 +81,17 @@ class LineBodyState extends State<LineBody> {
     });
   }
 
+  _move() async {
+    final currentStart = _selectedLine!.options.geometry![0];
+    final currentEnd = _selectedLine!.options.geometry![1];
+    final end =
+        LatLng(currentEnd.latitude + 0.001, currentEnd.longitude + 0.001);
+    final start =
+        LatLng(currentStart.latitude - 0.001, currentStart.longitude - 0.001);
+    await controller!
+        .updateLine(_selectedLine!, LineOptions(geometry: [start, end]));
+  }
+
   void _remove() {
     controller!.removeLine(_selectedLine!);
     setState(() {
@@ -102,7 +107,7 @@ class LineBodyState extends State<LineBody> {
       current = 1.0;
     }
 
-    _updateSelectedLine(
+    await _updateSelectedLine(
       LineOptions(lineOpacity: current < 0.1 ? 1.0 : current * 0.75),
     );
   }
@@ -113,13 +118,13 @@ class LineBodyState extends State<LineBody> {
       // default value
       current = 1.0;
     }
-    _updateSelectedLine(
+    await _updateSelectedLine(
       LineOptions(lineOpacity: current == 0.0 ? 1.0 : 0.0),
     );
   }
 
-  void onStyleLoadedCallback() {
-    controller!.addLine(
+  _onStyleLoadedCallback() async {
+    await controller!.addLine(
       LineOptions(
         geometry: [LatLng(37.4220, -122.0841), LatLng(37.4240, -122.0941)],
         lineColor: "#ff0000",
@@ -137,12 +142,11 @@ class LineBodyState extends State<LineBody> {
       children: <Widget>[
         Center(
           child: SizedBox(
-            width: 300.0,
-            height: 200.0,
+            height: 400.0,
             child: MapboxMap(
               accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
-              onStyleLoadedCallback: onStyleLoadedCallback,
+              onStyleLoadedCallback: _onStyleLoadedCallback,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),
                 zoom: 11.0,
@@ -155,9 +159,9 @@ class LineBodyState extends State<LineBody> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                Row(
+                Column(
                   children: <Widget>[
-                    Column(
+                    Row(
                       children: <Widget>[
                         TextButton(
                           child: const Text('add'),
@@ -167,9 +171,17 @@ class LineBodyState extends State<LineBody> {
                           child: const Text('remove'),
                           onPressed: (_selectedLine == null) ? null : _remove,
                         ),
+                        TextButton(
+                          child: const Text('move'),
+                          onPressed: (_selectedLine == null)
+                              ? null
+                              : () async {
+                                  await _move();
+                                },
+                        ),
                       ],
                     ),
-                    Column(
+                    Row(
                       children: <Widget>[
                         TextButton(
                           child: const Text('change alpha'),
@@ -196,7 +208,7 @@ class LineBodyState extends State<LineBody> {
                       ],
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),

@@ -327,6 +327,28 @@ class Convert {
         }
     }
     
+    class func getCoordinates(options: Any?)  -> [CLLocationCoordinate2D] {
+        var coordinates: [CLLocationCoordinate2D] = []
+        
+        if let options = options as? [String: Any],
+            let geometry = options["geometry"] as? [[Double]], geometry.count > 0 {
+            for coordinate in geometry {
+                coordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
+            }
+        }
+        return coordinates
+    }
+    
+    class func interpretGeometryUpdate(options: Any?, delegate: MGLLineStyleAnnotation) {
+        if let options = options as? [String: Any],
+           let geometry = options["geometry"] as? [[Double]], geometry.count > 0 {
+            if let feature = delegate.feature as? MGLPolylineFeature {
+                var coordinates = Convert.getCoordinates(options: options)
+                feature.setCoordinates(&coordinates, count: UInt(coordinates.count))
+            }
+        }
+    }
+    
     class func interpretFillOptions(options: Any?, delegate: MGLPolygonStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
         if let fillOpacity = options["fillOpacity"] as? CGFloat {
