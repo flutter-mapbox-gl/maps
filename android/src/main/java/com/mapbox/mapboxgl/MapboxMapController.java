@@ -342,24 +342,22 @@ final class MapboxMapController
       new Style.OnStyleLoaded() {
         @Override
         public void onStyleLoaded(@NonNull Style style) {
-          layerIds.forEach(
-            layerId -> {
-              Layer layer = style.getLayer(layerId);
+          for (String layerId : layerIds) {
+            Layer layer = style.getLayer(layerId);
 
-              if (layer != null) {
-                if (layer instanceof SymbolLayer) {
-                  SymbolLayer symbolLayer = (SymbolLayer) layer;
-                  symbolLayer.setFilter(filter);
-                } else if (layer instanceof LineLayer) {
-                  LineLayer lineLayer = (LineLayer) layer;
-                  lineLayer.setFilter(filter);
-                } else if (layer instanceof FillLayer) {
-                  FillLayer fillLayer = (FillLayer) layer;
-                  fillLayer.setFilter(filter);
-                }
+            if (layer != null) {
+              if (layer instanceof SymbolLayer) {
+                SymbolLayer symbolLayer = (SymbolLayer) layer;
+                symbolLayer.setFilter(filter);
+              } else if (layer instanceof LineLayer) {
+                LineLayer lineLayer = (LineLayer) layer;
+                lineLayer.setFilter(filter);
+              } else if (layer instanceof FillLayer) {
+                FillLayer fillLayer = (FillLayer) layer;
+                fillLayer.setFilter(filter);
               }
             }
-          );
+          }
         }
       }
     );
@@ -370,18 +368,16 @@ final class MapboxMapController
       new Style.OnStyleLoaded() {
         @Override
         public void onStyleLoaded(@NonNull Style style) {
-          layerIds.forEach(
-            layerId -> {
-              Layer layer = style.getLayer(layerId);
-              if (layer != null) {
-                if (isVisible) {
-                  layer.setProperties(visibility(VISIBLE));
-                } else {
-                  layer.setProperties(visibility(NONE));
-                }
+          for (String layerId : layerIds) {
+            Layer layer = style.getLayer(layerId);
+            if (layer != null) {
+              if (isVisible) {
+                layer.setProperties(visibility(VISIBLE));
+              } else {
+                layer.setProperties(visibility(NONE));
               }
             }
-          );
+          }
         }
       }
     );
