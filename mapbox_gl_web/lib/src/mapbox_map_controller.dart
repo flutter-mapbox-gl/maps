@@ -721,6 +721,7 @@ class MapboxMapController extends MapboxGlPlatform
     //remove old mouseenter callbacks to avoid multicalling
     for (var layerId in _featureLayerIdentifiers) {
       _map.off('mouseenter', layerId, _onMouseEnterFeature);
+      _map.off('mousemouve', layerId, _onMouseEnterFeature);
       _map.off('mouseleave', layerId, _onMouseLeaveFeature);
     }
     _featureLayerIdentifiers.clear();
@@ -877,7 +878,11 @@ class MapboxMapController extends MapboxGlPlatform
     }, belowLayerId);
 
     _featureLayerIdentifiers.add(layerId);
-    _map.on('mouseenter', layerId, _onMouseEnterFeature);
+    if (layerType == "fill") {
+      _map.on('mousemove', layerId, _onMouseEnterFeature);
+    } else {
+      _map.on('mouseenter', layerId, _onMouseEnterFeature);
+    }
     _map.on('mouseleave', layerId, _onMouseLeaveFeature);
   }
 
