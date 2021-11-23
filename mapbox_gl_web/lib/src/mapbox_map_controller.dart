@@ -718,6 +718,7 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   void setStyleString(String? styleString) {
+    _featureLayerIdentifiers.clear();
     _map.setStyle(styleString);
     // catch style loaded for later style changes
     if (_mapReady) {
@@ -864,5 +865,6 @@ class MapboxMapController extends MapboxGlPlatform
       'layout': layout,
       'paint': paint
     }, belowLayerId);
+    _featureLayerIdentifiers.add(layerId);
   }
 }
