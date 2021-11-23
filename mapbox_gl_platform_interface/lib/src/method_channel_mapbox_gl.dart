@@ -729,8 +729,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addGeoJsonSource(
-      String sourceId, Map<String, dynamic> geojson) async {
+  Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
+      {String? promoteId}) async {
     await _channel.invokeMethod('source#addGeoJson', <String, dynamic>{
       'sourceId': sourceId,
       'geojson': jsonEncode(geojson),
@@ -797,7 +797,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
     });
   }
-  
+
   @override
   void dispose() {
     super.dispose();

@@ -718,7 +718,13 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   void setStyleString(String? styleString) {
+    //remove old mouseenter callbacks to avoid multicalling
+    for (var layerId in _featureLayerIdentifiers) {
+      _map.off('mouseenter', layerId, _onMouseEnterFeature);
+      _map.off('mouseleave', layerId, _onMouseLeaveFeature);
+    }
     _featureLayerIdentifiers.clear();
+
     _map.setStyle(styleString);
     // catch style loaded for later style changes
     if (_mapReady) {
@@ -797,9 +803,13 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  Future<void> addGeoJsonSource(
-      String sourceId, Map<String, dynamic> geojson) async {
-    _map.addSource(sourceId, {"type": 'geojson', "data": geojson});
+  Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
+      {String? promoteId}) async {
+    _map.addSource(sourceId, {
+      "type": 'geojson',
+      "data": geojson,
+      if (promoteId != null) "promoteId": promoteId
+    });
   }
 
   @override
@@ -865,6 +875,17 @@ class MapboxMapController extends MapboxGlPlatform
       'layout': layout,
       'paint': paint
     }, belowLayerId);
+
     _featureLayerIdentifiers.add(layerId);
+    _map.on('mouseenter', layerId, _onMouseEnterFeature);
+    _map.on('mouseleave', layerId, _onMouseLeaveFeature);
+  }
+
+  void _onMouseEnterFeature(_) {
+    _map.getCanvas().style.cursor = 'pointer';
+  }
+
+  void _onMouseLeaveFeature(_) {
+    _map.getCanvas().style.cursor = '';
   }
 }
