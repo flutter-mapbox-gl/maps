@@ -1,7 +1,7 @@
 part of mapbox_gl_web;
 
 const _mapboxGlCssUrl =
-    'https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.css';
+    'https://api.tiles.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css';
 
 class MapboxMapController extends MapboxGlPlatform
     implements MapboxMapOptionsSink {
@@ -9,6 +9,7 @@ class MapboxMapController extends MapboxGlPlatform
 
   late Map<String, dynamic> _creationParams;
   late MapboxMap _map;
+  bool _mapReady = false;
 
   List<String> annotationOrder = [];
   final _featureLayerIdentifiers = Set<String>();
@@ -64,6 +65,13 @@ class MapboxMapController extends MapboxGlPlatform
         ),
       );
       _map.on('load', _onStyleLoaded);
+      _map.on('click', _onMapClick);
+      // long click not available in web, so it is mapped to double click
+      _map.on('dblclick', _onMapLongClick);
+      _map.on('movestart', _onCameraMoveStarted);
+      _map.on('move', _onCameraMove);
+      _map.on('moveend', _onCameraIdle);
+      _map.on('resize', _onMapResize);
     }
     Convert.interpretMapboxMapOptions(_creationParams['options'], this);
 
@@ -409,6 +417,7 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   void _onStyleLoaded(_) {
+    _mapReady = true;
     for (final annotationType in annotationOrder) {
       switch (annotationType) {
         case 'AnnotationType.symbol':
@@ -430,15 +439,7 @@ class MapboxMapController extends MapboxGlPlatform
               "Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'");
       }
     }
-
     onMapStyleLoadedPlatform(null);
-    _map.on('click', _onMapClick);
-    // long click not available in web, so it is mapped to double click
-    _map.on('dblclick', _onMapLongClick);
-    _map.on('movestart', _onCameraMoveStarted);
-    _map.on('move', _onCameraMove);
-    _map.on('moveend', _onCameraIdle);
-    _map.on('resize', _onMapResize);
   }
 
   void _onMapResize(Event e) {
@@ -718,6 +719,10 @@ class MapboxMapController extends MapboxGlPlatform
   @override
   void setStyleString(String? styleString) {
     _map.setStyle(styleString);
+    // catch style loaded for later style changes
+    if (_mapReady) {
+      _map.once("styledata", _onStyleLoaded);
+    }
   }
 
   @override
