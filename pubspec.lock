@@ -66,14 +66,14 @@ packages:
       path: mapbox_gl_platform_interface
       relative: true
     source: path
-    version: "0.12.0"
+    version: "0.14.0"
   mapbox_gl_web:
     dependency: "direct main"
     description:
       path: mapbox_gl_web
       relative: true
     source: path
-    version: "0.12.0"
+    version: "0.14.0"
   meta:
     dependency: transitive
     description:

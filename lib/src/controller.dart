@@ -271,11 +271,16 @@ class MapboxMapController extends ChangeNotifier {
   /// The json in [geojson] has to comply with the schema for FeatureCollection
   /// as specified in https://datatracker.ietf.org/doc/html/rfc7946#section-3.3
   ///
+  /// [promoteId] can be used on web to promote an id from properties to be the
+  /// id of the feature. This is useful because by default mapbox-gl-js does not
+  /// support string ids
+  ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
-  Future<void> addGeoJsonSource(
-      String sourceId, Map<String, dynamic> geojson) async {
-    await _mapboxGlPlatform.addGeoJsonSource(sourceId, geojson);
+  Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
+      {String? promoteId}) async {
+    await _mapboxGlPlatform.addGeoJsonSource(sourceId, geojson,
+        promoteId: promoteId);
   }
 
   /// Sets new geojson data to and existing source
