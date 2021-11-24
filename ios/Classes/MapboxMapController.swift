@@ -828,17 +828,17 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     @objc @IBAction func handleMapTap(sender: UITapGestureRecognizer) {
         // Get the CGPoint where the user tapped.
         let point = sender.location(in: mapView)
+        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
 
         if let feature = firstFeatureOnLayers(at: point), let id = feature.identifier {
             channel?.invokeMethod("feature#onTap", arguments: [
-                        "id": id
+                        "id": id,
                         "x": point.x,
                         "y": point.y,
                         "lng": coordinate.longitude,
                         "lat": coordinate.latitude,
             ])
         } else {
-            let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
             channel?.invokeMethod("map#onMapClick", arguments: [
                         "x": point.x,
                         "y": point.y,
