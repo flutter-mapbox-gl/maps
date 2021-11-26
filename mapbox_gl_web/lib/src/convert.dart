@@ -26,9 +26,6 @@ class Convert {
       sink.setMinMaxZoomPreference(options['minMaxZoomPreference'][0],
           options['minMaxZoomPreference'][1]);
     }
-    if (options.containsKey('rotateGesturesEnabled')) {
-      sink.setRotateGesturesEnabled(options['rotateGesturesEnabled']);
-    }
     if (options.containsKey('scrollGesturesEnabled')) {
       sink.setScrollGesturesEnabled(options['scrollGesturesEnabled']);
     }
@@ -40,6 +37,10 @@ class Convert {
     }
     if (options.containsKey('zoomGesturesEnabled')) {
       sink.setZoomGesturesEnabled(options['zoomGesturesEnabled']);
+    }
+    if (options.containsKey('rotateGesturesEnabled')) {
+      //Should not be invoked after sink.setZoomGesturesEnabled()
+      sink.setRotateGesturesEnabled(options['rotateGesturesEnabled']);
     }
     if (options.containsKey('myLocationEnabled')) {
       sink.setMyLocationEnabled(options['myLocationEnabled']);
