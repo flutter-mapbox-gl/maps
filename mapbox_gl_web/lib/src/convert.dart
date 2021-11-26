@@ -39,7 +39,7 @@ class Convert {
       sink.setZoomGesturesEnabled(options['zoomGesturesEnabled']);
     }
     if (options.containsKey('rotateGesturesEnabled')) {
-      //Should not be invoked after sink.setZoomGesturesEnabled()
+      //Should not be invoked before sink.setZoomGesturesEnabled()
       sink.setRotateGesturesEnabled(options['rotateGesturesEnabled']);
     }
     if (options.containsKey('myLocationEnabled')) {
