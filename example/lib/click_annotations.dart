@@ -42,6 +42,9 @@ class ClickAnnotationBodyState extends State<ClickAnnotationBody> {
   @override
   void dispose() {
     controller?.onFillTapped.remove(_onFillTapped);
+    controller?.onCircleTapped.remove(_onCircleTapped);
+    controller?.onLineTapped.remove(_onLineTapped);
+    controller?.onSymbolTapped.remove(_onSymbolTapped);
     super.dispose();
   }
 
