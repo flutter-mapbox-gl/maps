@@ -251,10 +251,46 @@ class LayerPropertyConverter {
         }
     }
 
-    private class func interpretExpression(propertyName: String,
-                                           expression: String) -> NSExpression?
-    {
-        let isColor = propertyName.contains("color")
+    class func addRasterProperties(rasterLayer: MGLRasterStyleLayer, properties: [String: String]) {
+        for (propertyName, propertyValue) in properties {
+            let expression = interpretExpression(propertyName: propertyName, expression: propertyValue)
+            switch propertyName {
+                case "raster-opacity":
+                    rasterLayer.rasterOpacity = expression;
+                break;
+                case "raster-hue-rotate":
+                    rasterLayer.rasterHueRotation = expression;
+                break;
+                case "raster-brightness-min":
+                    rasterLayer.rasterBrightnessMin = expression;
+                break;
+                case "raster-brightness-max":
+                    rasterLayer.rasterBrightnessMax = expression;
+                break;
+                case "raster-saturation":
+                    rasterLayer.rasterSaturation = expression;
+                break;
+                case "raster-contrast":
+                    rasterLayer.rasterContrast = expression;
+                break;
+                case "raster-resampling":
+                    rasterLayer.rasterResamplingMode = expression;
+                break;
+                case "raster-fade-duration":
+                    rasterLayer.rasterFadeDuration = expression;
+                break;
+                case "visibility":
+                    rasterLayer.isVisible = propertyValue == "visible";
+                break;
+             
+                default:
+                    break
+            }
+        }
+    }
+
+    private class func interpretExpression(propertyName: String, expression: String) -> NSExpression? {
+        let isColor = propertyName.contains("color");
 
         do {
             let json = try JSONSerialization.jsonObject(

@@ -1750,3 +1750,177 @@ class FillLayerProperties implements LayerProperties {
     );
   }
 }
+
+class RasterLayerProperties implements LayerProperties {
+  // Paint Properties
+  /// The opacity at which the image will be drawn.
+  ///
+  /// Type: number
+  ///   default: 1
+  ///   minimum: 0
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterOpacity;
+
+  /// Rotates hues around the color wheel.
+  ///
+  /// Type: number
+  ///   default: 0
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterHueRotate;
+
+  /// Increase or reduce the brightness of the image. The value is the
+  /// minimum brightness.
+  ///
+  /// Type: number
+  ///   default: 0
+  ///   minimum: 0
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterBrightnessMin;
+
+  /// Increase or reduce the brightness of the image. The value is the
+  /// maximum brightness.
+  ///
+  /// Type: number
+  ///   default: 1
+  ///   minimum: 0
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterBrightnessMax;
+
+  /// Increase or reduce the saturation of the image.
+  ///
+  /// Type: number
+  ///   default: 0
+  ///   minimum: -1
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterSaturation;
+
+  /// Increase or reduce the contrast of the image.
+  ///
+  /// Type: number
+  ///   default: 0
+  ///   minimum: -1
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterContrast;
+
+  /// The resampling/interpolation method to use for overscaling, also known
+  /// as texture magnification filter
+  ///
+  /// Type: enum
+  ///   default: linear
+  /// Options:
+  ///   "linear"
+  ///      (Bi)linear filtering interpolates pixel values using the weighted
+  ///      average of the four closest original source pixels creating a
+  ///      smooth but blurry look when overscaled
+  ///   "nearest"
+  ///      Nearest neighbor filtering interpolates pixel values using the
+  ///      nearest original source pixel creating a sharp but pixelated look
+  ///      when overscaled
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterResampling;
+
+  /// Fade duration when a new tile is added.
+  ///
+  /// Type: number
+  ///   default: 300
+  ///   minimum: 0
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterFadeDuration;
+
+  // Layout Properties
+  /// Whether this layer is displayed.
+  ///
+  /// Type: enum
+  ///   default: visible
+  /// Options:
+  ///   "visible"
+  ///      The layer is shown.
+  ///   "none"
+  ///      The layer is not shown.
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic visibility;
+
+  const RasterLayerProperties({
+    this.rasterOpacity,
+    this.rasterHueRotate,
+    this.rasterBrightnessMin,
+    this.rasterBrightnessMax,
+    this.rasterSaturation,
+    this.rasterContrast,
+    this.rasterResampling,
+    this.rasterFadeDuration,
+    this.visibility,
+  });
+
+  RasterLayerProperties copyWith(RasterLayerProperties changes) {
+    return RasterLayerProperties(
+      rasterOpacity: changes.rasterOpacity ?? rasterOpacity,
+      rasterHueRotate: changes.rasterHueRotate ?? rasterHueRotate,
+      rasterBrightnessMin: changes.rasterBrightnessMin ?? rasterBrightnessMin,
+      rasterBrightnessMax: changes.rasterBrightnessMax ?? rasterBrightnessMax,
+      rasterSaturation: changes.rasterSaturation ?? rasterSaturation,
+      rasterContrast: changes.rasterContrast ?? rasterContrast,
+      rasterResampling: changes.rasterResampling ?? rasterResampling,
+      rasterFadeDuration: changes.rasterFadeDuration ?? rasterFadeDuration,
+      visibility: changes.visibility ?? visibility,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = <String, dynamic>{};
+
+    void addIfPresent(String fieldName, dynamic value) {
+      if (value != null) {
+        json[fieldName] = value;
+      }
+    }
+
+    addIfPresent('raster-opacity', rasterOpacity);
+    addIfPresent('raster-hue-rotate', rasterHueRotate);
+    addIfPresent('raster-brightness-min', rasterBrightnessMin);
+    addIfPresent('raster-brightness-max', rasterBrightnessMax);
+    addIfPresent('raster-saturation', rasterSaturation);
+    addIfPresent('raster-contrast', rasterContrast);
+    addIfPresent('raster-resampling', rasterResampling);
+    addIfPresent('raster-fade-duration', rasterFadeDuration);
+    addIfPresent('visibility', visibility);
+    return json;
+  }
+
+  factory RasterLayerProperties.fromJson(Map<String, dynamic> json) {
+    return RasterLayerProperties(
+      rasterOpacity: json['raster-opacity'],
+      rasterHueRotate: json['raster-hue-rotate'],
+      rasterBrightnessMin: json['raster-brightness-min'],
+      rasterBrightnessMax: json['raster-brightness-max'],
+      rasterSaturation: json['raster-saturation'],
+      rasterContrast: json['raster-contrast'],
+      rasterResampling: json['raster-resampling'],
+      rasterFadeDuration: json['raster-fade-duration'],
+      visibility: json['visibility'],
+    );
+  }
+}

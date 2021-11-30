@@ -376,4 +376,48 @@ class LayerPropertyConverter {
     return properties.toArray(new PropertyValue[properties.size()]);
   }
 
+  static PropertyValue[] interpretRasterLayerProperties(Object o) {
+    final Map<String, String> data = (Map<String, String>) toMap(o);
+    final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
+
+    for (Map.Entry<String, String> entry : data.entrySet()) {
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
+      switch (entry.getKey()) {
+        case "raster-opacity":
+          properties.add(PropertyFactory.rasterOpacity(expression));
+          break;
+        case "raster-hue-rotate":
+          properties.add(PropertyFactory.rasterHueRotate(expression));
+          break;
+        case "raster-brightness-min":
+          properties.add(PropertyFactory.rasterBrightnessMin(expression));
+          break;
+        case "raster-brightness-max":
+          properties.add(PropertyFactory.rasterBrightnessMax(expression));
+          break;
+        case "raster-saturation":
+          properties.add(PropertyFactory.rasterSaturation(expression));
+          break;
+        case "raster-contrast":
+          properties.add(PropertyFactory.rasterContrast(expression));
+          break;
+        case "raster-resampling":
+          properties.add(PropertyFactory.rasterResampling(expression));
+          break;
+        case "raster-fade-duration":
+          properties.add(PropertyFactory.rasterFadeDuration(expression));
+          break;
+        case "visibility":
+          properties.add(PropertyFactory.visibility(entry.getValue()));
+          break;
+        default:
+          break;
+      }
+    }
+
+    return properties.toArray(new PropertyValue[properties.size()]);
+  }
+
 }

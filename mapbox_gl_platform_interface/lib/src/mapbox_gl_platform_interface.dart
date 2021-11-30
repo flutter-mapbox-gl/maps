@@ -315,5 +315,7 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('addFillLayer() has not been implemented.');
   }
 
+  Future<void> addSource(String sourceId, Source source);
+
   void dispose() {}
 }

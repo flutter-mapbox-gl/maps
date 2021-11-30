@@ -895,4 +895,9 @@ class MapboxMapController extends MapboxGlPlatform
   void _onMouseLeaveFeature(_) {
     _map.getCanvas().style.cursor = '';
   }
+
+  @override
+  Future<void> addSource(String sourceId, Source source) async {
+    _map.addSource(sourceId, source.toJson());
+  }
 }

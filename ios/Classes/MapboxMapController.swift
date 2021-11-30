@@ -898,6 +898,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             addSource(sourceId: sourceId, geojson: geojson)
             result(nil)
 
+        case "style#addSource":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let geojson = arguments["geojson"] as? String else { return }
+            addSource(sourceId: sourceId, geojson: geojson)
+            result(nil)
+
+
         case "source#setGeoJson":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }

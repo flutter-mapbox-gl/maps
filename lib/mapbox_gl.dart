@@ -39,7 +39,14 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         Line,
         LineOptions,
         Fill,
-        FillOptions;
+        FillOptions,
+        Source,
+        RasterSource,
+        VectorSource,
+        RasterDemSource,
+        GeojsonSource,
+        VideoSource,
+        ImageSource;
 
 part 'src/controller.dart';
 part 'src/mapbox_map.dart';
