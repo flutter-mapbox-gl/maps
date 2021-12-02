@@ -457,13 +457,15 @@ class MapboxMapController extends MapboxGlPlatform
   void _onMapClick(Event e) {
     final features = _map.queryRenderedFeatures(
         [e.point.x, e.point.y], {"layers": _featureLayerIdentifiers.toList()});
+    final payload = {
+      'point': Point<double>(e.point.x.toDouble(), e.point.y.toDouble()),
+      'latLng': LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble()),
+      if (features.isNotEmpty) "id": features.first.id,
+    };
     if (features.isNotEmpty) {
-      onFeatureTappedPlatform(features.first.id);
+      onFeatureTappedPlatform(payload);
     } else {
-      onMapClickPlatform({
-        'point': Point<double>(e.point.x.toDouble(), e.point.y.toDouble()),
-        'latLng': LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble()),
-      });
+      onMapClickPlatform(payload);
     }
   }
 

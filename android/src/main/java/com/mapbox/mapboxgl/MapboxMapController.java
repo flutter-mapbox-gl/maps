@@ -1300,16 +1300,15 @@ final class MapboxMapController
       pointf.y + 10
     );
     Feature feature = firstFeatureOnLayers(rectF);
+    final Map<String, Object> arguments = new HashMap<>();
+    arguments.put("x", pointf.x);
+    arguments.put("y", pointf.y);
+    arguments.put("lng", point.getLongitude());
+    arguments.put("lat", point.getLatitude());
     if(feature != null){
-      final Map<String, Object> arguments = new HashMap<>(1);
-      arguments.put("featureId", feature.id());
+      arguments.put("id", feature.id());
       methodChannel.invokeMethod("feature#onTap", arguments);
     } else { 
-      final Map<String, Object> arguments = new HashMap<>(5);
-      arguments.put("x", pointf.x);
-      arguments.put("y", pointf.y);
-      arguments.put("lng", point.getLongitude());
-      arguments.put("lat", point.getLatitude());
       methodChannel.invokeMethod("map#onMapClick", arguments);
     }
     return true;

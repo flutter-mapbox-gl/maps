@@ -36,10 +36,16 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         }
         break;
       case 'feature#onTap':
-        final featureId = call.arguments['featureId'];
-        if (featureId != null) {
-          onFeatureTappedPlatform(featureId);
-        }
+        final id = call.arguments['id'];
+        final double x = call.arguments['x'];
+        final double y = call.arguments['y'];
+        final double lng = call.arguments['lng'];
+        final double lat = call.arguments['lat'];
+        onFeatureTappedPlatform({
+          'id': id,
+          'point': Point<double>(x, y),
+          'latLng': LatLng(lat, lng)
+        });
         break;
       case 'camera#onMoveStarted':
         onCameraMoveStartedPlatform(null);
