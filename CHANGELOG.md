@@ -1,3 +1,8 @@
+## 0.15.0, Unreleased
+### Breaking changes
+* callbacks added to onFeatureTapped will now also get the position (`Point<double>`) and the location (`LatLng`) of the click passed when called [#798](https://github.com/flutter-mapbox-gl/maps/pull/798) 
+
+
 ## 0.14.0, November 13, 2021
 * Remove memory leaks by disposing internal components [#706](https://github.com/tobrun/flutter-mapbox-gl/pull/706) 
 * Improved annotation click order [#748](https://github.com/tobrun/flutter-mapbox-gl/pull/748)
