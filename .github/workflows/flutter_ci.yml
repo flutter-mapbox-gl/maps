@@ -16,7 +16,18 @@ jobs:
     - run: flutter pub get
     - name: Lint analysis
       run: cd example && flutter analyze
-
+      
+  check-dart-formatting:
+    name: "Check Dart formatting"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: subosito/flutter-action@v1
+    - name: Check Dart formatting 
+      run: flutter format --set-exit-if-changed .
+    
+    
   build-android:
     environment: ANDROID_CI_DOWNLOADS_TOKEN
     name: "Build Android apk"
