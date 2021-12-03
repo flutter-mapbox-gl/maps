@@ -5,12 +5,11 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = MapboxMapFactory(withRegistrar: registrar)
         registrar.register(instance, withId: "plugins.flutter.io/mapbox_gl")
-        
 
         let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_gl", binaryMessenger: registrar.messenger())
 
-        channel.setMethodCallHandler { (methodCall, result) in
-            switch(methodCall.method) {
+        channel.setMethodCallHandler { methodCall, result in
+            switch methodCall.method {
             case "installOfflineMapTiles":
                 guard let arguments = methodCall.arguments as? [String: String] else { return }
                 let tilesdb = arguments["tilesdb"]
@@ -23,11 +22,11 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                       let metadata = args["metadata"] as? [String: Any],
                       let defintion = OfflineRegionDefinition.fromDictionary(definitionDictionary),
                       let channelName = args["channelName"] as? String
-                    else {
-                        print("downloadOfflineRegion unexpected arguments: \(String(describing: methodCall.arguments))")
-                        result(nil)
-                        return
-                    }
+                else {
+                    print("downloadOfflineRegion unexpected arguments: \(String(describing: methodCall.arguments))")
+                    result(nil)
+                    return
+                }
                 // Prepare channel
                 let channelHandler = OfflineChannelHandler(
                     messenger: registrar.messenger(),
@@ -42,13 +41,14 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                 )
             case "setOfflineTileCountLimit":
                 guard let arguments = methodCall.arguments as? [String: Any],
-                    let limit = arguments["limit"] as? UInt64 else {
-                        result(FlutterError(
-                            code: "SetOfflineTileCountLimitError",
-                            message: "could not decode arguments",
-                            details: nil
-                        ))
-                        return
+                      let limit = arguments["limit"] as? UInt64
+                else {
+                    result(FlutterError(
+                        code: "SetOfflineTileCountLimitError",
+                        message: "could not decode arguments",
+                        details: nil
+                    ))
+                    return
                 }
                 OfflineManagerUtils.setOfflineTileCountLimit(result: result, maximumCount: limit)
             case "getListOfRegions":
@@ -56,9 +56,10 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                 OfflineManagerUtils.regionsList(result: result)
             case "deleteOfflineRegion":
                 guard let args = methodCall.arguments as? [String: Any],
-                    let id = args["id"] as? Int else {
-                        result(nil)
-                        return
+                      let id = args["id"] as? Int
+                else {
+                    result(nil)
+                    return
                 }
                 OfflineManagerUtils.deleteRegion(result: result, id: id)
             default:
@@ -69,8 +70,9 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
 
     private static func getTilesUrl() -> URL {
         guard var cachesUrl = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first,
-            let bundleId = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String else {
-                fatalError("Could not get map tiles directory")
+              let bundleId = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String
+        else {
+            fatalError("Could not get map tiles directory")
         }
         cachesUrl.appendPathComponent(bundleId)
         cachesUrl.appendPathComponent(".mapbox")
@@ -93,14 +95,14 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
             var resourceValues = URLResourceValues()
             resourceValues.isExcludedFromBackup = true
             try tilesUrl.setResourceValues(resourceValues)
-        } catch let error {
+        } catch {
             NSLog("Error copying bundled tiles: \(error)")
         }
     }
-    
+
     private static func getTilesDbPath(registrar: FlutterPluginRegistrar, tilesdb: String) -> String? {
-        if (tilesdb.starts(with: "/")) {
-            return tilesdb;
+        if tilesdb.starts(with: "/") {
+            return tilesdb
         } else {
             let key = registrar.lookupKey(forAsset: tilesdb)
             return Bundle.main.path(forResource: key, ofType: nil)

@@ -38,7 +38,7 @@ jobs:
     - run: unzip swiftformat_linux.zip
     - run: chmod +x swiftformat_linux
     - name: Check Dart formatting 
-      run: ./swiftformat_linux --lint ios  
+      run: ./swiftformat_linux --swiftversion 4.2 --lint ios  
     
   build-android:
     environment: ANDROID_CI_DOWNLOADS_TOKEN
