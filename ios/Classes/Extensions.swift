@@ -2,7 +2,12 @@ import Mapbox
 
 extension MGLMapCamera {
     func toDict(mapView: MGLMapView) -> [String: Any] {
-        let zoom = MGLZoomLevelForAltitude(altitude, pitch, centerCoordinate.latitude, mapView.frame.size)
+        let zoom = MGLZoomLevelForAltitude(
+            altitude,
+            pitch,
+            centerCoordinate.latitude,
+            mapView.frame.size
+        )
         return ["bearing": heading,
                 "target": centerCoordinate.toArray(),
                 "tilt": pitch,
@@ -16,7 +21,12 @@ extension MGLMapCamera {
               let bearing = dict["bearing"] as? Double else { return nil }
         let location = CLLocationCoordinate2D.fromArray(target)
         let altitude = MGLAltitudeForZoomLevel(zoom, tilt, location.latitude, mapView.frame.size)
-        return MGLMapCamera(lookingAtCenter: location, altitude: altitude, pitch: tilt, heading: bearing)
+        return MGLMapCamera(
+            lookingAtCenter: location,
+            altitude: altitude,
+            pitch: tilt,
+            heading: bearing
+        )
     }
 }
 

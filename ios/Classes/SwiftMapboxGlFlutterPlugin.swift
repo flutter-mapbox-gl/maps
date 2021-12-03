@@ -6,7 +6,10 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
         let instance = MapboxMapFactory(withRegistrar: registrar)
         registrar.register(instance, withId: "plugins.flutter.io/mapbox_gl")
 
-        let channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_gl", binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(
+            name: "plugins.flutter.io/mapbox_gl",
+            binaryMessenger: registrar.messenger()
+        )
 
         channel.setMethodCallHandler { methodCall, result in
             switch methodCall.method {
@@ -23,7 +26,9 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                       let defintion = OfflineRegionDefinition.fromDictionary(definitionDictionary),
                       let channelName = args["channelName"] as? String
                 else {
-                    print("downloadOfflineRegion unexpected arguments: \(String(describing: methodCall.arguments))")
+                    print(
+                        "downloadOfflineRegion unexpected arguments: \(String(describing: methodCall.arguments))"
+                    )
                     result(nil)
                     return
                 }
@@ -69,8 +74,12 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private static func getTilesUrl() -> URL {
-        guard var cachesUrl = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first,
-              let bundleId = Bundle.main.object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String
+        guard var cachesUrl = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first,
+            let bundleId = Bundle.main
+            .object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String
         else {
             fatalError("Could not get map tiles directory")
         }
@@ -84,10 +93,16 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     private static func installOfflineMapTiles(registrar: FlutterPluginRegistrar, tilesdb: String) {
         var tilesUrl = getTilesUrl()
         let bundlePath = getTilesDbPath(registrar: registrar, tilesdb: tilesdb)
-        NSLog("Cached tiles not found, copying from bundle... \(String(describing: bundlePath)) ==> \(tilesUrl)")
+        NSLog(
+            "Cached tiles not found, copying from bundle... \(String(describing: bundlePath)) ==> \(tilesUrl)"
+        )
         do {
             let parentDir = tilesUrl.deletingLastPathComponent()
-            try FileManager.default.createDirectory(at: parentDir, withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.createDirectory(
+                at: parentDir,
+                withIntermediateDirectories: true,
+                attributes: nil
+            )
             if FileManager.default.fileExists(atPath: tilesUrl.path) {
                 try FileManager.default.removeItem(atPath: tilesUrl.path)
             }
@@ -100,7 +115,9 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
         }
     }
 
-    private static func getTilesDbPath(registrar: FlutterPluginRegistrar, tilesdb: String) -> String? {
+    private static func getTilesDbPath(registrar: FlutterPluginRegistrar,
+                                       tilesdb: String) -> String?
+    {
         if tilesdb.starts(with: "/") {
             return tilesdb
         } else {

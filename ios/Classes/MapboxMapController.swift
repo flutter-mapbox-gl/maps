@@ -3,7 +3,9 @@ import Mapbox
 import MapboxAnnotationExtension
 import UIKit
 
-class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink, MGLAnnotationControllerDelegate {
+class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink,
+    MGLAnnotationControllerDelegate
+{
     private var registrar: FlutterPluginRegistrar
     private var channel: FlutterMethodChannel?
 
@@ -32,7 +34,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         return mapView
     }
 
-    init(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?, registrar: FlutterPluginRegistrar) {
+    init(
+        withFrame frame: CGRect,
+        viewIdentifier viewId: Int64,
+        arguments args: Any?,
+        registrar: FlutterPluginRegistrar
+    ) {
         if let args = args as? [String: Any] {
             if let token = args["accessToken"] as? String? {
                 MGLAccountManager.accessToken = token
@@ -44,19 +51,31 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
         super.init()
 
-        channel = FlutterMethodChannel(name: "plugins.flutter.io/mapbox_maps_\(viewId)", binaryMessenger: registrar.messenger())
-        channel!.setMethodCallHandler { [weak self] in self?.onMethodCall(methodCall: $0, result: $1) }
+        channel = FlutterMethodChannel(
+            name: "plugins.flutter.io/mapbox_maps_\(viewId)",
+            binaryMessenger: registrar.messenger()
+        )
+        channel!
+            .setMethodCallHandler { [weak self] in self?.onMethodCall(methodCall: $0, result: $1) }
 
         mapView.delegate = self
 
-        let singleTap = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(sender:)))
+        let singleTap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleMapTap(sender:))
+        )
         for recognizer in mapView.gestureRecognizers! where recognizer is UITapGestureRecognizer {
             singleTap.require(toFail: recognizer)
         }
         mapView.addGestureRecognizer(singleTap)
 
-        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleMapLongPress(sender:)))
-        for recognizer in mapView.gestureRecognizers! where recognizer is UILongPressGestureRecognizer {
+        let longPress = UILongPressGestureRecognizer(
+            target: self,
+            action: #selector(handleMapLongPress(sender:))
+        )
+        for recognizer in mapView.gestureRecognizers!
+            where recognizer is UILongPressGestureRecognizer
+        {
             longPress.require(toFail: recognizer)
         }
         mapView.addGestureRecognizer(longPress)
@@ -67,7 +86,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                let camera = MGLMapCamera.fromDict(initialCameraPosition, mapView: mapView),
                let zoom = initialCameraPosition["zoom"] as? Double
             {
-                mapView.setCenter(camera.centerCoordinate, zoomLevel: zoom, direction: camera.heading, animated: false)
+                mapView.setCenter(
+                    camera.centerCoordinate,
+                    zoomLevel: zoom,
+                    direction: camera.heading,
+                    animated: false
+                )
                 initialTilt = camera.pitch
             }
             if let annotationOrderArg = args["annotationOrder"] as? [String] {
@@ -125,7 +149,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
         case "map#updateMyLocationTrackingMode":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            if let myLocationTrackingMode = arguments["mode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
+            if let myLocationTrackingMode = arguments["mode"] as? UInt,
+               let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode)
+            {
                 setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
             }
             result(nil)
@@ -144,7 +170,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                let right = bounds["right"] as? CGFloat,
                let animated = arguments["animated"] as? Bool
             {
-                mapView.setContentInset(UIEdgeInsets(top: top, left: left, bottom: bottom, right: right), animated: animated) {
+                mapView.setContentInset(
+                    UIEdgeInsets(top: top, left: left, bottom: bottom, right: right),
+                    animated: animated
+                ) {
                     result(nil)
                 }
             } else {
@@ -167,20 +196,31 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             var reply = [String: NSObject]()
             var features: [MGLFeature] = []
             if let x = arguments["x"] as? Double, let y = arguments["y"] as? Double {
-                features = mapView.visibleFeatures(at: CGPoint(x: x, y: y), styleLayerIdentifiers: layerIds, predicate: filterExpression)
+                features = mapView.visibleFeatures(
+                    at: CGPoint(x: x, y: y),
+                    styleLayerIdentifiers: layerIds,
+                    predicate: filterExpression
+                )
             }
             if let top = arguments["top"] as? Double,
                let bottom = arguments["bottom"] as? Double,
                let left = arguments["left"] as? Double,
                let right = arguments["right"] as? Double
             {
-                features = mapView.visibleFeatures(in: CGRect(x: left, y: top, width: right, height: bottom), styleLayerIdentifiers: layerIds, predicate: filterExpression)
+                features = mapView.visibleFeatures(
+                    in: CGRect(x: left, y: top, width: right, height: bottom),
+                    styleLayerIdentifiers: layerIds,
+                    predicate: filterExpression
+                )
             }
             var featuresJson = [String]()
             for feature in features {
                 let dictionary = feature.geoJSONDictionary()
-                if let theJSONData = try? JSONSerialization.data(withJSONObject: dictionary, options: []),
-                   let theJSONText = String(data: theJSONData, encoding: .ascii)
+                if let theJSONData = try? JSONSerialization.data(
+                    withJSONObject: dictionary,
+                    options: []
+                ),
+                    let theJSONText = String(data: theJSONData, encoding: .ascii)
                 {
                     featuresJson.append(theJSONText)
                 }
@@ -230,7 +270,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 reply[i + 1] = Double(returnVal.y)
             }
             result(FlutterStandardTypedData(
-                float64: Data(bytes: &reply, count: reply.count * 8)))
+                float64: Data(bytes: &reply, count: reply.count * 8)
+            ))
         case "map#getMetersPerPixelAtLatitude":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             var reply = [String: NSObject]()
@@ -243,7 +284,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let x = arguments["x"] as? Double else { return }
             guard let y = arguments["y"] as? Double else { return }
             let screenPoint = CGPoint(x: x, y: y)
-            let coordinates: CLLocationCoordinate2D = mapView.convert(screenPoint, toCoordinateFrom: mapView)
+            let coordinates: CLLocationCoordinate2D = mapView.convert(
+                screenPoint,
+                toCoordinateFrom: mapView
+            )
             var reply = [String: NSObject]()
             reply["latitude"] = coordinates.latitude as NSObject
             reply["longitude"] = coordinates.longitude as NSObject
@@ -251,17 +295,22 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "camera#move":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
-            if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
+            if let camera = Convert
+                .parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView)
+            {
                 mapView.setCamera(camera, animated: false)
             }
             result(nil)
         case "camera#animate":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
-            if let camera = Convert.parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView) {
+            if let camera = Convert
+                .parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView)
+            {
                 if let duration = arguments["duration"] as? TimeInterval {
                     mapView.setCamera(camera, withDuration: TimeInterval(duration / 1000),
-                                      animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut))
+                                      animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName
+                                          .easeInEaseOut))
                     result(nil)
                 }
                 mapView.setCamera(camera, animated: true)
@@ -280,7 +329,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
                 if !symbols.isEmpty {
                     symbolAnnotationController.addStyleAnnotations(symbols)
-                    symbolAnnotationController.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.symbol")
+                    symbolAnnotationController
+                        .annotationsInteractionEnabled = annotationConsumeTapEvents
+                        .contains("AnnotationType.symbol")
                 }
 
                 result(symbols.map { $0.identifier })
@@ -294,7 +345,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             for symbol in symbolAnnotationController.styleAnnotations() {
                 if symbol.identifier == symbolId {
-                    Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol as! MGLSymbolStyleAnnotation)
+                    Convert.interpretSymbolOptions(
+                        options: arguments["options"],
+                        delegate: symbol as! MGLSymbolStyleAnnotation
+                    )
                     // Load (updated) icon image from asset if an icon name is supplied.
                     if let options = arguments["options"] as? [String: Any],
                        let iconImage = options["iconImage"] as? String
@@ -341,7 +395,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "symbolManager#iconIgnorePlacement":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
-            guard let iconIgnorePlacement = arguments["iconIgnorePlacement"] as? Bool else { return }
+            guard let iconIgnorePlacement = arguments["iconIgnorePlacement"] as? Bool
+            else { return }
 
             symbolAnnotationController.iconIgnoresPlacement = iconIgnorePlacement
             result(nil)
@@ -366,7 +421,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 let circle = MGLCircleStyleAnnotation(center: coordinate)
                 Convert.interpretCircleOptions(options: arguments["options"], delegate: circle)
                 circleAnnotationController.addStyleAnnotation(circle)
-                circleAnnotationController.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.circle")
+                circleAnnotationController
+                    .annotationsInteractionEnabled = annotationConsumeTapEvents
+                    .contains("AnnotationType.circle")
                 result(circle.identifier)
             } else {
                 result(nil)
@@ -405,7 +462,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             for circle in circleAnnotationController.styleAnnotations() {
                 if circle.identifier == circleId {
-                    Convert.interpretCircleOptions(options: arguments["options"], delegate: circle as! MGLCircleStyleAnnotation)
+                    Convert.interpretCircleOptions(
+                        options: arguments["options"],
+                        delegate: circle as! MGLCircleStyleAnnotation
+                    )
                     circleAnnotationController.updateStyleAnnotation(circle)
                     break
                 }
@@ -438,10 +498,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             if let options = arguments["options"] as? [String: Any] {
                 var coordinates = Convert.getCoordinates(options: options)
-                let line = MGLLineStyleAnnotation(coordinates: &coordinates, count: UInt(coordinates.count))
+                let line = MGLLineStyleAnnotation(
+                    coordinates: &coordinates,
+                    count: UInt(coordinates.count)
+                )
                 Convert.interpretLineOptions(options: options, delegate: line)
                 lineAnnotationController.addStyleAnnotation(line)
-                lineAnnotationController.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.line")
+                lineAnnotationController.annotationsInteractionEnabled = annotationConsumeTapEvents
+                    .contains("AnnotationType.line")
                 result(line.identifier)
             } else {
                 result(nil)
@@ -457,7 +521,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
                 for options in allOptions {
                     var coordinates = Convert.getCoordinates(options: options)
-                    let line = MGLLineStyleAnnotation(coordinates: &coordinates, count: UInt(coordinates.count))
+                    let line = MGLLineStyleAnnotation(
+                        coordinates: &coordinates,
+                        count: UInt(coordinates.count)
+                    )
                     Convert.interpretLineOptions(options: options, delegate: line)
                     lines.append(line)
                 }
@@ -476,8 +543,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             for line in lineAnnotationController.styleAnnotations() {
                 if line.identifier == lineId {
-                    Convert.interpretGeometryUpdate(options: arguments["options"], delegate: line as! MGLLineStyleAnnotation)
-                    Convert.interpretLineOptions(options: arguments["options"], delegate: line as! MGLLineStyleAnnotation)
+                    Convert.interpretGeometryUpdate(
+                        options: arguments["options"],
+                        delegate: line as! MGLLineStyleAnnotation
+                    )
+                    Convert.interpretLineOptions(
+                        options: arguments["options"],
+                        delegate: line as! MGLLineStyleAnnotation
+                    )
                     lineAnnotationController.updateStyleAnnotation(line)
                     break
                 }
@@ -510,7 +583,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
-            addSymbolLayer(sourceId: sourceId, layerId: layerId, belowLayerId: belowLayerId, properties: properties)
+            addSymbolLayer(
+                sourceId: sourceId,
+                layerId: layerId,
+                belowLayerId: belowLayerId,
+                properties: properties
+            )
             result(nil)
 
         case "lineLayer#add":
@@ -519,7 +597,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
-            addLineLayer(sourceId: sourceId, layerId: layerId, belowLayerId: belowLayerId, properties: properties)
+            addLineLayer(
+                sourceId: sourceId,
+                layerId: layerId,
+                belowLayerId: belowLayerId,
+                properties: properties
+            )
             result(nil)
 
         case "fillLayer#add":
@@ -528,7 +611,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
-            addFillLayer(sourceId: sourceId, layerId: layerId, belowLayerId: belowLayerId, properties: properties)
+            addFillLayer(
+                sourceId: sourceId,
+                layerId: layerId,
+                belowLayerId: belowLayerId,
+                properties: properties
+            )
             result(nil)
 
         case "circleLayer#add":
@@ -537,7 +625,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
-            addCircleLayer(sourceId: sourceId, layerId: layerId, belowLayerId: belowLayerId, properties: properties)
+            addCircleLayer(
+                sourceId: sourceId,
+                layerId: layerId,
+                belowLayerId: belowLayerId,
+                properties: properties
+            )
             result(nil)
 
         case "line#getGeometry":
@@ -572,10 +665,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                     fillCoordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
                 }
                 let polygons = Convert.toPolygons(geometry: geometry.tail)
-                let fill = MGLPolygonStyleAnnotation(coordinates: fillCoordinates, count: UInt(fillCoordinates.count), interiorPolygons: polygons)
+                let fill = MGLPolygonStyleAnnotation(
+                    coordinates: fillCoordinates,
+                    count: UInt(fillCoordinates.count),
+                    interiorPolygons: polygons
+                )
                 Convert.interpretFillOptions(options: arguments["options"], delegate: fill)
                 fillAnnotationController.addStyleAnnotation(fill)
-                fillAnnotationController.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.fill")
+                fillAnnotationController.annotationsInteractionEnabled = annotationConsumeTapEvents
+                    .contains("AnnotationType.fill")
                 identifier = fill.identifier
             }
 
@@ -595,10 +693,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                         // Convert geometry to coordinate and interior polygonc.
                         var fillCoordinates: [CLLocationCoordinate2D] = []
                         for coordinate in geometry[0] {
-                            fillCoordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
+                            fillCoordinates
+                                .append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
                         }
                         let polygons = Convert.toPolygons(geometry: geometry.tail)
-                        let fill = MGLPolygonStyleAnnotation(coordinates: fillCoordinates, count: UInt(fillCoordinates.count), interiorPolygons: polygons)
+                        let fill = MGLPolygonStyleAnnotation(
+                            coordinates: fillCoordinates,
+                            count: UInt(fillCoordinates.count),
+                            interiorPolygons: polygons
+                        )
                         Convert.interpretFillOptions(options: options, delegate: fill)
                         fills.append(fill)
                     }
@@ -618,7 +721,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             for fill in fillAnnotationController.styleAnnotations() {
                 if fill.identifier == fillId {
-                    Convert.interpretFillOptions(options: arguments["options"], delegate: fill as! MGLPolygonStyleAnnotation)
+                    Convert.interpretFillOptions(
+                        options: arguments["options"],
+                        delegate: fill as! MGLPolygonStyleAnnotation
+                    )
                     fillAnnotationController.updateStyleAnnotation(fill)
                     break
                 }
@@ -670,19 +776,39 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             guard let coordinates = arguments["coordinates"] as? [[Double]] else { return }
             let quad = MGLCoordinateQuad(
-                topLeft: CLLocationCoordinate2D(latitude: coordinates[0][0], longitude: coordinates[0][1]),
-                bottomLeft: CLLocationCoordinate2D(latitude: coordinates[3][0], longitude: coordinates[3][1]),
-                bottomRight: CLLocationCoordinate2D(latitude: coordinates[2][0], longitude: coordinates[2][1]),
-                topRight: CLLocationCoordinate2D(latitude: coordinates[1][0], longitude: coordinates[1][1])
+                topLeft: CLLocationCoordinate2D(
+                    latitude: coordinates[0][0],
+                    longitude: coordinates[0][1]
+                ),
+                bottomLeft: CLLocationCoordinate2D(
+                    latitude: coordinates[3][0],
+                    longitude: coordinates[3][1]
+                ),
+                bottomRight: CLLocationCoordinate2D(
+                    latitude: coordinates[2][0],
+                    longitude: coordinates[2][1]
+                ),
+                topRight: CLLocationCoordinate2D(
+                    latitude: coordinates[1][0],
+                    longitude: coordinates[1][1]
+                )
             )
 
             // Check for duplicateSource error
             if mapView.style?.source(withIdentifier: imageSourceId) != nil {
-                result(FlutterError(code: "duplicateSource", message: "Source with imageSourceId \(imageSourceId) already exists", details: "Can't add duplicate source with imageSourceId: \(imageSourceId)"))
+                result(FlutterError(
+                    code: "duplicateSource",
+                    message: "Source with imageSourceId \(imageSourceId) already exists",
+                    details: "Can't add duplicate source with imageSourceId: \(imageSourceId)"
+                ))
                 return
             }
 
-            let source = MGLImageSource(identifier: imageSourceId, coordinateQuad: quad, image: image)
+            let source = MGLImageSource(
+                identifier: imageSourceId,
+                coordinateQuad: quad,
+                image: image
+            )
             mapView.style?.addSource(source)
 
             result(nil)
@@ -699,12 +825,20 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             // Check for duplicateLayer error
             if (mapView.style?.layer(withIdentifier: imageLayerId)) != nil {
-                result(FlutterError(code: "duplicateLayer", message: "Layer already exists", details: "Can't add duplicate layer with imageLayerId: \(imageLayerId)"))
+                result(FlutterError(
+                    code: "duplicateLayer",
+                    message: "Layer already exists",
+                    details: "Can't add duplicate layer with imageLayerId: \(imageLayerId)"
+                ))
                 return
             }
             // Check for noSuchSource error
             guard let source = mapView.style?.source(withIdentifier: imageSourceId) else {
-                result(FlutterError(code: "noSuchSource", message: "No source found with imageSourceId \(imageSourceId)", details: "Can't add add layer for imageSourceId \(imageLayerId), as the source does not exist."))
+                result(FlutterError(
+                    code: "noSuchSource",
+                    message: "No source found with imageSourceId \(imageSourceId)",
+                    details: "Can't add add layer for imageSourceId \(imageLayerId), as the source does not exist."
+                ))
                 return
             }
 
@@ -719,17 +853,29 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             // Check for duplicateLayer error
             if (mapView.style?.layer(withIdentifier: imageLayerId)) != nil {
-                result(FlutterError(code: "duplicateLayer", message: "Layer already exists", details: "Can't add duplicate layer with imageLayerId: \(imageLayerId)"))
+                result(FlutterError(
+                    code: "duplicateLayer",
+                    message: "Layer already exists",
+                    details: "Can't add duplicate layer with imageLayerId: \(imageLayerId)"
+                ))
                 return
             }
             // Check for noSuchSource error
             guard let source = mapView.style?.source(withIdentifier: imageSourceId) else {
-                result(FlutterError(code: "noSuchSource", message: "No source found with imageSourceId \(imageSourceId)", details: "Can't add add layer for imageSourceId \(imageLayerId), as the source does not exist."))
+                result(FlutterError(
+                    code: "noSuchSource",
+                    message: "No source found with imageSourceId \(imageSourceId)",
+                    details: "Can't add add layer for imageSourceId \(imageLayerId), as the source does not exist."
+                ))
                 return
             }
             // Check for noSuchLayer error
             guard let belowLayer = mapView.style?.layer(withIdentifier: belowLayerId) else {
-                result(FlutterError(code: "noSuchLayer", message: "No layer found with layerId \(belowLayerId)", details: "Can't insert layer below layer with id \(belowLayerId), as no such layer exists."))
+                result(FlutterError(
+                    code: "noSuchLayer",
+                    message: "No layer found with layerId \(belowLayerId)",
+                    details: "Can't insert layer below layer with id \(belowLayerId), as no such layer exists."
+                ))
                 return
             }
             let layer = MGLRasterStyleLayer(identifier: imageLayerId, source: source)
@@ -789,7 +935,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 let assetPath = registrar.lookupKey(forAsset: "\(directory)/")
                 let fileName = String(iconImageName[range.upperBound...])
                 // If we can load the image from file then add it to the map.
-                if let imageFromAsset = UIImage.loadFromFile(imagePath: assetPath, imageName: fileName) {
+                if let imageFromAsset = UIImage.loadFromFile(
+                    imagePath: assetPath,
+                    imageName: fileName
+                ) {
                     mapView.style?.setImage(imageFromAsset, forName: iconImageName)
                 }
             }
@@ -816,7 +965,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
 
         for layer in clickableLayers.reversed() {
-            let features = mapView.visibleFeatures(at: at, styleLayerIdentifiers: [layer.identifier])
+            let features = mapView.visibleFeatures(
+                at: at,
+                styleLayerIdentifiers: [layer.identifier]
+            )
             if let feature = features.first {
                 return feature
             }
@@ -873,7 +1025,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     /*
      *  MGLAnnotationControllerDelegate
      */
-    func annotationController(_ annotationController: MGLAnnotationController, didSelect styleAnnotation: MGLStyleAnnotation) {
+    func annotationController(
+        _ annotationController: MGLAnnotationController,
+        didSelect styleAnnotation: MGLStyleAnnotation
+    ) {
         DispatchQueue.main.async {
             // Remove tint color overlay from selected annotation by
             // deselecting. This is not handled correctly if requested
@@ -909,8 +1064,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
      * Called if the application supplies an onAttributionClick handler.
      */
     func setupAttribution(_ mapView: MGLMapView) {
-        mapView.attributionButton.removeTarget(mapView, action: #selector(mapView.showAttribution), for: .touchUpInside)
-        mapView.attributionButton.addTarget(self, action: #selector(showAttribution), for: UIControl.Event.touchUpInside)
+        mapView.attributionButton.removeTarget(
+            mapView,
+            action: #selector(mapView.showAttribution),
+            for: .touchUpInside
+        )
+        mapView.attributionButton.addTarget(
+            self,
+            action: #selector(showAttribution),
+            for: UIControl.Event.touchUpInside
+        )
     }
 
     /*
@@ -939,23 +1102,31 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             switch annotationType {
             case "AnnotationType.fill":
                 fillAnnotationController = MGLPolygonAnnotationController(mapView: self.mapView)
-                fillAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.fill")
+                fillAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents
+                    .contains("AnnotationType.fill")
                 fillAnnotationController?.delegate = self
             case "AnnotationType.line":
                 lineAnnotationController = MGLLineAnnotationController(mapView: self.mapView)
-                lineAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.line")
+                lineAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents
+                    .contains("AnnotationType.line")
 
                 lineAnnotationController?.delegate = self
             case "AnnotationType.circle":
                 circleAnnotationController = MGLCircleAnnotationController(mapView: self.mapView)
-                circleAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.circle")
+                circleAnnotationController!
+                    .annotationsInteractionEnabled = annotationConsumeTapEvents
+                    .contains("AnnotationType.circle")
                 circleAnnotationController?.delegate = self
             case "AnnotationType.symbol":
                 symbolAnnotationController = MGLSymbolAnnotationController(mapView: self.mapView)
-                symbolAnnotationController!.annotationsInteractionEnabled = annotationConsumeTapEvents.contains("AnnotationType.symbol")
+                symbolAnnotationController!
+                    .annotationsInteractionEnabled = annotationConsumeTapEvents
+                    .contains("AnnotationType.symbol")
                 symbolAnnotationController?.delegate = self
             default:
-                print("Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'")
+                print(
+                    "Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'"
+                )
             }
         }
 
@@ -973,7 +1144,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         isStyleReady = true
     }
 
-    func mapView(_ mapView: MGLMapView, shouldChangeFrom _: MGLMapCamera, to newCamera: MGLMapCamera) -> Bool {
+    func mapView(_ mapView: MGLMapView, shouldChangeFrom _: MGLMapCamera,
+                 to newCamera: MGLMapCamera) -> Bool
+    {
         guard let bbox = cameraTargetBounds else { return true }
 
         // Get the current camera to restore it after.
@@ -991,7 +1164,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
         // Test if the newCameraCenter and newVisibleCoordinates are inside bbox.
         let inside = MGLCoordinateInCoordinateBounds(newCameraCenter, bbox)
-        let intersects = MGLCoordinateInCoordinateBounds(newVisibleCoordinates.ne, bbox) && MGLCoordinateInCoordinateBounds(newVisibleCoordinates.sw, bbox)
+        let intersects = MGLCoordinateInCoordinateBounds(newVisibleCoordinates.ne, bbox) &&
+            MGLCoordinateInCoordinateBounds(newVisibleCoordinates.sw, bbox)
 
         return inside && intersects
     }
@@ -1004,7 +1178,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             return nil
         }
         // Reuse existing annotations for better performance.
-        var annotationImage = mapView.dequeueReusableAnnotationImage(withIdentifier: iconImageFullPath)
+        var annotationImage = mapView
+            .dequeueReusableAnnotationImage(withIdentifier: iconImageFullPath)
         if annotationImage == nil {
             // Initialize the annotation image (from predefined assets symbol folder).
             if let range = iconImageFullPath.range(of: "/", options: [.backwards]) {
@@ -1013,7 +1188,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 let iconImageName = String(iconImageFullPath[range.upperBound...])
                 let image = UIImage.loadFromFile(imagePath: assetPath, imageName: iconImageName)
                 if let image = image {
-                    annotationImage = MGLAnnotationImage(image: image, reuseIdentifier: iconImageFullPath)
+                    annotationImage = MGLAnnotationImage(
+                        image: image,
+                        reuseIdentifier: iconImageFullPath
+                    )
                 }
             }
         }
@@ -1033,7 +1211,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
 
     func mapView(_: MGLMapView, didUpdate userLocation: MGLUserLocation?) {
-        if let channel = channel, let userLocation = userLocation, let location = userLocation.location {
+        if let channel = channel, let userLocation = userLocation,
+           let location = userLocation.location
+        {
             channel.invokeMethod("map#onUserLocationUpdated", arguments: [
                 "userLocation": location.toDict(),
                 "heading": userLocation.heading?.toDict(),
@@ -1050,11 +1230,19 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
-    func addSymbolLayer(sourceId: String, layerId: String, belowLayerId: String?, properties: [String: String]) {
+    func addSymbolLayer(
+        sourceId: String,
+        layerId: String,
+        belowLayerId: String?,
+        properties: [String: String]
+    ) {
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
                 let layer = MGLSymbolStyleLayer(identifier: layerId, source: source)
-                LayerPropertyConverter.addSymbolProperties(symbolLayer: layer, properties: properties)
+                LayerPropertyConverter.addSymbolProperties(
+                    symbolLayer: layer,
+                    properties: properties
+                )
                 if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id) {
                     style.insertLayer(layer, below: belowLayer)
                 } else {
@@ -1065,7 +1253,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
-    func addLineLayer(sourceId: String, layerId: String, belowLayerId: String?, properties: [String: String]) {
+    func addLineLayer(
+        sourceId: String,
+        layerId: String,
+        belowLayerId: String?,
+        properties: [String: String]
+    ) {
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
                 let layer = MGLLineStyleLayer(identifier: layerId, source: source)
@@ -1080,7 +1273,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
-    func addFillLayer(sourceId: String, layerId: String, belowLayerId: String?, properties: [String: String]) {
+    func addFillLayer(
+        sourceId: String,
+        layerId: String,
+        belowLayerId: String?,
+        properties: [String: String]
+    ) {
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
                 let layer = MGLFillStyleLayer(identifier: layerId, source: source)
@@ -1095,11 +1293,19 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
-    func addCircleLayer(sourceId: String, layerId: String, belowLayerId: String?, properties: [String: String]) {
+    func addCircleLayer(
+        sourceId: String,
+        layerId: String,
+        belowLayerId: String?,
+        properties: [String: String]
+    ) {
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
                 let layer = MGLCircleStyleLayer(identifier: layerId, source: source)
-                LayerPropertyConverter.addCircleProperties(circleLayer: layer, properties: properties)
+                LayerPropertyConverter.addCircleProperties(
+                    circleLayer: layer,
+                    properties: properties
+                )
                 if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id) {
                     style.insertLayer(layer, below: belowLayer)
                 } else {
@@ -1142,7 +1348,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     func addSource(sourceId: String, geojson: String) {
         do {
-            let parsed = try MGLShape(data: geojson.data(using: .utf8)!, encoding: String.Encoding.utf8.rawValue)
+            let parsed = try MGLShape(
+                data: geojson.data(using: .utf8)!,
+                encoding: String.Encoding.utf8.rawValue
+            )
             let source = MGLShapeSource(identifier: sourceId, shape: parsed, options: [:])
             mapView.style?.addSource(source)
         } catch {}
@@ -1150,7 +1359,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     func setSource(sourceId: String, geojson: String) {
         do {
-            let parsed = try MGLShape(data: geojson.data(using: .utf8)!, encoding: String.Encoding.utf8.rawValue)
+            let parsed = try MGLShape(
+                data: geojson.data(using: .utf8)!,
+                encoding: String.Encoding.utf8.rawValue
+            )
             if let source = mapView.style?.source(withIdentifier: sourceId) as? MGLShapeSource {
                 source.shape = parsed
             }

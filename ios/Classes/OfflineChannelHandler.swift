@@ -19,7 +19,9 @@ class OfflineChannelHandler: NSObject, FlutterStreamHandler {
 
     // MARK: FlutterStreamHandler protocol compliance
 
-    func onListen(withArguments _: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    func onListen(withArguments _: Any?,
+                  eventSink events: @escaping FlutterEventSink) -> FlutterError?
+    {
         sink = events
         return nil
     }
@@ -37,22 +39,31 @@ class OfflineChannelHandler: NSObject, FlutterStreamHandler {
 
     func onSuccess() {
         let body = ["status": "success"]
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: body, options: .prettyPrinted),
-              let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        guard let jsonData = try? JSONSerialization.data(
+            withJSONObject: body,
+            options: .prettyPrinted
+        ),
+            let jsonString = String(data: jsonData, encoding: .utf8) else { return }
         sink?(jsonString)
     }
 
     func onStart() {
         let body = ["status": "start"]
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: body, options: .prettyPrinted),
-              let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        guard let jsonData = try? JSONSerialization.data(
+            withJSONObject: body,
+            options: .prettyPrinted
+        ),
+            let jsonString = String(data: jsonData, encoding: .utf8) else { return }
         sink?(jsonString)
     }
 
     func onProgress(progress: Double) {
         let body: [String: Any] = ["status": "progress", "progress": progress]
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: body, options: .prettyPrinted),
-              let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        guard let jsonData = try? JSONSerialization.data(
+            withJSONObject: body,
+            options: .prettyPrinted
+        ),
+            let jsonString = String(data: jsonData, encoding: .utf8) else { return }
         sink?(jsonString)
     }
 }

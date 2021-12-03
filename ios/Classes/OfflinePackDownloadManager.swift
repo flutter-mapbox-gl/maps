@@ -26,7 +26,12 @@ class OfflinePackDownloader {
 
     // MARK: Initializers
 
-    init(result: @escaping FlutterResult, channelHandler: OfflineChannelHandler, regionDefintion: OfflineRegionDefinition, metadata: [String: Any]) {
+    init(
+        result: @escaping FlutterResult,
+        channelHandler: OfflineChannelHandler,
+        regionDefintion: OfflineRegionDefinition,
+        metadata: [String: Any]
+    ) {
         self.result = result
         self.channelHandler = channelHandler
         regionDefinition = regionDefintion
@@ -49,13 +54,15 @@ class OfflinePackDownloader {
         let id = UUID().hashValue
         let regionData = OfflineRegion(id: id, metadata: metadata, definition: regionDefinition)
         let tilePyramidRegion = regionDefinition.toMGLTilePyramidOfflineRegion()
-        storage.addPack(for: tilePyramidRegion, withContext: regionData.prepareContext()) { [weak self] pack, error in
-            if let pack = pack {
-                self?.onPackCreated(pack: pack)
-            } else {
-                self?.onPackCreationError(error: error)
+        storage
+            .addPack(for: tilePyramidRegion,
+                     withContext: regionData.prepareContext()) { [weak self] pack, error in
+                if let pack = pack {
+                    self?.onPackCreated(pack: pack)
+                } else {
+                    self?.onPackCreationError(error: error)
+                }
             }
-        }
         return id
     }
 
