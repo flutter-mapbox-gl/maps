@@ -24,7 +24,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
-    - run: flutter format --set-exit-if-changed .
+    - name: Check Dart formatting 
+      run: flutter format --set-exit-if-changed .
     
     
   build-android:
