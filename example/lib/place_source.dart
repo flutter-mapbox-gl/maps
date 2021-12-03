@@ -69,7 +69,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   }
 
   Future<void> addLayer(String imageLayerId, String imageSourceId) {
-    if(layerAdded) {
+    if (layerAdded) {
       removeLayer(imageLayerId);
     }
     setState(() => layerAdded = true);
@@ -78,11 +78,12 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   Future<void> addLayerBelow(
       String imageLayerId, String imageSourceId, String belowLayerId) {
-    if(layerAdded) {
+    if (layerAdded) {
       removeLayer(imageLayerId);
     }
     setState(() => layerAdded = true);
-    return controller.addImageLayerBelow(imageLayerId, imageSourceId, belowLayerId);
+    return controller.addImageLayerBelow(
+        imageLayerId, imageSourceId, belowLayerId);
   }
 
   Future<void> removeLayer(String imageLayerId) {

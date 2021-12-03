@@ -35,20 +35,20 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   final String _fillPatternImage = "assets/fill/cat_silhouette_pattern.png";
 
   final List<List<LatLng>> _defaultGeometry = [
-      [
-        LatLng(-33.719, 151.150),
-        LatLng(-33.858, 151.150),
-        LatLng(-33.866, 151.401),
-        LatLng(-33.747, 151.328),
-        LatLng(-33.719, 151.150),
-      ],
-      [
-        LatLng(-33.762, 151.250),
-        LatLng(-33.827, 151.250),
-        LatLng(-33.833, 151.347),
-        LatLng(-33.762, 151.250),
-      ]
-    ];
+    [
+      LatLng(-33.719, 151.150),
+      LatLng(-33.858, 151.150),
+      LatLng(-33.866, 151.401),
+      LatLng(-33.747, 151.328),
+      LatLng(-33.719, 151.150),
+    ],
+    [
+      LatLng(-33.762, 151.250),
+      LatLng(-33.827, 151.250),
+      LatLng(-33.833, 151.347),
+      LatLng(-33.762, 151.250),
+    ]
+  ];
 
   MapboxMapController? controller;
   int _fillCount = 0;
@@ -88,7 +88,10 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
 
   void _add() {
     controller!.addFill(
-      FillOptions(geometry: _defaultGeometry, fillColor: "#FF0000", fillOutlineColor: "#FF0000"),
+      FillOptions(
+          geometry: _defaultGeometry,
+          fillColor: "#FF0000",
+          fillOutlineColor: "#FF0000"),
     );
     setState(() {
       _fillCount += 1;
