@@ -24,7 +24,7 @@ protocol SymbolOptionsSink {
     func setTextHaloColor(textHaloColor: String)
     func setTextHaloWidth(textHaloWidth: Double)
     func setTextHaloBlur(textHaloBlur: Double)
-    
+
     func setGeometry(geometry: [Double])
     func setZIndex(zIndex: Int)
     func setDraggable(draggable: Bool)

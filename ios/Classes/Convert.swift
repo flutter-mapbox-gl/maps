@@ -5,13 +5,17 @@ class Convert {
     class func interpretMapboxMapOptions(options: Any?, delegate: MapboxMapOptionsSink) {
         guard let options = options as? [String: Any] else { return }
         if let cameraTargetBounds = options["cameraTargetBounds"] as? [[[Double]]] {
-            delegate.setCameraTargetBounds(bounds: MGLCoordinateBounds.fromArray(cameraTargetBounds[0]))
+            delegate
+                .setCameraTargetBounds(bounds: MGLCoordinateBounds.fromArray(cameraTargetBounds[0]))
         }
         if let compassEnabled = options["compassEnabled"] as? Bool {
             delegate.setCompassEnabled(compassEnabled: compassEnabled)
         }
         if let minMaxZoomPreference = options["minMaxZoomPreference"] as? [Double] {
-            delegate.setMinMaxZoomPreference(min: minMaxZoomPreference[0], max: minMaxZoomPreference[1])
+            delegate.setMinMaxZoomPreference(
+                min: minMaxZoomPreference[0],
+                max: minMaxZoomPreference[1]
+            )
         }
         if let styleString = options["styleString"] as? String {
             delegate.setStyleString(styleString: styleString)
@@ -34,32 +38,43 @@ class Convert {
         if let myLocationEnabled = options["myLocationEnabled"] as? Bool {
             delegate.setMyLocationEnabled(myLocationEnabled: myLocationEnabled)
         }
-        if let myLocationTrackingMode = options["myLocationTrackingMode"] as? UInt, let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode) {
+        if let myLocationTrackingMode = options["myLocationTrackingMode"] as? UInt,
+           let trackingMode = MGLUserTrackingMode(rawValue: myLocationTrackingMode)
+        {
             delegate.setMyLocationTrackingMode(myLocationTrackingMode: trackingMode)
         }
-        if let myLocationRenderMode = options["myLocationRenderMode"] as? Int, let renderMode = MyLocationRenderMode(rawValue: myLocationRenderMode) {
+        if let myLocationRenderMode = options["myLocationRenderMode"] as? Int,
+           let renderMode = MyLocationRenderMode(rawValue: myLocationRenderMode)
+        {
             delegate.setMyLocationRenderMode(myLocationRenderMode: renderMode)
         }
         if let logoViewMargins = options["logoViewMargins"] as? [Double] {
             delegate.setLogoViewMargins(x: logoViewMargins[0], y: logoViewMargins[1])
         }
-        if let compassViewPosition = options["compassViewPosition"] as? UInt, let position = MGLOrnamentPosition(rawValue: compassViewPosition) {
+        if let compassViewPosition = options["compassViewPosition"] as? UInt,
+           let position = MGLOrnamentPosition(rawValue: compassViewPosition)
+        {
             delegate.setCompassViewPosition(position: position)
         }
         if let compassViewMargins = options["compassViewMargins"] as? [Double] {
             delegate.setCompassViewMargins(x: compassViewMargins[0], y: compassViewMargins[1])
         }
         if let attributionButtonMargins = options["attributionButtonMargins"] as? [Double] {
-            delegate.setAttributionButtonMargins(x: attributionButtonMargins[0], y: attributionButtonMargins[1])
+            delegate.setAttributionButtonMargins(
+                x: attributionButtonMargins[0],
+                y: attributionButtonMargins[1]
+            )
         }
-        if let attributionButtonPosition = options["attributionButtonPosition"] as? UInt, let position = MGLOrnamentPosition(rawValue: attributionButtonPosition) {
+        if let attributionButtonPosition = options["attributionButtonPosition"] as? UInt,
+           let position = MGLOrnamentPosition(rawValue: attributionButtonPosition)
+        {
             delegate.setAttributionButtonPosition(position: position)
         }
     }
 
     class func parseCameraUpdate(cameraUpdate: [Any], mapView: MGLMapView) -> MGLMapCamera? {
         guard let type = cameraUpdate[0] as? String else { return nil }
-        switch (type) {
+        switch type {
         case "newCameraPosition":
             guard let cameraPosition = cameraUpdate[1] as? [String: Any] else { return nil }
             return MGLMapCamera.fromDict(cameraPosition, mapView: mapView)
@@ -74,14 +89,27 @@ class Convert {
             guard let paddingTop = cameraUpdate[3] as? CGFloat else { return nil }
             guard let paddingRight = cameraUpdate[4] as? CGFloat else { return nil }
             guard let paddingBottom = cameraUpdate[5] as? CGFloat else { return nil }
-            return mapView.cameraThatFitsCoordinateBounds(MGLCoordinateBounds.fromArray(bounds), edgePadding: UIEdgeInsets.init(top: paddingTop, left: paddingLeft, bottom: paddingBottom, right: paddingRight))
+            return mapView.cameraThatFitsCoordinateBounds(
+                MGLCoordinateBounds.fromArray(bounds),
+                edgePadding: UIEdgeInsets(
+                    top: paddingTop,
+                    left: paddingLeft,
+                    bottom: paddingBottom,
+                    right: paddingRight
+                )
+            )
         case "newLatLngZoom":
             guard let coordinate = cameraUpdate[1] as? [Double] else { return nil }
             guard let zoom = cameraUpdate[2] as? Double else { return nil }
             let camera = mapView.camera
             camera.centerCoordinate = CLLocationCoordinate2D.fromArray(coordinate)
             let altitude = getAltitude(zoom: zoom, mapView: mapView)
-            return MGLMapCamera(lookingAtCenter: camera.centerCoordinate, altitude: altitude, pitch: camera.pitch, heading: camera.heading)
+            return MGLMapCamera(
+                lookingAtCenter: camera.centerCoordinate,
+                altitude: altitude,
+                pitch: camera.pitch,
+                heading: camera.heading
+            )
         case "scrollBy":
             guard let x = cameraUpdate[1] as? CGFloat else { return nil }
             guard let y = cameraUpdate[2] as? CGFloat else { return nil }
@@ -94,12 +122,13 @@ class Convert {
             guard let zoomBy = cameraUpdate[1] as? Double else { return nil }
             let camera = mapView.camera
             let zoom = getZoom(mapView: mapView)
-            let altitude = getAltitude(zoom: zoom+zoomBy, mapView: mapView)
+            let altitude = getAltitude(zoom: zoom + zoomBy, mapView: mapView)
             camera.altitude = altitude
-            if (cameraUpdate.count == 2) {
+            if cameraUpdate.count == 2 {
                 return camera
             } else {
-                guard let point = cameraUpdate[2] as? [CGFloat], point.count == 2 else { return nil }
+                guard let point = cameraUpdate[2] as? [CGFloat],
+                      point.count == 2 else { return nil }
                 let movedPoint = CGPoint(x: point[0], y: point[1])
                 camera.centerCoordinate = mapView.convert(movedPoint, toCoordinateFrom: mapView)
                 return camera
@@ -137,13 +166,23 @@ class Convert {
         }
         return nil
     }
-    
+
     class func getZoom(mapView: MGLMapView) -> Double {
-        return MGLZoomLevelForAltitude(mapView.camera.altitude, mapView.camera.pitch, mapView.camera.centerCoordinate.latitude, mapView.frame.size)
+        return MGLZoomLevelForAltitude(
+            mapView.camera.altitude,
+            mapView.camera.pitch,
+            mapView.camera.centerCoordinate.latitude,
+            mapView.frame.size
+        )
     }
-    
+
     class func getAltitude(zoom: Double, mapView: MGLMapView) -> Double {
-        return MGLAltitudeForZoomLevel(zoom, mapView.camera.pitch, mapView.camera.centerCoordinate.latitude, mapView.frame.size)
+        return MGLAltitudeForZoomLevel(
+            zoom,
+            mapView.camera.pitch,
+            mapView.camera.centerCoordinate.latitude,
+            mapView.frame.size
+        )
     }
 
     class func interpretSymbolOptions(options: Any?, delegate: MGLSymbolStyleAnnotation) {
@@ -250,7 +289,10 @@ class Convert {
             // the difference and update the coordinate using the delta.
             let currCoord = delegate.feature.coordinate
             let newCoord = CLLocationCoordinate2DMake(geometry[0], geometry[1])
-            let delta = CGVector(dx: newCoord.longitude - currCoord.longitude, dy: newCoord.latitude - currCoord.latitude)
+            let delta = CGVector(
+                dx: newCoord.longitude - currCoord.longitude,
+                dy: newCoord.latitude - currCoord.latitude
+            )
             delegate.updateGeometryCoordinates(withDelta: delta)
         }
         if let zIndex = options["zIndex"] as? Int {
@@ -260,7 +302,7 @@ class Convert {
             delegate.isDraggable = draggable
         }
     }
-    
+
     class func interpretCircleOptions(options: Any?, delegate: MGLCircleStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
         if let circleRadius = options["circleRadius"] as? CGFloat {
@@ -291,7 +333,7 @@ class Convert {
             delegate.isDraggable = draggable
         }
     }
-    
+
     class func interpretLineOptions(options: Any?, delegate: MGLLineStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
         if let lineJoinStr = options["lineJoin"] as? String {
@@ -326,29 +368,31 @@ class Convert {
             delegate.isDraggable = draggable
         }
     }
-    
-    class func getCoordinates(options: Any?)  -> [CLLocationCoordinate2D] {
+
+    class func getCoordinates(options: Any?) -> [CLLocationCoordinate2D] {
         var coordinates: [CLLocationCoordinate2D] = []
-        
+
         if let options = options as? [String: Any],
-            let geometry = options["geometry"] as? [[Double]], geometry.count > 0 {
+           let geometry = options["geometry"] as? [[Double]], geometry.count > 0
+        {
             for coordinate in geometry {
                 coordinates.append(CLLocationCoordinate2DMake(coordinate[0], coordinate[1]))
             }
         }
         return coordinates
     }
-    
+
     class func interpretGeometryUpdate(options: Any?, delegate: MGLLineStyleAnnotation) {
         if let options = options as? [String: Any],
-           let geometry = options["geometry"] as? [[Double]], geometry.count > 0 {
+           let geometry = options["geometry"] as? [[Double]], geometry.count > 0
+        {
             if let feature = delegate.feature as? MGLPolylineFeature {
                 var coordinates = Convert.getCoordinates(options: options)
                 feature.setCoordinates(&coordinates, count: UInt(coordinates.count))
             }
         }
     }
-    
+
     class func interpretFillOptions(options: Any?, delegate: MGLPolygonStyleAnnotation) {
         guard let options = options as? [String: Any] else { return }
         if let fillOpacity = options["fillOpacity"] as? CGFloat {
@@ -369,7 +413,7 @@ class Convert {
     }
 
     class func toPolygons(geometry: [[[Double]]]) -> [MGLPolygonFeature] {
-        var polygons:[MGLPolygonFeature] = []
+        var polygons: [MGLPolygonFeature] = []
         for lineString in geometry {
             var linearRing: [CLLocationCoordinate2D] = []
             for coordinate in lineString {
