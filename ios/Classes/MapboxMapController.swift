@@ -11,7 +11,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     private var mapView: MGLMapView
     private var isMapReady = false
-    private var isStyleReady = false
+    private var isFirstStyleLoad = true
     private var onStyleLoadedCalled = false
     private var mapReadyResult: FlutterResult?
 
@@ -119,9 +119,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "map#waitForMap":
             if isMapReady {
                 result(nil)
-                // Style could happen to been ready before the map was ready due to the order of methods invoked
-                // We should invoke onStyleLoaded
-                if isStyleReady, !onStyleLoadedCalled {
+                // only call map#onStyleLoaded here if isMapReady has happend and isFirstStyleLoad is true
+                if isFirstStyleLoad {
+                    isFirstStyleLoad = false
+
                     if let channel = channel {
                         onStyleLoadedCalled = true
                         channel.invokeMethod("map#onStyleLoaded", arguments: nil)
@@ -1088,7 +1089,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
      *  MGLMapViewDelegate
      */
     func mapView(_ mapView: MGLMapView, didFinishLoading _: MGLStyle) {
-        onStyleLoadedCalled = false
         isMapReady = true
         updateMyLocationEnabled()
 
@@ -1132,16 +1132,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
         mapReadyResult?(nil)
 
-        // If map is ready and map#waitForMap was called, we invoke onStyleLoaded callback directly
-        // If not, we will have to call it when map#waitForMap is done
-        if !onStyleLoadedCalled {
+        // On first launch we only call map#onStyleLoaded if map#waitForMap has already been called
+        if !isFirstStyleLoad || mapReadyResult != nil {
+            isFirstStyleLoad = false
+
             if let channel = channel {
-                onStyleLoadedCalled = true
                 channel.invokeMethod("map#onStyleLoaded", arguments: nil)
             }
         }
-
-        isStyleReady = true
     }
 
     func mapView(_ mapView: MGLMapView, shouldChangeFrom _: MGLMapCamera,
