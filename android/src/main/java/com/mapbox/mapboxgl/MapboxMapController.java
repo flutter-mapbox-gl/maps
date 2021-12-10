@@ -531,7 +531,7 @@ final class MapboxMapController
     return fillManager.getLayerId();
   }
 
-private Feature firstFeatureOnLayers(RectF in) {
+  private Feature firstFeatureOnLayers(RectF in) {
     if(style != null){
       final List<Layer> layers = style.getLayers();
       final List<String> layersInOrder = new ArrayList<String>();
