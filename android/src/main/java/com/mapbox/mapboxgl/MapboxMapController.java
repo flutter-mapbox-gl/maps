@@ -157,6 +157,7 @@ final class MapboxMapController
   private List<String> annotationOrder;
   private List<String> annotationConsumeTapEvents;
   private Set<String> featureLayerIdentifiers;
+  private LatLngBounds bounds = null;
 
   MapboxMapController(
     int id,
@@ -350,6 +351,11 @@ final class MapboxMapController
       if (myLocationEnabled) {
         enableLocationComponent(style);
       }
+
+      if (null != bounds) {
+        mapboxMap.setLatLngBoundsForCameraTarget(bounds);
+      }
+      
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
@@ -525,7 +531,7 @@ final class MapboxMapController
     return fillManager.getLayerId();
   }
 
-  private Feature firstFeatureOnLayers(RectF in) {
+private Feature firstFeatureOnLayers(RectF in) {
     if(style != null){
       final List<Layer> layers = style.getLayers();
       final List<String> layersInOrder = new ArrayList<String>();
@@ -1422,7 +1428,7 @@ final class MapboxMapController
 
   @Override
   public void setCameraTargetBounds(LatLngBounds bounds) {
-    mapboxMap.setLatLngBoundsForCameraTarget(bounds);
+    this.bounds = bounds;
   }
 
   @Override
