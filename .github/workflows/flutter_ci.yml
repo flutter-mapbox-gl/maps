@@ -90,8 +90,6 @@ jobs:
       with:
         java-version: '12.x'
     - uses: subosito/flutter-action@v1
-      with:
-        channel: beta
     - run: flutter config --enable-web
     - run: flutter pub get
     - name: Build web
