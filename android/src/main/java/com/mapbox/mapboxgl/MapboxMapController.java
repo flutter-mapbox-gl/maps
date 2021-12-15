@@ -325,7 +325,7 @@ final class MapboxMapController
     public void onStyleLoaded(@NonNull Style style) {
       MapboxMapController.this.style = style;
 
-      // only add managers once to avoid issue with getLayerId for after style switch
+      // only add managers once to avoid issues with getLayerId after a style switch
       if(symbolManager == null && circleManager == null && lineManager == null && fillManager == null)
       {
         final List<String> orderReversed = new ArrayList<String>(annotationOrder);
