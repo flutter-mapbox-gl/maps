@@ -57,11 +57,16 @@ class MapboxMap extends StatefulWidget {
         assert(annotationConsumeTapEvents.length > 0),
         super(key: key);
 
-  /// Defined the layer order of annotations displayed on map
-  /// (must contain all annotation types, 4 items)
+  /// Defines the layer order of annotations displayed on map
+  ///
+  /// Any annotation type can only be contained once, so 0 to 4 types
+  ///
+  /// Note that setting this to be empty gives a big perfomance boost for
+  /// android. However if you do so annotations will not work.
   final List<AnnotationType> annotationOrder;
 
-  /// Defined the layer order of click annotations
+  /// Defines the layer order of click annotations
+  ///
   /// (must contain at least 1 annotation type, 4 items max)
   final List<AnnotationType> annotationConsumeTapEvents;
 
@@ -218,6 +223,8 @@ class _MapboxMapState extends State<MapboxMap> {
   Widget build(BuildContext context) {
     final List<String> annotationOrder =
         widget.annotationOrder.map((e) => e.toString()).toList();
+    assert(annotationOrder.toSet().length == annotationOrder.length,
+        "annotationOrder must not have duplicate types");
     final List<String> annotationConsumeTapEvents =
         widget.annotationConsumeTapEvents.map((e) => e.toString()).toList();
 

@@ -365,7 +365,7 @@ class MapUiBodyState extends State<MapUiBody> {
       },
     );
 
-    final List<Widget> columnChildren = <Widget>[
+    final List<Widget> listViewChildren = <Widget>[
       Center(
         child: SizedBox(
           width: _mapExpanded ? null : 300.0,
@@ -376,7 +376,7 @@ class MapUiBodyState extends State<MapUiBody> {
     ];
 
     if (mapController != null) {
-      columnChildren.addAll(
+      listViewChildren.addAll(
         <Widget>[
           Text('camera bearing: ${_position.bearing}'),
           Text('camera target: ${_position.target.latitude.toStringAsFixed(4)},'
@@ -402,7 +402,7 @@ class MapUiBodyState extends State<MapUiBody> {
       );
     }
     return ListView(
-      children: columnChildren,
+      children: listViewChildren,
     );
   }
 
