@@ -325,26 +325,30 @@ final class MapboxMapController
     @Override
     public void onStyleLoaded(@NonNull Style style) {
       MapboxMapController.this.style = style;
-      final List<String> orderReversed = new ArrayList<String>(annotationOrder);
-      Collections.reverse(orderReversed);
-      String belowLayer = null;
 
-      for(String annotationType : orderReversed) {
-        switch (annotationType) {
-          case "AnnotationType.fill":
-            belowLayer = enableFillManager(style, belowLayer);
-            break;
-          case "AnnotationType.line":
-            belowLayer = enableLineManager(style, belowLayer);
-            break;
-          case "AnnotationType.circle":
-            belowLayer = enableCircleManager(style, belowLayer);
-            break;
-          case "AnnotationType.symbol":
-            belowLayer = enableSymbolManager(style, belowLayer);
-            break;
-          default:
-            throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
+      // only add managers once to avoid issues with getLayerId after a style switch
+      if(symbolManager == null && circleManager == null && lineManager == null && fillManager == null)
+      {
+        final List<String> orderReversed = new ArrayList<String>(annotationOrder);
+        Collections.reverse(orderReversed);
+        String belowLayer = null;
+        for(String annotationType : orderReversed) {
+          switch (annotationType) {
+            case "AnnotationType.fill":
+              belowLayer = enableFillManager(style, belowLayer);
+              break;
+            case "AnnotationType.line":
+              belowLayer = enableLineManager(style, belowLayer);
+              break;
+            case "AnnotationType.circle":
+              belowLayer = enableCircleManager(style, belowLayer);
+              break;
+            case "AnnotationType.symbol":
+              belowLayer = enableSymbolManager(style, belowLayer);
+              break;
+            default:
+              throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
+          }
         }
       }
 
