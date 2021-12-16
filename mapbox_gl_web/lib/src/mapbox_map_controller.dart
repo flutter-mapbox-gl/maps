@@ -16,10 +16,6 @@ class MapboxMapController extends MapboxGlPlatform
 
   List<String> annotationOrder = [];
   final _featureLayerIdentifiers = Set<String>();
-  late SymbolManager symbolManager;
-  late LineManager lineManager;
-  late CircleManager circleManager;
-  late FillManager fillManager;
 
   bool _trackCameraPosition = false;
   GeolocateControl? _geolocateControl;
