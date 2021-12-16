@@ -26,15 +26,18 @@ class LayerState extends State {
 
   @override
   Widget build(BuildContext context) {
-    return MapboxMap(
-      accessToken: MapsDemo.ACCESS_TOKEN,
-      onMapCreated: _onMapCreated,
-      onMapClick: (point, latLong) =>
-          print(point.toString() + latLong.toString()),
-      onStyleLoadedCallback: _onStyleLoadedCallback,
-      initialCameraPosition: CameraPosition(
-        target: center,
-        zoom: 11.0,
+    return Container(
+      child: MapboxMap(
+        accessToken: MapsDemo.ACCESS_TOKEN,
+        onMapCreated: _onMapCreated,
+        onMapClick: (point, latLong) =>
+            print(point.toString() + latLong.toString()),
+        onStyleLoadedCallback: _onStyleLoadedCallback,
+        initialCameraPosition: CameraPosition(
+          target: center,
+          zoom: 11.0,
+        ),
+        annotationOrder: const [],
       ),
     );
   }
