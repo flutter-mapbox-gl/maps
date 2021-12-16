@@ -4,7 +4,7 @@ import MapboxAnnotationExtension
 import UIKit
 
 class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, MapboxMapOptionsSink,
-    MGLAnnotationControllerDelegate
+    UIGestureRecognizerDelegate, MGLAnnotationControllerDelegate
 {
     private var registrar: FlutterPluginRegistrar
     private var channel: FlutterMethodChannel?
@@ -14,11 +14,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var isFirstStyleLoad = true
     private var onStyleLoadedCalled = false
     private var mapReadyResult: FlutterResult?
+    private var previousDragCoordinate: CLLocationCoordinate2D?
+    private var originDragCoordinate: CLLocationCoordinate2D?
+    private var dragFeature: MGLFeature?
 
     private var initialTilt: CGFloat?
     private var cameraTargetBounds: MGLCoordinateBounds?
     private var trackCameraPosition = false
     private var myLocationEnabled = false
+    private var scrollingEnabled = true
 
     private var symbolAnnotationController: MGLSymbolAnnotationController?
     private var circleAnnotationController: MGLCircleAnnotationController?
@@ -80,6 +84,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         mapView.addGestureRecognizer(longPress)
 
+        let pan = UIPanGestureRecognizer(
+            target: self,
+            action: #selector(handleMapPan(sender:))
+        )
+
+        pan.delegate = self
+        mapView.addGestureRecognizer(pan)
+
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
             if let initialCameraPosition = args["initialCameraPosition"] as? [String: Any],
@@ -112,6 +124,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         let idSet = Set(ids)
         let annotations = controller.styleAnnotations()
         controller.removeStyleAnnotations(annotations.filter { idSet.contains($0.identifier) })
+    }
+
+    func gestureRecognizer(
+        _: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith _: UIGestureRecognizer
+    ) -> Bool {
+        return true
     }
 
     func onMethodCall(methodCall: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -1048,6 +1067,60 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     }
 
     /*
+     *  UITapGestureRecognizer
+     *  On pan might invoke the feature#onDrag callback.
+     */
+    @IBAction func handleMapPan(sender: UIPanGestureRecognizer) {
+        // Get the CGPoint where the user tapped.
+        print(sender.state)
+
+        let point = sender.location(in: mapView)
+        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+
+        if sender.state == UIGestureRecognizer.State.began,
+           sender.numberOfTouches == 1,
+           let feature = firstFeatureOnLayers(at: point),
+           let draggable = feature.attribute(forKey: "draggable") as? Bool,
+           draggable
+        {
+            dragFeature = feature
+            originDragCoordinate = coordinate
+            previousDragCoordinate = coordinate
+            mapView.allowsScrolling = false
+            for gestureRecognizer in mapView.gestureRecognizers! {
+                if let _ = gestureRecognizer as? UIPanGestureRecognizer {
+                    gestureRecognizer.addTarget(self, action: #selector(handleMapPan))
+                    break
+                }
+            }
+        } else if sender.state == UIGestureRecognizer.State.ended || sender.numberOfTouches != 1 {
+            sender.state = UIGestureRecognizer.State.ended
+            mapView.allowsScrolling = scrollingEnabled
+            dragFeature = nil
+            originDragCoordinate = nil
+            previousDragCoordinate = nil
+        } else if let feature = dragFeature,
+                  let id = feature.identifier,
+                  let previous = previousDragCoordinate,
+                  let origin = originDragCoordinate
+        {
+            print("in drag")
+            channel?.invokeMethod("feature#onDrag", arguments: [
+                "id": id,
+                "x": point.x,
+                "y": point.y,
+                "originLng": origin.longitude,
+                "originLat": origin.latitude,
+                "currentLng": coordinate.longitude,
+                "currentLat": coordinate.latitude,
+                "deltaLng": coordinate.longitude - previous.longitude,
+                "deltaLat": coordinate.latitude - previous.latitude,
+            ])
+            previousDragCoordinate = coordinate
+        }
+    }
+
+    /*
      *  UILongPressGestureRecognizer
      *  After a long press invoke the map#onMapLongClick callback.
      */
@@ -1559,6 +1632,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     func setScrollGesturesEnabled(scrollGesturesEnabled: Bool) {
         mapView.allowsScrolling = scrollGesturesEnabled
+        scrollingEnabled = scrollGesturesEnabled
     }
 
     func setTiltGesturesEnabled(tiltGesturesEnabled: Bool) {
