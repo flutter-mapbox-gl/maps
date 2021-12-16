@@ -38,6 +38,7 @@ class Line implements Annotation {
   Map<String, dynamic> toGeoJson() {
     final geojson = options.toGeoJson();
     geojson["id"] = id;
+    geojson["properties"]["id"] = id;
 
     return geojson;
   }
@@ -138,6 +139,7 @@ class LineOptions {
         if (lineOffset != null) "lineOffset": lineOffset,
         if (lineBlur != null) "lineBlur": lineBlur,
         if (linePattern != null) "linePattern": linePattern,
+        "draggable": draggable ?? false,
       },
       "geometry": {
         "type": "LineString",

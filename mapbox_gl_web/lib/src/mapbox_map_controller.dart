@@ -10,6 +10,9 @@ class MapboxMapController extends MapboxGlPlatform
   late Map<String, dynamic> _creationParams;
   late MapboxMap _map;
   bool _mapReady = false;
+  dynamic _draggedFeatureId;
+  LatLng? _dragOrigin;
+  LatLng? _dragPrevious;
 
   List<String> annotationOrder = [];
   final _featureLayerIdentifiers = Set<String>();
@@ -74,11 +77,51 @@ class MapboxMapController extends MapboxGlPlatform
       _map.on('move', _onCameraMove);
       _map.on('moveend', _onCameraIdle);
       _map.on('resize', _onMapResize);
+      _map.on('mouseup', _onMouseUp);
+      _map.on('mousemove', _onMouseMove);
     }
     Convert.interpretMapboxMapOptions(_creationParams['options'], this);
 
     if (_creationParams.containsKey('annotationOrder')) {
       annotationOrder = _creationParams['annotationOrder'];
+    }
+  }
+
+  onDrag(dynamic id, LatLng coords) {
+    print("FOOOBAR");
+  }
+
+  _onMouseDown(Event e) {
+    var isDraggable = e.features[0].properties['draggable'];
+    if (isDraggable != null && isDraggable) {
+      // Prevent the default map drag behavior.
+      e.preventDefault();
+      _draggedFeatureId = e.features[0].id;
+      _map.getCanvas().style.cursor = 'grabbing';
+      var coords = e.lngLat;
+      _dragOrigin = LatLng(coords.lat as double, coords.lng as double);
+    }
+  }
+
+  _onMouseUp(Event e) {
+    _draggedFeatureId = null;
+    _dragPrevious = null;
+    _dragOrigin = null;
+    _map.getCanvas().style.cursor = '';
+  }
+
+  _onMouseMove(Event e) {
+    if (_draggedFeatureId != null) {
+      final current = LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble());
+      final payload = {
+        'id': _draggedFeatureId,
+        'point': Point<double>(e.point.x.toDouble(), e.point.y.toDouble()),
+        'origin': _dragOrigin,
+        'current': current,
+        'delta': current - (_dragPrevious ?? _dragOrigin!),
+      };
+      _dragPrevious = current;
+      onFeatureDraggedPlatform(payload);
     }
   }
 
@@ -706,6 +749,7 @@ class MapboxMapController extends MapboxGlPlatform
       _map.off('mouseenter', layerId, _onMouseEnterFeature);
       _map.off('mousemouve', layerId, _onMouseEnterFeature);
       _map.off('mouseleave', layerId, _onMouseLeaveFeature);
+      _map.off('mousedown', layerId, _onMouseDown);
     }
     _featureLayerIdentifiers.clear();
 
@@ -848,10 +892,13 @@ class MapboxMapController extends MapboxGlPlatform
       _map.on('mouseenter', layerId, _onMouseEnterFeature);
     }
     _map.on('mouseleave', layerId, _onMouseLeaveFeature);
+    _map.on('mousedown', layerId, _onMouseDown);
   }
 
   void _onMouseEnterFeature(_) {
-    _map.getCanvas().style.cursor = 'pointer';
+    if (_draggedFeatureId == null) {
+      _map.getCanvas().style.cursor = 'pointer';
+    }
   }
 
   void _onMouseLeaveFeature(_) {

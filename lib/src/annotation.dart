@@ -5,17 +5,18 @@ abstract class _AnnotationManager<T extends Annotation> {
   final void Function(T)? onTap;
   final _idToAnnotation = <String, T>{};
   final id;
-  LatLng? _dragOrigin;
   LayerProperties get properties;
 
   T? byId(String id) => _idToAnnotation[id];
 
   _AnnotationManager(this.controller, {this.onTap}) : id = getRandomString(10) {
-    controller.addGeoJsonSource(id, buildFeatureCollection([]));
+    controller.addGeoJsonSource(id, buildFeatureCollection([]),
+        promoteId: "id");
     controller.addLayer(id, id, properties);
     if (onTap != null) {
       controller.onFeatureTapped.add(_onFeatureTapped);
     }
+    controller.onFeatureDrag.add(_onDrag);
   }
   _onFeatureTapped(dynamic id, Point<double> point, LatLng coordinates) {
     final annotation = _idToAnnotation[id];
@@ -54,29 +55,16 @@ abstract class _AnnotationManager<T extends Annotation> {
     await _setAll();
   }
 
-  // TODO this requires a new call back
-  onPointerDown(String id, LatLng position) {
-    final annotation = byId(id);
-    if (annotation != null && annotation.draggable) {
-      if (_dragOrigin == null) {
-        // TODO missing from native !!
-        //controller.lockCamera();
-        _dragOrigin = position;
-      } else {
-        final moved = annotation.translate(position - _dragOrigin!) as T;
-        set(moved);
-      }
-    }
-  }
-
-  // TODO this requires a new call back
-  onPointerUp(String id, LatLng position) {
+  _onDrag(dynamic id,
+      {required Point<double> point,
+      required LatLng origin,
+      required LatLng current,
+      required LatLng delta}) {
     final annotation = byId(id);
     if (annotation != null) {
-      final moved = annotation.translate(position - _dragOrigin!) as T;
+      final moved = annotation.translate(delta) as T;
       set(moved);
     }
-    _dragOrigin = null;
   }
 
   Future<void> set(T annoation) async {

@@ -6,8 +6,14 @@ part of mapbox_gl;
 
 typedef void OnMapClickCallback(Point<double> point, LatLng coordinates);
 
-typedef void OnFeatureTappedCallback(
+typedef void OnFeatureInteractionCallback(
     dynamic id, Point<double> point, LatLng coordinates);
+
+typedef void OnFeatureDragnCallback(dynamic id,
+    {required Point<double> point,
+    required LatLng origin,
+    required LatLng current,
+    required LatLng delta});
 
 typedef void OnMapLongClickCallback(Point<double> point, LatLng coordinates);
 
@@ -91,8 +97,19 @@ class MapboxMapController extends ChangeNotifier {
     });
 
     _mapboxGlPlatform.onFeatureTappedPlatform.add((payload) {
-      for (final fun in List<OnFeatureTappedCallback>.from(onFeatureTapped)) {
+      for (final fun
+          in List<OnFeatureInteractionCallback>.from(onFeatureTapped)) {
         fun(payload["id"], payload["point"], payload["latLng"]);
+      }
+    });
+
+    _mapboxGlPlatform.onFeatureDraggedPlatform.add((payload) {
+      for (final fun in List<OnFeatureDragnCallback>.from(onFeatureDrag)) {
+        fun(payload["id"],
+            point: payload["point"],
+            origin: payload["origin"],
+            current: payload["current"],
+            delta: payload["delta"]);
       }
     });
 
@@ -187,7 +204,9 @@ class MapboxMapController extends ChangeNotifier {
   final ArgumentCallbacks<Fill> onFillTapped = ArgumentCallbacks<Fill>();
 
   /// Callbacks to receive tap events for features (geojson layer) placed on this map.
-  final onFeatureTapped = <OnFeatureTappedCallback>[];
+  final onFeatureTapped = <OnFeatureInteractionCallback>[];
+
+  final onFeatureDrag = <OnFeatureDragnCallback>[];
 
   /// Callbacks to receive tap events for info windows on symbols
   final ArgumentCallbacks<Symbol> onInfoWindowTapped =
