@@ -1,6 +1,6 @@
 part of mapbox_gl;
 
-abstract class _AnnotationManager<T extends Annotation> {
+abstract class AnnotationManager<T extends Annotation> {
   final MapboxMapController controller;
   final void Function(T)? onTap;
   final _idToAnnotation = <String, T>{};
@@ -9,7 +9,7 @@ abstract class _AnnotationManager<T extends Annotation> {
 
   T? byId(String id) => _idToAnnotation[id];
 
-  _AnnotationManager(this.controller, {this.onTap}) : id = getRandomString(10) {
+  AnnotationManager(this.controller, {this.onTap}) : id = getRandomString(10) {
     controller.addGeoJsonSource(id, buildFeatureCollection([]),
         promoteId: "id");
     controller.addLayer(id, id, properties);
@@ -32,6 +32,7 @@ abstract class _AnnotationManager<T extends Annotation> {
             [for (final l in _idToAnnotation.values) l.toGeoJson()]));
   }
 
+  @override
   Future<void> addAll(Iterable<T> annotations) async {
     for (var a in annotations) {
       _idToAnnotation[a.id] = a;
@@ -74,7 +75,7 @@ abstract class _AnnotationManager<T extends Annotation> {
   }
 }
 
-class LineManager extends _AnnotationManager<Line> {
+class LineManager extends AnnotationManager<Line> {
   LineManager(MapboxMapController controller, {void Function(Line)? onTap})
       : super(controller, onTap: onTap);
   @override
@@ -88,7 +89,7 @@ class LineManager extends _AnnotationManager<Line> {
       );
 }
 
-class FillManager extends _AnnotationManager<Fill> {
+class FillManager extends AnnotationManager<Fill> {
   FillManager(MapboxMapController controller, {void Function(Fill)? onTap})
       : super(controller, onTap: onTap);
   @override
@@ -100,7 +101,7 @@ class FillManager extends _AnnotationManager<Fill> {
       );
 }
 
-class CircleManager extends _AnnotationManager<Circle> {
+class CircleManager extends AnnotationManager<Circle> {
   CircleManager(MapboxMapController controller, {void Function(Circle)? onTap})
       : super(controller, onTap: onTap);
   @override
@@ -115,7 +116,7 @@ class CircleManager extends _AnnotationManager<Circle> {
       );
 }
 
-class SymbolManager extends _AnnotationManager<Symbol> {
+class SymbolManager extends AnnotationManager<Symbol> {
   SymbolManager(MapboxMapController controller, {void Function(Symbol)? onTap})
       : super(controller, onTap: onTap);
   @override

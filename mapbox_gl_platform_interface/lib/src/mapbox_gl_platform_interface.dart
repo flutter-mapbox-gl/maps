@@ -16,14 +16,6 @@ abstract class MapboxGlPlatform {
 
   final onInfoWindowTappedPlatform = ArgumentCallbacks<String>();
 
-  final onSymbolTappedPlatform = ArgumentCallbacks<String>();
-
-  final onLineTappedPlatform = ArgumentCallbacks<String>();
-
-  final onCircleTappedPlatform = ArgumentCallbacks<String>();
-
-  final onFillTappedPlatform = ArgumentCallbacks<String>();
-
   final onFeatureTappedPlatform = ArgumentCallbacks<Map<String, dynamic>>();
 
   final onFeatureDraggedPlatform = ArgumentCallbacks<Map<String, dynamic>>();
@@ -102,94 +94,6 @@ abstract class MapboxGlPlatform {
 
   Future<bool> getTelemetryEnabled() async {
     throw UnimplementedError('getTelemetryEnabled() has not been implemented.');
-  }
-
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
-      [List<Map>? data]) async {
-    throw UnimplementedError('addSymbols() has not been implemented.');
-  }
-
-  Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
-    throw UnimplementedError('updateSymbol() has not been implemented.');
-  }
-
-  Future<void> removeSymbols(Iterable<String> symbolsIds) async {
-    throw UnimplementedError('removeSymbol() has not been implemented.');
-  }
-
-  Future<Line> addLine(LineOptions options, [Map? data]) async {
-    throw UnimplementedError('addLine() has not been implemented.');
-  }
-
-  Future<List<Line>> addLines(List<LineOptions> options,
-      [List<Map>? data]) async {
-    throw UnimplementedError('addLines() has not been implemented.');
-  }
-
-  Future<void> updateLine(Line line, LineOptions changes) async {
-    throw UnimplementedError('updateLine() has not been implemented.');
-  }
-
-  Future<void> removeLine(String lineId) async {
-    throw UnimplementedError('removeLine() has not been implemented.');
-  }
-
-  Future<void> removeLines(Iterable<String> ids) async {
-    throw UnimplementedError('removeLines() has not been implemented.');
-  }
-
-  Future<Circle> addCircle(CircleOptions options, [Map? data]) async {
-    throw UnimplementedError('addCircle() has not been implemented.');
-  }
-
-  Future<List<Circle>> addCircles(List<CircleOptions> options,
-      [List<Map>? data]) async {
-    throw UnimplementedError('addCircles() has not been implemented.');
-  }
-
-  Future<void> updateCircle(Circle circle, CircleOptions changes) async {
-    throw UnimplementedError('updateCircle() has not been implemented.');
-  }
-
-  Future<LatLng> getCircleLatLng(Circle circle) async {
-    throw UnimplementedError('getCircleLatLng() has not been implemented.');
-  }
-
-  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
-    throw UnimplementedError('getSymbolLatLng() has not been implemented.');
-  }
-
-  Future<List<LatLng>> getLineLatLngs(Line line) async {
-    throw UnimplementedError('getLineLatLngs() has not been implemented.');
-  }
-
-  Future<void> removeCircle(String circleId) async {
-    throw UnimplementedError('removeCircle() has not been implemented.');
-  }
-
-  Future<void> removeCircles(Iterable<String> ids) async {
-    throw UnimplementedError('removeCircles() has not been implemented.');
-  }
-
-  Future<Fill> addFill(FillOptions options, [Map? data]) async {
-    throw UnimplementedError('addFill() has not been implemented.');
-  }
-
-  Future<List<Fill>> addFills(List<FillOptions> options,
-      [List<Map>? data]) async {
-    throw UnimplementedError('addFills() has not been implemented.');
-  }
-
-  Future<void> updateFill(Fill fill, FillOptions changes) async {
-    throw UnimplementedError('updateFill() has not been implemented.');
-  }
-
-  Future<void> removeFill(String fillId) async {
-    throw UnimplementedError('removeFill() has not been implemented.');
-  }
-
-  Future<void> removeFills(Iterable<String> fillIds) async {
-    throw UnimplementedError('removeFills() has not been implemented.');
   }
 
   Future<List> queryRenderedFeatures(
