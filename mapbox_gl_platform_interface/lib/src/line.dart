@@ -49,9 +49,6 @@ class Line implements Annotation {
         geometry: this.options.geometry?.map((e) => e + delta).toList()));
     return copyWith(options: options);
   }
-
-  @override
-  bool get draggable => options.draggable ?? false;
 }
 
 /// Configuration options for [Line] instances.
@@ -104,7 +101,7 @@ class LineOptions {
     );
   }
 
-  dynamic toJson() {
+  dynamic toJson([bool addGeometry = true]) {
     final Map<String, dynamic> json = <String, dynamic>{};
 
     void addIfPresent(String fieldName, dynamic value) {
@@ -121,8 +118,10 @@ class LineOptions {
     addIfPresent('lineOffset', lineOffset);
     addIfPresent('lineBlur', lineBlur);
     addIfPresent('linePattern', linePattern);
-    addIfPresent(
-        'geometry', geometry?.map((LatLng latLng) => latLng.toJson()).toList());
+    if (addGeometry) {
+      addIfPresent('geometry',
+          geometry?.map((LatLng latLng) => latLng.toJson()).toList());
+    }
     addIfPresent('draggable', draggable);
     return json;
   }
@@ -130,17 +129,7 @@ class LineOptions {
   Map<String, dynamic> toGeoJson() {
     return {
       "type": "Feature",
-      "properties": {
-        if (lineJoin != null) "lineJoin": lineJoin,
-        if (lineOpacity != null) "lineOpacity": lineOpacity,
-        if (lineColor != null) "lineColor": lineColor,
-        if (lineWidth != null) "lineWidth": lineWidth,
-        if (lineGapWidth != null) "lineGapWidth": lineGapWidth,
-        if (lineOffset != null) "lineOffset": lineOffset,
-        if (lineBlur != null) "lineBlur": lineBlur,
-        if (linePattern != null) "linePattern": linePattern,
-        "draggable": draggable ?? false,
-      },
+      "properties": toJson(false),
       "geometry": {
         "type": "LineString",
         if (geometry != null)

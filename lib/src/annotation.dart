@@ -87,3 +87,64 @@ class LineManager extends _AnnotationManager<Line> {
         lineBlur: [Expressions.get, 'lineBlur'],
       );
 }
+
+class FillManager extends _AnnotationManager<Fill> {
+  FillManager(MapboxMapController controller, {void Function(Fill)? onTap})
+      : super(controller, onTap: onTap);
+  @override
+  LayerProperties get properties => const FillLayerProperties(
+        fillOpacity: [Expressions.get, 'fillOpacity'],
+        fillColor: [Expressions.get, 'fillColor'],
+        fillOutlineColor: [Expressions.get, 'fillOutlineColor'],
+        fillPattern: [Expressions.get, 'fillPattern'],
+      );
+}
+
+class CircleManager extends _AnnotationManager<Circle> {
+  CircleManager(MapboxMapController controller, {void Function(Circle)? onTap})
+      : super(controller, onTap: onTap);
+  @override
+  LayerProperties get properties => const CircleLayerProperties(
+        circleRadius: [Expressions.get, 'circleRadius'],
+        circleColor: [Expressions.get, 'circleColor'],
+        circleBlur: [Expressions.get, 'circleBlur'],
+        circleOpacity: [Expressions.get, 'circleOpacity'],
+        circleStrokeWidth: [Expressions.get, 'circleStrokeWidth'],
+        circleStrokeColor: [Expressions.get, 'circleStrokeColor'],
+        circleStrokeOpacity: [Expressions.get, 'circleStrokeOpacity'],
+      );
+}
+
+class SymbolManager extends _AnnotationManager<Symbol> {
+  SymbolManager(MapboxMapController controller, {void Function(Symbol)? onTap})
+      : super(controller, onTap: onTap);
+  @override
+  LayerProperties get properties => const SymbolLayerProperties(
+        iconSize: [Expressions.get, 'iconSize'],
+        iconImage: [Expressions.get, 'iconImage'],
+        iconRotate: [Expressions.get, 'iconRotate'],
+        iconOffset: [Expressions.get, 'iconOffset'],
+        iconAnchor: [Expressions.get, 'iconAnchor'],
+        textFont: [Expressions.get, 'fontNames'],
+        textField: [Expressions.get, 'textField'],
+        textSize: [Expressions.get, 'textSize'],
+        textMaxWidth: [Expressions.get, 'textMaxWidth'],
+        textLetterSpacing: [Expressions.get, 'textLetterSpacing'],
+        textJustify: [Expressions.get, 'textJustify'],
+        textAnchor: [Expressions.get, 'textAnchor'],
+        textRotate: [Expressions.get, 'textRotate'],
+        textTransform: [Expressions.get, 'textTransform'],
+        textOffset: [Expressions.get, 'textOffset'],
+        iconOpacity: [Expressions.get, 'iconOpacity'],
+        iconColor: [Expressions.get, 'iconColor'],
+        iconHaloColor: [Expressions.get, 'iconHaloColor'],
+        iconHaloWidth: [Expressions.get, 'iconHaloWidth'],
+        iconHaloBlur: [Expressions.get, 'iconHaloBlur'],
+        textOpacity: [Expressions.get, 'textOpacity'],
+        textColor: [Expressions.get, 'textColor'],
+        textHaloColor: [Expressions.get, 'textHaloColor'],
+        textHaloWidth: [Expressions.get, 'textHaloWidth'],
+        textHaloBlur: [Expressions.get, 'textHaloBlur'],
+        symbolZOrder: [Expressions.get, 'zIndex'],
+      );
+}

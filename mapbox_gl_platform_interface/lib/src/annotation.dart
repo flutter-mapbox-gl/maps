@@ -5,5 +5,4 @@ abstract class Annotation {
   Map<String, dynamic> toGeoJson();
 
   Annotation translate(LatLng delta);
-  bool get draggable;
 }
