@@ -4,7 +4,7 @@ version '1.0-SNAPSHOT'
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
@@ -19,7 +19,6 @@ rootProject.allprojects {
     }
     repositories {
         google()
-        jcenter()
         mavenCentral()
         maven {
             url 'https://api.mapbox.com/downloads/v2/releases/maven'
