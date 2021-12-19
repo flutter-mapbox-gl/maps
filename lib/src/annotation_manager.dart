@@ -229,7 +229,10 @@ class SymbolManager extends AnnotationManager<Symbol> {
             Expressions.caseExpression,
             [Expressions.has, 'fontNames'],
             [Expressions.get, 'fontNames'],
-            ["Open Sans Regular", "Arial Unicode MS Regular"],
+            [
+              Expressions.literal,
+              ["Open Sans Regular", "Arial Unicode MS Regular"]
+            ],
           ],
           textField: [Expressions.get, 'textField'],
           textSize: [Expressions.get, 'textSize'],

@@ -546,6 +546,62 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             mapView.style?.insertLayer(layer, below: belowLayer)
             result(nil)
 
+        case "symbolLayer#add":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+            let belowLayerId = arguments["belowLayerId"] as? String
+            addSymbolLayer(
+                sourceId: sourceId,
+                layerId: layerId,
+                belowLayerId: belowLayerId,
+                properties: properties
+            )
+            result(nil)
+
+        case "lineLayer#add":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+            let belowLayerId = arguments["belowLayerId"] as? String
+            addLineLayer(
+                sourceId: sourceId,
+                layerId: layerId,
+                belowLayerId: belowLayerId,
+                properties: properties
+            )
+            result(nil)
+
+        case "fillLayer#add":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+            let belowLayerId = arguments["belowLayerId"] as? String
+            addFillLayer(
+                sourceId: sourceId,
+                layerId: layerId,
+                belowLayerId: belowLayerId,
+                properties: properties
+            )
+            result(nil)
+
+        case "circleLayer#add":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+            let belowLayerId = arguments["belowLayerId"] as? String
+            addCircleLayer(
+                sourceId: sourceId,
+                layerId: layerId,
+                belowLayerId: belowLayerId,
+                properties: properties
+            )
+            result(nil)
+
         case "style#removeLayer":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let layerId = arguments["layerId"] as? String else { return }
@@ -578,22 +634,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         default:
             result(FlutterMethodNotImplemented)
         }
-    }
-
-    private func getSymbolForOptions(options: [String: Any]) -> MGLSymbolStyleAnnotation? {
-        // Parse geometry
-        if let geometry = options["geometry"] as? [Double] {
-            // Convert geometry to coordinate and create symbol.
-            let coordinate = CLLocationCoordinate2DMake(geometry[0], geometry[1])
-            let symbol = MGLSymbolStyleAnnotation(coordinate: coordinate)
-            Convert.interpretSymbolOptions(options: options, delegate: symbol)
-            // Load icon image from asset if an icon name is supplied.
-            if let iconImage = options["iconImage"] as? String {
-                addIconImageToMap(iconImageName: iconImage)
-            }
-            return symbol
-        }
-        return nil
     }
 
     private func addIconImageToMap(iconImageName: String) {
@@ -679,9 +719,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
      *  On pan might invoke the feature#onDrag callback.
      */
     @IBAction func handleMapPan(sender: UIPanGestureRecognizer) {
-        // Get the CGPoint where the user tapped.
-        print(sender.state)
-
         let point = sender.location(in: mapView)
         let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
 
@@ -821,34 +858,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             MGLCoordinateInCoordinateBounds(newVisibleCoordinates.sw, bbox)
 
         return inside && intersects
-    }
-
-    func mapView(_ mapView: MGLMapView, imageFor annotation: MGLAnnotation) -> MGLAnnotationImage? {
-        // Only for Symbols images should loaded.
-        guard let symbol = annotation as? Symbol,
-              let iconImageFullPath = symbol.iconImage
-        else {
-            return nil
-        }
-        // Reuse existing annotations for better performance.
-        var annotationImage = mapView
-            .dequeueReusableAnnotationImage(withIdentifier: iconImageFullPath)
-        if annotationImage == nil {
-            // Initialize the annotation image (from predefined assets symbol folder).
-            if let range = iconImageFullPath.range(of: "/", options: [.backwards]) {
-                let directory = String(iconImageFullPath[..<range.lowerBound])
-                let assetPath = registrar.lookupKey(forAsset: "\(directory)/")
-                let iconImageName = String(iconImageFullPath[range.upperBound...])
-                let image = UIImage.loadFromFile(imagePath: assetPath, imageName: iconImageName)
-                if let image = image {
-                    annotationImage = MGLAnnotationImage(
-                        image: image,
-                        reuseIdentifier: iconImageFullPath
-                    )
-                }
-            }
-        }
-        return annotationImage
     }
 
     func mapView(_: MGLMapView, didUpdate userLocation: MGLUserLocation?) {
