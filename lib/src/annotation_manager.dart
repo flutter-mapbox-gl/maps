@@ -1,20 +1,28 @@
 part of mapbox_gl;
 
+int _getFirst(Annotation _) => 0;
+
 abstract class AnnotationManager<T extends Annotation> {
   final MapboxMapController controller;
   final void Function(T)? onTap;
   final _idToAnnotation = <String, T>{};
   final String id;
-  LayerProperties get properties;
+  List<LayerProperties> get allLayerProperties;
+  final int Function(T)? selectLayer;
 
   T? byId(String id) => _idToAnnotation[id];
 
   Set<T> get annotations => _idToAnnotation.values.toSet();
 
-  AnnotationManager(this.controller, {this.onTap}) : id = getRandomString(10) {
-    controller.addGeoJsonSource(id, buildFeatureCollection([]),
-        promoteId: "id");
-    controller.addLayer(id, id, properties);
+  AnnotationManager(this.controller, {this.onTap, this.selectLayer})
+      : id = getRandomString(10) {
+    for (var i = 0; i < allLayerProperties.length; i++) {
+      final layerId = _makeLayerId(i);
+      controller.addGeoJsonSource(layerId, buildFeatureCollection([]),
+          promoteId: "id");
+      controller.addLayer(layerId, layerId, allLayerProperties[i]);
+    }
+
     if (onTap != null) {
       controller.onFeatureTapped.add(_onFeatureTapped);
     }
@@ -27,14 +35,30 @@ abstract class AnnotationManager<T extends Annotation> {
     }
   }
 
+  String _makeLayerId(int layerIndex) => "${id}_$layerIndex";
+
   Future<void> _setAll() async {
-    return controller.setGeoJsonSource(
-        id,
-        buildFeatureCollection(
-            [for (final l in _idToAnnotation.values) l.toGeoJson()]));
+    if (selectLayer != null) {
+      final featureBuckets = [for (final _ in allLayerProperties) <T>[]];
+
+      for (final annotation in _idToAnnotation.values) {
+        featureBuckets[selectLayer!(annotation)].add(annotation);
+      }
+
+      for (var i = 0; i < featureBuckets.length; i++) {
+        await controller.setGeoJsonSource(
+            _makeLayerId(i),
+            buildFeatureCollection(
+                [for (final l in featureBuckets[i]) l.toGeoJson()]));
+      }
+    } else {
+      await controller.setGeoJsonSource(
+          _makeLayerId(0),
+          buildFeatureCollection(
+              [for (final l in _idToAnnotation.values) l.toGeoJson()]));
+    }
   }
 
-  @override
   Future<void> addAll(Iterable<T> annotations) async {
     for (var a in annotations) {
       _idToAnnotation[a.id] = a;
@@ -81,83 +105,94 @@ class LineManager extends AnnotationManager<Line> {
   LineManager(MapboxMapController controller, {void Function(Line)? onTap})
       : super(controller, onTap: onTap);
   @override
-  LayerProperties get properties => const LineLayerProperties(
-        lineOpacity: [Expressions.get, 'lineOpacity'],
-        lineColor: [Expressions.get, 'lineColor'],
-        lineWidth: [Expressions.get, 'lineWidth'],
-        lineGapWidth: [Expressions.get, 'lineGapWidth'],
-        lineOffset: [Expressions.get, 'lineOffset'],
-        lineBlur: [Expressions.get, 'lineBlur'],
-      );
+  List<LayerProperties> get allLayerProperties => const [
+        LineLayerProperties(
+          lineOpacity: [Expressions.get, 'lineOpacity'],
+          lineColor: [Expressions.get, 'lineColor'],
+          lineWidth: [Expressions.get, 'lineWidth'],
+          lineGapWidth: [Expressions.get, 'lineGapWidth'],
+          lineOffset: [Expressions.get, 'lineOffset'],
+          lineBlur: [Expressions.get, 'lineBlur'],
+        )
+      ];
 }
 
 class FillManager extends AnnotationManager<Fill> {
   FillManager(MapboxMapController controller, {void Function(Fill)? onTap})
-      : super(controller, onTap: onTap);
+      : super(controller,
+            onTap: onTap,
+            selectLayer: (Fill fill) =>
+                fill.options.fillPattern == null ? 0 : 1);
   @override
-  LayerProperties get properties => const FillLayerProperties(
-        fillOpacity: [Expressions.get, 'fillOpacity'],
-        fillColor: [Expressions.get, 'fillColor'],
-        fillOutlineColor: [Expressions.get, 'fillOutlineColor'],
-        fillPattern: [
-          Expressions.caseExpression,
-          [Expressions.has, 'fillPattern'],
-          [Expressions.get, 'fillPattern'],
-          null,
-        ],
-      );
+  List<LayerProperties> get allLayerProperties => const [
+        FillLayerProperties(
+          fillOpacity: [Expressions.get, 'fillOpacity'],
+          fillColor: [Expressions.get, 'fillColor'],
+          fillOutlineColor: [Expressions.get, 'fillOutlineColor'],
+        ),
+        FillLayerProperties(
+          fillOpacity: [Expressions.get, 'fillOpacity'],
+          fillColor: [Expressions.get, 'fillColor'],
+          fillOutlineColor: [Expressions.get, 'fillOutlineColor'],
+          fillPattern: [Expressions.get, 'fillPattern'],
+        )
+      ];
 }
 
 class CircleManager extends AnnotationManager<Circle> {
   CircleManager(MapboxMapController controller, {void Function(Circle)? onTap})
       : super(controller, onTap: onTap);
   @override
-  LayerProperties get properties => const CircleLayerProperties(
-        circleRadius: [Expressions.get, 'circleRadius'],
-        circleColor: [Expressions.get, 'circleColor'],
-        circleBlur: [Expressions.get, 'circleBlur'],
-        circleOpacity: [Expressions.get, 'circleOpacity'],
-        circleStrokeWidth: [Expressions.get, 'circleStrokeWidth'],
-        circleStrokeColor: [Expressions.get, 'circleStrokeColor'],
-        circleStrokeOpacity: [Expressions.get, 'circleStrokeOpacity'],
-      );
+  List<LayerProperties> get allLayerProperties => const [
+        CircleLayerProperties(
+          circleRadius: [Expressions.get, 'circleRadius'],
+          circleColor: [Expressions.get, 'circleColor'],
+          circleBlur: [Expressions.get, 'circleBlur'],
+          circleOpacity: [Expressions.get, 'circleOpacity'],
+          circleStrokeWidth: [Expressions.get, 'circleStrokeWidth'],
+          circleStrokeColor: [Expressions.get, 'circleStrokeColor'],
+          circleStrokeOpacity: [Expressions.get, 'circleStrokeOpacity'],
+        )
+      ];
 }
 
 class SymbolManager extends AnnotationManager<Symbol> {
   SymbolManager(MapboxMapController controller, {void Function(Symbol)? onTap})
       : super(controller, onTap: onTap);
   @override
-  LayerProperties get properties => const SymbolLayerProperties(
-        iconSize: [Expressions.get, 'iconSize'],
-        iconImage: [Expressions.get, 'iconImage'],
-        iconRotate: [Expressions.get, 'iconRotate'],
-        iconOffset: [Expressions.get, 'iconOffset'],
-        iconAnchor: [Expressions.get, 'iconAnchor'],
-        textFont: [
-          Expressions.caseExpression,
-          [Expressions.has, 'fontNames'],
-          [Expressions.get, 'fontNames'],
-          ["Open Sans Regular", "Arial Unicode MS Regular"],
-        ],
-        textField: [Expressions.get, 'textField'],
-        textSize: [Expressions.get, 'textSize'],
-        textMaxWidth: [Expressions.get, 'textMaxWidth'],
-        textLetterSpacing: [Expressions.get, 'textLetterSpacing'],
-        textJustify: [Expressions.get, 'textJustify'],
-        textAnchor: [Expressions.get, 'textAnchor'],
-        textRotate: [Expressions.get, 'textRotate'],
-        textTransform: [Expressions.get, 'textTransform'],
-        textOffset: [Expressions.get, 'textOffset'],
-        iconOpacity: [Expressions.get, 'iconOpacity'],
-        iconColor: [Expressions.get, 'iconColor'],
-        iconHaloColor: [Expressions.get, 'iconHaloColor'],
-        iconHaloWidth: [Expressions.get, 'iconHaloWidth'],
-        iconHaloBlur: [Expressions.get, 'iconHaloBlur'],
-        textOpacity: [Expressions.get, 'textOpacity'],
-        textColor: [Expressions.get, 'textColor'],
-        textHaloColor: [Expressions.get, 'textHaloColor'],
-        textHaloWidth: [Expressions.get, 'textHaloWidth'],
-        textHaloBlur: [Expressions.get, 'textHaloBlur'],
-        // symbolZOrder: [Expressions.get, 'zIndex'],
-      );
+  List<LayerProperties> get allLayerProperties => const [
+        SymbolLayerProperties(
+          iconSize: [Expressions.get, 'iconSize'],
+          iconImage: [Expressions.get, 'iconImage'],
+          iconRotate: [Expressions.get, 'iconRotate'],
+          iconOffset: [Expressions.get, 'iconOffset'],
+          iconAnchor: [Expressions.get, 'iconAnchor'],
+          textFont: [
+            Expressions.caseExpression,
+            [Expressions.has, 'fontNames'],
+            [Expressions.get, 'fontNames'],
+            ["Open Sans Regular", "Arial Unicode MS Regular"],
+          ],
+          textField: [Expressions.get, 'textField'],
+          textSize: [Expressions.get, 'textSize'],
+          textMaxWidth: [Expressions.get, 'textMaxWidth'],
+          textLetterSpacing: [Expressions.get, 'textLetterSpacing'],
+          textJustify: [Expressions.get, 'textJustify'],
+          textAnchor: [Expressions.get, 'textAnchor'],
+          textRotate: [Expressions.get, 'textRotate'],
+          textTransform: [Expressions.get, 'textTransform'],
+          textOffset: [Expressions.get, 'textOffset'],
+          iconOpacity: [Expressions.get, 'iconOpacity'],
+          iconColor: [Expressions.get, 'iconColor'],
+          iconHaloColor: [Expressions.get, 'iconHaloColor'],
+          iconHaloWidth: [Expressions.get, 'iconHaloWidth'],
+          iconHaloBlur: [Expressions.get, 'iconHaloBlur'],
+          textOpacity: [Expressions.get, 'textOpacity'],
+          textColor: [Expressions.get, 'textColor'],
+          textHaloColor: [Expressions.get, 'textHaloColor'],
+          textHaloWidth: [Expressions.get, 'textHaloWidth'],
+          textHaloBlur: [Expressions.get, 'textHaloBlur'],
+          // symbolZOrder: [Expressions.get, 'zIndex'],
+        )
+      ];
 }
