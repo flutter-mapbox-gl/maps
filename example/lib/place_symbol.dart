@@ -276,6 +276,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
       _iconAllowOverlap = !_iconAllowOverlap;
     });
     controller!.setSymbolIconAllowOverlap(_iconAllowOverlap);
+    controller!.setSymbolTextAllowOverlap(_iconAllowOverlap);
   }
 
   @override

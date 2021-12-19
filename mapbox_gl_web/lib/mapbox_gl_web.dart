@@ -23,4 +23,4 @@ import 'package:mapbox_gl_web/src/layer_tools.dart';
 part 'src/convert.dart';
 part 'src/mapbox_map_plugin.dart';
 part 'src/options_sink.dart';
-part 'src/mapbox_map_controller.dart';
+part 'src/mapbox_web_gl_platform.dart';

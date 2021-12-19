@@ -228,19 +228,13 @@ class _MapboxMapState extends State<MapboxMap> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> annotationOrder =
-        widget.annotationOrder.map((e) => e.toString()).toList();
-    assert(annotationOrder.toSet().length == annotationOrder.length,
+    assert(
+        widget.annotationOrder.toSet().length == widget.annotationOrder.length,
         "annotationOrder must not have duplicate types");
-    final List<String> annotationConsumeTapEvents =
-        widget.annotationConsumeTapEvents.map((e) => e.toString()).toList();
-
     final Map<String, dynamic> creationParams = <String, dynamic>{
       'initialCameraPosition': widget.initialCameraPosition.toMap(),
       'options': _MapboxMapOptions.fromWidget(widget).toMap(),
       'accessToken': widget.accessToken,
-      'annotationOrder': annotationOrder,
-      'annotationConsumeTapEvents': annotationConsumeTapEvents,
       'onAttributionClickOverride': widget.onAttributionClick != null,
     };
     return _mapboxGlPlatform.buildView(

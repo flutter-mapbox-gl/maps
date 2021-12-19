@@ -28,6 +28,15 @@ abstract class AnnotationManager<T extends Annotation> {
     }
     controller.onFeatureDrag.add(_onDrag);
   }
+
+  Future<void> rebuildLayers() async {
+    for (var i = 0; i < allLayerProperties.length; i++) {
+      final layerId = _makeLayerId(i);
+      await controller.removeLayer(layerId);
+      await controller.addLayer(layerId, layerId, allLayerProperties[i]);
+    }
+  }
+
   _onFeatureTapped(dynamic id, Point<double> point, LatLng coordinates) {
     final annotation = _idToAnnotation[id];
     if (annotation != null) {
@@ -80,6 +89,15 @@ abstract class AnnotationManager<T extends Annotation> {
     _idToAnnotation.clear();
 
     await _setAll();
+  }
+
+  Future<void> dispose() async {
+    _idToAnnotation.clear();
+    await _setAll();
+    for (var i = 0; i < allLayerProperties.length; i++) {
+      await controller.removeLayer(_makeLayerId(i));
+      await controller.removeSource(_makeLayerId(i));
+    }
   }
 
   _onDrag(dynamic id,
@@ -157,10 +175,50 @@ class CircleManager extends AnnotationManager<Circle> {
 }
 
 class SymbolManager extends AnnotationManager<Symbol> {
-  SymbolManager(MapboxMapController controller, {void Function(Symbol)? onTap})
-      : super(controller, onTap: onTap);
+  SymbolManager(
+    MapboxMapController controller, {
+    void Function(Symbol)? onTap,
+    bool iconAllowOverlap = false,
+    bool textAllowOverlap = false,
+    bool iconIgnorePlacement = false,
+    bool textIgnorePlacement = false,
+  })  : _iconAllowOverlap = iconAllowOverlap,
+        _textAllowOverlap = textAllowOverlap,
+        _iconIgnorePlacement = iconIgnorePlacement,
+        _textIgnorePlacement = textIgnorePlacement,
+        super(controller, onTap: onTap);
+
+  bool _iconAllowOverlap;
+  bool _textAllowOverlap;
+  bool _iconIgnorePlacement;
+  bool _textIgnorePlacement;
+
+  /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
+  Future<void> setIconAllowOverlap(bool value) async {
+    _iconAllowOverlap = value;
+    await rebuildLayers();
+  }
+
+  /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
+  Future<void> setTextAllowOverlap(bool value) async {
+    _textAllowOverlap = value;
+    await rebuildLayers();
+  }
+
+  /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
+  Future<void> setIconIgnorePlacement(bool value) async {
+    _iconIgnorePlacement = value;
+    await rebuildLayers();
+  }
+
+  /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
+  Future<void> setTextIgnorePlacement(bool value) async {
+    _textIgnorePlacement = value;
+    await rebuildLayers();
+  }
+
   @override
-  List<LayerProperties> get allLayerProperties => const [
+  List<LayerProperties> get allLayerProperties => [
         SymbolLayerProperties(
           iconSize: [Expressions.get, 'iconSize'],
           iconImage: [Expressions.get, 'iconImage'],
@@ -182,6 +240,8 @@ class SymbolManager extends AnnotationManager<Symbol> {
           textRotate: [Expressions.get, 'textRotate'],
           textTransform: [Expressions.get, 'textTransform'],
           textOffset: [Expressions.get, 'textOffset'],
+          iconAllowOverlap: _iconAllowOverlap,
+          iconIgnorePlacement: _iconIgnorePlacement,
           iconOpacity: [Expressions.get, 'iconOpacity'],
           iconColor: [Expressions.get, 'iconColor'],
           iconHaloColor: [Expressions.get, 'iconHaloColor'],
@@ -192,7 +252,9 @@ class SymbolManager extends AnnotationManager<Symbol> {
           textHaloColor: [Expressions.get, 'textHaloColor'],
           textHaloWidth: [Expressions.get, 'textHaloWidth'],
           textHaloBlur: [Expressions.get, 'textHaloBlur'],
-          // symbolZOrder: [Expressions.get, 'zIndex'],
+          textAllowOverlap: _textAllowOverlap,
+          textIgnorePlacement: _textIgnorePlacement,
+          symbolSortKey: [Expressions.get, 'zIndex'],
         )
       ];
 }

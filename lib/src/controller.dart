@@ -113,7 +113,10 @@ class MapboxMapController extends ChangeNotifier {
             circleManager = CircleManager(this, onTap: onCircleTapped);
             break;
           case AnnotationType.symbol:
-            symbolManager = SymbolManager(this, onTap: onSymbolTapped);
+            symbolManager = SymbolManager(
+              this,
+              onTap: onSymbolTapped,
+            );
             break;
           default:
         }
@@ -928,22 +931,22 @@ class MapboxMapController extends ChangeNotifier {
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolIconAllowOverlap(bool enable) async {
-    await _mapboxGlPlatform.setSymbolIconAllowOverlap(enable);
+    await symbolManager?.setIconAllowOverlap(enable);
   }
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolIconIgnorePlacement(bool enable) async {
-    await _mapboxGlPlatform.setSymbolIconIgnorePlacement(enable);
+    await symbolManager?.setIconIgnorePlacement(enable);
   }
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolTextAllowOverlap(bool enable) async {
-    await _mapboxGlPlatform.setSymbolTextAllowOverlap(enable);
+    await symbolManager?.setTextAllowOverlap(enable);
   }
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setSymbolTextIgnorePlacement(bool enable) async {
-    await _mapboxGlPlatform.setSymbolTextIgnorePlacement(enable);
+    await symbolManager?.setTextIgnorePlacement(enable);
   }
 
   /// Adds an image source to the style currently displayed in the map, so that it can later be referred to by the provided id.
