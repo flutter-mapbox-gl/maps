@@ -149,7 +149,7 @@ final class MapboxMapController
   private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
-  private Feature dragFeature;
+  private Feature draggedFeature;
   private AndroidGesturesManager androidGesturesManager;
 
   private LatLng dragOrigin;
@@ -215,6 +215,16 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
     androidGesturesManager.setMoveGestureListener(new MoveGestureListener());
+
+    mapView.setOnTouchListener(new View.OnTouchListener() {
+      @Override
+      public boolean onTouch(View v, MotionEvent event) {
+        Feature feature = draggedFeature;
+        androidGesturesManager.onTouchEvent(event);
+
+        return feature != null;
+      }
+    });
 
     mapView.addOnStyleImageMissingListener((id) -> {
       DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
@@ -1296,7 +1306,6 @@ final class MapboxMapController
   }
 
    boolean onMoveBegin(MoveGestureDetector detector) {
-    Log.d(TAG, "onMoveBegin");
     if (detector.getPointersCount() == 1) {
       PointF pointf = detector.getFocalPoint();
       LatLng origin = mapboxMap.getProjection().fromScreenLocation(pointf);
@@ -1316,18 +1325,17 @@ final class MapboxMapController
 
 
   boolean onMove(MoveGestureDetector detector) {
-    Log.d(TAG, "onMove");
-    if (dragFeature != null && detector.getPointersCount() > 1) {
+    if (draggedFeature != null && detector.getPointersCount() > 1) {
       stopDragging();
       return true;
     }
 
-    if (dragFeature != null) {
+    if (draggedFeature != null) {
         PointF pointf = detector.getFocalPoint();
         LatLng current = mapboxMap.getProjection().fromScreenLocation(pointf);
 
         final Map<String, Object> arguments = new HashMap<>(9);
-        arguments.put("id", dragFeature.id());
+        arguments.put("id", draggedFeature.id());
         arguments.put("x", pointf.x);
         arguments.put("y", pointf.y);
 
@@ -1346,17 +1354,16 @@ final class MapboxMapController
   }
 
   void onMoveEnd() {
-    Log.d(TAG, "onMoveEnd");
     stopDragging();
   }
 
   boolean startDragging(@NonNull Feature feature, @NonNull LatLng origin) {
     // try{
     //TODO  draggable wrong type
-    Log.d(TAG, "startDragging");
-    final boolean draggable = feature.getBooleanProperty("draggable");
+    final boolean draggable = feature.hasNonNullValueForProperty("draggable") ? 
+                              feature.getBooleanProperty("draggable") : false;
     if (draggable) {
-      dragFeature = feature;
+      draggedFeature = feature;
       dragPrevious = origin;
       dragOrigin = origin;
       return true;
@@ -1367,8 +1374,7 @@ final class MapboxMapController
 
   
   void stopDragging() {
-    Log.d(TAG, "stopDragging");
-    dragFeature = null;
+    draggedFeature = null;
     dragOrigin = null;
     dragPrevious = null;
   }

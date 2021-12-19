@@ -107,8 +107,8 @@ abstract class AnnotationManager<T extends Annotation> {
       required LatLng delta}) {
     final annotation = byId(id);
     if (annotation != null) {
-      final moved = annotation.translate(delta) as T;
-      set(moved);
+      annotation.translate(delta);
+      set(annotation);
     }
   }
 

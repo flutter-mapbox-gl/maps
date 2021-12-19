@@ -16,7 +16,7 @@ FillOptions translateFillOptions(FillOptions options, LatLng delta) {
       }
       newGeometry.add(newRing);
     }
-    return FillOptions(geometry: newGeometry);
+    return options.copyWith(FillOptions(geometry: newGeometry));
   }
   return options;
 }
