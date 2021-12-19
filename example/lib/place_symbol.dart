@@ -126,6 +126,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
           )
         : SymbolOptions(
             geometry: geometry,
+            textField: 'Airport',
+            textOffset: Offset(0, 0.8),
             iconImage: iconImage,
           );
   }

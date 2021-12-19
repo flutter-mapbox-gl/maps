@@ -96,15 +96,14 @@ class FillManager extends AnnotationManager<Fill> {
       : super(controller, onTap: onTap);
   @override
   LayerProperties get properties => const FillLayerProperties(
-        // fillColor: "#FF00FF",
         fillOpacity: [Expressions.get, 'fillOpacity'],
         fillColor: [Expressions.get, 'fillColor'],
         fillOutlineColor: [Expressions.get, 'fillOutlineColor'],
         fillPattern: [
-          Expressions.match,
+          Expressions.caseExpression,
+          [Expressions.has, 'fillPattern'],
           [Expressions.get, 'fillPattern'],
-          [Expressions.get, 'fillPattern'],
-          "empty"
+          null,
         ],
       );
 }
@@ -134,8 +133,13 @@ class SymbolManager extends AnnotationManager<Symbol> {
         iconRotate: [Expressions.get, 'iconRotate'],
         iconOffset: [Expressions.get, 'iconOffset'],
         iconAnchor: [Expressions.get, 'iconAnchor'],
-        textFont: [Expressions.get, 'fontNames'],
-        // textField: [Expressions.get, 'textField'],
+        textFont: [
+          Expressions.caseExpression,
+          [Expressions.has, 'fontNames'],
+          [Expressions.get, 'fontNames'],
+          ["Open Sans Regular", "Arial Unicode MS Regular"],
+        ],
+        textField: [Expressions.get, 'textField'],
         textSize: [Expressions.get, 'textSize'],
         textMaxWidth: [Expressions.get, 'textMaxWidth'],
         textLetterSpacing: [Expressions.get, 'textLetterSpacing'],
