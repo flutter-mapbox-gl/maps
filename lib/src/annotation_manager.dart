@@ -4,10 +4,12 @@ abstract class AnnotationManager<T extends Annotation> {
   final MapboxMapController controller;
   final void Function(T)? onTap;
   final _idToAnnotation = <String, T>{};
-  final id;
+  final String id;
   LayerProperties get properties;
 
   T? byId(String id) => _idToAnnotation[id];
+
+  Set<T> get annotations => _idToAnnotation.values.toSet();
 
   AnnotationManager(this.controller, {this.onTap}) : id = getRandomString(10) {
     controller.addGeoJsonSource(id, buildFeatureCollection([]),
@@ -94,10 +96,16 @@ class FillManager extends AnnotationManager<Fill> {
       : super(controller, onTap: onTap);
   @override
   LayerProperties get properties => const FillLayerProperties(
+        // fillColor: "#FF00FF",
         fillOpacity: [Expressions.get, 'fillOpacity'],
         fillColor: [Expressions.get, 'fillColor'],
         fillOutlineColor: [Expressions.get, 'fillOutlineColor'],
-        fillPattern: [Expressions.get, 'fillPattern'],
+        fillPattern: [
+          Expressions.match,
+          [Expressions.get, 'fillPattern'],
+          [Expressions.get, 'fillPattern'],
+          "empty"
+        ],
       );
 }
 
@@ -127,7 +135,7 @@ class SymbolManager extends AnnotationManager<Symbol> {
         iconOffset: [Expressions.get, 'iconOffset'],
         iconAnchor: [Expressions.get, 'iconAnchor'],
         textFont: [Expressions.get, 'fontNames'],
-        textField: [Expressions.get, 'textField'],
+        // textField: [Expressions.get, 'textField'],
         textSize: [Expressions.get, 'textSize'],
         textMaxWidth: [Expressions.get, 'textMaxWidth'],
         textLetterSpacing: [Expressions.get, 'textLetterSpacing'],
@@ -146,6 +154,6 @@ class SymbolManager extends AnnotationManager<Symbol> {
         textHaloColor: [Expressions.get, 'textHaloColor'],
         textHaloWidth: [Expressions.get, 'textHaloWidth'],
         textHaloBlur: [Expressions.get, 'textHaloBlur'],
-        symbolZOrder: [Expressions.get, 'zIndex'],
+        // symbolZOrder: [Expressions.get, 'zIndex'],
       );
 }

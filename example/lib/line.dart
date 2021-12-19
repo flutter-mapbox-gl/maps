@@ -67,8 +67,8 @@ class LineBodyState extends State<LineBody> {
   }
 
   Future<void> _updateSelectedLine(LineOptions changes) {
-    _selectedLine = _selectedLine!
-        .copyWith(options: _selectedLine!.options.copyWith(changes));
+    _selectedLine!.options = _selectedLine!.options.copyWith(changes);
+
     return lineManager!.set(_selectedLine!);
   }
 
@@ -95,14 +95,8 @@ class LineBodyState extends State<LineBody> {
   }
 
   _move() async {
-    final currentStart = _selectedLine!.options.geometry![0];
-    final currentEnd = _selectedLine!.options.geometry![1];
-    final end =
-        LatLng(currentEnd.latitude + 0.001, currentEnd.longitude + 0.001);
-    final start =
-        LatLng(currentStart.latitude - 0.001, currentStart.longitude - 0.001);
-    await controller!
-        .updateLine(_selectedLine!, LineOptions(geometry: [start, end]));
+    _selectedLine!.translate(LatLng(0.1, 0.1));
+    await lineManager!.set(_selectedLine!);
   }
 
   void _remove() {

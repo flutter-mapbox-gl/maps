@@ -40,18 +40,6 @@ class Fill implements Annotation {
   /// touch events. Add listeners to the owning map controller to track those.
   FillOptions options;
 
-  Fill copyWith({String? id, Map? data, FillOptions? options}) {
-    return Fill(
-      id ?? this.id,
-      options ?? this.options,
-      data ?? this.data,
-    );
-  }
-
-  @override
-  // TODO: implement draggable
-  bool get draggable => throw UnimplementedError();
-
   @override
   Map<String, dynamic> toGeoJson() {
     final geojson = options.toGeoJson();
@@ -62,8 +50,8 @@ class Fill implements Annotation {
   }
 
   @override
-  Annotation translate(LatLng delta) {
-    return copyWith(options: translateFillOptions(options, delta));
+  void translate(LatLng delta) {
+    options = translateFillOptions(options, delta);
   }
 }
 
@@ -134,12 +122,12 @@ class FillOptions {
       "type": "Feature",
       "properties": toJson(false),
       "geometry": {
-        "type": "LineString",
-        if (geometry != null)
-          "coordinates": geometry
-              ?.map((List<LatLng> latLngList) =>
-                  latLngList.map((LatLng latLng) => latLng.toJson()).toList())
-              .toList()
+        "type": "Polygon",
+        "coordinates": geometry!
+            .map((List<LatLng> latLngList) => latLngList
+                .map((LatLng latLng) => latLng.toGeoJsonCoordinates())
+                .toList())
+            .toList()
       }
     };
   }

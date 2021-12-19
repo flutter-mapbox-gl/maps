@@ -87,8 +87,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     );
   }
 
-  void _updateSelectedSymbol(SymbolOptions changes) {
-    controller!.updateSymbol(_selectedSymbol!, changes);
+  void _updateSelectedSymbol(SymbolOptions changes) async {
+    await controller!.updateSymbol(_selectedSymbol!, changes);
   }
 
   void _add(String iconImage) {

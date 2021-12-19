@@ -25,15 +25,7 @@ class Line implements Annotation {
   ///
   /// The returned value does not reflect any changes made to the line through
   /// touch events. Add listeners to the owning map controller to track those.
-  final LineOptions options;
-
-  Line copyWith({String? id, Map? data, LineOptions? options}) {
-    return Line(
-      id ?? this.id,
-      options ?? this.options,
-      data ?? this.data,
-    );
-  }
+  LineOptions options;
 
   Map<String, dynamic> toGeoJson() {
     final geojson = options.toGeoJson();
@@ -44,10 +36,9 @@ class Line implements Annotation {
   }
 
   @override
-  Line translate(LatLng delta) {
-    final options = this.options.copyWith(LineOptions(
+  void translate(LatLng delta) {
+    options = options.copyWith(LineOptions(
         geometry: this.options.geometry?.map((e) => e + delta).toList()));
-    return copyWith(options: options);
   }
 }
 
@@ -132,8 +123,7 @@ class LineOptions {
       "properties": toJson(false),
       "geometry": {
         "type": "LineString",
-        if (geometry != null)
-          "coordinates": geometry?.map((c) => c.toGeoJsonCoordinates()).toList()
+        "coordinates": geometry!.map((c) => c.toGeoJsonCoordinates()).toList()
       }
     };
   }

@@ -58,5 +58,5 @@ part 'src/download_region_status.dart';
 part 'src/layer_expressions.dart';
 part 'src/layer_properties.dart';
 part 'src/color_tools.dart';
-part 'src/annotation.dart';
+part 'src/annotation_manager.dart';
 part 'src/util.dart';

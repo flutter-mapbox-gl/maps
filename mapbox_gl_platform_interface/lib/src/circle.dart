@@ -25,14 +25,6 @@ class Circle implements Annotation {
   /// touch events. Add listeners to the owning map controller to track those.
   CircleOptions options;
 
-  Circle copyWith({String? id, Map? data, CircleOptions? options}) {
-    return Circle(
-      id ?? this.id,
-      options ?? this.options,
-      data ?? this.data,
-    );
-  }
-
   @override
   Map<String, dynamic> toGeoJson() {
     final geojson = options.toGeoJson();
@@ -43,11 +35,9 @@ class Circle implements Annotation {
   }
 
   @override
-  Annotation translate(LatLng delta) {
-    final options = this
-        .options
+  void translate(LatLng delta) {
+    options = options
         .copyWith(CircleOptions(geometry: this.options.geometry! + delta));
-    return copyWith(options: options);
   }
 }
 
@@ -126,8 +116,8 @@ class CircleOptions {
       "type": "Feature",
       "properties": toJson(false),
       "geometry": {
-        "type": "LineString",
-        if (geometry != null) "coordinates": geometry!.toJson()
+        "type": "Point",
+        "coordinates": geometry!.toGeoJsonCoordinates()
       }
     };
   }

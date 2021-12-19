@@ -26,14 +26,6 @@ class Symbol implements Annotation {
   /// touch events. Add listeners to the owning map controller to track those.
   SymbolOptions options;
 
-  Symbol copyWith({String? id, Map? data, SymbolOptions? options}) {
-    return Symbol(
-      id ?? this.id,
-      options ?? this.options,
-      data ?? this.data,
-    );
-  }
-
   @override
   Map<String, dynamic> toGeoJson() {
     final geojson = options.toGeoJson();
@@ -44,11 +36,9 @@ class Symbol implements Annotation {
   }
 
   @override
-  Annotation translate(LatLng delta) {
-    final options = this
-        .options
+  void translate(LatLng delta) {
+    options = options
         .copyWith(SymbolOptions(geometry: this.options.geometry! + delta));
-    return copyWith(options: options);
   }
 }
 
@@ -210,8 +200,8 @@ class SymbolOptions {
       "type": "Feature",
       "properties": toJson(false),
       "geometry": {
-        "type": "LineString",
-        if (geometry != null) "coordinates": geometry!.toJson()
+        "type": "Point",
+        "coordinates": geometry!.toGeoJsonCoordinates()
       }
     };
   }

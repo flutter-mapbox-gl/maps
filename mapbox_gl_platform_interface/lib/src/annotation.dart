@@ -4,5 +4,5 @@ abstract class Annotation {
   String get id;
   Map<String, dynamic> toGeoJson();
 
-  Annotation translate(LatLng delta);
+  void translate(LatLng delta);
 }

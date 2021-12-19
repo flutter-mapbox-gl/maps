@@ -61,30 +61,6 @@ class MapboxMapController extends ChangeNotifier {
     this.onCameraIdle,
   }) : _mapboxGlPlatform = mapboxGlPlatform {
     _cameraPosition = initialCameraPosition;
-    for (var type in annotationOrder.toSet()) {
-      switch (type) {
-        case AnnotationType.fill:
-          fillManager = FillManager(this, onTap: onFillTapped);
-          break;
-        case AnnotationType.line:
-          lineManager = LineManager(this, onTap: onLineTapped);
-          break;
-        case AnnotationType.circle:
-          circleManager = CircleManager(this, onTap: onCircleTapped);
-          break;
-        case AnnotationType.symbol:
-          symbolManager = SymbolManager(this, onTap: onSymbolTapped);
-          break;
-        default:
-      }
-    }
-
-    _mapboxGlPlatform.onInfoWindowTappedPlatform.add((symbolId) {
-      final symbol = _symbols[symbolId];
-      if (symbol != null) {
-        onInfoWindowTapped(symbol);
-      }
-    });
 
     _mapboxGlPlatform.onFeatureTappedPlatform.add((payload) {
       for (final fun
@@ -125,6 +101,23 @@ class MapboxMapController extends ChangeNotifier {
     });
 
     _mapboxGlPlatform.onMapStyleLoadedPlatform.add((_) {
+      for (var type in annotationOrder.toSet()) {
+        switch (type) {
+          case AnnotationType.fill:
+            fillManager = FillManager(this, onTap: onFillTapped);
+            break;
+          case AnnotationType.line:
+            lineManager = LineManager(this, onTap: onLineTapped);
+            break;
+          case AnnotationType.circle:
+            circleManager = CircleManager(this, onTap: onCircleTapped);
+            break;
+          case AnnotationType.symbol:
+            symbolManager = SymbolManager(this, onTap: onSymbolTapped);
+            break;
+          default:
+        }
+      }
       if (onStyleLoadedCallback != null) {
         onStyleLoadedCallback!();
       }
@@ -204,14 +197,14 @@ class MapboxMapController extends ChangeNotifier {
   final onFeatureDrag = <OnFeatureDragnCallback>[];
 
   /// Callbacks to receive tap events for info windows on symbols
+  @Deprecated("InfoWindow tapped is no longer supported")
   final ArgumentCallbacks<Symbol> onInfoWindowTapped =
       ArgumentCallbacks<Symbol>();
 
   /// The current set of symbols on this map.
   ///
   /// The returned set will be a detached snapshot of the symbols collection.
-  Set<Symbol> get symbols => Set<Symbol>.from(_symbols.values);
-  final Map<String, Symbol> _symbols = <String, Symbol>{};
+  Set<Symbol> get symbols => symbolManager!.annotations;
 
   /// Callbacks to receive tap events for lines placed on this map.
   final ArgumentCallbacks<Line> onLineTapped = ArgumentCallbacks<Line>();
@@ -219,20 +212,17 @@ class MapboxMapController extends ChangeNotifier {
   /// The current set of lines on this map.
   ///
   /// The returned set will be a detached snapshot of the lines collection.
-  Set<Line> get lines => Set<Line>.from(_lines.values);
-  final Map<String, Line> _lines = <String, Line>{};
+  Set<Line> get lines => lineManager!.annotations;
 
   /// The current set of circles on this map.
   ///
   /// The returned set will be a detached snapshot of the circles collection.
-  Set<Circle> get circles => Set<Circle>.from(_circles.values);
-  final Map<String, Circle> _circles = <String, Circle>{};
+  Set<Circle> get circles => circleManager!.annotations;
 
   /// The current set of fills on this map.
   ///
   /// The returned set will be a detached snapshot of the fills collection.
-  Set<Fill> get fills => Set<Fill>.from(_fills.values);
-  final Map<String, Fill> _fills = <String, Fill>{};
+  Set<Fill> get fills => fillManager!.annotations;
 
   /// True if the map camera is currently moving.
   bool get isCameraMoving => _isCameraMoving;
@@ -538,7 +528,8 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
-    await symbolManager!.set(symbol.copyWith(options: changes));
+    await symbolManager!
+        .set(symbol..options = symbol.options.copyWith(changes));
 
     notifyListeners();
   }
@@ -630,8 +621,8 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> updateLine(Line line, LineOptions changes) async {
-    await lineManager!.set(line.copyWith(options: changes));
-
+    line.options = line.options.copyWith(changes);
+    await lineManager!.set(line);
     notifyListeners();
   }
 
@@ -725,7 +716,8 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> updateCircle(Circle circle, CircleOptions changes) async {
-    await circleManager!.set(circle.copyWith(options: changes));
+    circle.options = circle.options.copyWith(changes);
+    await circleManager!.set(circle);
 
     notifyListeners();
   }
@@ -821,7 +813,8 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> updateFill(Fill fill, FillOptions changes) async {
-    await fillManager!.set(fill.copyWith(options: changes));
+    fill.options = fill.options.copyWith(changes);
+    await fillManager!.set(fill);
 
     notifyListeners();
   }
