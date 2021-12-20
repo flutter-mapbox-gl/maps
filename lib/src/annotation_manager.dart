@@ -255,15 +255,19 @@ class SymbolManager extends AnnotationManager<Symbol> {
           iconRotate: [Expressions.get, 'iconRotate'],
           iconOffset: [Expressions.get, 'iconOffset'],
           iconAnchor: [Expressions.get, 'iconAnchor'],
-          textFont: [
-            Expressions.caseExpression,
-            [Expressions.has, 'fontNames'],
-            [Expressions.get, 'fontNames'],
-            [
-              Expressions.literal,
-              ["Open Sans Regular", "Arial Unicode MS Regular"]
-            ],
-          ],
+          // note that web does not support setting this in a fully data driven
+          // way this is a upstream issue
+          textFont: kIsWeb
+              ? null
+              : [
+                  Expressions.caseExpression,
+                  [Expressions.has, 'fontNames'],
+                  [Expressions.get, 'fontNames'],
+                  [
+                    Expressions.literal,
+                    ["Open Sans Regular", "Arial Unicode MS Regular"]
+                  ],
+                ],
           textField: [Expressions.get, 'textField'],
           textSize: [Expressions.get, 'textSize'],
           textMaxWidth: [Expressions.get, 'textMaxWidth'],
