@@ -156,6 +156,8 @@ final class MapboxMapController
   private LatLng dragPrevious;
 
   private Set<String> featureLayerIdentifiers;
+  private Map<String, FeatureCollection> addedFeaturesByLayer;
+
   private LatLngBounds bounds = null;
 
   MapboxMapController(
@@ -174,6 +176,7 @@ final class MapboxMapController
     this.styleStringInitial = styleStringInitial;
     this.mapView = new MapView(context, options);
     this.featureLayerIdentifiers = new HashSet<>();
+    this.addedFeaturesByLayer = new HashMap<String, FeatureCollection>();
     this.density = context.getResources().getDisplayMetrics().density;
     this.lifecycleProvider = lifecycleProvider;
     this.androidGesturesManager = new AndroidGesturesManager(this.mapView.getContext(), false);
@@ -330,15 +333,35 @@ final class MapboxMapController
   private void addGeoJsonSource(String sourceName, String source) {
     FeatureCollection featureCollection = FeatureCollection.fromJson(source);
     GeoJsonSource geoJsonSource = new GeoJsonSource(sourceName, featureCollection);
+    addedFeaturesByLayer.put(sourceName, featureCollection);
 
     style.addSource(geoJsonSource);
   }
 
-  private void setGeoJsonSource(String sourceName, String source) {
-    FeatureCollection featureCollection = FeatureCollection.fromJson(source);
+  private void setGeoJsonSource(String sourceName, String geojson) {
+    FeatureCollection featureCollection = FeatureCollection.fromJson(geojson);
     GeoJsonSource geoJsonSource = style.getSourceAs(sourceName);
+    addedFeaturesByLayer.put(sourceName, featureCollection);
 
     geoJsonSource.setGeoJson(featureCollection);
+  }
+
+  private void setGeoJsonFeature(String sourceName, String geojsonFeature) {
+    Feature feature = Feature.fromJson(geojsonFeature);
+    FeatureCollection featureCollection = addedFeaturesByLayer.get(sourceName);
+    GeoJsonSource geoJsonSource = style.getSourceAs(sourceName);
+    if(featureCollection != null && geoJsonSource != null){
+      final List<Feature> features = featureCollection.features();
+      for (int i = 0; i < features.size(); i++) {
+        final String id = features.get(i).id();
+        if(id.equals(feature.id())){
+          features.set(i, feature);
+          break;
+        }
+      }
+
+      geoJsonSource.setGeoJson(featureCollection);
+    }
   }
 
   private void addSymbolLayer(String layerName,
@@ -698,6 +721,13 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case  "source#setFeature":{
+        final String sourceId = call.argument("sourceId");
+        final String geojsonFeature = call.argument("geojsonFeature");
+        setGeoJsonFeature(sourceId, geojsonFeature);
+        result.success(null);
+        break;
+      }
       case "symbolLayer#add": {
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
@@ -808,14 +838,6 @@ final class MapboxMapController
       }
       
       case "style#removeSource": {
-        if (style == null) {
-          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
-        }
-        style.removeSource((String) call.argument("sourceId"));
-        result.success(null);
-        break;
-      }
-      case "style#setSource": {
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
