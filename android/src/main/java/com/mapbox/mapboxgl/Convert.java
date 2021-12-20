@@ -31,7 +31,7 @@ class Convert {
 
   private final static String TAG = "Convert";
 
-  private static boolean toBoolean(Object o) {
+  static boolean toBoolean(Object o) {
     return (Boolean) o;
   }
 
@@ -43,19 +43,6 @@ class Convert {
     builder.tilt(toFloat(data.get("tilt")));
     builder.zoom(toFloat(data.get("zoom")));
     return builder.build();
-  }
-
-  static List<String> toAnnotationOrder(Object o) {
-    final List<?> data = toList(o);
-    List<String> annotations = new ArrayList();
-    for (int index = 0; index < data.size(); index++) {
-      annotations.add(toString(data.get(index)));
-    }
-    return annotations;
-  }
-
-  static List<String> toAnnotationConsumeTapEvents(Object o) {
-    return toAnnotationOrder(o);
   }
 
   static boolean isScrollByCameraUpdate(Object o) {

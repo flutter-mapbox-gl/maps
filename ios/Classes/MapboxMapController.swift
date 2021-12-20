@@ -11,6 +11,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     private var mapView: MGLMapView
     private var isMapReady = false
+    private var dragEnabled = true
     private var isFirstStyleLoad = true
     private var onStyleLoadedCalled = false
     private var mapReadyResult: FlutterResult?
@@ -77,14 +78,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         mapView.addGestureRecognizer(longPress)
 
-        let pan = UIPanGestureRecognizer(
-            target: self,
-            action: #selector(handleMapPan(sender:))
-        )
-
-        pan.delegate = self
-        mapView.addGestureRecognizer(pan)
-
         if let args = args as? [String: Any] {
             Convert.interpretMapboxMapOptions(options: args["options"], delegate: self)
             if let initialCameraPosition = args["initialCameraPosition"] as? [String: Any],
@@ -104,6 +97,18 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                     setupAttribution(mapView)
                 }
             }
+
+            if let enabled = args["dragEnabled"] as? Bool {
+                dragEnabled = enabled
+            }
+        }
+        if dragEnabled {
+            let pan = UIPanGestureRecognizer(
+                target: self,
+                action: #selector(handleMapPan(sender:))
+            )
+            pan.delegate = self
+            mapView.addGestureRecognizer(pan)
         }
     }
 
@@ -1152,7 +1157,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                         return false
                     })
                 {
-                    var shapes = shape.shapes;
+                    var shapes = shape.shapes
                     shapes[index] = feature
 
                     source.shape = MGLShapeCollectionFeature(shapes: shapes)

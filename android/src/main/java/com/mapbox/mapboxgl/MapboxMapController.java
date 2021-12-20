@@ -140,6 +140,7 @@ final class MapboxMapController
   private int myLocationTrackingMode = 0;
   private int myLocationRenderMode = 0;
   private boolean disposed = false;
+  private boolean dragEnabled = true;
   private final float density;
   private MethodChannel.Result mapReadyResult;
   private final Context context;
@@ -168,18 +169,20 @@ final class MapboxMapController
     MapboxMapOptions options,
     String accessToken,
     String styleStringInitial,
-    List<String> annotationOrder,
-    List<String> annotationConsumeTapEvents) {
+    boolean dragEnabled) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
+    this.dragEnabled = dragEnabled;
     this.styleStringInitial = styleStringInitial;
     this.mapView = new MapView(context, options);
     this.featureLayerIdentifiers = new HashSet<>();
     this.addedFeaturesByLayer = new HashMap<String, FeatureCollection>();
     this.density = context.getResources().getDisplayMetrics().density;
     this.lifecycleProvider = lifecycleProvider;
-    this.androidGesturesManager = new AndroidGesturesManager(this.mapView.getContext(), false);
+    if(dragEnabled){
+      this.androidGesturesManager = new AndroidGesturesManager(this.mapView.getContext(), false);
+    }
 
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
@@ -217,17 +220,19 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveStartedListener(this);
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
-    androidGesturesManager.setMoveGestureListener(new MoveGestureListener());
 
-    mapView.setOnTouchListener(new View.OnTouchListener() {
-      @Override
-      public boolean onTouch(View v, MotionEvent event) {
-        Feature feature = draggedFeature;
-        androidGesturesManager.onTouchEvent(event);
+    if(androidGesturesManager != null){
+      androidGesturesManager.setMoveGestureListener(new MoveGestureListener());
+      mapView.setOnTouchListener(new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+          Feature feature = draggedFeature;
+          androidGesturesManager.onTouchEvent(event);
 
-        return feature != null;
-      }
-    });
+          return feature != null;
+        }
+      });
+    }
 
     mapView.addOnStyleImageMissingListener((id) -> {
       DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
