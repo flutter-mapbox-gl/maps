@@ -158,6 +158,8 @@ final class MapboxMapController
   private List<String> annotationConsumeTapEvents;
   private Set<String> featureLayerIdentifiers;
   private LatLngBounds bounds = null;
+  private static final String annotationManagerNotCreatedErrorCode = "NO ANNOTATION MANAGER";
+  private static final String annotationManagerNotCreatedErrorMessage = "To use %ss please add it to the annotation list";
 
   MapboxMapController(
     int id,
@@ -558,10 +560,6 @@ final class MapboxMapController
 
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
-    String annotationManagerNotCreatedErrorCode = "NO ANNOTATION MANAGER";
-    String annotationManagerNotCreatedErrorMessage = "To use %ss please add it to the annotation list";
-
-
 
     switch (call.method) {
       case "map#waitForMap":
