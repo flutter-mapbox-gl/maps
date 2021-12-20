@@ -114,8 +114,9 @@ abstract class AnnotationManager<T extends Annotation> {
 
   Future<void> set(T annoation) async {
     _idToAnnotation[annoation.id] = annoation;
-    //Todo: send only the changed line to plugin
-    await _setAll();
+    final layerIndex = selectLayer != null ? selectLayer!(annoation) : 0;
+    await controller.setGeoJsonFeature(
+        _makeLayerId(layerIndex), annoation.toGeoJson());
   }
 }
 

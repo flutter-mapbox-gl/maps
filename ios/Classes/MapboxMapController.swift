@@ -25,6 +25,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var scrollingEnabled = true
 
     private var featureLayerIdentifiers = Set<String>()
+    private var addedShapesByLayer = [String: MGLShape]()
 
     func view() -> UIView {
         return mapView
@@ -631,6 +632,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             setSource(sourceId: sourceId, geojson: geojson)
             result(nil)
 
+        case "source#setFeature":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            guard let geojson = arguments["geojsonFeature"] as? String else { return }
+            setFeature(sourceId: sourceId, geojsonFeature: geojson)
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -821,6 +828,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             camera.pitch = initialTilt
             mapView.setCamera(camera, animated: false)
         }
+
+        addedShapesByLayer.removeAll()
+        featureLayerIdentifiers.removeAll()
 
         mapReadyResult?(nil)
 
@@ -1105,7 +1115,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 encoding: String.Encoding.utf8.rawValue
             )
             let source = MGLShapeSource(identifier: sourceId, shape: parsed, options: [:])
+            addedShapesByLayer[sourceId] = parsed
             mapView.style?.addSource(source)
+            print(source)
         } catch {}
     }
 
@@ -1116,8 +1128,37 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 encoding: String.Encoding.utf8.rawValue
             )
             if let source = mapView.style?.source(withIdentifier: sourceId) as? MGLShapeSource {
+                addedShapesByLayer[sourceId] = parsed
                 source.shape = parsed
             }
+        } catch {}
+    }
+
+    func setFeature(sourceId: String, geojsonFeature: String) {
+        do {
+            let newShape = try MGLShape(
+                data: geojsonFeature.data(using: .utf8)!,
+                encoding: String.Encoding.utf8.rawValue
+            )
+            if let source = mapView.style?.source(withIdentifier: sourceId) as? MGLShapeSource,
+               let shape = addedShapesByLayer[sourceId] as? MGLShapeCollectionFeature,
+               let feature = newShape as? MGLShape & MGLFeature
+            {
+                if let index = shape.shapes
+                    .firstIndex(where: {
+                        if let id = $0.identifier as? String,
+                           let featureId = feature.identifier as? String
+                        { return id == featureId }
+                        return false
+                    })
+                {
+                    var shapes = shape.shapes;
+                    shapes[index] = feature
+
+                    source.shape = MGLShapeCollectionFeature(shapes: shapes)
+                }
+            }
+
         } catch {}
     }
 

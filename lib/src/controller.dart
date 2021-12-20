@@ -311,6 +311,23 @@ class MapboxMapController extends ChangeNotifier {
     await _mapboxGlPlatform.setGeoJsonSource(sourceId, geojson);
   }
 
+  /// Sets new geojson data to and existing source
+  ///
+  /// This only works as exected if the source has been created with
+  /// [addGeoJsonSource] before. This is very useful if you want to update and
+  /// existing source with modified data.
+  ///
+  /// The json in [geojson] has to comply with the schema for FeatureCollection
+  /// as specified in https://datatracker.ietf.org/doc/html/rfc7946#section-3.3
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> setGeoJsonFeature(
+      String sourceId, Map<String, dynamic> geojsonFeature) async {
+    await _mapboxGlPlatform.setFeatureForGeoJsonSource(
+        sourceId, geojsonFeature);
+  }
+
   /// Add a symbol layer to the map with the given properties
   ///
   /// The returned [Future] completes after the change has been made on the
