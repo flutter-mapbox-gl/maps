@@ -50,6 +50,7 @@ class MapboxMapController extends ChangeNotifier {
     required MapboxGlPlatform mapboxGlPlatform,
     required CameraPosition initialCameraPosition,
     required Iterable<AnnotationType> annotationOrder,
+    required Iterable<AnnotationType> annotationConsumeTapEvents,
     this.onStyleLoadedCallback,
     this.onMapClick,
     this.onMapLongClick,
@@ -101,22 +102,25 @@ class MapboxMapController extends ChangeNotifier {
     });
 
     _mapboxGlPlatform.onMapStyleLoadedPlatform.add((_) {
+      final interactionEnabled = annotationConsumeTapEvents.toSet();
       for (var type in annotationOrder.toSet()) {
+        final enableInteraction = interactionEnabled.contains(type);
         switch (type) {
           case AnnotationType.fill:
-            fillManager = FillManager(this, onTap: onFillTapped);
+            fillManager = FillManager(this,
+                onTap: onFillTapped, enableInteraction: enableInteraction);
             break;
           case AnnotationType.line:
-            lineManager = LineManager(this, onTap: onLineTapped);
+            lineManager = LineManager(this,
+                onTap: onLineTapped, enableInteraction: enableInteraction);
             break;
           case AnnotationType.circle:
-            circleManager = CircleManager(this, onTap: onCircleTapped);
+            circleManager = CircleManager(this,
+                onTap: onCircleTapped, enableInteraction: enableInteraction);
             break;
           case AnnotationType.symbol:
-            symbolManager = SymbolManager(
-              this,
-              onTap: onSymbolTapped,
-            );
+            symbolManager = SymbolManager(this,
+                onTap: onSymbolTapped, enableInteraction: enableInteraction);
             break;
           default:
         }
@@ -289,6 +293,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
+  ///
   Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
       {String? promoteId}) async {
     await _mapboxGlPlatform.addGeoJsonSource(sourceId, geojson,
@@ -336,13 +341,16 @@ class MapboxMapController extends ChangeNotifier {
   /// Note: [belowLayerId] is currently ignored on the web
   Future<void> addSymbolLayer(
       String sourceId, String layerId, SymbolLayerProperties properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addSymbolLayer(
       sourceId,
       layerId,
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      enableInteraction: enableInteraction,
     );
   }
 
@@ -354,13 +362,16 @@ class MapboxMapController extends ChangeNotifier {
   /// Note: [belowLayerId] is currently ignored on the web
   Future<void> addLineLayer(
       String sourceId, String layerId, LineLayerProperties properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addLineLayer(
       sourceId,
       layerId,
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      enableInteraction: enableInteraction,
     );
   }
 
@@ -372,13 +383,16 @@ class MapboxMapController extends ChangeNotifier {
   /// Note: [belowLayerId] is currently ignored on the web
   Future<void> addFillLayer(
       String sourceId, String layerId, FillLayerProperties properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addFillLayer(
       sourceId,
       layerId,
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      enableInteraction: enableInteraction,
     );
   }
 
@@ -390,13 +404,16 @@ class MapboxMapController extends ChangeNotifier {
   /// Note: [belowLayerId] is currently ignored on the web
   Future<void> addCircleLayer(
       String sourceId, String layerId, CircleLayerProperties properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addCircleLayer(
       sourceId,
       layerId,
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      enableInteraction: enableInteraction,
     );
   }
 
@@ -432,15 +449,19 @@ class MapboxMapController extends ChangeNotifier {
 
   Future<void> addLayer(
       String sourceId, String layerId, LayerProperties properties,
-      {String? belowLayerId}) async {
+      {String? belowLayerId, bool enableInteraction = true}) async {
     if (properties is FillLayerProperties) {
-      addFillLayer(sourceId, layerId, properties);
+      addFillLayer(sourceId, layerId, properties,
+          enableInteraction: enableInteraction);
     } else if (properties is LineLayerProperties) {
-      addLineLayer(sourceId, layerId, properties);
+      addLineLayer(sourceId, layerId, properties,
+          enableInteraction: enableInteraction);
     } else if (properties is SymbolLayerProperties) {
-      addSymbolLayer(sourceId, layerId, properties);
+      addSymbolLayer(sourceId, layerId, properties,
+          enableInteraction: enableInteraction);
     } else if (properties is CircleLayerProperties) {
-      addCircleLayer(sourceId, layerId, properties);
+      addCircleLayer(sourceId, layerId, properties,
+          enableInteraction: enableInteraction);
     }
   }
 

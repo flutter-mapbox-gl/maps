@@ -104,18 +104,27 @@ abstract class MapboxGlPlatform {
 
   Future<void> addSymbolLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId});
+      {String? belowLayerId,
+      String? sourceLayer,
+      required bool enableInteraction});
 
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId});
+      {String? belowLayerId,
+      String? sourceLayer,
+      required bool enableInteraction});
 
   Future<void> addCircleLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId});
+      {String? belowLayerId,
+      String? sourceLayer,
+      required bool enableInteraction});
+
   Future<void> addFillLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId});
+      {String? belowLayerId,
+      String? sourceLayer,
+      required bool enableInteraction});
 
   Future<void> addRasterLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,

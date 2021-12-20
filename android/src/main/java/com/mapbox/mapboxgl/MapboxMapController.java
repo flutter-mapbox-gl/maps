@@ -156,7 +156,7 @@ final class MapboxMapController
   private LatLng dragOrigin;
   private LatLng dragPrevious;
 
-  private Set<String> featureLayerIdentifiers;
+  private Set<String> interactiveFeatureLayerIds;
   private Map<String, FeatureCollection> addedFeaturesByLayer;
 
   private LatLngBounds bounds = null;
@@ -176,7 +176,7 @@ final class MapboxMapController
     this.dragEnabled = dragEnabled;
     this.styleStringInitial = styleStringInitial;
     this.mapView = new MapView(context, options);
-    this.featureLayerIdentifiers = new HashSet<>();
+    this.interactiveFeatureLayerIds = new HashSet<>();
     this.addedFeaturesByLayer = new HashMap<String, FeatureCollection>();
     this.density = context.getResources().getDisplayMetrics().density;
     this.lifecycleProvider = lifecycleProvider;
@@ -374,6 +374,7 @@ final class MapboxMapController
                               String belowLayerId,
                               String sourceLayer,
                               PropertyValue[] properties,
+                              boolean enableInteraction,
                               Expression filter) {
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
     symbolLayer.setProperties(properties);
@@ -388,7 +389,9 @@ final class MapboxMapController
     {
       style.addLayer(symbolLayer);
     }
-    featureLayerIdentifiers.add(layerName);
+    if(enableInteraction){
+      interactiveFeatureLayerIds.add(layerName);
+    }
   }
 
   private void addLineLayer(String layerName,
@@ -396,6 +399,7 @@ final class MapboxMapController
                             String belowLayerId,
                             String sourceLayer,
                             PropertyValue[] properties,
+                            boolean enableInteraction,
                             Expression filter) {
     LineLayer lineLayer = new LineLayer(layerName, sourceName);
     lineLayer.setProperties(properties);
@@ -410,7 +414,9 @@ final class MapboxMapController
     {
       style.addLayer(lineLayer);
     }
-    featureLayerIdentifiers.add(layerName);
+    if(enableInteraction){
+      interactiveFeatureLayerIds.add(layerName);
+    }
   }
 
   private void addFillLayer(String layerName,
@@ -418,6 +424,7 @@ final class MapboxMapController
                             String belowLayerId,
                             String sourceLayer,
                             PropertyValue[] properties,
+                            boolean enableInteraction,
                             Expression filter) {
     FillLayer fillLayer = new FillLayer(layerName, sourceName);
     fillLayer.setProperties(properties);
@@ -432,7 +439,9 @@ final class MapboxMapController
     {
       style.addLayer(fillLayer);
     }
-    featureLayerIdentifiers.add(layerName);
+    if(enableInteraction){
+      interactiveFeatureLayerIds.add(layerName);
+    }
   }
 
   private void addCircleLayer(String layerName,
@@ -440,6 +449,7 @@ final class MapboxMapController
                             String belowLayerId,
                             String sourceLayer,
                             PropertyValue[] properties,
+                            boolean enableInteraction,
                             Expression filter) {
     CircleLayer circleLayer = new CircleLayer(layerName, sourceName);
     circleLayer.setProperties(properties);
@@ -447,7 +457,6 @@ final class MapboxMapController
       circleLayer.setSourceLayer(sourceLayer);
     }
 
-    featureLayerIdentifiers.add(layerName);
     if(belowLayerId != null){
       style.addLayerBelow(circleLayer, belowLayerId);
     }
@@ -455,6 +464,9 @@ final class MapboxMapController
     {
       style.addLayer(circleLayer);
     }
+    if(enableInteraction){
+      interactiveFeatureLayerIds.add(layerName);
+    };
   }
   
   private void addRasterLayer(String layerName,
@@ -497,7 +509,7 @@ final class MapboxMapController
       final List<String> layersInOrder = new ArrayList<String>();
       for (Layer layer : layers){
         String id = layer.getId();
-        if(featureLayerIdentifiers.contains(id))
+        if(interactiveFeatureLayerIds.contains(id))
           layersInOrder.add(id);
       }
       Collections.reverse(layersInOrder);
@@ -737,9 +749,9 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
-        final String sourceLayer = call.argument("sourceLayer");
+        final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
-        addSymbolLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, null);
+        addSymbolLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
         result.success(null);
         break;
       }
@@ -747,9 +759,9 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
-        final String sourceLayer = call.argument("sourceLayer");
+        final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
-        addLineLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, null);
+        addLineLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
         result.success(null);
         break;
       }
@@ -757,9 +769,9 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
-        final String sourceLayer = call.argument("sourceLayer");
+        final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
-        addFillLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, null);
+        addFillLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
         result.success(null);
         break;
       }
@@ -768,8 +780,9 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
         final String sourceLayer = call.argument("sourceLayer");
+        final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
-        addCircleLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, null);
+        addCircleLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, enableInteraction, null);
         result.success(null);
         break;
       }
@@ -872,7 +885,7 @@ final class MapboxMapController
         }
         String layerId = call.argument("layerId");
         style.removeLayer(layerId);
-        featureLayerIdentifiers.remove(layerId);
+        interactiveFeatureLayerIds.remove(layerId);
 
         result.success(null);
         break;

@@ -6,7 +6,9 @@ abstract class AnnotationManager<T extends Annotation> {
   final MapboxMapController controller;
   final void Function(T)? onTap;
   final _idToAnnotation = <String, T>{};
+  final _idToLayerIndex = <String, int>{};
   final String id;
+  final bool enableInteraction;
   List<LayerProperties> get allLayerProperties;
   final int Function(T)? selectLayer;
 
@@ -14,8 +16,9 @@ abstract class AnnotationManager<T extends Annotation> {
 
   Set<T> get annotations => _idToAnnotation.values.toSet();
 
-  AnnotationManager(this.controller, {this.onTap, this.selectLayer})
-      : id = getRandomString(10) {
+  AnnotationManager(this.controller,
+      {this.onTap, this.selectLayer, required this.enableInteraction})
+      : id = getRandomString() {
     for (var i = 0; i < allLayerProperties.length; i++) {
       final layerId = _makeLayerId(i);
       controller.addGeoJsonSource(layerId, buildFeatureCollection([]),
@@ -51,7 +54,9 @@ abstract class AnnotationManager<T extends Annotation> {
       final featureBuckets = [for (final _ in allLayerProperties) <T>[]];
 
       for (final annotation in _idToAnnotation.values) {
-        featureBuckets[selectLayer!(annotation)].add(annotation);
+        final layerIndex = selectLayer!(annotation);
+        _idToLayerIndex[annotation.id] = layerIndex;
+        featureBuckets[layerIndex].add(annotation);
       }
 
       for (var i = 0; i < featureBuckets.length; i++) {
@@ -114,15 +119,23 @@ abstract class AnnotationManager<T extends Annotation> {
 
   Future<void> set(T annoation) async {
     _idToAnnotation[annoation.id] = annoation;
+    final oldLayerIndex = _idToLayerIndex[annoation.id];
     final layerIndex = selectLayer != null ? selectLayer!(annoation) : 0;
-    await controller.setGeoJsonFeature(
-        _makeLayerId(layerIndex), annoation.toGeoJson());
+    if (oldLayerIndex != layerIndex) {
+      // if the annotation has to be moved to another layer/source we have to
+      // set all
+      await _setAll();
+    } else {
+      await controller.setGeoJsonFeature(
+          _makeLayerId(layerIndex), annoation.toGeoJson());
+    }
   }
 }
 
 class LineManager extends AnnotationManager<Line> {
-  LineManager(MapboxMapController controller, {void Function(Line)? onTap})
-      : super(controller, onTap: onTap);
+  LineManager(MapboxMapController controller,
+      {void Function(Line)? onTap, bool enableInteraction = true})
+      : super(controller, onTap: onTap, enableInteraction: enableInteraction);
   @override
   List<LayerProperties> get allLayerProperties => const [
         LineLayerProperties(
@@ -137,9 +150,13 @@ class LineManager extends AnnotationManager<Line> {
 }
 
 class FillManager extends AnnotationManager<Fill> {
-  FillManager(MapboxMapController controller, {void Function(Fill)? onTap})
-      : super(controller,
+  FillManager(
+    MapboxMapController controller, {
+    void Function(Fill)? onTap,
+    bool enableInteraction = true,
+  }) : super(controller,
             onTap: onTap,
+            enableInteraction: enableInteraction,
             selectLayer: (Fill fill) =>
                 fill.options.fillPattern == null ? 0 : 1);
   @override
@@ -159,8 +176,15 @@ class FillManager extends AnnotationManager<Fill> {
 }
 
 class CircleManager extends AnnotationManager<Circle> {
-  CircleManager(MapboxMapController controller, {void Function(Circle)? onTap})
-      : super(controller, onTap: onTap);
+  CircleManager(
+    MapboxMapController controller, {
+    void Function(Circle)? onTap,
+    bool enableInteraction = true,
+  }) : super(
+          controller,
+          enableInteraction: enableInteraction,
+          onTap: onTap,
+        );
   @override
   List<LayerProperties> get allLayerProperties => const [
         CircleLayerProperties(
@@ -183,11 +207,16 @@ class SymbolManager extends AnnotationManager<Symbol> {
     bool textAllowOverlap = false,
     bool iconIgnorePlacement = false,
     bool textIgnorePlacement = false,
+    bool enableInteraction = true,
   })  : _iconAllowOverlap = iconAllowOverlap,
         _textAllowOverlap = textAllowOverlap,
         _iconIgnorePlacement = iconIgnorePlacement,
         _textIgnorePlacement = textIgnorePlacement,
-        super(controller, onTap: onTap);
+        super(
+          controller,
+          enableInteraction: enableInteraction,
+          onTap: onTap,
+        );
 
   bool _iconAllowOverlap;
   bool _textAllowOverlap;

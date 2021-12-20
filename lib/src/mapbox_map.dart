@@ -302,6 +302,7 @@ class _MapboxMapState extends State<MapboxMap> {
       onCameraIdle: widget.onCameraIdle,
       onMapIdle: widget.onMapIdle,
       annotationOrder: widget.annotationOrder,
+      annotationConsumeTapEvents: widget.annotationConsumeTapEvents,
     );
     await _mapboxGlPlatform.initPlatform(id);
     _controller.complete(controller);

@@ -117,22 +117,23 @@ class LayerState extends State {
     );
 
     await controller.addSymbolLayer(
-        "moving",
-        "moving",
-        SymbolLayerProperties(
-          textField: [Expressions.get, "name"],
-          textHaloWidth: 1,
-          textSize: 10,
-          textHaloColor: Colors.white.toHexStringRGB(),
-          textOffset: [
-            Expressions.literal,
-            [0, 2]
-          ],
-          iconImage: "bicycle-15",
-          iconSize: 2,
-          iconAllowOverlap: true,
-          textAllowOverlap: true,
-        ));
+      "moving",
+      "moving",
+      SymbolLayerProperties(
+        textField: [Expressions.get, "name"],
+        textHaloWidth: 1,
+        textSize: 10,
+        textHaloColor: Colors.white.toHexStringRGB(),
+        textOffset: [
+          Expressions.literal,
+          [0, 2]
+        ],
+        iconImage: "bicycle-15",
+        iconSize: 2,
+        iconAllowOverlap: true,
+        textAllowOverlap: true,
+      ),
+    );
     timer = Timer.periodic(
         Duration(milliseconds: 10),
         (t) => controller.setGeoJsonSource(

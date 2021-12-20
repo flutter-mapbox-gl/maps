@@ -14,8 +14,9 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   LatLng? _dragOrigin;
   LatLng? _dragPrevious;
   bool _dragEnabled = true;
+  final _addedFeaturesByLayer = <String, FeatureCollection>{};
 
-  final _featureLayerIdentifiers = Set<String>();
+  final _interactiveFeatureLayerIds = Set<String>();
 
   bool _trackCameraPosition = false;
   GeolocateControl? _geolocateControl;
@@ -316,8 +317,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   }
 
   void _onMapClick(Event e) {
-    final features = _map.queryRenderedFeatures(
-        [e.point.x, e.point.y], {"layers": _featureLayerIdentifiers.toList()});
+    final features = _map.queryRenderedFeatures([e.point.x, e.point.y],
+        {"layers": _interactiveFeatureLayerIds.toList()});
     final payload = {
       'point': Point<double>(e.point.x.toDouble(), e.point.y.toDouble()),
       'latLng': LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble()),
@@ -558,13 +559,13 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   @override
   void setStyleString(String? styleString) {
     //remove old mouseenter callbacks to avoid multicalling
-    for (var layerId in _featureLayerIdentifiers) {
+    for (var layerId in _interactiveFeatureLayerIds) {
       _map.off('mouseenter', layerId, _onMouseEnterFeature);
       _map.off('mousemouve', layerId, _onMouseEnterFeature);
       _map.off('mouseleave', layerId, _onMouseLeaveFeature);
       if (_dragEnabled) _map.off('mousedown', layerId, _onMouseDown);
     }
-    _featureLayerIdentifiers.clear();
+    _interactiveFeatureLayerIds.clear();
 
     _map.setStyle(styleString);
     // catch style loaded for later style changes
@@ -611,16 +612,18 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
 
   @override
   Future<void> removeLayer(String layerId) async {
-    _featureLayerIdentifiers.remove(layerId);
+    _interactiveFeatureLayerIds.remove(layerId);
     _map.removeLayer(layerId);
   }
 
   @override
   Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
       {String? promoteId}) async {
+    final data = _makeFeatureCollection(geojson);
+    _addedFeaturesByLayer[sourceId] = data;
     _map.addSource(sourceId, {
       "type": 'geojson',
-      "data": geojson,
+      "data": geojson, // pass the raw string here to avoid errors
       if (promoteId != null) "promoteId": promoteId
     });
   }
@@ -634,45 +637,66 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
         id: geojsonFeature["properties"]?["id"] ?? geojsonFeature["id"]);
   }
 
+  FeatureCollection _makeFeatureCollection(Map<String, dynamic> geojson) {
+    return FeatureCollection(
+        features: [for (final f in geojson["features"] ?? []) _makeFeature(f)]);
+  }
+
   @override
   Future<void> setGeoJsonSource(
       String sourceId, Map<String, dynamic> geojson) async {
     final source = _map.getSource(sourceId) as GeoJsonSource;
-    final data = FeatureCollection(
-        features: [for (final f in geojson["features"] ?? []) _makeFeature(f)]);
+    final data = _makeFeatureCollection(geojson);
+    _addedFeaturesByLayer[sourceId] = data;
     source.setData(data);
   }
 
   @override
   Future<void> addCircleLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      required bool enableInteraction}) async {
     return _addLayer(sourceId, layerId, properties, "circle",
-        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        enableInteraction: enableInteraction);
   }
 
   @override
   Future<void> addFillLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      required bool enableInteraction}) async {
     return _addLayer(sourceId, layerId, properties, "fill",
-        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        enableInteraction: enableInteraction);
   }
 
   @override
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      required bool enableInteraction}) async {
     return _addLayer(sourceId, layerId, properties, "line",
-        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        enableInteraction: enableInteraction);
   }
 
   @override
   Future<void> addSymbolLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      required bool enableInteraction}) async {
     return _addLayer(sourceId, layerId, properties, "symbol",
-        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        enableInteraction: enableInteraction);
   }
 
   @override
@@ -680,12 +704,26 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId, String? sourceLayer}) async {
     return _addLayer(sourceId, layerId, properties, "hillshade",
-        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        enableInteraction: false);
+  }
+
+  @override
+  Future<void> addRasterLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    await _addLayer(sourceId, layerId, properties, "raster",
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        enableInteraction: false);
   }
 
   Future<void> _addLayer(String sourceId, String layerId,
       Map<String, dynamic> properties, String layerType,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      required bool enableInteraction}) async {
     final layout = Map.fromEntries(
         properties.entries.where((entry) => isLayoutProperty(entry.key)));
     final paint = Map.fromEntries(
@@ -700,14 +738,16 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       if (sourceLayer != null) 'source-layer': sourceLayer
     }, belowLayerId);
 
-    _featureLayerIdentifiers.add(layerId);
-    if (layerType == "fill") {
-      _map.on('mousemove', layerId, _onMouseEnterFeature);
-    } else {
-      _map.on('mouseenter', layerId, _onMouseEnterFeature);
+    if (enableInteraction) {
+      _interactiveFeatureLayerIds.add(layerId);
+      if (layerType == "fill") {
+        _map.on('mousemove', layerId, _onMouseEnterFeature);
+      } else {
+        _map.on('mouseenter', layerId, _onMouseEnterFeature);
+      }
+      _map.on('mouseleave', layerId, _onMouseLeaveFeature);
+      if (_dragEnabled) _map.on('mousedown', layerId, _onMouseDown);
     }
-    _map.on('mouseleave', layerId, _onMouseLeaveFeature);
-    if (_dragEnabled) _map.on('mousedown', layerId, _onMouseDown);
   }
 
   void _onMouseEnterFeature(_) {
@@ -779,12 +819,6 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
     _map.addSource(sourceId, source.toJson());
   }
 
-  @override
-  Future<void> addRasterLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId, String? sourceLayer}) async {
-    await _addLayer(sourceId, layerId, properties, "raster",
-        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
   Future<void> addImageSource(
       String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
     // TODO: implement addImageSource
@@ -814,14 +848,18 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   Future<void> setFeatureForGeoJsonSource(
       String sourceId, Map<String, dynamic> geojsonFeature) async {
     final source = _map.getSource(sourceId) as GeoJsonSource?;
+    final data = _addedFeaturesByLayer[sourceId];
 
-    if (source != null) {
+    if (source != null && data != null) {
       final feature = _makeFeature(geojsonFeature);
-      final data = source.data;
-      final index = data.features.indexWhere((f) => f.id == feature.id);
+      final features = data.features.toList();
+      final index = features.indexWhere((f) => f.id == feature.id);
       if (index >= 0) {
-        data.features[index] = feature;
-        source.setData(data);
+        features[index] = feature;
+        final newData = FeatureCollection(features: features);
+        _addedFeaturesByLayer[sourceId] = newData;
+
+        source.setData(newData);
       }
     }
   }
