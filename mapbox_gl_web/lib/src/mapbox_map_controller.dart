@@ -417,6 +417,7 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   void _onStyleLoaded(_) {
+    _map.resize();
     _mapReady = true;
     for (final annotationType in annotationOrder) {
       switch (annotationType) {
