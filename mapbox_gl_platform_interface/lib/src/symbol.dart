@@ -94,6 +94,8 @@ class SymbolOptions {
   final double? iconRotate;
   final Offset? iconOffset;
   final String? iconAnchor;
+
+  /// Not supported on web
   final List<String>? fontNames;
   final String? textField;
   final double? textSize;

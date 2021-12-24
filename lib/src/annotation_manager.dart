@@ -1,17 +1,30 @@
 part of mapbox_gl;
 
-int _getFirst(Annotation _) => 0;
-
 abstract class AnnotationManager<T extends Annotation> {
   final MapboxMapController controller;
-  final void Function(T)? onTap;
   final _idToAnnotation = <String, T>{};
   final _idToLayerIndex = <String, int>{};
+
+  /// Called if a annotation is tapped
+  final void Function(T)? onTap;
+
+  /// base id of the manager. User [layerdIds] to get the actual ids.
   final String id;
+
+  List<String> get layerIds =>
+      [for (int i = 0; i < allLayerProperties.length; i++) _makeLayerId(i)];
+
+  /// If disabled the manager offers no interaction for the created symbols
   final bool enableInteraction;
+
+  /// implemented to define the layer properties
   List<LayerProperties> get allLayerProperties;
+
+  /// used to spedicy the layer and annotation will life on
+  /// This can be replaced by layer filters a soon as they are implemented
   final int Function(T)? selectLayer;
 
+  /// get the an annotation by its id
   T? byId(String id) => _idToAnnotation[id];
 
   Set<T> get annotations => _idToAnnotation.values.toSet();
@@ -32,7 +45,9 @@ abstract class AnnotationManager<T extends Annotation> {
     controller.onFeatureDrag.add(_onDrag);
   }
 
-  Future<void> rebuildLayers() async {
+  /// This function can be used to rebuild all layers after their properties
+  /// changed
+  Future<void> _rebuildLayers() async {
     for (var i = 0; i < allLayerProperties.length; i++) {
       final layerId = _makeLayerId(i);
       await controller.removeLayer(layerId);
@@ -73,6 +88,8 @@ abstract class AnnotationManager<T extends Annotation> {
     }
   }
 
+  /// Adds a multiple annotations to the map. This much faster than calling add
+  /// multiple times
   Future<void> addAll(Iterable<T> annotations) async {
     for (var a in annotations) {
       _idToAnnotation[a.id] = a;
@@ -80,22 +97,27 @@ abstract class AnnotationManager<T extends Annotation> {
     await _setAll();
   }
 
+  /// add a single annotation to the map
   Future<void> add(T annotation) async {
     _idToAnnotation[annotation.id] = annotation;
     await _setAll();
   }
 
+  /// Remove a single annotation form the map
   Future<void> remove(T annotation) async {
     _idToAnnotation.remove(annotation.id);
     await _setAll();
   }
 
+  /// Removes all annotations from the map
   Future<void> clear() async {
     _idToAnnotation.clear();
 
     await _setAll();
   }
 
+  /// Fully dipose of all the the resouces managed by the annotation manager.
+  /// The manager cannot be used after this has been called
   Future<void> dispose() async {
     _idToAnnotation.clear();
     await _setAll();
@@ -117,7 +139,11 @@ abstract class AnnotationManager<T extends Annotation> {
     }
   }
 
+  /// Set an existing anntotation to the map. Use this to do a fast update for a
+  /// single annotation
   Future<void> set(T annoation) async {
+    assert(_idToAnnotation.containsKey(annoation.id),
+        "you can only set existing annotations");
     _idToAnnotation[annoation.id] = annoation;
     final oldLayerIndex = _idToLayerIndex[annoation.id];
     final layerIndex = selectLayer != null ? selectLayer!(annoation) : 0;
@@ -135,17 +161,27 @@ abstract class AnnotationManager<T extends Annotation> {
 class LineManager extends AnnotationManager<Line> {
   LineManager(MapboxMapController controller,
       {void Function(Line)? onTap, bool enableInteraction = true})
-      : super(controller, onTap: onTap, enableInteraction: enableInteraction);
+      : super(
+          controller,
+          onTap: onTap,
+          enableInteraction: enableInteraction,
+          selectLayer: (Line line) => line.options.linePattern == null ? 0 : 1,
+        );
+
+  static const _baseProperties = LineLayerProperties(
+    lineJoin: [Expressions.get, 'lineJoin'],
+    lineOpacity: [Expressions.get, 'lineOpacity'],
+    lineColor: [Expressions.get, 'lineColor'],
+    lineWidth: [Expressions.get, 'lineWidth'],
+    lineGapWidth: [Expressions.get, 'lineGapWidth'],
+    lineOffset: [Expressions.get, 'lineOffset'],
+    lineBlur: [Expressions.get, 'lineBlur'],
+  );
   @override
-  List<LayerProperties> get allLayerProperties => const [
-        LineLayerProperties(
-          lineOpacity: [Expressions.get, 'lineOpacity'],
-          lineColor: [Expressions.get, 'lineColor'],
-          lineWidth: [Expressions.get, 'lineWidth'],
-          lineGapWidth: [Expressions.get, 'lineGapWidth'],
-          lineOffset: [Expressions.get, 'lineOffset'],
-          lineBlur: [Expressions.get, 'lineBlur'],
-        )
+  List<LayerProperties> get allLayerProperties => [
+        _baseProperties,
+        _baseProperties.copyWith(
+            LineLayerProperties(linePattern: [Expressions.get, 'linePattern'])),
       ];
 }
 
@@ -154,11 +190,12 @@ class FillManager extends AnnotationManager<Fill> {
     MapboxMapController controller, {
     void Function(Fill)? onTap,
     bool enableInteraction = true,
-  }) : super(controller,
-            onTap: onTap,
-            enableInteraction: enableInteraction,
-            selectLayer: (Fill fill) =>
-                fill.options.fillPattern == null ? 0 : 1);
+  }) : super(
+          controller,
+          onTap: onTap,
+          enableInteraction: enableInteraction,
+          selectLayer: (Fill fill) => fill.options.fillPattern == null ? 0 : 1,
+        );
   @override
   List<LayerProperties> get allLayerProperties => const [
         FillLayerProperties(
@@ -226,25 +263,25 @@ class SymbolManager extends AnnotationManager<Symbol> {
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setIconAllowOverlap(bool value) async {
     _iconAllowOverlap = value;
-    await rebuildLayers();
+    await _rebuildLayers();
   }
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setTextAllowOverlap(bool value) async {
     _textAllowOverlap = value;
-    await rebuildLayers();
+    await _rebuildLayers();
   }
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setIconIgnorePlacement(bool value) async {
     _iconIgnorePlacement = value;
-    await rebuildLayers();
+    await _rebuildLayers();
   }
 
   /// For more information on what this does, see https://docs.mapbox.com/help/troubleshooting/optimize-map-label-placement/#label-collision
   Future<void> setTextIgnorePlacement(bool value) async {
     _textIgnorePlacement = value;
-    await rebuildLayers();
+    await _rebuildLayers();
   }
 
   @override
@@ -255,6 +292,11 @@ class SymbolManager extends AnnotationManager<Symbol> {
           iconRotate: [Expressions.get, 'iconRotate'],
           iconOffset: [Expressions.get, 'iconOffset'],
           iconAnchor: [Expressions.get, 'iconAnchor'],
+          iconOpacity: [Expressions.get, 'iconOpacity'],
+          iconColor: [Expressions.get, 'iconColor'],
+          iconHaloColor: [Expressions.get, 'iconHaloColor'],
+          iconHaloWidth: [Expressions.get, 'iconHaloWidth'],
+          iconHaloBlur: [Expressions.get, 'iconHaloBlur'],
           // note that web does not support setting this in a fully data driven
           // way this is a upstream issue
           textFont: kIsWeb
@@ -277,21 +319,16 @@ class SymbolManager extends AnnotationManager<Symbol> {
           textRotate: [Expressions.get, 'textRotate'],
           textTransform: [Expressions.get, 'textTransform'],
           textOffset: [Expressions.get, 'textOffset'],
-          iconAllowOverlap: _iconAllowOverlap,
-          iconIgnorePlacement: _iconIgnorePlacement,
-          iconOpacity: [Expressions.get, 'iconOpacity'],
-          iconColor: [Expressions.get, 'iconColor'],
-          iconHaloColor: [Expressions.get, 'iconHaloColor'],
-          iconHaloWidth: [Expressions.get, 'iconHaloWidth'],
-          iconHaloBlur: [Expressions.get, 'iconHaloBlur'],
           textOpacity: [Expressions.get, 'textOpacity'],
           textColor: [Expressions.get, 'textColor'],
           textHaloColor: [Expressions.get, 'textHaloColor'],
           textHaloWidth: [Expressions.get, 'textHaloWidth'],
           textHaloBlur: [Expressions.get, 'textHaloBlur'],
+          symbolSortKey: [Expressions.get, 'zIndex'],
+          iconAllowOverlap: _iconAllowOverlap,
+          iconIgnorePlacement: _iconIgnorePlacement,
           textAllowOverlap: _textAllowOverlap,
           textIgnorePlacement: _textIgnorePlacement,
-          symbolSortKey: [Expressions.get, 'zIndex'],
         )
       ];
 }
