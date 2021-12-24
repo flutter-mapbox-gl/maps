@@ -293,27 +293,31 @@ abstract class MapboxGlPlatform {
 
   Future<void> addSymbolLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId}) async {
+      {String? belowLayerId, String? sourceLayer}) async {
     throw UnimplementedError('addSymbolLayer() has not been implemented.');
   }
 
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId}) async {
+      {String? belowLayerId, String? sourceLayer}) async {
     throw UnimplementedError('addLineLayer() has not been implemented.');
   }
 
   Future<void> addCircleLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId}) async {
+      {String? belowLayerId, String? sourceLayer}) async {
     throw UnimplementedError('addCircleLayer() has not been implemented.');
   }
 
   Future<void> addFillLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId}) async {
+      {String? belowLayerId, String? sourceLayer}) async {
     throw UnimplementedError('addFillLayer() has not been implemented.');
   }
+
+  Future<void> addRasterLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer});
 
   Future<void> addSource(String sourceId, Source source);
 
