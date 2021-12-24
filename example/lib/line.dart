@@ -34,19 +34,18 @@ class LineBodyState extends State<LineBody> {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
   MapboxMapController? controller;
-  LineManager? lineManager;
-  int lineId = 0;
-
   int _lineCount = 0;
   Line? _selectedLine;
   final String _linePatternImage = "assets/fill/cat_silhouette_pattern.png";
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
+    controller.onLineTapped.add(_onLineTapped);
   }
 
   @override
   void dispose() {
+    controller?.onLineTapped.remove(_onLineTapped);
     super.dispose();
   }
 
@@ -58,23 +57,23 @@ class LineBodyState extends State<LineBody> {
   }
 
   _onLineTapped(Line line) async {
+    await _updateSelectedLine(
+      LineOptions(lineColor: "#ff0000"),
+    );
     setState(() {
       _selectedLine = line;
     });
     await _updateSelectedLine(
-      LineOptions(lineColor: "#ff0000"),
+      LineOptions(lineColor: "#ffe100"),
     );
   }
 
-  Future<void> _updateSelectedLine(LineOptions changes) {
-    _selectedLine!.options = _selectedLine!.options.copyWith(changes);
-
-    return lineManager!.set(_selectedLine!);
+  _updateSelectedLine(LineOptions changes) async {
+    if (_selectedLine != null) controller!.updateLine(_selectedLine!, changes);
   }
 
   void _add() {
-    lineManager!.add(Line(
-      lineId.toString(),
+    controller!.addLine(
       LineOptions(
           geometry: [
             LatLng(-33.86711, 151.1947171),
@@ -83,24 +82,28 @@ class LineBodyState extends State<LineBody> {
             LatLng(-33.86711, 152.1947171),
           ],
           lineColor: "#ff0000",
-          lineWidth: 30.0,
+          lineWidth: 14.0,
           lineOpacity: 0.5,
           draggable: true),
-    ));
-
+    );
     setState(() {
-      lineId++;
       _lineCount += 1;
     });
   }
 
   _move() async {
-    _selectedLine!.translate(LatLng(0.1, 0.1));
-    await lineManager!.set(_selectedLine!);
+    final currentStart = _selectedLine!.options.geometry![0];
+    final currentEnd = _selectedLine!.options.geometry![1];
+    final end =
+        LatLng(currentEnd.latitude + 0.001, currentEnd.longitude + 0.001);
+    final start =
+        LatLng(currentStart.latitude - 0.001, currentStart.longitude - 0.001);
+    await controller!
+        .updateLine(_selectedLine!, LineOptions(geometry: [start, end]));
   }
 
   void _remove() {
-    lineManager!.remove(_selectedLine!);
+    controller!.removeLine(_selectedLine!);
     setState(() {
       _selectedLine = null;
       _lineCount -= 1;
@@ -162,7 +165,7 @@ class LineBodyState extends State<LineBody> {
             child: MapboxMap(
               accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
-              onStyleLoadedCallback: onStyleLoadedCallback,
+              onStyleLoadedCallback: _onStyleLoadedCallback,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),
                 zoom: 11.0,
@@ -220,10 +223,9 @@ class LineBodyState extends State<LineBody> {
                           onPressed: (_selectedLine == null)
                               ? null
                               : () async {
-                                  var current =
-                                      lineManager!.byId(_selectedLine!.id)!;
-                                  for (var latLng
-                                      in current.options.geometry!) {
+                                  var latLngs = await controller!
+                                      .getLineLatLngs(_selectedLine!);
+                                  for (var latLng in latLngs) {
                                     print(latLng.toString());
                                   }
                                 },
