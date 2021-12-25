@@ -319,6 +319,10 @@ abstract class MapboxGlPlatform {
       String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId, String? sourceLayer});
 
+  Future<void> addHillshadeLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer});
+
   Future<void> addSource(String sourceId, Source source);
 
   void dispose() {}

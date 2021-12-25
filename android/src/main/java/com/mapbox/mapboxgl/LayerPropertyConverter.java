@@ -420,4 +420,42 @@ class LayerPropertyConverter {
     return properties.toArray(new PropertyValue[properties.size()]);
   }
 
+  static PropertyValue[] interpretHillshadeLayerProperties(Object o) {
+    final Map<String, String> data = (Map<String, String>) toMap(o);
+    final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
+
+    for (Map.Entry<String, String> entry : data.entrySet()) {
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
+      switch (entry.getKey()) {
+        case "hillshade-illumination-direction":
+          properties.add(PropertyFactory.hillshadeIlluminationDirection(expression));
+          break;
+        case "hillshade-illumination-anchor":
+          properties.add(PropertyFactory.hillshadeIlluminationAnchor(expression));
+          break;
+        case "hillshade-exaggeration":
+          properties.add(PropertyFactory.hillshadeExaggeration(expression));
+          break;
+        case "hillshade-shadow-color":
+          properties.add(PropertyFactory.hillshadeShadowColor(expression));
+          break;
+        case "hillshade-highlight-color":
+          properties.add(PropertyFactory.hillshadeHighlightColor(expression));
+          break;
+        case "hillshade-accent-color":
+          properties.add(PropertyFactory.hillshadeAccentColor(expression));
+          break;
+        case "visibility":
+          properties.add(PropertyFactory.visibility(entry.getValue()));
+          break;
+        default:
+          break;
+      }
+    }
+
+    return properties.toArray(new PropertyValue[properties.size()]);
+  }
+
 }

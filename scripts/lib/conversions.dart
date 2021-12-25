@@ -42,5 +42,5 @@ const dartTypeMappingTable = {
   "enum": "String",
   "promoteId": "String",
   "boolean": "bool",
-  "*": "Map<String, dynamic>"
+  "*": "Object"
 };

@@ -4,13 +4,17 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'main.dart';
 import 'page.dart';
 
-class StyleCombination {
+class StyleInfo {
   final String name;
   final String baseStyle;
   final Future<void> Function(MapboxMapController) addDetails;
+  final CameraPosition position;
 
-  const StyleCombination(
-      {required this.name, required this.baseStyle, required this.addDetails});
+  const StyleInfo(
+      {required this.name,
+      required this.baseStyle,
+      required this.addDetails,
+      required this.position});
 }
 
 class Sources extends ExamplePage {
@@ -30,12 +34,12 @@ class FullMap extends StatefulWidget {
 }
 
 class FullMapState extends State<FullMap> {
-  MapboxMapController? mapController;
+  MapboxMapController? controller;
   final watercolorRasterId = "watercolorRaster";
   int selectedStyleId = 0;
 
   _onMapCreated(MapboxMapController controller) {
-    mapController = controller;
+    this.controller = controller;
   }
 
   static Future<void> addWatercolor(MapboxMapController controller) async {
@@ -50,7 +54,7 @@ class FullMapState extends State<FullMap> {
               'Map tiles by <a target="_top" rel="noopener" href="http://stamen.com">Stamen Design</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a target="_top" rel="noopener" href="http://openstreetmap.org">OpenStreetMap</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'),
     );
     await controller.addLayer(
-        "watercolor", "watercolor", RasterLayerProperties(rasterHueRotate: 20));
+        "watercolor", "watercolor", RasterLayerProperties());
   }
 
   static Future<void> addEarthQuakes(MapboxMapController controller) async {
@@ -113,26 +117,108 @@ class FullMapState extends State<FullMap> {
         sourceLayer: "contour");
   }
 
+  static Future<void> addImage(MapboxMapController controller) async {
+    await controller.addSource(
+        "radar",
+        ImageSource(
+            url: "https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif",
+            coordinates: [
+              [-80.425, 46.437],
+              [-71.516, 46.437],
+              [-71.516, 37.936],
+              [-80.425, 37.936]
+            ]));
+
+    await controller.addRasterLayer(
+      "radar",
+      "radar",
+      RasterLayerProperties(rasterFadeDuration: 0),
+    );
+  }
+
+  static Future<void> addVideo(MapboxMapController controller) async {
+    await controller.addSource(
+        "video",
+        VideoSource(urls: [
+          'https://static-assets.mapbox.com/mapbox-gl-js/drone.mp4',
+          'https://static-assets.mapbox.com/mapbox-gl-js/drone.webm'
+        ], coordinates: [
+          [-122.51596391201019, 37.56238816766053],
+          [-122.51467645168304, 37.56410183312965],
+          [-122.51309394836426, 37.563391708549425],
+          [-122.51423120498657, 37.56161849366671]
+        ]));
+
+    await controller.addRasterLayer(
+      "video",
+      "video",
+      RasterLayerProperties(),
+    );
+  }
+
+  static Future<void> addDem(MapboxMapController controller) async {
+    await controller.addSource(
+        "dem", RasterDemSource(url: "mapbox://mapbox.mapbox-terrain-dem-v1"));
+
+    await controller.addLayer(
+      "dem",
+      "hillshade",
+      HillshadeLayerProperties(
+          hillshadeExaggeration: 1,
+          hillshadeShadowColor: Colors.blue.toHexStringRGB()),
+    );
+  }
+
   static const _stylesAndLoaders = [
-    StyleCombination(
-        name: "Contour", baseStyle: MapboxStyles.LIGHT, addDetails: addContour),
-    StyleCombination(
-        name: "Watercolor",
-        baseStyle: MapboxStyles.EMPTY,
-        addDetails: addWatercolor),
-    StyleCombination(
-        name: "Earthquakes",
-        baseStyle: MapboxStyles.SATELLITE,
-        addDetails: addEarthQuakes),
+    StyleInfo(
+      name: "Contour",
+      baseStyle: MapboxStyles.LIGHT,
+      addDetails: addContour,
+      position: CameraPosition(target: LatLng(33.3832, -118.4333), zoom: 12),
+    ),
+    StyleInfo(
+      name: "Hillshade",
+      baseStyle: MapboxStyles.EMPTY,
+      addDetails: addDem,
+      position: CameraPosition(target: LatLng(33.5, -118.1), zoom: 8),
+    ),
+    StyleInfo(
+      name: "Earthquakes",
+      baseStyle: MapboxStyles.LIGHT,
+      addDetails: addEarthQuakes,
+      position: CameraPosition(target: LatLng(33.5, -118.1), zoom: 5),
+    ),
+    StyleInfo(
+      name: "Watercolor",
+      baseStyle: MapboxStyles.EMPTY,
+      addDetails: addWatercolor,
+      position: CameraPosition(target: LatLng(40, -100), zoom: 3),
+    ),
+    StyleInfo(
+      name: "Radar",
+      baseStyle: MapboxStyles.DARK,
+      addDetails: addImage,
+      position: CameraPosition(target: LatLng(43, -75), zoom: 6),
+    ),
+    StyleInfo(
+      name: "Video",
+      baseStyle: MapboxStyles.SATELLITE,
+      addDetails: addVideo,
+      position: CameraPosition(
+          target: LatLng(37.562984, -122.514426), zoom: 17, bearing: -96),
+    ),
   ];
 
   _onStyleLoadedCallback() async {
-    _stylesAndLoaders[selectedStyleId].addDetails(mapController!);
+    final styleInfo = _stylesAndLoaders[selectedStyleId];
+    styleInfo.addDetails(controller!);
+    controller!
+        .animateCamera(CameraUpdate.newCameraPosition(styleInfo.position));
   }
 
   @override
   Widget build(BuildContext context) {
-    final combo = _stylesAndLoaders[selectedStyleId];
+    final styleInfo = _stylesAndLoaders[selectedStyleId];
     final nextName =
         _stylesAndLoaders[(selectedStyleId + 1) % _stylesAndLoaders.length]
             .name;
@@ -150,11 +236,10 @@ class FullMapState extends State<FullMap> {
           ),
         ),
         body: MapboxMap(
-          styleString: combo.baseStyle,
+          styleString: styleInfo.baseStyle,
           accessToken: MapsDemo.ACCESS_TOKEN,
           onMapCreated: _onMapCreated,
-          initialCameraPosition:
-              const CameraPosition(target: LatLng(33.5, -118.1), zoom: 9),
+          initialCameraPosition: styleInfo.position,
           onStyleLoadedCallback: _onStyleLoadedCallback,
         ));
   }

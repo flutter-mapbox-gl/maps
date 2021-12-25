@@ -289,6 +289,38 @@ class LayerPropertyConverter {
         }
     }
 
+    class func addHillshadeProperties(hillshadeLayer: MGLHillshadeStyleLayer, properties: [String: String]) {
+        for (propertyName, propertyValue) in properties {
+            let expression = interpretExpression(propertyName: propertyName, expression: propertyValue)
+            switch propertyName {
+                case "hillshade-illumination-direction":
+                    hillshadeLayer.hillshadeIlluminationDirection = expression;
+                break;
+                case "hillshade-illumination-anchor":
+                    hillshadeLayer.hillshadeIlluminationAnchor = expression;
+                break;
+                case "hillshade-exaggeration":
+                    hillshadeLayer.hillshadeExaggeration = expression;
+                break;
+                case "hillshade-shadow-color":
+                    hillshadeLayer.hillshadeShadowColor = expression;
+                break;
+                case "hillshade-highlight-color":
+                    hillshadeLayer.hillshadeHighlightColor = expression;
+                break;
+                case "hillshade-accent-color":
+                    hillshadeLayer.hillshadeAccentColor = expression;
+                break;
+                case "visibility":
+                    hillshadeLayer.isVisible = propertyValue == "visible";
+                break;
+             
+                default:
+                    break
+            }
+        }
+    }
+
     private class func interpretExpression(propertyName: String, expression: String) -> NSExpression? {
         let isColor = propertyName.contains("color");
 

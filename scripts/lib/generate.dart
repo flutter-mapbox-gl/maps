@@ -10,7 +10,14 @@ main() async {
   var styleJson =
       jsonDecode(await new File('scripts/input/style.json').readAsString());
 
-  final layerTypes = ["symbol", "circle", "line", "fill", "raster"];
+  final layerTypes = [
+    "symbol",
+    "circle",
+    "line",
+    "fill",
+    "raster",
+    "hillshade"
+  ];
   final sourceTypes = [
     "vector",
     "raster",
@@ -33,7 +40,7 @@ main() async {
     "sourceTypes": [
       for (var type in sourceTypes)
         {
-          "type": type,
+          "type": type.replaceAll("_", "-"),
           "typePascal": ReCase(type).pascalCase,
           "properties": buildSourceProperties(styleJson, "source_$type"),
         },

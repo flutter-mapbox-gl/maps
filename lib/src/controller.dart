@@ -394,6 +394,18 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
+  Future<void> addHillshadeLayer(
+      String sourceId, String layerId, HillshadeLayerProperties properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    await _mapboxGlPlatform.addHillshadeLayer(
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+      sourceLayer: sourceLayer,
+    );
+  }
+
   /// Updates user location tracking mode.
   ///
   /// The returned [Future] completes after the change has been made on the
@@ -1028,6 +1040,11 @@ class MapboxMapController extends ChangeNotifier {
     } else if (properties is RasterLayerProperties) {
       addRasterLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+    } else if (properties is HillshadeLayerProperties) {
+      addHillshadeLayer(sourceId, layerId, properties,
+          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+    } else {
+      throw UnimplementedError("Unknown layer type $properties");
     }
   }
 

@@ -348,7 +348,7 @@ class RasterDemSource implements Source {
       }
     }
 
-    json["type"] = "raster_dem";
+    json["type"] = "raster-dem";
     addIfPresent('url', url);
     addIfPresent('tiles', tiles);
     addIfPresent('bounds', bounds);
@@ -378,7 +378,7 @@ class GeojsonSource implements Source {
   /// A URL to a GeoJSON file, or inline GeoJSON.
   ///
   /// Type: *
-  final dynamic data;
+  final Object? data;
 
   /// Maximum zoom level at which to create vector tiles (higher means
   /// greater detail at high zoom levels).
@@ -453,7 +453,7 @@ class GeojsonSource implements Source {
   /// ["get", "sum"]], ["get", "scalerank"]]}`
   ///
   /// Type: *
-  final Map<String, dynamic>? clusterProperties;
+  final Object? clusterProperties;
 
   /// Whether to calculate line distance metrics. This is required for line
   /// layers that specify `line-gradient` values.

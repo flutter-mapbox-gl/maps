@@ -825,4 +825,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     // TODO: implement addRasterLayer
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> addHillshadeLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) {
+    // TODO: implement addHillshadeLayer
+    throw UnimplementedError();
+  }
 }
