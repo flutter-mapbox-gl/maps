@@ -811,7 +811,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addSource(String sourceId, Source source) async {
+  Future<void> addSource(String sourceId, SourceProperties source) async {
     await _channel.invokeMethod('source#add', <String, dynamic>{
       'sourceId': sourceId,
       'source': source.toJson(),

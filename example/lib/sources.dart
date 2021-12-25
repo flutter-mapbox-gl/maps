@@ -45,7 +45,7 @@ class FullMapState extends State<FullMap> {
   static Future<void> addWatercolor(MapboxMapController controller) async {
     await controller.addSource(
       "watercolor",
-      RasterSource(
+      RasterSourceProperties(
           tiles: [
             'https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg'
           ],
@@ -60,7 +60,7 @@ class FullMapState extends State<FullMap> {
   static Future<void> addEarthQuakes(MapboxMapController controller) async {
     await controller.addSource(
         "earthquakes",
-        GeojsonSource(
+        GeojsonSourceProperties(
             data:
                 'https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson',
             cluster: true,
@@ -101,7 +101,7 @@ class FullMapState extends State<FullMap> {
   static Future<void> addContour(MapboxMapController controller) async {
     await controller.addSource(
         "terrain",
-        VectorSource(
+        VectorSourceProperties(
           url: "mapbox://mapbox.mapbox-terrain-v2",
         ));
 
@@ -120,7 +120,7 @@ class FullMapState extends State<FullMap> {
   static Future<void> addImage(MapboxMapController controller) async {
     await controller.addSource(
         "radar",
-        ImageSource(
+        ImageSourceProperties(
             url: "https://docs.mapbox.com/mapbox-gl-js/assets/radar.gif",
             coordinates: [
               [-80.425, 46.437],
@@ -139,7 +139,7 @@ class FullMapState extends State<FullMap> {
   static Future<void> addVideo(MapboxMapController controller) async {
     await controller.addSource(
         "video",
-        VideoSource(urls: [
+        VideoSourceProperties(urls: [
           'https://static-assets.mapbox.com/mapbox-gl-js/drone.mp4',
           'https://static-assets.mapbox.com/mapbox-gl-js/drone.webm'
         ], coordinates: [
@@ -158,7 +158,9 @@ class FullMapState extends State<FullMap> {
 
   static Future<void> addDem(MapboxMapController controller) async {
     await controller.addSource(
-        "dem", RasterDemSource(url: "mapbox://mapbox.mapbox-terrain-dem-v1"));
+        "dem",
+        RasterDemSourceProperties(
+            url: "mapbox://mapbox.mapbox-terrain-dem-v1"));
 
     await controller.addLayer(
       "dem",

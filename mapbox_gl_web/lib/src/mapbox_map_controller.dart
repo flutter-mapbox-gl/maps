@@ -906,7 +906,7 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  Future<void> addSource(String sourceId, Source source) async {
+  Future<void> addSource(String sourceId, SourceProperties source) async {
     _map.addSource(sourceId, source.toJson());
   }
 

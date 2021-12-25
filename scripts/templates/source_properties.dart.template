@@ -3,12 +3,12 @@
 
 part of mapbox_gl_platform_interface;
 
-abstract class Source {
+abstract class SourceProperties {
   Map<String, dynamic> toJson();
 }
 {{#sourceTypes}}
 
-class {{typePascal}}Source implements Source {
+class {{typePascal}}SourceProperties implements SourceProperties {
   {{#properties}}
   {{#docSplit}}
   /// {{{part}}}
@@ -16,7 +16,7 @@ class {{typePascal}}Source implements Source {
   final {{{type}}}? {{valueAsCamelCase}};
 
   {{/properties}}
-  const {{typePascal}}Source({
+  const {{typePascal}}SourceProperties({
     {{#properties}}
     {{^hasDefault}}
     this.{{valueAsCamelCase}},
@@ -27,10 +27,14 @@ class {{typePascal}}Source implements Source {
     {{/properties}}
   });
 
-  {{typePascal}}Source copyWith({{typePascal}}Source changes) {
-    return {{typePascal}}Source(
+  {{typePascal}}SourceProperties copyWith(
       {{#properties}}
-      {{valueAsCamelCase}}: changes.{{valueAsCamelCase}} ?? {{valueAsCamelCase}},
+      {{{type}}}? {{valueAsCamelCase}},
+      {{/properties}}
+  ) {
+    return {{typePascal}}SourceProperties(
+      {{#properties}}
+      {{valueAsCamelCase}}: {{valueAsCamelCase}} ?? this.{{valueAsCamelCase}},
       {{/properties}}
     );
   }
@@ -50,8 +54,8 @@ class {{typePascal}}Source implements Source {
     return json;
   }
 
-  factory {{typePascal}}Source.fromJson(Map<String, dynamic> json) {
-    return {{typePascal}}Source(
+  factory {{typePascal}}SourceProperties.fromJson(Map<String, dynamic> json) {
+    return {{typePascal}}SourceProperties(
       {{#properties}}
       {{valueAsCamelCase}}: json['{{value}}'],
       {{/properties}}
