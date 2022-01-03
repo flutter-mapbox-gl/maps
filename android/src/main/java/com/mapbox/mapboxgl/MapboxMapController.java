@@ -819,6 +819,39 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "symbols#updateAllOption": {
+        final List<String> updateSymbolIds = call.argument("symbols");
+        final Object options = call.argument("options");
+
+        if (options != null) {
+          List<Symbol> listSymbols = new ArrayList<>();
+          for (String symbolId : updateSymbolIds) {
+            SymbolController symbol = symbol(symbolId);
+            Convert.interpretSymbolOptions(options, symbol);
+            listSymbols.add(symbol.getSymbol());
+          }
+          symbolManager.update(listSymbols);
+        }
+
+        result.success(null);
+        break;
+      }
+      case "symbols#updateAll": {
+        final List<String> updateSymbolIds = call.argument("symbols");
+        final List<Object> options = call.argument("options");
+
+        int i = 0;
+        List<Symbol> listSymbols = new ArrayList<>();
+        for (String symbolId : updateSymbolIds) {
+            SymbolController symbol = symbol(symbolId);
+            Convert.interpretSymbolOptions(options.get(i++), symbol);
+            listSymbols.add(symbol.getSymbol());
+        }
+        symbolManager.update(listSymbols);
+
+        result.success(null);
+        break;
+      }
       case "symbol#getGeometry": {
         if(symbolManager == null){
           result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "symbol"), null);

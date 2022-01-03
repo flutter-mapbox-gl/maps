@@ -361,6 +361,44 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             result(nil)
+        case "symbols#updateAllOption":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIds = arguments["symbols"] as? [String] else { return }
+
+            var updateSymbols: [MGLSymbolStyleAnnotation] = [];
+            var symbols = symbolAnnotationController.styleAnnotations()
+            for id in symbolIds {
+                var symbol = symbols.first(where: { $0.identifier == id}) as! MGLSymbolStyleAnnotation
+                Convert.interpretSymbolOptions(options: arguments["options"], delegate: symbol)
+                if let options = arguments["options"] as? [String: Any],
+                    let iconImage = options["iconImage"] as? String {
+                    addIconImageToMap(iconImageName: iconImage)
+                }
+                updateSymbols.append(symbol)
+            }
+            symbolAnnotationController.updateStyleAnnotations(updateSymbols)
+            result(nil)
+        case "symbols#updateAll":
+            guard let symbolAnnotationController = symbolAnnotationController else { return }
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let symbolIds = arguments["symbols"] as? [String] else { return }
+            guard let options = arguments["options"] as? [[String: Any]] else {return}
+
+            var updateSymbols: [MGLSymbolStyleAnnotation] = [];
+            var symbols = symbolAnnotationController.styleAnnotations()
+            var i = 0;
+            for id in symbolIds {
+                var symbol = symbols.first(where: { $0.identifier == id}) as! MGLSymbolStyleAnnotation
+                Convert.interpretSymbolOptions(options: options[i], delegate: symbol)
+                if let iconImage = options[i]["iconImage"] as? String {
+                    addIconImageToMap(iconImageName: iconImage)
+                }
+                updateSymbols.append(symbol)
+                i += 1
+            }
+            symbolAnnotationController.updateStyleAnnotations(updateSymbols)
+            result(nil)
         case "symbols#removeAll":
             guard let symbolAnnotationController = symbolAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }

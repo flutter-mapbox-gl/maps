@@ -111,6 +111,16 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('updateSymbol() has not been implemented.');
   }
 
+  Future<void> updateSymbolsOption(
+      List<Symbol> symbols, SymbolOptions change) async {
+    throw UnimplementedError('updateSymbolsOption() has not been implemented.');
+  }
+
+  Future<void> updateSymbols(
+      List<Symbol> symbols, List<SymbolOptions> changes) async {
+    throw UnimplementedError('updateSymbols() has not been implemented.');
+  }
+
   Future<void> removeSymbols(Iterable<String> symbolsIds) async {
     throw UnimplementedError('removeSymbol() has not been implemented.');
   }

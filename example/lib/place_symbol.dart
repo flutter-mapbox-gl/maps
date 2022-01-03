@@ -40,6 +40,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
   int _symbolCount = 0;
   Symbol? _selectedSymbol;
   bool _iconAllowOverlap = false;
+  bool _toggleAllIcons = false;
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
@@ -146,6 +147,24 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
         _symbolCount += symbolOptionsList.length;
       });
     }
+  }
+
+  Future<void> _updateSymbolsOption() async {
+    List<Symbol> symbols = controller!.symbols.toList();
+    SymbolOptions option =
+        SymbolOptions(iconImage: _toggleAllIcons ? 'airport-15' : 'bus');
+    _toggleAllIcons = !_toggleAllIcons;
+    controller!.updateSymbolsOption(symbols, option);
+  }
+
+  Future<void> _updateSymbols() async {
+    List<Symbol> symbols = controller!.symbols.toList();
+    List<SymbolOptions> options = List.generate(
+        symbols.length,
+        (index) =>
+            SymbolOptions(iconImage: _toggleAllIcons ? 'airport-15' : 'bus'));
+    _toggleAllIcons = !_toggleAllIcons;
+    controller!.updateSymbols(symbols, options);
   }
 
   void _remove() {
@@ -354,7 +373,13 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           child: const Text('add (custom font)'),
                           onPressed: () =>
                               (_symbolCount == 12) ? null : _add("customFont"),
-                        )
+                        ),
+                        TextButton(
+                          child: const Text('updateSymbolsOption'),
+                          onPressed: () => (_symbolCount == 12)
+                              ? _updateSymbolsOption()
+                              : null,
+                        ),
                       ],
                     ),
                     Column(
@@ -408,6 +433,11 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           child: const Text('get current LatLng'),
                           onPressed:
                               (_selectedSymbol == null) ? null : _getLatLng,
+                        ),
+                        TextButton(
+                          child: const Text('updateSymbols'),
+                          onPressed: () =>
+                              (_symbolCount == 12) ? _updateSymbols() : null,
                         ),
                       ],
                     ),
