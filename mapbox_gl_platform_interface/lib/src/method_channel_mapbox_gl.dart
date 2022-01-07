@@ -760,6 +760,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       'sourceId': sourceId,
       'layerId': layerId,
       'belowLayerId': belowLayerId,
+      'sourceLayer': sourceLayer,
       'properties': properties
           .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
     });
@@ -773,6 +774,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       'sourceId': sourceId,
       'layerId': layerId,
       'belowLayerId': belowLayerId,
+      'sourceLayer': sourceLayer,
       'properties': properties
           .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
     });
@@ -786,6 +788,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       'sourceId': sourceId,
       'layerId': layerId,
       'belowLayerId': belowLayerId,
+      'sourceLayer': sourceLayer,
       'properties': properties
           .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
     });
@@ -799,6 +802,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       'sourceId': sourceId,
       'layerId': layerId,
       'belowLayerId': belowLayerId,
+      'sourceLayer': sourceLayer,
       'properties': properties
           .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
     });
@@ -811,10 +815,10 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addSource(String sourceId, SourceProperties source) async {
-    await _channel.invokeMethod('source#add', <String, dynamic>{
+  Future<void> addSource(String sourceId, SourceProperties properties) async {
+    await _channel.invokeMethod('style#addSource', <String, dynamic>{
       'sourceId': sourceId,
-      'source': source.toJson(),
+      'properties': properties.toJson(),
     });
   }
 

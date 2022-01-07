@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
@@ -42,7 +43,7 @@ class FullMapState extends State<FullMap> {
     this.controller = controller;
   }
 
-  static Future<void> addWatercolor(MapboxMapController controller) async {
+  static Future<void> addRaster(MapboxMapController controller) async {
     await controller.addSource(
       "watercolor",
       RasterSourceProperties(
@@ -57,7 +58,7 @@ class FullMapState extends State<FullMap> {
         "watercolor", "watercolor", RasterLayerProperties());
   }
 
-  static Future<void> addEarthQuakes(MapboxMapController controller) async {
+  static Future<void> addGeojsonCluster(MapboxMapController controller) async {
     await controller.addSource(
         "earthquakes",
         GeojsonSourceProperties(
@@ -98,7 +99,7 @@ class FullMapState extends State<FullMap> {
         ));
   }
 
-  static Future<void> addContour(MapboxMapController controller) async {
+  static Future<void> addVector(MapboxMapController controller) async {
     await controller.addSource(
         "terrain",
         VectorSourceProperties(
@@ -107,7 +108,7 @@ class FullMapState extends State<FullMap> {
 
     await controller.addLayer(
         "terrain",
-        "earthquakes-circles",
+        "contour",
         LineLayerProperties(
           lineColor: "#ff69b4",
           lineWidth: 1,
@@ -173,42 +174,44 @@ class FullMapState extends State<FullMap> {
 
   static const _stylesAndLoaders = [
     StyleInfo(
-      name: "Contour",
+      name: "Vector",
       baseStyle: MapboxStyles.LIGHT,
-      addDetails: addContour,
+      addDetails: addVector,
       position: CameraPosition(target: LatLng(33.3832, -118.4333), zoom: 12),
     ),
     StyleInfo(
-      name: "Hillshade",
+      name: "Dem",
       baseStyle: MapboxStyles.EMPTY,
       addDetails: addDem,
       position: CameraPosition(target: LatLng(33.5, -118.1), zoom: 8),
     ),
     StyleInfo(
-      name: "Earthquakes",
+      name: "Geojson cluster",
       baseStyle: MapboxStyles.LIGHT,
-      addDetails: addEarthQuakes,
+      addDetails: addGeojsonCluster,
       position: CameraPosition(target: LatLng(33.5, -118.1), zoom: 5),
     ),
     StyleInfo(
-      name: "Watercolor",
+      name: "Raster",
       baseStyle: MapboxStyles.EMPTY,
-      addDetails: addWatercolor,
+      addDetails: addRaster,
       position: CameraPosition(target: LatLng(40, -100), zoom: 3),
     ),
     StyleInfo(
-      name: "Radar",
+      name: "Image",
       baseStyle: MapboxStyles.DARK,
       addDetails: addImage,
       position: CameraPosition(target: LatLng(43, -75), zoom: 6),
     ),
-    StyleInfo(
-      name: "Video",
-      baseStyle: MapboxStyles.SATELLITE,
-      addDetails: addVideo,
-      position: CameraPosition(
-          target: LatLng(37.562984, -122.514426), zoom: 17, bearing: -96),
-    ),
+    //video only supported on web
+    if (kIsWeb)
+      StyleInfo(
+        name: "Video",
+        baseStyle: MapboxStyles.SATELLITE,
+        addDetails: addVideo,
+        position: CameraPosition(
+            target: LatLng(37.562984, -122.514426), zoom: 17, bearing: -96),
+      ),
   ];
 
   _onStyleLoadedCallback() async {
@@ -237,12 +240,29 @@ class FullMapState extends State<FullMap> {
             ),
           ),
         ),
-        body: MapboxMap(
-          styleString: styleInfo.baseStyle,
-          accessToken: MapsDemo.ACCESS_TOKEN,
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: styleInfo.position,
-          onStyleLoadedCallback: _onStyleLoadedCallback,
+        body: Stack(
+          children: [
+            MapboxMap(
+              styleString: styleInfo.baseStyle,
+              accessToken: MapsDemo.ACCESS_TOKEN,
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: styleInfo.position,
+              onStyleLoadedCallback: _onStyleLoadedCallback,
+            ),
+            Container(
+              padding: EdgeInsets.all(8),
+              alignment: Alignment.topCenter,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Current source ${styleInfo.name}",
+                    textScaleFactor: 1.4,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ));
   }
 }
