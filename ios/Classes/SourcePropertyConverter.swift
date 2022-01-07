@@ -2,8 +2,8 @@ import Foundation
 import Mapbox
 
 class SourcePropertyConverter {
-    class func interpretTileOptions(properties: [String: Any])  -> [MGLTileSourceOption : Any] {
-        var options = [MGLTileSourceOption : Any]();
+    class func interpretTileOptions(properties: [String: Any]) -> [MGLTileSourceOption: Any] {
+        var options = [MGLTileSourceOption: Any]()
 
         // if let bounds = properties["bounds"] as? Array<Double> {
         //     options[.coordinateBounds] = boundsFromArray(coordinates: bounds)
@@ -18,54 +18,72 @@ class SourcePropertyConverter {
             options[.tileSize] = Int(tileSize)
         }
         if let scheme = properties["scheme"] as? String {
-            let system: MGLTileCoordinateSystem = (scheme == "tms" ?  .TMS : .XYZ)
+            let system: MGLTileCoordinateSystem = (scheme == "tms" ? .TMS : .XYZ)
             options[.tileCoordinateSystem] = system.rawValue
         }
         return options
-        // TODO attribution not implemneted for IOS
+        // TODO: attribution not implemneted for IOS
     }
 
-    class func buildRasterTileSource(identifier: String, properties: [String: Any]) -> MGLRasterTileSource? {
+    class func buildRasterTileSource(identifier: String,
+                                     properties: [String: Any]) -> MGLRasterTileSource?
+    {
         if let rawUrl = properties["url"] as? String, let url = URL(string: rawUrl) {
             print("url")
-            return MGLRasterTileSource(identifier:identifier, configurationURL: url)
+            return MGLRasterTileSource(identifier: identifier, configurationURL: url)
         }
-        if let tiles = properties["tiles"] as? Array<String> {
+        if let tiles = properties["tiles"] as? [String] {
             print(tiles)
             let options = interpretTileOptions(properties: properties)
             print(options)
-            return MGLRasterTileSource(identifier:identifier, tileURLTemplates: tiles, options: options)
+            return MGLRasterTileSource(
+                identifier: identifier,
+                tileURLTemplates: tiles,
+                options: options
+            )
         }
         return nil
     }
 
-    class func buildVectorTileSource(identifier: String, properties: [String: Any]) -> MGLVectorTileSource?  {
-        if let url = properties["url"] as? String, let url = URL(string: url)  {
-            return MGLVectorTileSource(identifier:identifier, configurationURL: url)
+    class func buildVectorTileSource(identifier: String,
+                                     properties: [String: Any]) -> MGLVectorTileSource?
+    {
+        if let url = properties["url"] as? String, let url = URL(string: url) {
+            return MGLVectorTileSource(identifier: identifier, configurationURL: url)
         }
-        if let tiles = properties["tiles"] as? Array<String> {
-            return MGLVectorTileSource(identifier:identifier, tileURLTemplates: tiles, options: interpretTileOptions(properties: properties))
-        }
-        return nil
-    }
-
-    class func buildRasterDemSource(identifier: String, properties: [String: Any]) -> MGLRasterDEMSource?  {
-        if let url = properties["url"] as? String, let url = URL(string: url)  {
-            return MGLRasterDEMSource(identifier:identifier, configurationURL: url)
-        }
-        if let tiles = properties["tiles"] as? Array<String> {
-            return MGLRasterDEMSource(identifier:identifier, tileURLTemplates: tiles, options: interpretTileOptions(properties: properties))
+        if let tiles = properties["tiles"] as? [String] {
+            return MGLVectorTileSource(
+                identifier: identifier,
+                tileURLTemplates: tiles,
+                options: interpretTileOptions(properties: properties)
+            )
         }
         return nil
     }
 
-    class func interpretShapeOptions(properties: [String: Any]) -> [MGLShapeSourceOption : Any] {
-        var options = [MGLShapeSourceOption : Any]();
+    class func buildRasterDemSource(identifier: String,
+                                    properties: [String: Any]) -> MGLRasterDEMSource?
+    {
+        if let url = properties["url"] as? String, let url = URL(string: url) {
+            return MGLRasterDEMSource(identifier: identifier, configurationURL: url)
+        }
+        if let tiles = properties["tiles"] as? [String] {
+            return MGLRasterDEMSource(
+                identifier: identifier,
+                tileURLTemplates: tiles,
+                options: interpretTileOptions(properties: properties)
+            )
+        }
+        return nil
+    }
+
+    class func interpretShapeOptions(properties: [String: Any]) -> [MGLShapeSourceOption: Any] {
+        var options = [MGLShapeSourceOption: Any]()
 
         if let maxzoom = properties["maxzoom"] as? Double {
             options[.maximumZoomLevel] = maxzoom
         }
-   
+
         if let buffer = properties["buffer"] as? Double {
             options[.buffer] = buffer
         }
@@ -83,34 +101,38 @@ class SourcePropertyConverter {
             options[.maximumZoomLevelForClustering] = clusterMaxZoom
         }
 
-        // TODO clusterProperties not implemneted for IOS
+        // TODO: clusterProperties not implemneted for IOS
 
         if let lineMetrics = properties["lineMetrics"] as? Bool {
             options[.lineDistanceMetrics] = lineMetrics
         }
-        return options;
-
+        return options
     }
 
-    class func buildShapeSource(identifier: String, properties: [String: Any]) -> MGLShapeSource?  {
-        let options = interpretShapeOptions(properties:properties)
-        if let data = properties["data"] as? String, let url = URL(string: data)  {
+    class func buildShapeSource(identifier: String, properties: [String: Any]) -> MGLShapeSource? {
+        let options = interpretShapeOptions(properties: properties)
+        if let data = properties["data"] as? String, let url = URL(string: data) {
             return MGLShapeSource(identifier: identifier, url: url, options: options)
         }
-        if let data = properties["data"]{
+        if let data = properties["data"] {
             do {
                 let geoJsonData = try JSONSerialization.data(withJSONObject: data)
-                let shape = try MGLShape.init(data: geoJsonData, encoding: String.Encoding.utf8.rawValue)
+                let shape = try MGLShape(data: geoJsonData, encoding: String.Encoding.utf8.rawValue)
                 return MGLShapeSource(identifier: identifier, shape: shape, options: options)
-            } catch {
-            }
+            } catch {}
         }
         return nil
     }
 
-     class func buildImageSource(identifier: String, properties: [String: Any]) -> MGLImageSource?  {
-        if let url = properties["url"] as? String, let url = URL(string: url), let coordinates = properties["coordinates"] as? [[Double]] {
-            return MGLImageSource(identifier: identifier, coordinateQuad: quadFromArray(coordinates: coordinates), url: url)
+    class func buildImageSource(identifier: String, properties: [String: Any]) -> MGLImageSource? {
+        if let url = properties["url"] as? String, let url = URL(string: url),
+           let coordinates = properties["coordinates"] as? [[Double]]
+        {
+            return MGLImageSource(
+                identifier: identifier,
+                coordinateQuad: quadFromArray(coordinates: coordinates),
+                url: url
+            )
         }
         return nil
     }
@@ -118,26 +140,40 @@ class SourcePropertyConverter {
     class func addShapeProperties(properties: [String: Any], source: MGLShapeSource) {
         do {
             if let data = properties["data"] as? String {
-                let parsed = try MGLShape.init(data: data.data(using: .utf8)!, encoding: String.Encoding.utf8.rawValue)
+                let parsed = try MGLShape(
+                    data: data.data(using: .utf8)!,
+                    encoding: String.Encoding.utf8.rawValue
+                )
                 source.shape = parsed
             }
-        } catch {
-        }
+        } catch {}
     }
 
     class func quadFromArray(coordinates: [[Double]]) -> MGLCoordinateQuad {
         return MGLCoordinateQuad(
-                topLeft: CLLocationCoordinate2D(latitude: coordinates[0][1], longitude: coordinates[0][0]),
-                bottomLeft: CLLocationCoordinate2D( latitude: coordinates[3][1], longitude: coordinates[3][0]),
-                bottomRight: CLLocationCoordinate2D( latitude: coordinates[2][1], longitude: coordinates[2][0]),
-                topRight: CLLocationCoordinate2D( latitude: coordinates[1][1], longitude: coordinates[1][0])
+            topLeft: CLLocationCoordinate2D(
+                latitude: coordinates[0][1],
+                longitude: coordinates[0][0]
+            ),
+            bottomLeft: CLLocationCoordinate2D(
+                latitude: coordinates[3][1],
+                longitude: coordinates[3][0]
+            ),
+            bottomRight: CLLocationCoordinate2D(
+                latitude: coordinates[2][1],
+                longitude: coordinates[2][0]
+            ),
+            topRight: CLLocationCoordinate2D(
+                latitude: coordinates[1][1],
+                longitude: coordinates[1][0]
             )
+        )
     }
 
-     class func boundsFromArray(coordinates: [Double]) -> MGLCoordinateBounds {
+    class func boundsFromArray(coordinates: [Double]) -> MGLCoordinateBounds {
         return MGLCoordinateBounds(
-                sw: CLLocationCoordinate2D( latitude: coordinates[1], longitude: coordinates[0]),
-                ne: CLLocationCoordinate2D( latitude: coordinates[3], longitude: coordinates[2])
-            )
+            sw: CLLocationCoordinate2D(latitude: coordinates[1], longitude: coordinates[0]),
+            ne: CLLocationCoordinate2D(latitude: coordinates[3], longitude: coordinates[2])
+        )
     }
 }
