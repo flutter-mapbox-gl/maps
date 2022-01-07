@@ -33,6 +33,8 @@ const renamedIosProperties = {
   "rasterHueRotate": "rasterHueRotation",
   "rasterResampling": "rasterResamplingMode",
   "visibility": "isVisible",
+  "rasterBrightnessMin": "minimumRasterBrightness",
+  "rasterBrightnessMax": "maximumRasterBrightness",
 };
 
 const dartTypeMappingTable = {
@@ -42,5 +44,15 @@ const dartTypeMappingTable = {
   "enum": "String",
   "promoteId": "String",
   "boolean": "bool",
+  "*": "Object"
+};
+
+const swiftTypeMappingTable = {
+  "string": "String",
+  "array": "Array",
+  "number": "Double",
+  "enum": "String",
+  "promoteId": "String",
+  "boolean": "Bool",
   "*": "Object"
 };

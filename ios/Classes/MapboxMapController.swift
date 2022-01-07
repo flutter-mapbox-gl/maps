@@ -634,6 +634,24 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             )
             result(nil)
 
+        // case "hillshadeLayer#add":
+        //     guard let arguments = methodCall.arguments as? [String: Any] else { return }
+        //     guard let sourceId = arguments["sourceId"] as? String else { return }
+        //     guard let layerId = arguments["layerId"] as? String else { return }
+        //     guard let properties = arguments["properties"] as? [String: String] else { return }
+        //     let belowLayerId = arguments["belowLayerId"] as? String
+        //     addHillshadeLayer(sourceId: sourceId, layerId: layerId, belowLayerId: belowLayerId, properties: properties)
+        //     result(nil)
+
+        // case "rasterLayer#add":
+        //     guard let arguments = methodCall.arguments as? [String: Any] else { return }
+        //     guard let sourceId = arguments["sourceId"] as? String else { return }
+        //     guard let layerId = arguments["layerId"] as? String else { return }
+        //     guard let properties = arguments["properties"] as? [String: String] else { return }
+        //     let belowLayerId = arguments["belowLayerId"] as? String
+        //     addRasterLayer(sourceId: sourceId, layerId: layerId, belowLayerId: belowLayerId, properties: properties)
+        //     result(nil)
+
         case "line#getGeometry":
             guard let lineAnnotationController = lineAnnotationController else { return }
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
@@ -895,14 +913,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
             guard let geojson = arguments["geojson"] as? String else { return }
-            addSource(sourceId: sourceId, geojson: geojson)
+            addSourceGeojson(sourceId: sourceId, geojson: geojson)
             result(nil)
 
         case "style#addSource":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
-            guard let geojson = arguments["geojson"] as? String else { return }
-            addSource(sourceId: sourceId, geojson: geojson)
+            guard let properties = arguments["geojson"] as? [String: Any] else { return }
+            addSource(sourceId: sourceId, properties: properties)
             result(nil)
 
 
@@ -1322,7 +1340,61 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
-    func mapViewDidBecomeIdle(_: MGLMapView) {
+    // func addHillshadeLayer(sourceId: String, layerId: String, belowLayerId: String?, properties: [String: String]) {
+    //     if let style = mapView.style {
+    //         if let source = style.source(withIdentifier: sourceId) {
+    //             let layer = MGLHillshadeStyleLayer(identifier: layerId, source: source)
+    //             LayerPropertyConverter.addHillshadeProperties(hillshadeLayer: layer, properties: properties)
+    //             if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id)  {
+    //                 style.insertLayer(layer, below: belowLayer)
+    //             } else {
+    //                 style.addLayer(layer)
+    //             }
+    //             featureLayerIdentifiers.insert(layerId)
+    //         }
+    //     }
+    // }
+
+    // func addRasterLayer(sourceId: String, layerId: String, belowLayerId: String?, properties: [String: String]) {
+    //     if let style = mapView.style {
+    //         if let source = style.source(withIdentifier: sourceId) {
+    //             let layer = MGLRasterStyleLayer(identifier: layerId, source: source)
+    //             LayerPropertyConverter.addRasterProperties(rasterLayer: layer, properties: properties)
+    //             if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id)  {
+    //                 style.insertLayer(layer, below: belowLayer)
+    //             } else {
+    //                 style.addLayer(layer)
+    //             }
+    //             featureLayerIdentifiers.insert(layerId)
+    //         }
+    //     }
+
+    func addSource(sourceId: String, properties: [String: Any]) {
+        if let style = mapView.style,let type = properties["type"] as? String   {
+            var source: MGLSource? = nil
+
+            switch type {
+            case "vector":
+                source = SourcePropertyConverter.buildVectorTileSource(identifier:sourceId,properties: properties)
+            case "raster":
+                source = SourcePropertyConverter.buildRasterTileSource(identifier:sourceId,properties: properties)
+            case "raster-dem":
+                source = SourcePropertyConverter.buildRasterDemSource(identifier:sourceId,properties: properties)
+            case "image":
+                source = SourcePropertyConverter.buildImageSource(identifier:sourceId,properties: properties)
+            case "geojson":
+                source = SourcePropertyConverter.buildShapeSource(identifier:sourceId,properties: properties)
+            default:
+                // unsupported source type
+                source = nil
+           }
+           if let source = source  {
+                style.addSource(source)
+           }
+        }
+    }
+
+    func mapViewDidBecomeIdle(_ mapView: MGLMapView) {
         if let channel = channel {
             channel.invokeMethod("map#onIdle", arguments: [])
         }
@@ -1351,8 +1423,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             channel.invokeMethod("camera#onIdle", arguments: arguments)
         }
     }
-
-    func addSource(sourceId: String, geojson: String) {
+    
+    func addSourceGeojson(sourceId: String, geojson: String) {
         do {
             let parsed = try MGLShape(
                 data: geojson.data(using: .utf8)!,

@@ -262,10 +262,10 @@ class LayerPropertyConverter {
                     rasterLayer.rasterHueRotation = expression;
                 break;
                 case "raster-brightness-min":
-                    rasterLayer.rasterBrightnessMin = expression;
+                    rasterLayer.minimumRasterBrightness = expression;
                 break;
                 case "raster-brightness-max":
-                    rasterLayer.rasterBrightnessMax = expression;
+                    rasterLayer.maximumRasterBrightness = expression;
                 break;
                 case "raster-saturation":
                     rasterLayer.rasterSaturation = expression;

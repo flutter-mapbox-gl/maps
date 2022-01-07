@@ -821,16 +821,26 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> addRasterLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId, String? sourceLayer}) {
-    // TODO: implement addRasterLayer
-    throw UnimplementedError();
+      {String? belowLayerId, String? sourceLayer}) async {
+    await _channel.invokeMethod('rasterLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
   }
 
   @override
   Future<void> addHillshadeLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId, String? sourceLayer}) {
-    // TODO: implement addHillshadeLayer
-    throw UnimplementedError();
+      {String? belowLayerId, String? sourceLayer}) async {
+    await _channel.invokeMethod('hillshadeLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
   }
 }

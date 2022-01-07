@@ -1016,7 +1016,7 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Add a new source to the map
-  Future<void> addSource(String sourceid, Source source) async {
+  Future<void> addSource(String sourceid, SourceProperties source) async {
     return _mapboxGlPlatform.addSource(sourceid, source);
   }
 

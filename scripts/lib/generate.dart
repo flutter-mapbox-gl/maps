@@ -119,8 +119,13 @@ List<Map<String, dynamic>> buildSourceProperties(
 Map<String, dynamic> buildSourceProperty(
     String key, Map<String, dynamic> value) {
   final camelCase = ReCase(key).camelCase;
-  final type = dartTypeMappingTable[value["type"]];
-  final nestedType = dartTypeMappingTable[value["value"]];
+  final typeDart = dartTypeMappingTable[value["type"]];
+  final typeSwift = swiftTypeMappingTable[value["type"]];
+  final nestedTypeDart = dartTypeMappingTable[value["value"]] ??
+      dartTypeMappingTable[value["value"]["type"]];
+  final nestedTypeSwift = swiftTypeMappingTable[value["value"]] ??
+      swiftTypeMappingTable[value["value"]["type"]];
+
   var defaultValue = value["default"];
   if (defaultValue is List) {
     defaultValue = "const" + defaultValue.toString();
@@ -133,7 +138,9 @@ Map<String, dynamic> buildSourceProperty(
     'doc': value["doc"],
     'default': defaultValue,
     'hasDefault': value["default"] != null,
-    'type': nestedType == null ? type : "$type<$nestedType>",
+    'type': nestedTypeDart == null ? typeDart : "$typeDart<$nestedTypeDart>",
+    'typeSwift':
+        nestedTypeSwift == null ? typeSwift : "$typeSwift<$nestedTypeSwift>",
     'docSplit': buildDocSplit(value).map((s) => {"part": s}).toList(),
     'valueAsCamelCase': camelCase
   };
