@@ -632,7 +632,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
-            let sourceLayer = arguments["sourceLayerIdentifier"] as? String
+            let sourceLayer = arguments["sourceLayer"] as? String
             addCircleLayer(
                 sourceId: sourceId,
                 layerId: layerId,
@@ -648,7 +648,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
-            let sourceLayerIdentifier = arguments["sourceLayerIdentifier"] as? String
             addHillshadeLayer(
                 sourceId: sourceId,
                 layerId: layerId,
@@ -1423,7 +1422,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     func addSource(sourceId: String, properties: [String: Any]) {
         if let style = mapView.style, let type = properties["type"] as? String {
             var source: MGLSource?
-            print(type)
 
             switch type {
             case "vector":
@@ -1455,7 +1453,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 // unsupported source type
                 source = nil
             }
-            print(source)
             if let source = source {
                 style.addSource(source)
             }
