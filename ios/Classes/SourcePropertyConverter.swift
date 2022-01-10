@@ -30,13 +30,10 @@ class SourcePropertyConverter {
                                      properties: [String: Any]) -> MGLRasterTileSource?
     {
         if let rawUrl = properties["url"] as? String, let url = URL(string: rawUrl) {
-            print("url")
             return MGLRasterTileSource(identifier: identifier, configurationURL: url)
         }
         if let tiles = properties["tiles"] as? [String] {
-            print(tiles)
             let options = interpretTileOptions(properties: properties)
-            print(options)
             return MGLRasterTileSource(
                 identifier: identifier,
                 tileURLTemplates: tiles,
