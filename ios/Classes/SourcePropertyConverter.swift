@@ -5,9 +5,10 @@ class SourcePropertyConverter {
     class func interpretTileOptions(properties: [String: Any]) -> [MGLTileSourceOption: Any] {
         var options = [MGLTileSourceOption: Any]()
 
-        // if let bounds = properties["bounds"] as? Array<Double> {
-        //     options[.coordinateBounds] = boundsFromArray(coordinates: bounds)
-        // }
+        if let bounds = properties["bounds"] as? [Double] {
+            options[.coordinateBounds] =
+                NSValue(mglCoordinateBounds: boundsFromArray(coordinates: bounds))
+        }
         if let minzoom = properties["minzoom"] as? Double {
             options[.minimumZoomLevel] = minzoom
         }
