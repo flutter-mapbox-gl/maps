@@ -24,6 +24,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 
 import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
 
 
 
@@ -42,7 +43,11 @@ class SourcePropertyConverter{
 
         final Object bounds = data.get("bounds");
         if (bounds != null) {
-            tileSet.setBounds((Float[]) Convert.toList(bounds).toArray(new Float[0]));
+            List<Float> boundsFloat = new ArrayList<Float>();
+            for (Object item : Convert.toList(bounds)) {
+                boundsFloat.add(Convert.toFloat(item));
+            } 
+            tileSet.setBounds(boundsFloat.toArray(new Float[0]));
         }
 
         final Object scheme = data.get("scheme");
@@ -132,7 +137,7 @@ class SourcePropertyConverter{
 
     static ImageSource buildImageSource(String id, Map<String, Object> properties){
         final Object url = properties.get("url");
-        List<LatLng> coordinates = Convert.toLatLngList(properties.get("coordinates"));
+        List<LatLng> coordinates = Convert.toLatLngList(properties.get("coordinates"), true);
         final LatLngQuad quad = new LatLngQuad(coordinates.get(0), coordinates.get(1), coordinates.get(2), coordinates.get(3));
         try{
             final URI uri = new URI(Convert.toString(url));
@@ -196,19 +201,19 @@ class SourcePropertyConverter{
         if(type != null){     
             switch (Convert.toString(type)) {
             case "vector":
-                source = SourcePropertyConverter.buildVectorSource(id, properties);
+                source = buildVectorSource(id, properties);
             break;
             case "raster":
-                source = SourcePropertyConverter.buildRasterSource(id, properties);
+                source = buildRasterSource(id, properties);
             break;
             case "raster-dem":
-                source = SourcePropertyConverter.buildRasterDemSource(id, properties);
+                source = buildRasterDemSource(id, properties);
             break;
             case "image":
-                source = SourcePropertyConverter.buildImageSource(id, properties);
+                source = buildImageSource(id, properties);
             break;
             case "geojson":
-                source = SourcePropertyConverter.buildGeojsonSource(id, properties);
+                source = buildGeojsonSource(id, properties);
             break;
             default:
                 // unsupported source type

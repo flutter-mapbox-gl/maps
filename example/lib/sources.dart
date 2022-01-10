@@ -93,7 +93,7 @@ class FullMapState extends State<FullMap> {
         "earthquakes",
         "earthquakes-count",
         SymbolLayerProperties(
-          textField: '{point_count_abbreviated}',
+          textField: [Expressions.get, 'point_count_abbreviated'],
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
         ));

@@ -72,12 +72,15 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.Layer;
-import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
+
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
 import com.mapbox.mapboxsdk.style.layers.FillLayer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.layers.HillshadeLayer;
+import com.mapbox.mapboxsdk.style.layers.RasterLayer;
+
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
@@ -515,6 +518,40 @@ final class MapboxMapController
     else
     {
       style.addLayer(circleLayer);
+    }
+  }
+
+  private void addRasterLayer(String layerName,
+                            String sourceName,
+                            String belowLayerId,
+                            PropertyValue[] properties,
+                            Expression filter) {
+    RasterLayer layer = new RasterLayer(layerName, sourceName);
+    layer.setProperties(properties);
+
+    if(belowLayerId != null){
+      style.addLayerBelow(layer, belowLayerId);
+    }
+    else
+    {
+      style.addLayer(layer);
+    }
+  }
+
+    private void addHillshadeLayer(String layerName,
+                            String sourceName,
+                            String belowLayerId,
+                            PropertyValue[] properties,
+                            Expression filter) {
+    HillshadeLayer layer = new HillshadeLayer(layerName, sourceName);
+    layer.setProperties(properties);
+
+    if(belowLayerId != null){
+      style.addLayerBelow(layer, belowLayerId);
+    }
+    else
+    {
+      style.addLayer(layer);
     }
   }
 
@@ -1229,6 +1266,24 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "rasterLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final PropertyValue[] properties = LayerPropertyConverter.interpretRasterLayerProperties(call.argument("properties"));
+        addRasterLayer(layerId, sourceId, belowLayerId, properties, null);
+        result.success(null);
+        break;
+      }
+      case "hillshadeLayer#add": {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final PropertyValue[] properties = LayerPropertyConverter.interpretHillshadeLayerProperties(call.argument("properties"));
+        addHillshadeLayer(layerId, sourceId, belowLayerId, properties, null);
+        result.success(null);
+        break;
+      }
       case "locationComponent#getLastLocation": {
         Log.e(TAG, "location component: getLastLocation");
         if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
@@ -1267,7 +1322,7 @@ final class MapboxMapController
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
         }
-        List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"));
+        List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"), false);
         style.addSource(new ImageSource(call.argument("imageSourceId"), new LatLngQuad(coordinates.get(0), coordinates.get(1), coordinates.get(2), coordinates.get(3)), BitmapFactory.decodeByteArray(call.argument("bytes"), 0, call.argument("length"))));
         result.success(null);
         break;

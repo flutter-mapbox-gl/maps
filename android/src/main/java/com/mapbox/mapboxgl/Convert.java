@@ -172,7 +172,7 @@ class Convert {
     return builder.build();
   }
 
-  static List<LatLng> toLatLngList(Object o) {
+  static List<LatLng> toLatLngList(Object o, boolean flippedOrder) {
     if (o == null) {
       return null;
     }
@@ -180,7 +180,12 @@ class Convert {
     List<LatLng> latLngList = new ArrayList<>();
     for (int i=0; i<data.size(); i++) {
       final List<?> coords = toList(data.get(i));
-      latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
+      if(flippedOrder){
+        latLngList.add(new LatLng(toDouble(coords.get(1)), toDouble(coords.get(0))));
+      }
+      else{
+        latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
+      }
     }
     return latLngList;
   }
@@ -192,7 +197,7 @@ class Convert {
     final List<?> data = toList(o);
     List<List<LatLng>> latLngListList = new ArrayList<>();
     for (int i = 0; i < data.size(); i++) {
-      List<LatLng> latLngList = toLatLngList(data.get(i));
+      List<LatLng> latLngList = toLatLngList(data.get(i), false);
       latLngListList.add(latLngList);
     }
     return latLngListList;
@@ -522,7 +527,7 @@ class Convert {
     final Object geometry = data.get("geometry");
     if (geometry != null) {
       Logger.e(TAG, "SetGeometry");
-      sink.setGeometry(toLatLngList(geometry));
+      sink.setGeometry(toLatLngList(geometry, false));
     }
     final Object draggable = data.get("draggable");
     if (draggable != null) {
