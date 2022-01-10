@@ -40,7 +40,9 @@ class MapboxMapController extends MapboxGlPlatform
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
         'plugins.flutter.io/mapbox_gl_$identifier', (int viewId) {
-      _mapElement = DivElement();
+      _mapElement = DivElement()
+        ..style.width = '100%'
+        ..style.height = '100%';
       callback(viewId);
       return _mapElement;
     });
