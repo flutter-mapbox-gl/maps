@@ -433,10 +433,14 @@ final class MapboxMapController
   private void addSymbolLayer(String layerName,
                               String sourceName,
                               String belowLayerId,
+                              String sourceLayer,
                               PropertyValue[] properties,
                               Expression filter) {
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
     symbolLayer.setProperties(properties);
+     if(sourceLayer != null){
+      symbolLayer.setSourceLayer(sourceLayer);
+    }
 
     if(belowLayerId != null){
       style.addLayerBelow(symbolLayer, belowLayerId);
@@ -451,10 +455,15 @@ final class MapboxMapController
   private void addLineLayer(String layerName,
                             String sourceName,
                             String belowLayerId,
+                            String sourceLayer,
                             PropertyValue[] properties,
                             Expression filter) {
     LineLayer lineLayer = new LineLayer(layerName, sourceName);
     lineLayer.setProperties(properties);
+     if(sourceLayer != null){
+      lineLayer.setSourceLayer(sourceLayer);
+    }
+
     if(belowLayerId != null){
       style.addLayerBelow(lineLayer, belowLayerId);
     }
@@ -468,10 +477,14 @@ final class MapboxMapController
   private void addFillLayer(String layerName,
                             String sourceName,
                             String belowLayerId,
+                            String sourceLayer,
                             PropertyValue[] properties,
                             Expression filter) {
     FillLayer fillLayer = new FillLayer(layerName, sourceName);
     fillLayer.setProperties(properties);
+    if(sourceLayer != null){
+      fillLayer.setSourceLayer(sourceLayer);
+    }
 
     if(belowLayerId != null){
       style.addLayerBelow(fillLayer, belowLayerId);
@@ -486,10 +499,14 @@ final class MapboxMapController
   private void addCircleLayer(String layerName,
                             String sourceName,
                             String belowLayerId,
+                            String sourceLayer,
                             PropertyValue[] properties,
                             Expression filter) {
     CircleLayer circleLayer = new CircleLayer(layerName, sourceName);
     circleLayer.setProperties(properties);
+    if(sourceLayer != null){
+      circleLayer.setSourceLayer(sourceLayer);
+    }
 
     featureLayerIdentifiers.add(layerName);
     if(belowLayerId != null){
@@ -1176,8 +1193,9 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
         final PropertyValue[] properties = LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
-        addSymbolLayer(layerId, sourceId, belowLayerId, properties, null);
+        addSymbolLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, null);
         result.success(null);
         break;
       }
@@ -1185,8 +1203,9 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
         final PropertyValue[] properties = LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
-        addLineLayer(layerId, sourceId, belowLayerId, properties, null);
+        addLineLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, null);
         result.success(null);
         break;
       }
@@ -1194,8 +1213,9 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
         final PropertyValue[] properties = LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
-        addFillLayer(layerId, sourceId, belowLayerId, properties, null);
+        addFillLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, null);
         result.success(null);
         break;
       }
@@ -1203,8 +1223,9 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
         final PropertyValue[] properties = LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
-        addCircleLayer(layerId, sourceId, belowLayerId, properties, null);
+        addCircleLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, null);
         result.success(null);
         break;
       }
@@ -1251,6 +1272,14 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "style#addSource":{
+        final String id = Convert.toString(call.argument("sourceId"));
+        final Map<String, Object> properties = (Map<String, Object>) call.argument("properties");
+        SourcePropertyConverter.addSource(id, properties, style);
+        result.success(null);
+        break;
+      }
+      
       case "style#removeSource": {
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
