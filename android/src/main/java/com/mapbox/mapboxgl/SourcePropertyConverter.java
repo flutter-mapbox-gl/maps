@@ -123,14 +123,17 @@ class SourcePropertyConverter{
         final Object data = properties.get("data");
         final GeoJsonOptions options = buildGeojsonOptions(properties);
         if(data != null){
-            try{
-                final URI uri = new URI(Convert.toString(data));
-                return new GeoJsonSource(id, uri, options);
-            }catch (URISyntaxException e){}
-            Gson gson = new Gson(); 
-            String geojson = gson.toJson(data); 
-            final FeatureCollection featureCollection = FeatureCollection.fromJson(geojson);
-            return new GeoJsonSource(id, featureCollection, options);
+            if(data instanceof String){
+                try{
+                    final URI uri = new URI(Convert.toString(data));
+                    return new GeoJsonSource(id, uri, options);
+                }catch (URISyntaxException e){}
+            }else{
+                Gson gson = new Gson(); 
+                String geojson = gson.toJson(data); 
+                final FeatureCollection featureCollection = FeatureCollection.fromJson(geojson);
+                return new GeoJsonSource(id, featureCollection, options);
+            }
         }
         return null;
     }
@@ -152,7 +155,6 @@ class SourcePropertyConverter{
         if(url != null)
         {
             final Uri uri = Uri.parse(Convert.toString(url));
-            Log.e(TAG, "buildVectorSource " +  Convert.toString(url));
             
             if(uri != null){
                 return new VectorSource(id, uri);
@@ -195,8 +197,6 @@ class SourcePropertyConverter{
     static void addSource(String id, Map<String, Object> properties, Style style) {
         final Object type = properties.get("type");
         Source source = null;
-        Log.e(TAG, "addSource " +  Convert.toString(type));
-        Log.e(TAG, properties.toString());
 
         if(type != null){     
             switch (Convert.toString(type)) {
@@ -221,7 +221,6 @@ class SourcePropertyConverter{
         }
 
         if (source != null) {
-            Log.e(TAG, source.toString());
             style.addSource(source);
         }
     }
