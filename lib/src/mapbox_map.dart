@@ -116,7 +116,7 @@ class MapboxMap extends StatefulWidget {
   /// True if the map view should respond to tilt gestures.
   final bool tiltGesturesEnabled;
 
-  /// Set to true to forcefully disable/enable if map should respond with double
+  /// Set to true to forcefully disable/enable if map should respond to double
   /// click to zoom.
   ///
   /// This takes presedence over zoomGesturesEnabled. Only supported for web.
@@ -446,6 +446,10 @@ class _MapboxMapOptions {
   Map<String, dynamic> updatesMap(_MapboxMapOptions newOptions) {
     final Map<String, dynamic> prevOptionsMap = toMap();
     final newOptionsMap = newOptions.toMap();
+
+    // if any gesture is updated also all other gestures have to the saved to
+    // the update
+
     final gesturesRequireUpdate =
         _gestureGroup.any((key) => newOptionsMap[key] != prevOptionsMap[key]);
 
