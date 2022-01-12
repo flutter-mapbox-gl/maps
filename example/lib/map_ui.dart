@@ -391,15 +391,7 @@ class MapUiBodyState extends State<MapUiBody> {
       },
     );
 
-    final List<Widget> listViewChildren = <Widget>[
-      Center(
-        child: SizedBox(
-          width: _mapExpanded ? null : 300.0,
-          height: 200.0,
-          child: mapboxMap,
-        ),
-      ),
-    ];
+    final List<Widget> listViewChildren = <Widget>[];
 
     if (mapController != null) {
       listViewChildren.addAll(
@@ -428,8 +420,22 @@ class MapUiBodyState extends State<MapUiBody> {
         ],
       );
     }
-    return ListView(
-      children: listViewChildren,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Center(
+          child: SizedBox(
+            width: _mapExpanded ? null : 300.0,
+            height: 200.0,
+            child: mapboxMap,
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            children: listViewChildren,
+          ),
+        )
+      ],
     );
   }
 
