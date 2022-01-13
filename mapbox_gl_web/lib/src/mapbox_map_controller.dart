@@ -911,7 +911,7 @@ class MapboxMapController extends MapboxGlPlatform
       _map.dragRotate.disable();
     }
   }
-  
+
   @override
   Future<void> addSource(String sourceId, SourceProperties source) async {
     _map.addSource(sourceId, source.toJson());
