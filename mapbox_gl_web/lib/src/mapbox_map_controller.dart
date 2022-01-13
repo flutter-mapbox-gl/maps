@@ -291,11 +291,14 @@ class MapboxMapController extends MapboxGlPlatform
     if (filter != null) {
       options['filter'] = filter;
     }
+
+    // avoid issues with the js point type
+    final pointAsList = [point.x, point.y];
     return _map
-        .queryRenderedFeatures([point, point], options)
+        .queryRenderedFeatures([pointAsList, pointAsList], options)
         .map((feature) => {
               'type': 'Feature',
-              'id': feature.id as int?,
+              'id': feature.id,
               'geometry': {
                 'type': feature.geometry.type,
                 'coordinates': feature.geometry.coordinates,
@@ -318,8 +321,8 @@ class MapboxMapController extends MapboxGlPlatform
     }
     return _map
         .queryRenderedFeatures([
-          Point(rect.left, rect.bottom),
-          Point(rect.right, rect.top),
+          [rect.left, rect.bottom],
+          [rect.right, rect.top],
         ], options)
         .map((feature) => {
               'type': 'Feature',
@@ -697,30 +700,6 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  void setRotateGesturesEnabled(bool rotateGesturesEnabled) {
-    if (rotateGesturesEnabled) {
-      _map.dragRotate.enable();
-      _map.touchZoomRotate.enableRotation();
-      _map.keyboard.enable();
-    } else {
-      _map.dragRotate.disable();
-      _map.touchZoomRotate.disableRotation();
-      _map.keyboard.disable();
-    }
-  }
-
-  @override
-  void setScrollGesturesEnabled(bool scrollGesturesEnabled) {
-    if (scrollGesturesEnabled) {
-      _map.dragPan.enable();
-      _map.keyboard.enable();
-    } else {
-      _map.dragPan.disable();
-      _map.keyboard.disable();
-    }
-  }
-
-  @override
   void setStyleString(String? styleString) {
     //remove old mouseenter callbacks to avoid multicalling
     for (var layerId in _featureLayerIdentifiers) {
@@ -738,36 +717,8 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  void setTiltGesturesEnabled(bool tiltGesturesEnabled) {
-    if (tiltGesturesEnabled) {
-      _map.dragRotate.enable();
-      _map.keyboard.enable();
-    } else {
-      _map.dragRotate.disable();
-      _map.keyboard.disable();
-    }
-  }
-
-  @override
   void setTrackCameraPosition(bool trackCameraPosition) {
     _trackCameraPosition = trackCameraPosition;
-  }
-
-  @override
-  void setZoomGesturesEnabled(bool zoomGesturesEnabled) {
-    if (zoomGesturesEnabled) {
-      _map.doubleClickZoom.enable();
-      _map.boxZoom.enable();
-      _map.scrollZoom.enable();
-      _map.touchZoomRotate.enable();
-      _map.keyboard.enable();
-    } else {
-      _map.doubleClickZoom.disable();
-      _map.boxZoom.disable();
-      _map.scrollZoom.disable();
-      _map.touchZoomRotate.disable();
-      _map.keyboard.disable();
-    }
   }
 
   @override
@@ -905,6 +856,60 @@ class MapboxMapController extends MapboxGlPlatform
 
   void _onMouseLeaveFeature(_) {
     _map.getCanvas().style.cursor = '';
+  }
+
+  @override
+  void setGestures(
+      {required bool rotateGesturesEnabled,
+      required bool scrollGesturesEnabled,
+      required bool tiltGesturesEnabled,
+      required bool zoomGesturesEnabled,
+      required bool doubleClickZoomEnabled}) {
+    if (rotateGesturesEnabled &&
+        scrollGesturesEnabled &&
+        tiltGesturesEnabled &&
+        zoomGesturesEnabled) {
+      _map.keyboard.enable();
+    } else {
+      _map.keyboard.disable();
+    }
+
+    if (scrollGesturesEnabled) {
+      _map.dragPan.enable();
+    } else {
+      _map.dragPan.disable();
+    }
+
+    if (zoomGesturesEnabled) {
+      _map.doubleClickZoom.enable();
+      _map.boxZoom.enable();
+      _map.scrollZoom.enable();
+      _map.touchZoomRotate.enable();
+    } else {
+      _map.doubleClickZoom.disable();
+      _map.boxZoom.disable();
+      _map.scrollZoom.disable();
+      _map.touchZoomRotate.disable();
+    }
+
+    if (doubleClickZoomEnabled) {
+      _map.doubleClickZoom.enable();
+    } else {
+      _map.doubleClickZoom.disable();
+    }
+
+    if (rotateGesturesEnabled) {
+      _map.touchZoomRotate.enableRotation();
+    } else {
+      _map.touchZoomRotate.disableRotation();
+    }
+
+    // dragRotate is shared by both gestures
+    if (tiltGesturesEnabled && rotateGesturesEnabled) {
+      _map.dragRotate.enable();
+    } else {
+      _map.dragRotate.disable();
+    }
   }
 
   @override

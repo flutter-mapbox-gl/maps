@@ -5,6 +5,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
@@ -61,6 +62,7 @@ class MapUiBodyState extends State<MapUiBody> {
   ];
   bool _rotateGesturesEnabled = true;
   bool _scrollGesturesEnabled = true;
+  bool? _doubleClickToZoomEnabled;
   bool _tiltGesturesEnabled = true;
   bool _zoomGesturesEnabled = true;
   bool _myLocationEnabled = true;
@@ -214,6 +216,28 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  Widget _doubleClickToZoomToggler() {
+    final stateInfo = _doubleClickToZoomEnabled == null
+        ? "disable"
+        : _doubleClickToZoomEnabled!
+            ? 'unset'
+            : 'enable';
+    return TextButton(
+      child: Text('$stateInfo double click to zoom'),
+      onPressed: () {
+        setState(() {
+          if (_doubleClickToZoomEnabled == null) {
+            _doubleClickToZoomEnabled = false;
+          } else if (!_doubleClickToZoomEnabled!) {
+            _doubleClickToZoomEnabled = true;
+          } else {
+            _doubleClickToZoomEnabled = null;
+          }
+        });
+      },
+    );
+  }
+
   Widget _tiltToggler() {
     return TextButton(
       child: Text('${_tiltGesturesEnabled ? 'disable' : 'enable'} tilt'),
@@ -282,10 +306,11 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   _drawFill(List<dynamic> features) async {
-    Map<String, dynamic> feature = features[0];
-    if (feature['geometry']['type'] == 'Polygon') {
-      var coordinates = feature['geometry']['coordinates'];
-      List<List<LatLng>> geometry = coordinates
+    Map<String, dynamic>? feature =
+        features.firstWhereOrNull((f) => f['geometry']['type'] == 'Polygon');
+
+    if (feature != null) {
+      List<List<LatLng>> geometry = feature['geometry']['coordinates']
           .map(
               (ll) => ll.map((l) => LatLng(l[1], l[0])).toList().cast<LatLng>())
           .toList()
@@ -317,6 +342,7 @@ class MapUiBodyState extends State<MapUiBody> {
       scrollGesturesEnabled: _scrollGesturesEnabled,
       tiltGesturesEnabled: _tiltGesturesEnabled,
       zoomGesturesEnabled: _zoomGesturesEnabled,
+      doubleClickZoomEnabled: _doubleClickToZoomEnabled,
       myLocationEnabled: _myLocationEnabled,
       myLocationTrackingMode: _myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
@@ -365,15 +391,7 @@ class MapUiBodyState extends State<MapUiBody> {
       },
     );
 
-    final List<Widget> listViewChildren = <Widget>[
-      Center(
-        child: SizedBox(
-          width: _mapExpanded ? null : 300.0,
-          height: 200.0,
-          child: mapboxMap,
-        ),
-      ),
-    ];
+    final List<Widget> listViewChildren = <Widget>[];
 
     if (mapController != null) {
       listViewChildren.addAll(
@@ -393,6 +411,7 @@ class MapUiBodyState extends State<MapUiBody> {
           _zoomBoundsToggler(),
           _rotateToggler(),
           _scrollToggler(),
+          _doubleClickToZoomToggler(),
           _tiltToggler(),
           _zoomToggler(),
           _myLocationToggler(),
@@ -401,8 +420,22 @@ class MapUiBodyState extends State<MapUiBody> {
         ],
       );
     }
-    return ListView(
-      children: listViewChildren,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Center(
+          child: SizedBox(
+            width: _mapExpanded ? null : 300.0,
+            height: 200.0,
+            child: mapboxMap,
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            children: listViewChildren,
+          ),
+        )
+      ],
     );
   }
 

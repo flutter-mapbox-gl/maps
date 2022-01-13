@@ -24,6 +24,7 @@ class MapboxMap extends StatefulWidget {
     this.scrollGesturesEnabled = true,
     this.zoomGesturesEnabled = true,
     this.tiltGesturesEnabled = true,
+    this.doubleClickZoomEnabled,
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.None,
@@ -114,6 +115,12 @@ class MapboxMap extends StatefulWidget {
 
   /// True if the map view should respond to tilt gestures.
   final bool tiltGesturesEnabled;
+
+  /// Set to true to forcefully disable/enable if map should respond to double
+  /// click to zoom.
+  ///
+  /// This takes presedence over zoomGesturesEnabled. Only supported for web.
+  final bool? doubleClickZoomEnabled;
 
   /// True if you want to be notified of map camera movements by the MapboxMapController. Default is false.
   ///
@@ -311,11 +318,12 @@ class _MapboxMapOptions {
     this.cameraTargetBounds,
     this.styleString,
     this.minMaxZoomPreference,
-    this.rotateGesturesEnabled,
-    this.scrollGesturesEnabled,
-    this.tiltGesturesEnabled,
+    required this.rotateGesturesEnabled,
+    required this.scrollGesturesEnabled,
+    required this.tiltGesturesEnabled,
+    required this.zoomGesturesEnabled,
+    required this.doubleClickZoomEnabled,
     this.trackCameraPosition,
-    this.zoomGesturesEnabled,
     this.myLocationEnabled,
     this.myLocationTrackingMode,
     this.myLocationRenderMode,
@@ -337,6 +345,8 @@ class _MapboxMapOptions {
       tiltGesturesEnabled: map.tiltGesturesEnabled,
       trackCameraPosition: map.trackCameraPosition,
       zoomGesturesEnabled: map.zoomGesturesEnabled,
+      doubleClickZoomEnabled:
+          map.doubleClickZoomEnabled ?? map.zoomGesturesEnabled,
       myLocationEnabled: map.myLocationEnabled,
       myLocationTrackingMode: map.myLocationTrackingMode,
       myLocationRenderMode: map.myLocationRenderMode,
@@ -356,15 +366,17 @@ class _MapboxMapOptions {
 
   final MinMaxZoomPreference? minMaxZoomPreference;
 
-  final bool? rotateGesturesEnabled;
+  final bool rotateGesturesEnabled;
 
-  final bool? scrollGesturesEnabled;
+  final bool scrollGesturesEnabled;
 
-  final bool? tiltGesturesEnabled;
+  final bool tiltGesturesEnabled;
+
+  final bool zoomGesturesEnabled;
+
+  final bool doubleClickZoomEnabled;
 
   final bool? trackCameraPosition;
-
-  final bool? zoomGesturesEnabled;
 
   final bool? myLocationEnabled;
 
@@ -381,6 +393,14 @@ class _MapboxMapOptions {
   final AttributionButtonPosition? attributionButtonPosition;
 
   final Point? attributionButtonMargins;
+
+  final _gestureGroup = {
+    'rotateGesturesEnabled',
+    'scrollGesturesEnabled',
+    'tiltGesturesEnabled',
+    'zoomGesturesEnabled',
+    'doubleClickZoomEnabled'
+  };
 
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> optionsMap = <String, dynamic>{};
@@ -403,10 +423,13 @@ class _MapboxMapOptions {
     addIfNonNull('cameraTargetBounds', cameraTargetBounds?.toJson());
     addIfNonNull('styleString', styleString);
     addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?.toJson());
+
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);
     addIfNonNull('scrollGesturesEnabled', scrollGesturesEnabled);
     addIfNonNull('tiltGesturesEnabled', tiltGesturesEnabled);
     addIfNonNull('zoomGesturesEnabled', zoomGesturesEnabled);
+    addIfNonNull('doubleClickZoomEnabled', doubleClickZoomEnabled);
+
     addIfNonNull('trackCameraPosition', trackCameraPosition);
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
@@ -422,8 +445,22 @@ class _MapboxMapOptions {
 
   Map<String, dynamic> updatesMap(_MapboxMapOptions newOptions) {
     final Map<String, dynamic> prevOptionsMap = toMap();
-    return newOptions.toMap()
-      ..removeWhere(
-          (String key, dynamic value) => prevOptionsMap[key] == value);
+    final newOptionsMap = newOptions.toMap();
+
+    // if any gesture is updated also all other gestures have to the saved to
+    // the update
+
+    final gesturesRequireUpdate =
+        _gestureGroup.any((key) => newOptionsMap[key] != prevOptionsMap[key]);
+
+    return newOptionsMap
+      ..removeWhere((String key, dynamic value) {
+        if (_gestureGroup.contains(key)) return !gesturesRequireUpdate;
+        final oldValue = prevOptionsMap[key];
+        if (oldValue is List && value is List) {
+          return listEquals(oldValue, value);
+        }
+        return oldValue == value;
+      });
   }
 }

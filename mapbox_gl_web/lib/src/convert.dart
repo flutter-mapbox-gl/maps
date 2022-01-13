@@ -26,21 +26,23 @@ class Convert {
       sink.setMinMaxZoomPreference(options['minMaxZoomPreference'][0],
           options['minMaxZoomPreference'][1]);
     }
-    if (options.containsKey('rotateGesturesEnabled')) {
-      sink.setRotateGesturesEnabled(options['rotateGesturesEnabled']);
+    if (options['rotateGesturesEnabled'] != null &&
+        options['scrollGesturesEnabled'] != null &&
+        options['tiltGesturesEnabled'] != null &&
+        options['zoomGesturesEnabled'] != null &&
+        options['doubleClickZoomEnabled'] != null) {
+      sink.setGestures(
+          rotateGesturesEnabled: options['rotateGesturesEnabled'],
+          scrollGesturesEnabled: options['scrollGesturesEnabled'],
+          tiltGesturesEnabled: options['tiltGesturesEnabled'],
+          zoomGesturesEnabled: options['zoomGesturesEnabled'],
+          doubleClickZoomEnabled: options['doubleClickZoomEnabled']);
     }
-    if (options.containsKey('scrollGesturesEnabled')) {
-      sink.setScrollGesturesEnabled(options['scrollGesturesEnabled']);
-    }
-    if (options.containsKey('tiltGesturesEnabled')) {
-      sink.setTiltGesturesEnabled(options['tiltGesturesEnabled']);
-    }
+
     if (options.containsKey('trackCameraPosition')) {
       sink.setTrackCameraPosition(options['trackCameraPosition']);
     }
-    if (options.containsKey('zoomGesturesEnabled')) {
-      sink.setZoomGesturesEnabled(options['zoomGesturesEnabled']);
-    }
+
     if (options.containsKey('myLocationEnabled')) {
       sink.setMyLocationEnabled(options['myLocationEnabled']);
     }
