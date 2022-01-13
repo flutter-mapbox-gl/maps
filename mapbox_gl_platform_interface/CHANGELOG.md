@@ -1,3 +1,8 @@
+## 0.15.0, January 13, 2022
+* Callbacks added to onFeatureTapped will now also get the position (`Point<double>`) and the location (`LatLng`) of the click passed when called [#798](https://github.com/flutter-mapbox-gl/maps/pull/798) 
+* Fix web issues with style loaded, feature tap, add promoteId, pointer change issue [#785](https://github.com/flutter-mapbox-gl/maps/pull/785)
+* Full style source support [#797](https://github.com/flutter-mapbox-gl/maps/pull/797)
+
 ## 0.14.0, November 13, 2021
 * Remove memory leaks by disposing internal components [#706](https://github.com/tobrun/flutter-mapbox-gl/pull/706) 
 * Add support for Layers, properties and expressions backed by GeoJsonSource [#723](https://github.com/tobrun/flutter-mapbox-gl/pull/723)

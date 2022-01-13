@@ -1,7 +1,27 @@
-## 0.15.0, Unreleased
-### Breaking changes
-* callbacks added to onFeatureTapped will now also get the position (`Point<double>`) and the location (`LatLng`) of the click passed when called [#798](https://github.com/flutter-mapbox-gl/maps/pull/798) 
-
+## 0.15.0, January 13, 2022
+* Callbacks added to onFeatureTapped will now also get the position (`Point<double>`) and the location (`LatLng`) of the click passed when called [#798](https://github.com/flutter-mapbox-gl/maps/pull/798) 
+* Fixed layer based feature selection [#765](https://github.com/flutter-mapbox-gl/maps/pull/765)
+* Implement the changePosition function for place_fill example [#778](https://github.com/flutter-mapbox-gl/maps/pull/778)
+* Invoke onPause method of MapView in onPause lifecycle [#782](https://github.com/flutter-mapbox-gl/maps/pull/782)
+* Remove layer before adding layer if layer is added in place example [#766](https://github.com/flutter-mapbox-gl/maps/pull/766)
+* Speed property is null when onUserLocationUpdated is called [#767](https://github.com/flutter-mapbox-gl/maps/pull/767)
+* Improve iOS OnStyleReady reliability [#775](https://github.com/flutter-mapbox-gl/maps/pull/775)
+* Handle line color and geometry [#776](https://github.com/flutter-mapbox-gl/maps/pull/776)
+* Fix web issues with style loaded, feature tap, add promoteId, pointer change issue [#785](https://github.com/flutter-mapbox-gl/maps/pull/785)
+* Fix more issues with style loading [#787](https://github.com/flutter-mapbox-gl/maps/pull/787)
+* Updated settings gradle to new version [#789](https://github.com/flutter-mapbox-gl/maps/pull/789)
+* Remove the callbacks in dispose of example click_annotations dart [#791](https://github.com/flutter-mapbox-gl/maps/pull/791)
+* Add check for Dart formatting [#803](https://github.com/flutter-mapbox-gl/maps/pull/803)
+* Add check for Swift formatting [#804](https://github.com/flutter-mapbox-gl/maps/pull/804)
+* Fixed race condition with map#waitForMap [#808](https://github.com/flutter-mapbox-gl/maps/pull/808)
+* Add option to not use annotations on android [#820](https://github.com/flutter-mapbox-gl/maps/pull/820)
+* Add linepattern in line.dart [#825](https://github.com/flutter-mapbox-gl/maps/pull/825)
+* Respect native scale when adding symbols on iOS [#835](https://github.com/flutter-mapbox-gl/maps/pull/835)
+* Remove unnecessary print of style height and width [#847](https://github.com/flutter-mapbox-gl/maps/pull/847)
+* Android embedding fixes - migrate to maven [#852](https://github.com/flutter-mapbox-gl/maps/pull/852)
+* Full style source support [#797](https://github.com/flutter-mapbox-gl/maps/pull/797)
+* Gesture fixes [#851](https://github.com/flutter-mapbox-gl/maps/pull/851)
+* Fixed issue with return type of remove source on web [#854](https://github.com/flutter-mapbox-gl/maps/pull/854)
 
 ## 0.14.0, November 13, 2021
 * Remove memory leaks by disposing internal components [#706](https://github.com/tobrun/flutter-mapbox-gl/pull/706) 
