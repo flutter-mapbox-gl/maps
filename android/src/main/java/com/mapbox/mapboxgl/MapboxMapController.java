@@ -49,7 +49,6 @@ import com.mapbox.mapboxsdk.location.LocationComponentOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
-import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -82,6 +81,9 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.maps.MapInitOptions;
+import com.mapbox.maps.MapView;
+import com.mapbox.maps.ResourceOptions;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -104,6 +106,8 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
 
+import static com.mapbox.maps.MapInitOptionsKt.applyDefaultParams;
+
 /**
  * Controller of a single MapboxMaps MapView instance.
  */
@@ -113,7 +117,7 @@ final class MapboxMapController
   MapboxMap.OnCameraIdleListener,
   MapboxMap.OnCameraMoveListener,
   MapboxMap.OnCameraMoveStartedListener,
-  MapView.OnDidBecomeIdleListener,
+  com.mapbox.mapboxsdk.maps.MapView.OnDidBecomeIdleListener,
   OnAnnotationClickListener,
   MapboxMap.OnMapClickListener,
   MapboxMap.OnMapLongClickListener,
@@ -130,7 +134,7 @@ final class MapboxMapController
   private final int id;
   private final MethodChannel methodChannel;
   private final MapboxMapsPlugin.LifecycleProvider lifecycleProvider;
-  private MapView mapView;
+  private com.mapbox.maps.MapView mapView;
   private MapboxMap mapboxMap;
   private final Map<String, SymbolController> symbols;
   private final Map<String, LineController> lines;
@@ -175,7 +179,11 @@ final class MapboxMapController
     this.id = id;
     this.context = context;
     this.styleStringInitial = styleStringInitial;
-    this.mapView = new MapView(context, options);
+    ResourceOptions.Builder builder= new  ResourceOptions.Builder();
+    applyDefaultParams(builder, context);
+    ResourceOptions resourceOptions = builder.accessToken(accessToken).build();
+    MapInitOptions mapInitOptions = new MapInitOptions(context,resourceOptions);
+    this.mapView = new MapView(context,mapInitOptions);
     this.featureLayerIdentifiers = new HashSet<>();
     this.symbols = new HashMap<>();
     this.lines = new HashMap<>();
@@ -196,7 +204,6 @@ final class MapboxMapController
 
   void init() {
     lifecycleProvider.getLifecycle().addObserver(this);
-    mapView.getMapAsync(this);
   }
 
   private void moveCamera(CameraUpdate cameraUpdate) {
@@ -283,19 +290,16 @@ final class MapboxMapController
       mapReadyResult.success(null);
       mapReadyResult = null;
     }
-    mapboxMap.addOnCameraMoveStartedListener(this);
-    mapboxMap.addOnCameraMoveListener(this);
-    mapboxMap.addOnCameraIdleListener(this);
 
-    mapView.addOnStyleImageMissingListener((id) -> {
-      DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-      final Bitmap bitmap = getScaledImage(id, displayMetrics.density);
-      if (bitmap != null) {
-        mapboxMap.getStyle().addImage(id, bitmap);
-      }
-    });
-
-    mapView.addOnDidBecomeIdleListener(this);
+//    mapView.addOnStyleImageMissingListener((id) -> {
+//      DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+//      final Bitmap bitmap = getScaledImage(id, displayMetrics.density);
+//      if (bitmap != null) {
+//        mapboxMap.getStyle().addImage(id, bitmap);
+//      }
+//    });
+//
+//    mapView.addOnDidBecomeIdleListener(this);
 
     setStyleString(styleStringInitial);
     // updateMyLocationEnabled();
@@ -327,46 +331,9 @@ final class MapboxMapController
     @Override
     public void onStyleLoaded(@NonNull Style style) {
       MapboxMapController.this.style = style;
-
-      // only add managers once to avoid issues with getLayerId after a style switch
-      if(symbolManager == null && circleManager == null && lineManager == null && fillManager == null)
-      {
-        final List<String> orderReversed = new ArrayList<String>(annotationOrder);
-        Collections.reverse(orderReversed);
-        String belowLayer = null;
-        for(String annotationType : orderReversed) {
-          switch (annotationType) {
-            case "AnnotationType.fill":
-              belowLayer = enableFillManager(style, belowLayer);
-              break;
-            case "AnnotationType.line":
-              belowLayer = enableLineManager(style, belowLayer);
-              break;
-            case "AnnotationType.circle":
-              belowLayer = enableCircleManager(style, belowLayer);
-              break;
-            case "AnnotationType.symbol":
-              belowLayer = enableSymbolManager(style, belowLayer);
-              break;
-            default:
-              throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
-          }
-        }
-      }
-
-      if (myLocationEnabled) {
-        enableLocationComponent(style);
-      }
-
-      if (null != bounds) {
-        mapboxMap.setLatLngBoundsForCameraTarget(bounds);
-      }
-      
       // needs to be placed after SymbolManager#addClickListener,
       // is fixed with 0.6.0 of annotations plugin
-      mapboxMap.addOnMapClickListener(MapboxMapController.this);
-      mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
-	    localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
+//	    localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
 
       methodChannel.invokeMethod("map#onStyleLoaded", null);
     }
@@ -500,43 +467,6 @@ final class MapboxMapController
       style.addLayer(circleLayer);
     }
   }
-
-  private String enableSymbolManager(@NonNull Style style, @Nullable String belowLayer) {
-    if (symbolManager == null) {
-      symbolManager = new SymbolManager(mapView, mapboxMap, style, belowLayer);
-      symbolManager.setIconAllowOverlap(true);
-      symbolManager.setIconIgnorePlacement(true);
-      symbolManager.setTextAllowOverlap(true);
-      symbolManager.setTextIgnorePlacement(true);
-      symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-    }
-    return symbolManager.getLayerId();
-  }
-
-  private String enableLineManager(@NonNull Style style, @Nullable String belowLayer) {
-    if (lineManager == null) {
-      lineManager = new LineManager(mapView, mapboxMap, style, belowLayer);
-      lineManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-    }
-    return lineManager.getLayerId();
-  }
-
-  private String enableCircleManager(@NonNull Style style, @Nullable String belowLayer) {
-    if (circleManager == null) {
-      circleManager = new CircleManager(mapView, mapboxMap, style, belowLayer);
-      circleManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-    }
-    return circleManager.getLayerId();
-  }
-
-  private String enableFillManager(@NonNull Style style, @Nullable String belowLayer) {
-    if (fillManager ==  null) {
-      fillManager = new FillManager(mapView, mapboxMap, style, belowLayer);
-      fillManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-    }
-    return fillManager.getLayerId();
-  }
-
   private Feature firstFeatureOnLayers(RectF in) {
     if(style != null){
       final List<Layer> layers = style.getLayers();
@@ -1484,7 +1414,6 @@ final class MapboxMapController
     if (disposed) {
       return;
     }
-    mapView.onCreate(null);
   }
 
   @Override
@@ -1500,7 +1429,6 @@ final class MapboxMapController
     if (disposed) {
       return;
     }
-    mapView.onResume();
     if(myLocationEnabled){
       startListeningForLocationUpdates();
     }
@@ -1511,7 +1439,6 @@ final class MapboxMapController
     if (disposed) {
       return;
     }
-    mapView.onPause();
   }
 
   @Override

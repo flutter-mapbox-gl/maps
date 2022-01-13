@@ -37,11 +37,12 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     ndkVersion "20.1.5948944"
 
     defaultConfig {
-        minSdkVersion 20
+        minSdkVersion 21
+        targetSdkVersion 30
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -52,8 +53,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     dependencies {
-        implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:9.6.2"
+        implementation ("com.mapbox.maps:android:10.2.0")
+        {
+            exclude group: "com.mapbox.mapboxsdk", module: "mapbox-android-telemetry"
+        }
+        implementation ("com.mapbox.mapboxsdk:mapbox-android-sdk:9.6.2")
         implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.9.0"
         implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-localization-v9:0.12.0"
         implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-offline-v9:0.7.0'
