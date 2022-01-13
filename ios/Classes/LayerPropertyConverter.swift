@@ -251,6 +251,69 @@ class LayerPropertyConverter {
         }
     }
 
+    class func addRasterProperties(rasterLayer: MGLRasterStyleLayer, properties: [String: String]) {
+        for (propertyName, propertyValue) in properties {
+            let expression = interpretExpression(
+                propertyName: propertyName,
+                expression: propertyValue
+            )
+            switch propertyName {
+            case "raster-opacity":
+                rasterLayer.rasterOpacity = expression
+            case "raster-hue-rotate":
+                rasterLayer.rasterHueRotation = expression
+            case "raster-brightness-min":
+                rasterLayer.minimumRasterBrightness = expression
+            case "raster-brightness-max":
+                rasterLayer.maximumRasterBrightness = expression
+            case "raster-saturation":
+                rasterLayer.rasterSaturation = expression
+            case "raster-contrast":
+                rasterLayer.rasterContrast = expression
+            case "raster-resampling":
+                rasterLayer.rasterResamplingMode = expression
+            case "raster-fade-duration":
+                rasterLayer.rasterFadeDuration = expression
+            case "visibility":
+                rasterLayer.isVisible = propertyValue == "visible"
+
+            default:
+                break
+            }
+        }
+    }
+
+    class func addHillshadeProperties(
+        hillshadeLayer: MGLHillshadeStyleLayer,
+        properties: [String: String]
+    ) {
+        for (propertyName, propertyValue) in properties {
+            let expression = interpretExpression(
+                propertyName: propertyName,
+                expression: propertyValue
+            )
+            switch propertyName {
+            case "hillshade-illumination-direction":
+                hillshadeLayer.hillshadeIlluminationDirection = expression
+            case "hillshade-illumination-anchor":
+                hillshadeLayer.hillshadeIlluminationAnchor = expression
+            case "hillshade-exaggeration":
+                hillshadeLayer.hillshadeExaggeration = expression
+            case "hillshade-shadow-color":
+                hillshadeLayer.hillshadeShadowColor = expression
+            case "hillshade-highlight-color":
+                hillshadeLayer.hillshadeHighlightColor = expression
+            case "hillshade-accent-color":
+                hillshadeLayer.hillshadeAccentColor = expression
+            case "visibility":
+                hillshadeLayer.isVisible = propertyValue == "visible"
+
+            default:
+                break
+            }
+        }
+    }
+
     private class func interpretExpression(propertyName: String,
                                            expression: String) -> NSExpression?
     {
