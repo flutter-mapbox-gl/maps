@@ -147,3 +147,8 @@ class MinMaxZoomPreference {
     return 'MinMaxZoomPreference(minZoom: $minZoom, maxZoom: $maxZoom)';
   }
 }
+
+class MapProjection {
+  static const String Globe = "Globe";
+  static const String Mercator = "Mercator";
+}

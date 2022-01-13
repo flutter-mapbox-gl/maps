@@ -26,6 +26,7 @@ class MapboxMap extends StatefulWidget {
     this.tiltGesturesEnabled = true,
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
+    this.mapProjection = "Mercator",
     this.myLocationTrackingMode = MyLocationTrackingMode.None,
     this.myLocationRenderMode = MyLocationRenderMode.COMPASS,
     this.logoViewMargins,
@@ -146,6 +147,7 @@ class MapboxMap extends StatefulWidget {
   /// when the map tries to turn on the My Location layer.
   final bool myLocationEnabled;
 
+  final String mapProjection;
   /// The mode used to let the map's camera follow the device's physical location.
   /// `myLocationEnabled` needs to be true for values other than `MyLocationTrackingMode.None` to work.
   final MyLocationTrackingMode myLocationTrackingMode;
@@ -324,6 +326,7 @@ class _MapboxMapOptions {
     this.compassViewMargins,
     this.attributionButtonPosition,
     this.attributionButtonMargins,
+    this.mapProjection,
   });
 
   static _MapboxMapOptions fromWidget(MapboxMap map) {
@@ -345,6 +348,7 @@ class _MapboxMapOptions {
       compassViewMargins: map.compassViewMargins,
       attributionButtonPosition: map.attributionButtonPosition,
       attributionButtonMargins: map.attributionButtonMargins,
+      mapProjection: map.mapProjection,
     );
   }
 
@@ -382,6 +386,8 @@ class _MapboxMapOptions {
 
   final Point? attributionButtonMargins;
 
+  final String? mapProjection;
+
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> optionsMap = <String, dynamic>{};
 
@@ -417,6 +423,8 @@ class _MapboxMapOptions {
     addIfNonNull('attributionButtonPosition', attributionButtonPosition?.index);
     addIfNonNull(
         'attributionButtonMargins', pointToArray(attributionButtonMargins));
+    addIfNonNull(
+        'mapProjection', mapProjection);
     return optionsMap;
   }
 

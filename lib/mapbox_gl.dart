@@ -30,6 +30,7 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         CameraTargetBounds,
         MinMaxZoomPreference,
         MapboxStyles,
+        MapProjection,
         MyLocationTrackingMode,
         MyLocationRenderMode,
         CompassViewPosition,

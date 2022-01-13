@@ -12,6 +12,7 @@ import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.maps.plugin.MapProjection;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.PluginRegistry;
@@ -30,6 +31,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private int myLocationTrackingMode = 0;
   private int myLocationRenderMode = 0;
   private String styleString = Style.MAPBOX_STREETS;
+  private String mapProjection = "Globe";
   private List<String> annotationOrder = new ArrayList();
   private List<String> annotationConsumeTapEvents = new ArrayList();
   private LatLngBounds bounds = null;
@@ -43,7 +45,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     controller.setMyLocationTrackingMode(myLocationTrackingMode);
     controller.setMyLocationRenderMode(myLocationRenderMode);
     controller.setTrackCameraPosition(trackCameraPosition);
-
+    controller.setMapProjection(mapProjection);
     if (null != bounds) {
       controller.setCameraTargetBounds(bounds);
     }
@@ -69,6 +71,11 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   public void setStyleString(String styleString) {
     this.styleString = styleString;
     //options. styleString(styleString);
+  }
+
+  @Override
+  public void setMapProjection(String projection){
+    this.mapProjection = projection;
   }
 
   @Override

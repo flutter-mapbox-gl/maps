@@ -23,6 +23,7 @@ class FullMap extends StatefulWidget {
 class FullMapState extends State<FullMap> {
   MapboxMapController? mapController;
   var isLight = true;
+  var isGlobe = true;
 
   _onMapCreated(MapboxMapController controller) {
     mapController = controller;
@@ -40,12 +41,22 @@ class FullMapState extends State<FullMap> {
   Widget build(BuildContext context) {
     return new Scaffold(
         floatingActionButton: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: FloatingActionButton(
-            child: Icon(Icons.swap_horiz),
-            onPressed: () => setState(
-              () => isLight = !isLight,
-            ),
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              FloatingActionButton(
+                  child: Icon(Icons.swap_horiz),
+                  onPressed: () => setState(
+                        () => isLight = !isLight,
+                      )),
+              SizedBox(height: 10),
+              FloatingActionButton(
+                  child: Icon(Icons.swap_horizontal_circle_outlined),
+                  onPressed: () => setState(
+                        () => isGlobe = !isGlobe,
+                      ))
+            ],
           ),
         ),
         body: MapboxMap(
@@ -54,6 +65,7 @@ class FullMapState extends State<FullMap> {
           onMapCreated: _onMapCreated,
           initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
           onStyleLoadedCallback: _onStyleLoadedCallback,
+          mapProjection: isGlobe ? MapProjection.Globe : MapProjection.Mercator,
         ));
   }
 }

@@ -84,6 +84,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.maps.MapInitOptions;
 import com.mapbox.maps.MapView;
 import com.mapbox.maps.ResourceOptions;
+import com.mapbox.maps.plugin.MapProjection;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -183,7 +184,6 @@ final class MapboxMapController
     ResourceOptions resourceOptions = builder.accessToken(accessToken).build();
     MapInitOptions mapInitOptions = new MapInitOptions(context,resourceOptions);
     this.mapView = new MapView(context,mapInitOptions);
-    setStyleString(styleStringInitial);
     this.featureLayerIdentifiers = new HashSet<>();
     this.symbols = new HashMap<>();
     this.lines = new HashMap<>();
@@ -195,15 +195,21 @@ final class MapboxMapController
     methodChannel.setMethodCallHandler(this);
     this.annotationOrder = annotationOrder;
     this.annotationConsumeTapEvents = annotationConsumeTapEvents;
-    Log.e(TAG, "MapboxMapController init:");
+    Log.e(TAG, "MapboxMapController create:");
+    setStyleString(styleStringInitial);
+
   }
 
   @Override
   public View getView() {
+    Log.e(TAG, "MapboxMapController getView:");
+
     return mapView;
   }
 
   void init() {
+    Log.e(TAG, "MapboxMapController init:");
+
     lifecycleProvider.getLifecycle().addObserver(this);
   }
 
@@ -282,6 +288,16 @@ final class MapboxMapController
       throw new IllegalArgumentException("Unknown fill: " + fillId);
     }
     return fill;
+  }
+
+  @Override
+  public void setMapProjection(String mapProjection){
+    Log.e(TAG, "setMapProjection:"+mapProjection);
+    if(mapProjection.equals("Globe")){
+      mapView.getMapboxMap().setMapProjection(MapProjection.Globe.INSTANCE);
+    }else{
+      mapView.getMapboxMap().setMapProjection(MapProjection.Mercator.INSTANCE);
+    }
   }
 
   @Override
@@ -458,14 +474,14 @@ final class MapboxMapController
 
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
-
+  Log.e(TAG,"onmethod call:"+call.method);
     switch (call.method) {
       case "map#waitForMap":
-        if (mapboxMap != null) {
+//        if (mapboxMap != null) {
           result.success(null);
-          return;
-        }
-        mapReadyResult = result;
+//          return;
+//        }
+//        mapReadyResult = result;
         break;
       case "map#update": {
         Convert.interpretMapboxMapOptions(call.argument("options"), this, context);

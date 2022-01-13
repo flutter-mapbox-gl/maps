@@ -255,6 +255,10 @@ class Convert {
     if (styleString != null) {
       sink.setStyleString(toString(styleString));
     }
+    final Object projectionString = data.get("mapProjection");
+    if (projectionString != null) {
+      sink.setMapProjection(toString(projectionString));
+    }
     final Object minMaxZoomPreference = data.get("minMaxZoomPreference");
     if (minMaxZoomPreference != null) {
       final List<?> zoomPreferenceData = toList(minMaxZoomPreference);
