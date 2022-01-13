@@ -380,8 +380,8 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  Future<void> removeSource(String sourceId) {
-    return _map.removeSource(sourceId);
+  Future<void> removeSource(String sourceId) async {
+    _map.removeSource(sourceId);
   }
 
   @override
