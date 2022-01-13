@@ -123,7 +123,6 @@ final class MapboxMapController
   MapboxMap.OnMapLongClickListener,
   MapboxMapOptionsSink,
   MethodChannel.MethodCallHandler,
-  OnMapReadyCallback,
   OnCameraTrackingChangedListener,
   OnSymbolTappedListener,
   OnLineTappedListener,
@@ -184,6 +183,7 @@ final class MapboxMapController
     ResourceOptions resourceOptions = builder.accessToken(accessToken).build();
     MapInitOptions mapInitOptions = new MapInitOptions(context,resourceOptions);
     this.mapView = new MapView(context,mapInitOptions);
+    setStyleString(styleStringInitial);
     this.featureLayerIdentifiers = new HashSet<>();
     this.symbols = new HashMap<>();
     this.lines = new HashMap<>();
@@ -195,6 +195,7 @@ final class MapboxMapController
     methodChannel.setMethodCallHandler(this);
     this.annotationOrder = annotationOrder;
     this.annotationConsumeTapEvents = annotationConsumeTapEvents;
+    Log.e(TAG, "MapboxMapController init:");
   }
 
   @Override
@@ -284,46 +285,13 @@ final class MapboxMapController
   }
 
   @Override
-  public void onMapReady(MapboxMap mapboxMap) {
-    this.mapboxMap = mapboxMap;
-    if (mapReadyResult != null) {
-      mapReadyResult.success(null);
-      mapReadyResult = null;
-    }
-
-//    mapView.addOnStyleImageMissingListener((id) -> {
-//      DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-//      final Bitmap bitmap = getScaledImage(id, displayMetrics.density);
-//      if (bitmap != null) {
-//        mapboxMap.getStyle().addImage(id, bitmap);
-//      }
-//    });
-//
-//    mapView.addOnDidBecomeIdleListener(this);
-
-    setStyleString(styleStringInitial);
-    // updateMyLocationEnabled();
-  }
-
-  @Override
   public void setStyleString(String styleString) {
-    // Check if json, url, absolute path or asset path:
-    if (styleString == null || styleString.isEmpty()) {
-      Log.e(TAG, "setStyleString - string empty or null");
-    } else if (styleString.startsWith("{") || styleString.startsWith("[")) {
-      mapboxMap.setStyle(new Style.Builder().fromJson(styleString), onStyleLoadedCallback);
-    } else if (styleString.startsWith("/")) {
-      // Absolute path
-      mapboxMap.setStyle(new Style.Builder().fromUri("file://" + styleString), onStyleLoadedCallback);
-    } else if (
-      !styleString.startsWith("http://") &&
-      !styleString.startsWith("https://")&&
-      !styleString.startsWith("mapbox://")) {
-      // We are assuming that the style will be loaded from an asset here.
-      String key = MapboxMapsPlugin.flutterAssets.getAssetFilePathByName(styleString);
-      mapboxMap.setStyle(new Style.Builder().fromUri("asset://" + key), onStyleLoadedCallback);
+    Log.e(TAG, "setStyleString:"+styleString);
+
+    if (styleString.startsWith("{") || styleString.startsWith("[")) {
+      mapView.getMapboxMap().loadStyleJson(styleString);
     } else {
-      mapboxMap.setStyle(new Style.Builder().fromUri(styleString), onStyleLoadedCallback);
+      mapView.getMapboxMap().loadStyleUri(styleString);
     }
   }
 
