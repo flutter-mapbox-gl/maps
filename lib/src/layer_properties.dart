@@ -1750,3 +1750,323 @@ class FillLayerProperties implements LayerProperties {
     );
   }
 }
+
+class RasterLayerProperties implements LayerProperties {
+  // Paint Properties
+  /// The opacity at which the image will be drawn.
+  ///
+  /// Type: number
+  ///   default: 1
+  ///   minimum: 0
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterOpacity;
+
+  /// Rotates hues around the color wheel.
+  ///
+  /// Type: number
+  ///   default: 0
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterHueRotate;
+
+  /// Increase or reduce the brightness of the image. The value is the
+  /// minimum brightness.
+  ///
+  /// Type: number
+  ///   default: 0
+  ///   minimum: 0
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterBrightnessMin;
+
+  /// Increase or reduce the brightness of the image. The value is the
+  /// maximum brightness.
+  ///
+  /// Type: number
+  ///   default: 1
+  ///   minimum: 0
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterBrightnessMax;
+
+  /// Increase or reduce the saturation of the image.
+  ///
+  /// Type: number
+  ///   default: 0
+  ///   minimum: -1
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterSaturation;
+
+  /// Increase or reduce the contrast of the image.
+  ///
+  /// Type: number
+  ///   default: 0
+  ///   minimum: -1
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterContrast;
+
+  /// The resampling/interpolation method to use for overscaling, also known
+  /// as texture magnification filter
+  ///
+  /// Type: enum
+  ///   default: linear
+  /// Options:
+  ///   "linear"
+  ///      (Bi)linear filtering interpolates pixel values using the weighted
+  ///      average of the four closest original source pixels creating a
+  ///      smooth but blurry look when overscaled
+  ///   "nearest"
+  ///      Nearest neighbor filtering interpolates pixel values using the
+  ///      nearest original source pixel creating a sharp but pixelated look
+  ///      when overscaled
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterResampling;
+
+  /// Fade duration when a new tile is added.
+  ///
+  /// Type: number
+  ///   default: 300
+  ///   minimum: 0
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic rasterFadeDuration;
+
+  // Layout Properties
+  /// Whether this layer is displayed.
+  ///
+  /// Type: enum
+  ///   default: visible
+  /// Options:
+  ///   "visible"
+  ///      The layer is shown.
+  ///   "none"
+  ///      The layer is not shown.
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic visibility;
+
+  const RasterLayerProperties({
+    this.rasterOpacity,
+    this.rasterHueRotate,
+    this.rasterBrightnessMin,
+    this.rasterBrightnessMax,
+    this.rasterSaturation,
+    this.rasterContrast,
+    this.rasterResampling,
+    this.rasterFadeDuration,
+    this.visibility,
+  });
+
+  RasterLayerProperties copyWith(RasterLayerProperties changes) {
+    return RasterLayerProperties(
+      rasterOpacity: changes.rasterOpacity ?? rasterOpacity,
+      rasterHueRotate: changes.rasterHueRotate ?? rasterHueRotate,
+      rasterBrightnessMin: changes.rasterBrightnessMin ?? rasterBrightnessMin,
+      rasterBrightnessMax: changes.rasterBrightnessMax ?? rasterBrightnessMax,
+      rasterSaturation: changes.rasterSaturation ?? rasterSaturation,
+      rasterContrast: changes.rasterContrast ?? rasterContrast,
+      rasterResampling: changes.rasterResampling ?? rasterResampling,
+      rasterFadeDuration: changes.rasterFadeDuration ?? rasterFadeDuration,
+      visibility: changes.visibility ?? visibility,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = <String, dynamic>{};
+
+    void addIfPresent(String fieldName, dynamic value) {
+      if (value != null) {
+        json[fieldName] = value;
+      }
+    }
+
+    addIfPresent('raster-opacity', rasterOpacity);
+    addIfPresent('raster-hue-rotate', rasterHueRotate);
+    addIfPresent('raster-brightness-min', rasterBrightnessMin);
+    addIfPresent('raster-brightness-max', rasterBrightnessMax);
+    addIfPresent('raster-saturation', rasterSaturation);
+    addIfPresent('raster-contrast', rasterContrast);
+    addIfPresent('raster-resampling', rasterResampling);
+    addIfPresent('raster-fade-duration', rasterFadeDuration);
+    addIfPresent('visibility', visibility);
+    return json;
+  }
+
+  factory RasterLayerProperties.fromJson(Map<String, dynamic> json) {
+    return RasterLayerProperties(
+      rasterOpacity: json['raster-opacity'],
+      rasterHueRotate: json['raster-hue-rotate'],
+      rasterBrightnessMin: json['raster-brightness-min'],
+      rasterBrightnessMax: json['raster-brightness-max'],
+      rasterSaturation: json['raster-saturation'],
+      rasterContrast: json['raster-contrast'],
+      rasterResampling: json['raster-resampling'],
+      rasterFadeDuration: json['raster-fade-duration'],
+      visibility: json['visibility'],
+    );
+  }
+}
+
+class HillshadeLayerProperties implements LayerProperties {
+  // Paint Properties
+  /// The direction of the light source used to generate the hillshading
+  /// with 0 as the top of the viewport if `hillshade-illumination-anchor`
+  /// is set to `viewport` and due north if `hillshade-illumination-anchor`
+  /// is set to `map`.
+  ///
+  /// Type: number
+  ///   default: 335
+  ///   minimum: 0
+  ///   maximum: 359
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic hillshadeIlluminationDirection;
+
+  /// Direction of light source when map is rotated.
+  ///
+  /// Type: enum
+  ///   default: viewport
+  /// Options:
+  ///   "map"
+  ///      The hillshade illumination is relative to the north direction.
+  ///   "viewport"
+  ///      The hillshade illumination is relative to the top of the
+  ///      viewport.
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic hillshadeIlluminationAnchor;
+
+  /// Intensity of the hillshade
+  ///
+  /// Type: number
+  ///   default: 0.5
+  ///   minimum: 0
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic hillshadeExaggeration;
+
+  /// The shading color of areas that face away from the light source.
+  ///
+  /// Type: color
+  ///   default: #000000
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic hillshadeShadowColor;
+
+  /// The shading color of areas that faces towards the light source.
+  ///
+  /// Type: color
+  ///   default: #FFFFFF
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic hillshadeHighlightColor;
+
+  /// The shading color used to accentuate rugged terrain like sharp cliffs
+  /// and gorges.
+  ///
+  /// Type: color
+  ///   default: #000000
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic hillshadeAccentColor;
+
+  // Layout Properties
+  /// Whether this layer is displayed.
+  ///
+  /// Type: enum
+  ///   default: visible
+  /// Options:
+  ///   "visible"
+  ///      The layer is shown.
+  ///   "none"
+  ///      The layer is not shown.
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic visibility;
+
+  const HillshadeLayerProperties({
+    this.hillshadeIlluminationDirection,
+    this.hillshadeIlluminationAnchor,
+    this.hillshadeExaggeration,
+    this.hillshadeShadowColor,
+    this.hillshadeHighlightColor,
+    this.hillshadeAccentColor,
+    this.visibility,
+  });
+
+  HillshadeLayerProperties copyWith(HillshadeLayerProperties changes) {
+    return HillshadeLayerProperties(
+      hillshadeIlluminationDirection: changes.hillshadeIlluminationDirection ??
+          hillshadeIlluminationDirection,
+      hillshadeIlluminationAnchor:
+          changes.hillshadeIlluminationAnchor ?? hillshadeIlluminationAnchor,
+      hillshadeExaggeration:
+          changes.hillshadeExaggeration ?? hillshadeExaggeration,
+      hillshadeShadowColor:
+          changes.hillshadeShadowColor ?? hillshadeShadowColor,
+      hillshadeHighlightColor:
+          changes.hillshadeHighlightColor ?? hillshadeHighlightColor,
+      hillshadeAccentColor:
+          changes.hillshadeAccentColor ?? hillshadeAccentColor,
+      visibility: changes.visibility ?? visibility,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = <String, dynamic>{};
+
+    void addIfPresent(String fieldName, dynamic value) {
+      if (value != null) {
+        json[fieldName] = value;
+      }
+    }
+
+    addIfPresent(
+        'hillshade-illumination-direction', hillshadeIlluminationDirection);
+    addIfPresent('hillshade-illumination-anchor', hillshadeIlluminationAnchor);
+    addIfPresent('hillshade-exaggeration', hillshadeExaggeration);
+    addIfPresent('hillshade-shadow-color', hillshadeShadowColor);
+    addIfPresent('hillshade-highlight-color', hillshadeHighlightColor);
+    addIfPresent('hillshade-accent-color', hillshadeAccentColor);
+    addIfPresent('visibility', visibility);
+    return json;
+  }
+
+  factory HillshadeLayerProperties.fromJson(Map<String, dynamic> json) {
+    return HillshadeLayerProperties(
+      hillshadeIlluminationDirection: json['hillshade-illumination-direction'],
+      hillshadeIlluminationAnchor: json['hillshade-illumination-anchor'],
+      hillshadeExaggeration: json['hillshade-exaggeration'],
+      hillshadeShadowColor: json['hillshade-shadow-color'],
+      hillshadeHighlightColor: json['hillshade-highlight-color'],
+      hillshadeAccentColor: json['hillshade-accent-color'],
+      visibility: json['visibility'],
+    );
+  }
+}

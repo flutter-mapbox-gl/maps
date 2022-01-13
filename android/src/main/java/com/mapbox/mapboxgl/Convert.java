@@ -53,7 +53,7 @@ class Convert {
 //    }
 //  }
 
-  private static boolean toBoolean(Object o) {
+  static boolean toBoolean(Object o) {
     return (Boolean) o;
   }
 
@@ -123,15 +123,15 @@ class Convert {
     }
   }
 
-  private static double toDouble(Object o) {
+  static double toDouble(Object o) {
     return ((Number) o).doubleValue();
   }
 
-  private static float toFloat(Object o) {
+  static float toFloat(Object o) {
     return ((Number) o).floatValue();
   }
 
-  private static Float toFloatWrapper(Object o) {
+  static Float toFloatWrapper(Object o) {
     return (o == null) ? null : toFloat(o);
   }
 
@@ -155,12 +155,12 @@ class Convert {
     return Arrays.asList(latLng.getLatitude(), latLng.getLongitude());
   }
 
-  private static LatLng toLatLng(Object o) {
+  static LatLng toLatLng(Object o) {
     final List<?> data = toList(o);
     return new LatLng(toDouble(data.get(0)), toDouble(data.get(1)));
   }
 
-  private static LatLngBounds toLatLngBounds(Object o) {
+  static LatLngBounds toLatLngBounds(Object o) {
     if (o == null) {
       return null;
     }
@@ -172,7 +172,7 @@ class Convert {
     return builder.build();
   }
 
-  static List<LatLng> toLatLngList(Object o) {
+  static List<LatLng> toLatLngList(Object o, boolean flippedOrder) {
     if (o == null) {
       return null;
     }
@@ -180,7 +180,12 @@ class Convert {
     List<LatLng> latLngList = new ArrayList<>();
     for (int i=0; i<data.size(); i++) {
       final List<?> coords = toList(data.get(i));
-      latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
+      if(flippedOrder){
+        latLngList.add(new LatLng(toDouble(coords.get(1)), toDouble(coords.get(0))));
+      }
+      else{
+        latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
+      }
     }
     return latLngList;
   }
@@ -192,7 +197,7 @@ class Convert {
     final List<?> data = toList(o);
     List<List<LatLng>> latLngListList = new ArrayList<>();
     for (int i = 0; i < data.size(); i++) {
-      List<LatLng> latLngList = toLatLngList(data.get(i));
+      List<LatLng> latLngList = toLatLngList(data.get(i), false);
       latLngListList.add(latLngList);
     }
     return latLngListList;
@@ -210,7 +215,7 @@ class Convert {
     return Polygon.fromLngLats(points);
   }
 
-  private static List<?> toList(Object o) {
+  static List<?> toList(Object o) {
     return (List<?>) o;
   }
 
@@ -235,7 +240,7 @@ class Convert {
     return new Point(toPixels(data.get(0), density), toPixels(data.get(1), density));
   }
 
-  private static String toString(Object o) {
+  static String toString(Object o) {
     return (String) o;
   }
 
@@ -522,7 +527,7 @@ class Convert {
     final Object geometry = data.get("geometry");
     if (geometry != null) {
       Logger.e(TAG, "SetGeometry");
-      sink.setGeometry(toLatLngList(geometry));
+      sink.setGeometry(toLatLngList(geometry, false));
     }
     final Object draggable = data.get("draggable");
     if (draggable != null) {

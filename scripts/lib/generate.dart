@@ -4,11 +4,28 @@ import 'dart:convert';
 import 'package:mustache_template/mustache_template.dart';
 import 'package:recase/recase.dart';
 
+import 'conversions.dart';
+
 main() async {
   var styleJson =
       jsonDecode(await new File('scripts/input/style.json').readAsString());
 
-  final layerTypes = ["symbol", "circle", "line", "fill"];
+  final layerTypes = [
+    "symbol",
+    "circle",
+    "line",
+    "fill",
+    "raster",
+    "hillshade"
+  ];
+  final sourceTypes = [
+    "vector",
+    "raster",
+    "raster_dem",
+    "geojson",
+    "video",
+    "image"
+  ];
 
   final renderContext = {
     "layerTypes": [
@@ -20,6 +37,14 @@ main() async {
           "layout_properties": buildStyleProperties(styleJson, "layout_$type"),
         },
     ],
+    "sourceTypes": [
+      for (var type in sourceTypes)
+        {
+          "type": type.replaceAll("_", "-"),
+          "typePascal": ReCase(type).pascalCase,
+          "properties": buildSourceProperties(styleJson, "source_$type"),
+        },
+    ],
     'expressions': buildExpressionProperties(styleJson)
   };
 
@@ -29,38 +54,26 @@ main() async {
       ...type["layout_properties"].map((p) => p["value"]).toList()
   ].toSet().map((p) => {"property": p}).toList();
 
-  await render(
-    renderContext,
-    "android/src/main/java/com/mapbox/mapboxgl",
-    "LayerPropertyConverter.java",
-  );
-  await render(
-    renderContext,
-    "ios/Classes",
-    "LayerPropertyConverter.swift",
-  );
-  await render(
-    renderContext,
-    "lib/src",
-    "layer_expressions.dart",
-  );
-  await render(
-    renderContext,
-    "lib/src",
-    "layer_properties.dart",
-  );
-  await render(
-    renderContext,
-    "mapbox_gl_web/lib/src",
-    "layer_tools.dart",
-  );
+  const templates = [
+    "android/src/main/java/com/mapbox/mapboxgl/LayerPropertyConverter.java",
+    "ios/Classes/LayerPropertyConverter.swift",
+    "lib/src/layer_expressions.dart",
+    "lib/src/layer_properties.dart",
+    "mapbox_gl_web/lib/src/layer_tools.dart",
+    "mapbox_gl_platform_interface/lib/src/source_properties.dart",
+  ];
+
+  for (var template in templates) await render(renderContext, template);
 }
 
 Future<void> render(
   Map<String, List> renderContext,
-  String outputPath,
-  String filename,
+  String path,
 ) async {
+  final pathItems = path.split("/");
+  final filename = pathItems.removeLast();
+  final outputPath = pathItems.join("/");
+
   print("Rendering $filename");
   var templateFile =
       await File('./scripts/templates/$filename.template').readAsString();
@@ -78,41 +91,6 @@ List<Map<String, dynamic>> buildStyleProperties(
   return items.entries.map((e) => buildStyleProperty(e.key, e.value)).toList();
 }
 
-const renamedIosProperties = {
-  "iconImage": "iconImageName",
-  "iconRotate": "iconRotation",
-  "iconSize": "iconScale",
-  "iconKeepUpright": "keepsIconUpright",
-  "iconTranslate": "iconTranslation",
-  "iconTranslateAnchor": "iconTranslationAnchor",
-  "iconAllowOverlap": "iconAllowsOverlap",
-  "iconIgnorePlacement": "iconIgnoresPlacement",
-  "textTranslate": "textTranslation",
-  "textTranslateAnchor": "textTranslationAnchor",
-  "textIgnorePlacement": "textIgnoresPlacement",
-  "textField": "text",
-  "textFont": "textFontNames",
-  "textSize": "textFontSize",
-  "textMaxWidth": "maximumTextWidth",
-  "textJustify": "textJustification",
-  "textMaxAngle": "maximumTextAngle",
-  "textWritingMode": "textWritingModes",
-  "textRotate": "textRotation",
-  "textKeepUpright": "keepsTextUpright",
-  "textAllowOverlap": "textAllowsOverlap",
-  "symbolAvoidEdges": "symbolAvoidsEdges",
-  "circleTranslate": "circleTranslation",
-  "circleTranslateAnchor": "circleTranslationAnchor",
-  "circlePitchScale": "circleScaleAlignment",
-  "lineTranslate": "lineTranslation",
-  "lineTranslateAnchor": "lineTranslationAnchor",
-  "lineDasharray": "lineDashPattern",
-  "fillAntialias": "fillAntialiased",
-  "fillTranslate": "fillTranslation",
-  "fillTranslateAnchor": "fillTranslationAnchor",
-  "visibility": "isVisible",
-};
-
 Map<String, dynamic> buildStyleProperty(
     String key, Map<String, dynamic> value) {
   final camelCase = ReCase(key).camelCase;
@@ -123,6 +101,46 @@ Map<String, dynamic> buildStyleProperty(
     'isIosAsCamelCase': renamedIosProperties.containsKey(camelCase),
     'iosAsCamelCase': renamedIosProperties[camelCase],
     'doc': value["doc"],
+    'docSplit': buildDocSplit(value).map((s) => {"part": s}).toList(),
+    'valueAsCamelCase': camelCase
+  };
+}
+
+List<Map<String, dynamic>> buildSourceProperties(
+    Map<String, dynamic> styleJson, String key) {
+  final Map<String, dynamic> items = styleJson[key];
+
+  return items.entries
+      .where((e) => e.key != "*" && e.key != "type")
+      .map((e) => buildSourceProperty(e.key, e.value))
+      .toList();
+}
+
+Map<String, dynamic> buildSourceProperty(
+    String key, Map<String, dynamic> value) {
+  final camelCase = ReCase(key).camelCase;
+  final typeDart = dartTypeMappingTable[value["type"]];
+  final typeSwift = swiftTypeMappingTable[value["type"]];
+  final nestedTypeDart = dartTypeMappingTable[value["value"]] ??
+      dartTypeMappingTable[value["value"]["type"]];
+  final nestedTypeSwift = swiftTypeMappingTable[value["value"]] ??
+      swiftTypeMappingTable[value["value"]["type"]];
+
+  var defaultValue = value["default"];
+  if (defaultValue is List) {
+    defaultValue = "const" + defaultValue.toString();
+  } else if (defaultValue is String) {
+    defaultValue = '"$defaultValue"';
+  }
+
+  return <String, dynamic>{
+    'value': key,
+    'doc': value["doc"],
+    'default': defaultValue,
+    'hasDefault': value["default"] != null,
+    'type': nestedTypeDart == null ? typeDart : "$typeDart<$nestedTypeDart>",
+    'typeSwift':
+        nestedTypeSwift == null ? typeSwift : "$typeSwift<$nestedTypeSwift>",
     'docSplit': buildDocSplit(value).map((s) => {"part": s}).toList(),
     'valueAsCamelCase': camelCase
   };

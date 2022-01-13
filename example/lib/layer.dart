@@ -61,9 +61,11 @@ class LayerState extends State {
   }
 
   void _onStyleLoadedCallback() async {
-    await controller.addGeoJsonSource("fills", _fills);
     await controller.addGeoJsonSource("points", _points);
     await controller.addGeoJsonSource("moving", _movingFeature(0));
+
+    //new style of adding sources
+    await controller.addSource("fills", GeojsonSourceProperties(data: _fills));
 
     await controller.addFillLayer(
       "fills",
