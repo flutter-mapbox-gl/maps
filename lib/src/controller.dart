@@ -15,6 +15,7 @@ typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
 typedef void OnCameraIdleCallback();
+typedef void OnCameraZoomCallback();
 
 typedef void OnMapIdleCallback();
 
@@ -34,16 +35,19 @@ typedef void OnMapIdleCallback();
 /// Line tap events can be received by adding callbacks to [onLineTapped].
 /// Circle tap events can be received by adding callbacks to [onCircleTapped].
 class MapboxMapController extends ChangeNotifier {
-  MapboxMapController._(this._id, CameraPosition initialCameraPosition,
-      {this.onStyleLoadedCallback,
-      this.onMapClick,
-      this.onMapLongClick,
-      this.onCameraTrackingDismissed,
-      this.onCameraTrackingChanged,
-      this.onMapIdle,
-      this.onUserLocationUpdated,
-      this.onCameraIdle})
-      : assert(_id != null) {
+  MapboxMapController._(
+    this._id,
+    CameraPosition initialCameraPosition, {
+    this.onStyleLoadedCallback,
+    this.onMapClick,
+    this.onMapLongClick,
+    this.onCameraTrackingDismissed,
+    this.onCameraTrackingChanged,
+    this.onMapIdle,
+    this.onUserLocationUpdated,
+    this.onCameraIdle,
+    this.onCameraZoom,
+  }) : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
 
     MapboxGlPlatform.getInstance(_id)
@@ -96,6 +100,14 @@ class MapboxMapController extends ChangeNotifier {
     });
 
     MapboxGlPlatform.getInstance(_id)
+        .onCameraZoomPlatform
+        .add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+    });
+
+    MapboxGlPlatform.getInstance(_id)
         .onCameraIdlePlatform
         .add((cameraPosition) {
       _isCameraMoving = false;
@@ -104,6 +116,19 @@ class MapboxMapController extends ChangeNotifier {
       }
       if (onCameraIdle != null) {
         onCameraIdle();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id)
+        .onCameraZoomPlatform
+        .add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onCameraZoom != null) {
+        onCameraZoom();
       }
       notifyListeners();
     });
@@ -162,6 +187,7 @@ class MapboxMapController extends ChangeNotifier {
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
       OnCameraIdleCallback onCameraIdle,
+      OnCameraZoomCallback onCameraZoomCallback,
       OnMapIdleCallback onMapIdle}) {
     assert(id != null);
     return MapboxMapController._(id, initialCameraPosition,
@@ -191,6 +217,7 @@ class MapboxMapController extends ChangeNotifier {
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
 
   final OnCameraIdleCallback onCameraIdle;
+  final OnCameraZoomCallback onCameraZoom;
 
   final OnMapIdleCallback onMapIdle;
 
@@ -293,7 +320,8 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Add properties to existing layer
-  Future<void> addLayerProperties(String layerId, Map<String, dynamic> properties) async {
+  Future<void> addLayerProperties(
+      String layerId, Map<String, dynamic> properties) async {
     await MapboxGlPlatform.getInstance(_id)
         .addLayerProperties(layerId, properties);
   }
@@ -891,8 +919,10 @@ class MapboxMapController extends ChangeNotifier {
         .getMetersPerPixelAtLatitude(latitude);
   }
 
-  Future<void> toggleLayerVisibility(List<String> layerIds, bool isVisible) async {
-    return MapboxGlPlatform.getInstance(_id).toggleLayerVisibility(layerIds, isVisible);
+  Future<void> toggleLayerVisibility(
+      List<String> layerIds, bool isVisible) async {
+    return MapboxGlPlatform.getInstance(_id)
+        .toggleLayerVisibility(layerIds, isVisible);
   }
 
   Future<void> setStyleString(String styleString) async {

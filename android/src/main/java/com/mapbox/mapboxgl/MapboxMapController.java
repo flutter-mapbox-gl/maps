@@ -113,6 +113,7 @@ final class MapboxMapController
     OnAnnotationClickListener,
     MapboxMap.OnMapClickListener,
     MapboxMap.OnMapLongClickListener,
+    MapboxMap.OnScaleListener,
     MapboxMapOptionsSink,
     MethodChannel.MethodCallHandler,
     OnMapReadyCallback,
@@ -281,6 +282,7 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveStartedListener(this);
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
+    mapboxMap.addOnScaleListener(this);
 
     mapView.addOnStyleImageMissingListener(
       id -> {
@@ -1466,6 +1468,15 @@ final class MapboxMapController
     final Map<String, Object> arguments = new HashMap<>(2);
     arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
     methodChannel.invokeMethod("camera#onMove", arguments);
+  }
+
+  @Override
+  public void onScale() {
+    final Map<String, Object> arguments = new HashMap<>(2);
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("camera#onIdle", arguments);
   }
 
   @Override

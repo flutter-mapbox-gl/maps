@@ -48,6 +48,11 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
             CameraPosition.fromMap(call.arguments['position']);
         onCameraIdlePlatform(cameraPosition);
         break;
+      case 'camera#onCameraZoom':
+        final CameraPosition cameraPosition =
+            CameraPosition.fromMap(call.arguments['position']);
+        onCameraIdlePlatform(cameraPosition);
+        break;
       case 'map#onStyleLoaded':
         onMapStyleLoadedPlatform(null);
         break;
@@ -516,7 +521,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addLayerProperties(String layerId, Map<String, dynamic> properties) async {
+  Future<void> addLayerProperties(
+      String layerId, Map<String, dynamic> properties) async {
     await _channel.invokeMethod('layer#addProperties', <String, dynamic>{
       'layerId': layerId,
       'properties': properties,
@@ -721,8 +727,10 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> toggleLayerVisibility(List<String> layerIds, bool isVisible) async {
-    return await _channel.invokeMethod('layer#toggleVisibility', <String, dynamic>{
+  Future<void> toggleLayerVisibility(
+      List<String> layerIds, bool isVisible) async {
+    return await _channel
+        .invokeMethod('layer#toggleVisibility', <String, dynamic>{
       'layerIds': layerIds,
       'isVisible': isVisible,
     });
