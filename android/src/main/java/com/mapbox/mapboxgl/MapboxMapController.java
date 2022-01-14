@@ -146,6 +146,7 @@ final class MapboxMapController
   private Map<String, FeatureCollection> addedFeaturesByLayer;
 
   private LatLngBounds bounds = null;
+  private Long currentMoveGestureDuration = Long.MAX_VALUE;
 
   MapboxMapController(
     int id,
@@ -1332,7 +1333,13 @@ final class MapboxMapController
   }
 
    boolean onMoveBegin(MoveGestureDetector detector) {
-    if (detector.getPointersCount() == 1) {
+    final Long lastMoveDuration = currentMoveGestureDuration;
+    currentMoveGestureDuration = detector.getGestureDuration();
+
+    // onMoveBegin gets called even during a move - move end is also not called unless this function returns
+    // true at least once. To avoid redundant queries to firstFeatureOnLayers it is only invoked
+    // if lastMoveDuration is larger than currentMoveGestureDuration so we know that a new move has started
+    if (lastMoveDuration > currentMoveGestureDuration && detector.getPointersCount() == 1) {
       PointF pointf = detector.getFocalPoint();
       LatLng origin = mapboxMap.getProjection().fromScreenLocation(pointf);
       RectF rectF = new RectF(
@@ -1384,8 +1391,6 @@ final class MapboxMapController
   }
 
   boolean startDragging(@NonNull Feature feature, @NonNull LatLng origin) {
-    // try{
-    //TODO  draggable wrong type
     final boolean draggable = feature.hasNonNullValueForProperty("draggable") ? 
                               feature.getBooleanProperty("draggable") : false;
     if (draggable) {
@@ -1394,7 +1399,6 @@ final class MapboxMapController
       dragOrigin = origin;
       return true;
     }
-    // }catch(GeoJsonException e){}
     return false;
   }
 
@@ -1416,7 +1420,7 @@ final class MapboxMapController
 
     @Override
     public boolean onMove(MoveGestureDetector detector, float distanceX, float distanceY) {
-      return MapboxMapController.this.onMove(detector);
+     return MapboxMapController.this.onMove(detector);
     }
 
     @Override
