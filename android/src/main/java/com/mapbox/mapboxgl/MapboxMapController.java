@@ -146,7 +146,6 @@ final class MapboxMapController
   private Map<String, FeatureCollection> addedFeaturesByLayer;
 
   private LatLngBounds bounds = null;
-  private Long currentMoveGestureDuration = Long.MAX_VALUE;
 
   MapboxMapController(
     int id,
@@ -1333,13 +1332,9 @@ final class MapboxMapController
   }
 
    boolean onMoveBegin(MoveGestureDetector detector) {
-    final Long lastMoveDuration = currentMoveGestureDuration;
-    currentMoveGestureDuration = detector.getGestureDuration();
-
     // onMoveBegin gets called even during a move - move end is also not called unless this function returns
-    // true at least once. To avoid redundant queries to firstFeatureOnLayers it is only invoked
-    // if lastMoveDuration is larger than currentMoveGestureDuration so we know that a new move has started
-    if (lastMoveDuration > currentMoveGestureDuration && detector.getPointersCount() == 1) {
+    // true at least once. To avoid redundant queries only check for feature if the previous event was ACTION_DOWN
+    if (detector.getPreviousEvent().getActionMasked() == MotionEvent.ACTION_DOWN && detector.getPointersCount() == 1) {
       PointF pointf = detector.getFocalPoint();
       LatLng origin = mapboxMap.getProjection().fromScreenLocation(pointf);
       RectF rectF = new RectF(
