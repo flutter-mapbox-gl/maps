@@ -14,7 +14,7 @@ packages:
       name: characters
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "1.2.0"
   collection:
     dependency: transitive
     description:
@@ -66,21 +66,21 @@ packages:
       path: mapbox_gl_platform_interface
       relative: true
     source: path
-    version: "0.12.0"
+    version: "0.14.0"
   mapbox_gl_web:
     dependency: "direct main"
     description:
       path: mapbox_gl_web
       relative: true
     source: path
-    version: "0.12.0"
+    version: "0.14.0"
   meta:
     dependency: transitive
     description:
       name: meta
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0"
+    version: "1.7.0"
   path:
     dependency: transitive
     description:
@@ -113,7 +113,7 @@ packages:
       name: vector_math
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   xml:
     dependency: transitive
     description:
@@ -122,5 +122,5 @@ packages:
     source: hosted
     version: "5.1.0"
 sdks:
-  dart: ">=2.12.0 <3.0.0"
+  dart: ">=2.14.0 <3.0.0"
   flutter: ">=2.0.0"

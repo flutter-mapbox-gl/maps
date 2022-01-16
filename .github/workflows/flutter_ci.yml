@@ -16,7 +16,30 @@ jobs:
     - run: flutter pub get
     - name: Lint analysis
       run: cd example && flutter analyze
+      
+  check-dart-formatting:
+    name: "Check Dart formatting"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: subosito/flutter-action@v1
+    - name: Check Dart formatting 
+      run: flutter format --set-exit-if-changed .
 
+  check-swift-formatting:
+    name: "Check Swift formatting"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: get SwiftFormat
+      run: wget https://github.com/nicklockwood/SwiftFormat/releases/download/0.48.18/swiftformat_linux.zip
+    - run: unzip swiftformat_linux.zip
+    - run: chmod +x swiftformat_linux
+    - name: Check Swift formatting 
+      run: ./swiftformat_linux --swiftversion 4.2 --maxwidth 100 --lint ios
+    
   build-android:
     environment: ANDROID_CI_DOWNLOADS_TOKEN
     name: "Build Android apk"
@@ -51,11 +74,12 @@ jobs:
           echo "machine api.mapbox.com
           login mapbox
           password $SDK_REGISTRY_TOKEN" >> ~/.netrc
+          chmod 600 ~/.netrc
           cd ./example
           flutter build ios --release --no-codesign
         env:
           SDK_REGISTRY_TOKEN: ${{ secrets.SDK_REGISTRY_IOS}}
-          
+
   build-web:
     name: "Build web"
     runs-on: ubuntu-latest
@@ -66,8 +90,6 @@ jobs:
       with:
         java-version: '12.x'
     - uses: subosito/flutter-action@v1
-      with:
-        channel: beta
     - run: flutter config --enable-web
     - run: flutter pub get
     - name: Build web

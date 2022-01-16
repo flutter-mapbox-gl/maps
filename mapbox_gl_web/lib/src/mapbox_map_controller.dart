@@ -1,7 +1,7 @@
 part of mapbox_gl_web;
 
 const _mapboxGlCssUrl =
-    'https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.css';
+    'https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css';
 
 class MapboxMapController extends MapboxGlPlatform
     implements MapboxMapOptionsSink {
@@ -9,8 +9,10 @@ class MapboxMapController extends MapboxGlPlatform
 
   late Map<String, dynamic> _creationParams;
   late MapboxMap _map;
+  bool _mapReady = false;
 
   List<String> annotationOrder = [];
+  final _featureLayerIdentifiers = Set<String>();
   late SymbolManager symbolManager;
   late LineManager lineManager;
   late CircleManager circleManager;
@@ -38,7 +40,9 @@ class MapboxMapController extends MapboxGlPlatform
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
         'plugins.flutter.io/mapbox_gl_$identifier', (int viewId) {
-      _mapElement = DivElement();
+      _mapElement = DivElement()
+        ..style.width = '100%'
+        ..style.height = '100%';
       callback(viewId);
       return _mapElement;
     });
@@ -63,6 +67,13 @@ class MapboxMapController extends MapboxGlPlatform
         ),
       );
       _map.on('load', _onStyleLoaded);
+      _map.on('click', _onMapClick);
+      // long click not available in web, so it is mapped to double click
+      _map.on('dblclick', _onMapLongClick);
+      _map.on('movestart', _onCameraMoveStarted);
+      _map.on('move', _onCameraMove);
+      _map.on('moveend', _onCameraIdle);
+      _map.on('resize', _onMapResize);
     }
     Convert.interpretMapboxMapOptions(_creationParams['options'], this);
 
@@ -110,7 +121,7 @@ class MapboxMapController extends MapboxGlPlatform
 
   @override
   Future<void> matchMapLanguageWithDeviceDefault() async {
-    setMapLanguage(ui.window.locale!.languageCode);
+    setMapLanguage(ui.window.locale.languageCode);
   }
 
   @override
@@ -166,6 +177,12 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
+  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
+    var coordinates = symbolManager.getFeature(symbol.id)!.geometry.coordinates;
+    return LatLng(coordinates[1], coordinates[0]);
+  }
+
+  @override
   Future<void> removeSymbols(Iterable<String> symbolsIds) async {
     symbolManager.removeAll(symbolsIds);
   }
@@ -190,8 +207,20 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
+  Future<List<LatLng>> getLineLatLngs(Line line) async {
+    List<dynamic> coordinates =
+        lineManager.getFeature(line.id)!.geometry.coordinates;
+    return coordinates.map((c) => LatLng(c[1], c[0])).toList();
+  }
+
+  @override
   Future<void> removeLine(String lineId) async {
     lineManager.remove(lineId);
+  }
+
+  @override
+  Future<void> removeLines(Iterable<String> ids) async {
+    lineManager.removeAll(ids);
   }
 
   @override
@@ -222,6 +251,11 @@ class MapboxMapController extends MapboxGlPlatform
     circleManager.remove(circleId);
   }
 
+  @override
+  Future<void> removeCircles(Iterable<String> ids) async {
+    circleManager.removeAll(ids);
+  }
+
   Future<Fill> addFill(FillOptions options, [Map? data]) async {
     String fillId = fillManager.add(Feature(
       geometry: Geometry(
@@ -243,6 +277,11 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
+  Future<void> removeFills(Iterable<String> ids) async {
+    fillManager.removeAll(ids);
+  }
+
+  @override
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, List<Object>? filter) async {
     Map<String, dynamic> options = {};
@@ -252,11 +291,14 @@ class MapboxMapController extends MapboxGlPlatform
     if (filter != null) {
       options['filter'] = filter;
     }
+
+    // avoid issues with the js point type
+    final pointAsList = [point.x, point.y];
     return _map
-        .queryRenderedFeatures([point, point], options)
+        .queryRenderedFeatures([pointAsList, pointAsList], options)
         .map((feature) => {
               'type': 'Feature',
-              'id': feature.id as int?,
+              'id': feature.id,
               'geometry': {
                 'type': feature.geometry.type,
                 'coordinates': feature.geometry.coordinates,
@@ -279,8 +321,8 @@ class MapboxMapController extends MapboxGlPlatform
     }
     return _map
         .queryRenderedFeatures([
-          Point(rect.left, rect.bottom),
-          Point(rect.right, rect.top),
+          [rect.left, rect.bottom],
+          [rect.right, rect.top],
         ], options)
         .map((feature) => {
               'type': 'Feature',
@@ -338,6 +380,11 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
+  Future<void> removeSource(String sourceId) async {
+    _map.removeSource(sourceId);
+  }
+
+  @override
   Future<void> setSymbolIconAllowOverlap(bool enable) async {
     //TODO: to implement
     print('setSymbolIconAllowOverlap not implemented yet');
@@ -375,6 +422,7 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   void _onStyleLoaded(_) {
+    _mapReady = true;
     for (final annotationType in annotationOrder) {
       switch (annotationType) {
         case 'AnnotationType.symbol':
@@ -396,15 +444,7 @@ class MapboxMapController extends MapboxGlPlatform
               "Unknown annotation type: \(annotationType), must be either 'fill', 'line', 'circle' or 'symbol'");
       }
     }
-
     onMapStyleLoadedPlatform(null);
-    _map.on('click', _onMapClick);
-    // long click not available in web, so it is mapped to double click
-    _map.on('dblclick', _onMapLongClick);
-    _map.on('movestart', _onCameraMoveStarted);
-    _map.on('move', _onCameraMove);
-    _map.on('moveend', _onCameraIdle);
-    _map.on('resize', _onMapResize);
   }
 
   void _onMapResize(Event e) {
@@ -419,11 +459,19 @@ class MapboxMapController extends MapboxGlPlatform
     });
   }
 
-  void _onMapClick(e) {
-    onMapClickPlatform({
-      'point': Point<double>(e.point.x, e.point.y),
-      'latLng': LatLng(e.lngLat.lat, e.lngLat.lng),
-    });
+  void _onMapClick(Event e) {
+    final features = _map.queryRenderedFeatures(
+        [e.point.x, e.point.y], {"layers": _featureLayerIdentifiers.toList()});
+    final payload = {
+      'point': Point<double>(e.point.x.toDouble(), e.point.y.toDouble()),
+      'latLng': LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble()),
+      if (features.isNotEmpty) "id": features.first.id,
+    };
+    if (features.isNotEmpty) {
+      onFeatureTappedPlatform(payload);
+    } else {
+      onMapClickPlatform(payload);
+    }
   }
 
   void _onMapLongClick(e) {
@@ -597,8 +645,13 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  void setCompassGravity(int gravity) {
-    _updateNavigationControl(position: CompassViewPosition.values[gravity]);
+  void setCompassAlignment(CompassViewPosition position) {
+    _updateNavigationControl(position: position);
+  }
+
+  @override
+  void setAttributionButtonAlignment(AttributionButtonPosition position) {
+    print('setAttributionButtonAlignment not available in web');
   }
 
   @override
@@ -647,65 +700,25 @@ class MapboxMapController extends MapboxGlPlatform
   }
 
   @override
-  void setRotateGesturesEnabled(bool rotateGesturesEnabled) {
-    if (rotateGesturesEnabled) {
-      _map.dragRotate.enable();
-      _map.touchZoomRotate.enableRotation();
-      _map.keyboard.enable();
-    } else {
-      _map.dragRotate.disable();
-      _map.touchZoomRotate.disableRotation();
-      _map.keyboard.disable();
-    }
-  }
-
-  @override
-  void setScrollGesturesEnabled(bool scrollGesturesEnabled) {
-    if (scrollGesturesEnabled) {
-      _map.dragPan.enable();
-      _map.keyboard.enable();
-    } else {
-      _map.dragPan.disable();
-      _map.keyboard.disable();
-    }
-  }
-
-  @override
   void setStyleString(String? styleString) {
-    _map.setStyle(styleString);
-  }
+    //remove old mouseenter callbacks to avoid multicalling
+    for (var layerId in _featureLayerIdentifiers) {
+      _map.off('mouseenter', layerId, _onMouseEnterFeature);
+      _map.off('mousemouve', layerId, _onMouseEnterFeature);
+      _map.off('mouseleave', layerId, _onMouseLeaveFeature);
+    }
+    _featureLayerIdentifiers.clear();
 
-  @override
-  void setTiltGesturesEnabled(bool tiltGesturesEnabled) {
-    if (tiltGesturesEnabled) {
-      _map.dragRotate.enable();
-      _map.keyboard.enable();
-    } else {
-      _map.dragRotate.disable();
-      _map.keyboard.disable();
+    _map.setStyle(styleString);
+    // catch style loaded for later style changes
+    if (_mapReady) {
+      _map.once("styledata", _onStyleLoaded);
     }
   }
 
   @override
   void setTrackCameraPosition(bool trackCameraPosition) {
     _trackCameraPosition = trackCameraPosition;
-  }
-
-  @override
-  void setZoomGesturesEnabled(bool zoomGesturesEnabled) {
-    if (zoomGesturesEnabled) {
-      _map.doubleClickZoom.enable();
-      _map.boxZoom.enable();
-      _map.scrollZoom.enable();
-      _map.touchZoomRotate.enable();
-      _map.keyboard.enable();
-    } else {
-      _map.doubleClickZoom.disable();
-      _map.boxZoom.disable();
-      _map.scrollZoom.disable();
-      _map.touchZoomRotate.disable();
-      _map.keyboard.disable();
-    }
   }
 
   @override
@@ -737,5 +750,178 @@ class MapboxMapController extends MapboxGlPlatform
     var circumference = 40075017.686;
     var zoom = _map.getZoom();
     return circumference * cos(latitude * (pi / 180)) / pow(2, zoom + 9);
+  }
+
+  @override
+  Future<void> removeLayer(String layerId) async {
+    _featureLayerIdentifiers.remove(layerId);
+    _map.removeLayer(layerId);
+  }
+
+  @override
+  Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
+      {String? promoteId}) async {
+    _map.addSource(sourceId, {
+      "type": 'geojson',
+      "data": geojson,
+      if (promoteId != null) "promoteId": promoteId
+    });
+  }
+
+  @override
+  Future<void> setGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
+    final source = _map.getSource(sourceId) as GeoJsonSource;
+    final data = FeatureCollection(features: [
+      for (final f in geojson["features"] ?? [])
+        Feature(
+            geometry: Geometry(
+                type: f["geometry"]["type"],
+                coordinates: f["geometry"]["coordinates"]),
+            properties: f["properties"],
+            id: f["id"])
+    ]);
+    source.setData(data);
+  }
+
+  @override
+  Future<void> addCircleLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "circle",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  @override
+  Future<void> addFillLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "fill",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  @override
+  Future<void> addLineLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "line",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  @override
+  Future<void> addSymbolLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "symbol",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  @override
+  Future<void> addHillshadeLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "hillshade",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  Future<void> _addLayer(String sourceId, String layerId,
+      Map<String, dynamic> properties, String layerType,
+      {String? belowLayerId, String? sourceLayer}) async {
+    final layout = Map.fromEntries(
+        properties.entries.where((entry) => isLayoutProperty(entry.key)));
+    final paint = Map.fromEntries(
+        properties.entries.where((entry) => !isLayoutProperty(entry.key)));
+
+    _map.addLayer({
+      'id': layerId,
+      'type': layerType,
+      'source': sourceId,
+      'layout': layout,
+      'paint': paint,
+      if (sourceLayer != null) 'source-layer': sourceLayer
+    }, belowLayerId);
+
+    _featureLayerIdentifiers.add(layerId);
+    if (layerType == "fill") {
+      _map.on('mousemove', layerId, _onMouseEnterFeature);
+    } else {
+      _map.on('mouseenter', layerId, _onMouseEnterFeature);
+    }
+    _map.on('mouseleave', layerId, _onMouseLeaveFeature);
+  }
+
+  void _onMouseEnterFeature(_) {
+    _map.getCanvas().style.cursor = 'pointer';
+  }
+
+  void _onMouseLeaveFeature(_) {
+    _map.getCanvas().style.cursor = '';
+  }
+
+  @override
+  void setGestures(
+      {required bool rotateGesturesEnabled,
+      required bool scrollGesturesEnabled,
+      required bool tiltGesturesEnabled,
+      required bool zoomGesturesEnabled,
+      required bool doubleClickZoomEnabled}) {
+    if (rotateGesturesEnabled &&
+        scrollGesturesEnabled &&
+        tiltGesturesEnabled &&
+        zoomGesturesEnabled) {
+      _map.keyboard.enable();
+    } else {
+      _map.keyboard.disable();
+    }
+
+    if (scrollGesturesEnabled) {
+      _map.dragPan.enable();
+    } else {
+      _map.dragPan.disable();
+    }
+
+    if (zoomGesturesEnabled) {
+      _map.doubleClickZoom.enable();
+      _map.boxZoom.enable();
+      _map.scrollZoom.enable();
+      _map.touchZoomRotate.enable();
+    } else {
+      _map.doubleClickZoom.disable();
+      _map.boxZoom.disable();
+      _map.scrollZoom.disable();
+      _map.touchZoomRotate.disable();
+    }
+
+    if (doubleClickZoomEnabled) {
+      _map.doubleClickZoom.enable();
+    } else {
+      _map.doubleClickZoom.disable();
+    }
+
+    if (rotateGesturesEnabled) {
+      _map.touchZoomRotate.enableRotation();
+    } else {
+      _map.touchZoomRotate.disableRotation();
+    }
+
+    // dragRotate is shared by both gestures
+    if (tiltGesturesEnabled && rotateGesturesEnabled) {
+      _map.dragRotate.enable();
+    } else {
+      _map.dragRotate.disable();
+    }
+  }
+
+  @override
+  Future<void> addSource(String sourceId, SourceProperties source) async {
+    _map.addSource(sourceId, source.toJson());
+  }
+
+  @override
+  Future<void> addRasterLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    await _addLayer(sourceId, layerId, properties, "raster",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
   }
 }

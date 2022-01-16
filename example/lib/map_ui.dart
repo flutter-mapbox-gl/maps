@@ -5,6 +5,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
@@ -40,9 +41,10 @@ class MapUiBodyState extends State<MapUiBody> {
   );
 
   MapboxMapController? mapController;
-  CameraPosition? _position = _kInitialPosition;
+  CameraPosition _position = _kInitialPosition;
   bool _isMoving = false;
   bool _compassEnabled = true;
+  bool _mapExpanded = true;
   CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
   MinMaxZoomPreference _minMaxZoomPreference = MinMaxZoomPreference.unbounded;
   int _styleStringIndex = 0;
@@ -60,6 +62,7 @@ class MapUiBodyState extends State<MapUiBody> {
   ];
   bool _rotateGesturesEnabled = true;
   bool _scrollGesturesEnabled = true;
+  bool? _doubleClickToZoomEnabled;
   bool _tiltGesturesEnabled = true;
   bool _zoomGesturesEnabled = true;
   bool _myLocationEnabled = true;
@@ -80,7 +83,8 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   void _extractMapInfo() {
-    _position = mapController!.cameraPosition;
+    final position = mapController!.cameraPosition;
+    if (position != null) _position = position;
     _isMoving = mapController!.isCameraMoving;
   }
 
@@ -119,6 +123,17 @@ class MapUiBodyState extends State<MapUiBody> {
           } else {
             _featureQueryFilter = null;
           }
+        });
+      },
+    );
+  }
+
+  Widget _mapSizeToggler() {
+    return TextButton(
+      child: Text('${_mapExpanded ? 'shrink' : 'expand'} map'),
+      onPressed: () {
+        setState(() {
+          _mapExpanded = !_mapExpanded;
         });
       },
     );
@@ -201,6 +216,28 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  Widget _doubleClickToZoomToggler() {
+    final stateInfo = _doubleClickToZoomEnabled == null
+        ? "disable"
+        : _doubleClickToZoomEnabled!
+            ? 'unset'
+            : 'enable';
+    return TextButton(
+      child: Text('$stateInfo double click to zoom'),
+      onPressed: () {
+        setState(() {
+          if (_doubleClickToZoomEnabled == null) {
+            _doubleClickToZoomEnabled = false;
+          } else if (!_doubleClickToZoomEnabled!) {
+            _doubleClickToZoomEnabled = true;
+          } else {
+            _doubleClickToZoomEnabled = null;
+          }
+        });
+      },
+    );
+  }
+
   Widget _tiltToggler() {
     return TextButton(
       child: Text('${_tiltGesturesEnabled ? 'disable' : 'enable'} tilt'),
@@ -269,10 +306,11 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   _drawFill(List<dynamic> features) async {
-    Map<String, dynamic> feature = features[0];
-    if (feature['geometry']['type'] == 'Polygon') {
-      var coordinates = feature['geometry']['coordinates'];
-      List<List<LatLng>> geometry = coordinates
+    Map<String, dynamic>? feature =
+        features.firstWhereOrNull((f) => f['geometry']['type'] == 'Polygon');
+
+    if (feature != null) {
+      List<List<LatLng>> geometry = feature['geometry']['coordinates']
           .map(
               (ll) => ll.map((l) => LatLng(l[1], l[0])).toList().cast<LatLng>())
           .toList()
@@ -304,6 +342,7 @@ class MapUiBodyState extends State<MapUiBody> {
       scrollGesturesEnabled: _scrollGesturesEnabled,
       tiltGesturesEnabled: _tiltGesturesEnabled,
       zoomGesturesEnabled: _zoomGesturesEnabled,
+      doubleClickZoomEnabled: _doubleClickToZoomEnabled,
       myLocationEnabled: _myLocationEnabled,
       myLocationTrackingMode: _myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
@@ -352,53 +391,51 @@ class MapUiBodyState extends State<MapUiBody> {
       },
     );
 
-    final List<Widget> columnChildren = <Widget>[
-      Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Center(
+    final List<Widget> listViewChildren = <Widget>[];
+
+    if (mapController != null) {
+      listViewChildren.addAll(
+        <Widget>[
+          Text('camera bearing: ${_position.bearing}'),
+          Text('camera target: ${_position.target.latitude.toStringAsFixed(4)},'
+              '${_position.target.longitude.toStringAsFixed(4)}'),
+          Text('camera zoom: ${_position.zoom}'),
+          Text('camera tilt: ${_position.tilt}'),
+          Text(_isMoving ? '(Camera moving)' : '(Camera idle)'),
+          _mapSizeToggler(),
+          _queryFilterToggler(),
+          _compassToggler(),
+          _myLocationTrackingModeCycler(),
+          _latLngBoundsToggler(),
+          _setStyleToSatellite(),
+          _zoomBoundsToggler(),
+          _rotateToggler(),
+          _scrollToggler(),
+          _doubleClickToZoomToggler(),
+          _tiltToggler(),
+          _zoomToggler(),
+          _myLocationToggler(),
+          _telemetryToggler(),
+          _visibleRegionGetter(),
+        ],
+      );
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Center(
           child: SizedBox(
-            width: 300.0,
+            width: _mapExpanded ? null : 300.0,
             height: 200.0,
             child: mapboxMap,
           ),
         ),
-      ),
-    ];
-
-    if (mapController != null) {
-      columnChildren.add(
         Expanded(
           child: ListView(
-            children: <Widget>[
-              Text('camera bearing: ${_position!.bearing}'),
-              Text(
-                  'camera target: ${_position!.target.latitude.toStringAsFixed(4)},'
-                  '${_position!.target.longitude.toStringAsFixed(4)}'),
-              Text('camera zoom: ${_position!.zoom}'),
-              Text('camera tilt: ${_position!.tilt}'),
-              Text(_isMoving ? '(Camera moving)' : '(Camera idle)'),
-              _queryFilterToggler(),
-              _compassToggler(),
-              _myLocationTrackingModeCycler(),
-              _latLngBoundsToggler(),
-              _setStyleToSatellite(),
-              _zoomBoundsToggler(),
-              _rotateToggler(),
-              _scrollToggler(),
-              _tiltToggler(),
-              _zoomToggler(),
-              _myLocationToggler(),
-              _telemetryToggler(),
-              _visibleRegionGetter(),
-            ],
+            children: listViewChildren,
           ),
-        ),
-      );
-    }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: columnChildren,
+        )
+      ],
     );
   }
 

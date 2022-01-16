@@ -24,7 +24,6 @@ import java.util.ArrayList;
 class MapboxMapBuilder implements MapboxMapOptionsSink {
   public final String TAG = getClass().getSimpleName();
   private final MapboxMapOptions options = new MapboxMapOptions()
-    .textureMode(true)
     .attributionEnabled(true);
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
@@ -33,7 +32,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private String styleString = Style.MAPBOX_STREETS;
   private List<String> annotationOrder = new ArrayList();
   private List<String> annotationConsumeTapEvents = new ArrayList();
-
+  private LatLngBounds bounds = null;
 
   MapboxMapController build(
     int id, Context context, BinaryMessenger messenger, MapboxMapsPlugin.LifecycleProvider lifecycleProvider, String accessToken) {
@@ -44,6 +43,11 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     controller.setMyLocationTrackingMode(myLocationTrackingMode);
     controller.setMyLocationRenderMode(myLocationRenderMode);
     controller.setTrackCameraPosition(trackCameraPosition);
+
+    if (null != bounds) {
+      controller.setCameraTargetBounds(bounds);
+    }
+
     return controller;
   }
 
@@ -58,9 +62,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
 
   @Override
   public void setCameraTargetBounds(LatLngBounds bounds) {
-    Log.e(TAG, "setCameraTargetBounds is supported only after map initiated.");
-    //throw new UnsupportedOperationException("setCameraTargetBounds is supported only after map initiated.");
-    //options.latLngBoundsForCameraTarget(bounds);
+    this.bounds = bounds;
   }
 
   @Override
@@ -118,7 +120,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   public void setMyLocationRenderMode(int myLocationRenderMode) {
     this.myLocationRenderMode = myLocationRenderMode;
   }
-  
+
   public void setLogoViewMargins(int x, int y) {
         options.logoMargins(new int[] {
             (int) x, //left
@@ -134,7 +136,6 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
       case 0:
         options.compassGravity(Gravity.TOP | Gravity.START);
         break;
-      default:
       case 1:
         options.compassGravity(Gravity.TOP | Gravity.END);
         break;
@@ -154,6 +155,8 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
       case Gravity.TOP | Gravity.START:
         options.compassMargins(new int[] {(int) x, (int) y, 0, 0});
         break;
+      // If the application code has not specified gravity, assume the platform
+      // default for the compass which is top-right
       default:
       case Gravity.TOP | Gravity.END:
         options.compassMargins(new int[] {0, (int) y, (int) x, 0});
@@ -168,13 +171,43 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   }
 
   @Override
+  public void setAttributionButtonGravity(int gravity) {
+    switch(gravity){
+      case 0:
+        options.attributionGravity(Gravity.TOP | Gravity.START);
+        break;
+      case 1:
+        options.attributionGravity(Gravity.TOP | Gravity.END);
+        break;
+      case 2:
+        options.attributionGravity(Gravity.BOTTOM | Gravity.START);
+        break;
+      case 3:
+        options.attributionGravity(Gravity.BOTTOM | Gravity.END);
+        break;
+    }
+  }
+
+  @Override
   public void setAttributionButtonMargins(int x, int y) {
-    options.attributionMargins(new int[] {
-            (int) x, //left
-            (int) 0, //top
-            (int) 0, //right
-            (int) y, //bottom
-    });
+    switch(options.getAttributionGravity())
+    {
+      case Gravity.TOP | Gravity.START:
+        options.attributionMargins(new int[] {(int) x, (int) y, 0, 0});
+        break;
+      case Gravity.TOP | Gravity.END:
+        options.attributionMargins(new int[] {0, (int) y, (int) x, 0});
+        break;
+      // If the application code has not specified gravity, assume the platform
+      // default for the attribution button which is bottom left
+      default:
+      case Gravity.BOTTOM | Gravity.START:
+        options.attributionMargins(new int[] {(int) x, 0, 0, (int) y});
+        break;
+      case Gravity.BOTTOM | Gravity.END:
+        options.attributionMargins(new int[] {0, 0, (int) x, (int) y});
+        break;
+    }
   }
 
   public void setAnnotationOrder(List<String> annotations) {

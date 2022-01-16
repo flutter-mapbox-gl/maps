@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart'; // ignore: unnecessary_import
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
