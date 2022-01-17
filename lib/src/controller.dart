@@ -864,11 +864,13 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Query rendered features at a point in screen cooridnates
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, List<Object>? filter) async {
     return _mapboxGlPlatform.queryRenderedFeatures(point, layerIds, filter);
   }
 
+  /// Query rendered features in a Rect in screen coordinates
   Future<List> queryRenderedFeaturesInRect(
       Rect rect, List<String> layerIds, String? filter) async {
     return _mapboxGlPlatform.queryRenderedFeaturesInRect(
