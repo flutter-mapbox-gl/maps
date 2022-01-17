@@ -46,6 +46,12 @@ abstract class MapboxGlPlatform {
   final ArgumentCallbacks<CameraPosition> onCameraIdlePlatform =
       ArgumentCallbacks<CameraPosition>();
 
+  final ArgumentCallbacks<CameraPosition> onCameraZoomPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onRotatePlateform =
+      ArgumentCallbacks<CameraPosition>();
+
   final ArgumentCallbacks<void> onMapStyleLoadedPlatform =
       ArgumentCallbacks<void>();
 
@@ -234,7 +240,8 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('addSource() has not been implemented.');
   }
 
-  Future<void> addLayerProperties(String layerId, Map<String, dynamic> properties) async {
+  Future<void> addLayerProperties(
+      String layerId, Map<String, dynamic> properties) async {
     throw UnimplementedError('addLayerProperties() has not been implemented.');
   }
 
@@ -315,14 +322,17 @@ abstract class MapboxGlPlatform {
         'getMetersPerPixelAtLatitude() has not been implemented.');
   }
 
-  Future<void> toggleLayerVisibility(List<String> layerIds, bool isVisible) async {
-    throw UnimplementedError('toggleLayerVisibility() has not been implemented.');
+  Future<void> toggleLayerVisibility(
+      List<String> layerIds, bool isVisible) async {
+    throw UnimplementedError(
+        'toggleLayerVisibility() has not been implemented.');
   }
-  Future<void> setStyleString(String styleString) async { 
+
+  Future<void> setStyleString(String styleString) async {
     throw UnimplementedError('setStyleString() has not been implemented.');
   }
 
-  Future<void> setFilter(List<String> layerIds, String filterString) async { 
+  Future<void> setFilter(List<String> layerIds, String filterString) async {
     throw UnimplementedError('setFilter() has not been implemented.');
   }
 }

@@ -16,7 +16,7 @@ typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
 typedef void OnCameraIdleCallback();
 typedef void OnCameraZoomCallback();
-
+typedef void OnRotateCallback();
 typedef void OnMapIdleCallback();
 
 /// Controller for a single MapboxMap instance running on the host platform.
@@ -47,6 +47,7 @@ class MapboxMapController extends ChangeNotifier {
     this.onUserLocationUpdated,
     this.onCameraIdle,
     this.onCameraZoom,
+    this.onRotate,
   }) : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
 
@@ -100,14 +101,6 @@ class MapboxMapController extends ChangeNotifier {
     });
 
     MapboxGlPlatform.getInstance(_id)
-        .onCameraZoomPlatform
-        .add((cameraPosition) {
-      if (cameraPosition != null) {
-        _cameraPosition = cameraPosition;
-      }
-    });
-
-    MapboxGlPlatform.getInstance(_id)
         .onCameraIdlePlatform
         .add((cameraPosition) {
       _isCameraMoving = false;
@@ -129,6 +122,17 @@ class MapboxMapController extends ChangeNotifier {
 
       if (onCameraZoom != null) {
         onCameraZoom();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id).onRotatePlatform.add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onRotate != null) {
+        onRotate();
       }
       notifyListeners();
     });
@@ -187,7 +191,8 @@ class MapboxMapController extends ChangeNotifier {
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
       OnCameraIdleCallback onCameraIdle,
-      OnCameraZoomCallback onCameraZoomCallback,
+      OnCameraZoomCallback onCameraZoom,
+      OnRotateCallback onRotate,
       OnMapIdleCallback onMapIdle}) {
     assert(id != null);
     return MapboxMapController._(id, initialCameraPosition,
@@ -198,6 +203,8 @@ class MapboxMapController extends ChangeNotifier {
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
         onCameraIdle: onCameraIdle,
+        onCameraZoom: onCameraZoom,
+        onRotate: onRotate,
         onMapIdle: onMapIdle);
   }
 
@@ -218,6 +225,7 @@ class MapboxMapController extends ChangeNotifier {
 
   final OnCameraIdleCallback onCameraIdle;
   final OnCameraZoomCallback onCameraZoom;
+  final OnRotateCallback onRotate;
 
   final OnMapIdleCallback onMapIdle;
 

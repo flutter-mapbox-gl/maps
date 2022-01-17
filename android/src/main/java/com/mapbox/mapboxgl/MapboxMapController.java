@@ -34,6 +34,8 @@ import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineResult;
+import com.mapbox.android.gestures.RotateGestureDetector;
+import com.mapbox.android.gestures.StandardScaleGestureDetector;
 import com.mapbox.android.telemetry.TelemetryEnabler;
 import com.mapbox.geojson.BoundingBox;
 import com.mapbox.geojson.Feature;
@@ -114,6 +116,7 @@ final class MapboxMapController
     MapboxMap.OnMapClickListener,
     MapboxMap.OnMapLongClickListener,
     MapboxMap.OnScaleListener,
+    MapboxMap.OnRotateListener,
     MapboxMapOptionsSink,
     MethodChannel.MethodCallHandler,
     OnMapReadyCallback,
@@ -282,6 +285,7 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveStartedListener(this);
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
+    mapboxMap.addOnRotateListener(this);
     mapboxMap.addOnScaleListener(this);
 
     mapView.addOnStyleImageMissingListener(
@@ -1471,7 +1475,7 @@ final class MapboxMapController
   }
 
   @Override
-  public void onScale() {
+  public void onCameraIdle() {
     final Map<String, Object> arguments = new HashMap<>(2);
     if (trackCameraPosition) {
       arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
@@ -1480,12 +1484,22 @@ final class MapboxMapController
   }
 
   @Override
-  public void onCameraIdle() {
+  public void onScale(@NonNull StandardScaleGestureDetector detector) {
     final Map<String, Object> arguments = new HashMap<>(2);
     if (trackCameraPosition) {
       arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
     }
-    methodChannel.invokeMethod("camera#onIdle", arguments);
+    methodChannel.invokeMethod("camera#onCameraZoom", arguments);
+  }
+
+  @Override
+  public void onRotate(@NonNull RotateGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onRotate", arguments);
   }
 
   @Override
@@ -1688,7 +1702,6 @@ final class MapboxMapController
   }
 
   // MapboxMapOptionsSink methods
-
   @Override
   public void setCameraTargetBounds(LatLngBounds bounds) {
     mapboxMap.setLatLngBoundsForCameraTarget(bounds);

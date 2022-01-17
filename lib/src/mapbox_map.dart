@@ -39,6 +39,7 @@ class MapboxMap extends StatefulWidget {
     this.onCameraTrackingChanged,
     this.onCameraIdle,
     this.onCameraZoom,
+    this.onRotate,
     this.onMapIdle,
     this.annotationOrder = const [
       AnnotationType.line,
@@ -191,6 +192,9 @@ class MapboxMap extends StatefulWidget {
 
   final OnCameraZoomCallback onCameraZoom;
 
+  // Called when map is rotated.
+  final OnRotateCallback onRotate;
+
   /// Called when map view is entering an idle state, and no more drawing will
   /// be necessary until new data is loaded or there is some interaction with
   /// the map.
@@ -268,7 +272,8 @@ class _MapboxMapState extends State<MapboxMap> {
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged,
         onCameraIdle: widget.onCameraIdle,
-        onCameraZoomCallback: widget.onCameraZoom,
+        onCameraZoom: widget.onCameraZoom,
+        onRotate: widget.onRotate,
         onMapIdle: widget.onMapIdle);
     await MapboxMapController.initPlatform(id);
     _controller.complete(controller);

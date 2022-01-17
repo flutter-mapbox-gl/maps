@@ -354,6 +354,8 @@ class MapboxMapController extends MapboxGlPlatform
     _map.on('movestart', _onCameraMoveStarted);
     _map.on('move', _onCameraMove);
     _map.on('moveend', _onCameraIdle);
+    _map.on('camerazoom', _onCameraZoom);
+    _map.on('rotate', _onRotate);
     _map.on('resize', _onMapResize);
   }
 
@@ -407,6 +409,30 @@ class MapboxMapController extends MapboxGlPlatform
       zoom: _map.getZoom(),
     );
     onCameraIdlePlatform(camera);
+  }
+
+  void _onCameraZoom(_) {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onCameraZoomPlatform(camera);
+  }
+
+  void _onRotate(_) {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onRotatePlateform(camera);
   }
 
   void _onCameraTrackingChanged(bool isTracking) {
