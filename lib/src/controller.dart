@@ -335,10 +335,15 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Add a symbol layer to the map with the given properties
   ///
+  /// Consider using [addLayer] for an unified layer api.
+  ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   ///
-  /// Note: [belowLayerId] is currently ignored on the web
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// If [enableInteraction] is set the layer is considered for touch or drag
+  /// events. [sourceLayer] is used to selected a specific source layer from
+  /// Vector source
   Future<void> addSymbolLayer(
       String sourceId, String layerId, SymbolLayerProperties properties,
       {String? belowLayerId,
@@ -356,10 +361,15 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Add a line layer to the map with the given properties
   ///
+  /// Consider using [addLayer] for an unified layer api.
+  ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   ///
-  /// Note: [belowLayerId] is currently ignored on the web
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// If [enableInteraction] is set the layer is considered for touch or drag
+  /// events. [sourceLayer] is used to selected a specific source layer from
+  /// Vector source
   Future<void> addLineLayer(
       String sourceId, String layerId, LineLayerProperties properties,
       {String? belowLayerId,
@@ -377,10 +387,15 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Add a fill layer to the map with the given properties
   ///
+  /// Consider using [addLayer] for an unified layer api.
+  ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   ///
-  /// Note: [belowLayerId] is currently ignored on the web
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// If [enableInteraction] is set the layer is considered for touch or drag
+  /// events. [sourceLayer] is used to selected a specific source layer from
+  /// Vector source
   Future<void> addFillLayer(
       String sourceId, String layerId, FillLayerProperties properties,
       {String? belowLayerId,
@@ -398,10 +413,15 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Add a circle layer to the map with the given properties
   ///
+  /// Consider using [addLayer] for an unified layer api.
+  ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   ///
-  /// Note: [belowLayerId] is currently ignored on the web
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// If [enableInteraction] is set the layer is considered for touch or drag
+  /// events. [sourceLayer] is used to selected a specific source layer from
+  /// Vector source
   Future<void> addCircleLayer(
       String sourceId, String layerId, CircleLayerProperties properties,
       {String? belowLayerId,
@@ -417,12 +437,16 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
-  /// Add a circle layer to the map with the given properties
+  /// Add a raster layer to the map with the given properties
+  ///
+  /// Consider using [addLayer] for an unified layer api.
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   ///
-  /// Note: [belowLayerId] is currently ignored on the web
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// [sourceLayer] is used to selected a specific source layer from
+  /// Raster source
   Future<void> addRasterLayer(
       String sourceId, String layerId, RasterLayerProperties properties,
       {String? belowLayerId, String? sourceLayer}) async {
@@ -435,6 +459,16 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
+  /// Add a hillshade layer to the map with the given properties
+  ///
+  /// Consider using [addLayer] for an unified layer api.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// [sourceLayer] is used to selected a specific source layer from
+  /// Raster source
   Future<void> addHillshadeLayer(
       String sourceId, String layerId, HillshadeLayerProperties properties,
       {String? belowLayerId, String? sourceLayer}) async {
@@ -445,24 +479,6 @@ class MapboxMapController extends ChangeNotifier {
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
     );
-  }
-
-  Future<void> addLayer(
-      String sourceId, String layerId, LayerProperties properties,
-      {String? belowLayerId, bool enableInteraction = true}) async {
-    if (properties is FillLayerProperties) {
-      addFillLayer(sourceId, layerId, properties,
-          enableInteraction: enableInteraction);
-    } else if (properties is LineLayerProperties) {
-      addLineLayer(sourceId, layerId, properties,
-          enableInteraction: enableInteraction);
-    } else if (properties is SymbolLayerProperties) {
-      addSymbolLayer(sourceId, layerId, properties,
-          enableInteraction: enableInteraction);
-    } else if (properties is CircleLayerProperties) {
-      addCircleLayer(sourceId, layerId, properties,
-          enableInteraction: enableInteraction);
-    }
   }
 
   /// Updates user location tracking mode.
@@ -1057,6 +1073,17 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.addSource(sourceid, properties);
   }
 
+  /// Add a layer to the map with the given properties
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// If [enableInteraction] is set the layer is considered for touch or drag
+  /// events this has no effect for [RasterLayerProperties] and
+  /// [HillshadeLayerProperties].
+  /// [sourceLayer] is used to selected a specific source layer from Vector
+  /// source.
   Future<void> addLayer(
       String sourceId, String layerId, LayerProperties properties,
       {String? belowLayerId,
@@ -1064,16 +1091,24 @@ class MapboxMapController extends ChangeNotifier {
       String? sourceLayer}) async {
     if (properties is FillLayerProperties) {
       addFillLayer(sourceId, layerId, properties,
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+          belowLayerId: belowLayerId,
+          enableInteraction: enableInteraction,
+          sourceLayer: sourceLayer);
     } else if (properties is LineLayerProperties) {
       addLineLayer(sourceId, layerId, properties,
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+          belowLayerId: belowLayerId,
+          enableInteraction: enableInteraction,
+          sourceLayer: sourceLayer);
     } else if (properties is SymbolLayerProperties) {
       addSymbolLayer(sourceId, layerId, properties,
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+          belowLayerId: belowLayerId,
+          enableInteraction: enableInteraction,
+          sourceLayer: sourceLayer);
     } else if (properties is CircleLayerProperties) {
       addCircleLayer(sourceId, layerId, properties,
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+          belowLayerId: belowLayerId,
+          enableInteraction: enableInteraction,
+          sourceLayer: sourceLayer);
     } else if (properties is RasterLayerProperties) {
       addRasterLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId, sourceLayer: sourceLayer);

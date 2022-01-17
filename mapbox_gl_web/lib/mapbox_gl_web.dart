@@ -4,6 +4,7 @@ import 'dart:async';
 // FIXED HERE: https://github.com/dart-lang/linter/pull/1985
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:html';
+// ignore: unused_import
 import 'dart:js';
 import 'dart:math';
 import 'dart:typed_data';

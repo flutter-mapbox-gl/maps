@@ -328,12 +328,13 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 mapView.setCamera(camera, animated: true)
             }
             result(nil)
-            
+
         case "symbolLayer#add":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
+            guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
             addSymbolLayer(
@@ -341,6 +342,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                enableInteraction: enableInteraction,
                 properties: properties
             )
             result(nil)
@@ -350,6 +352,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let sourceId = arguments["sourceId"] as? String else { return }
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
+            guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
             addLineLayer(
@@ -357,6 +360,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                enableInteraction: enableInteraction,
                 properties: properties
             )
             result(nil)
@@ -366,6 +370,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let sourceId = arguments["sourceId"] as? String else { return }
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
+            guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
             addFillLayer(
@@ -373,6 +378,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                enableInteraction: enableInteraction,
                 properties: properties
             )
             result(nil)
@@ -382,6 +388,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let sourceId = arguments["sourceId"] as? String else { return }
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
+            guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
             addCircleLayer(
@@ -389,6 +396,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                enableInteraction: enableInteraction,
                 properties: properties
             )
             result(nil)
@@ -420,7 +428,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 properties: properties
             )
             result(nil)
-
 
         case "style#addImage":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
@@ -559,10 +566,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
+            let sourceLayer = arguments["sourceLayer"] as? String
             addSymbolLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
+                sourceLayerIdentifier: sourceLayer,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -575,10 +584,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
+            let sourceLayer = arguments["sourceLayer"] as? String
             addLineLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
+                sourceLayerIdentifier: sourceLayer,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -591,10 +602,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
+            let sourceLayer = arguments["sourceLayer"] as? String
             addFillLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
+                sourceLayerIdentifier: sourceLayer,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -607,10 +620,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
+            let sourceLayer = arguments["sourceLayer"] as? String
             addCircleLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
+                sourceLayerIdentifier: sourceLayer,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -1010,7 +1025,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 } else {
                     style.addLayer(layer)
                 }
-                featureLayerIdentifiers.insert(layerId)
+                if enableInteraction {
+                    interactiveFeatureLayerIds.insert(layerId)
+                }
             }
         }
     }
@@ -1032,9 +1049,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                     style.insertLayer(layer, below: belowLayer)
                 } else {
                     style.addLayer(layer)
-                }
-                if enableInteraction {
-                    interactiveFeatureLayerIds.insert(layerId)
                 }
             }
         }
@@ -1058,7 +1072,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 } else {
                     style.addLayer(layer)
                 }
-                featureLayerIdentifiers.insert(layerId)
             }
         }
     }

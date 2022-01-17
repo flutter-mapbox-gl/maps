@@ -734,6 +734,7 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
         final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
         addSymbolLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
@@ -744,6 +745,7 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
         final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
         addLineLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
@@ -754,6 +756,7 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
         final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
         addFillLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
