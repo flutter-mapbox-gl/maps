@@ -141,19 +141,19 @@ abstract class AnnotationManager<T extends Annotation> {
 
   /// Set an existing anntotation to the map. Use this to do a fast update for a
   /// single annotation
-  Future<void> set(T annoation) async {
-    assert(_idToAnnotation.containsKey(annoation.id),
+  Future<void> set(T anntotation) async {
+    assert(_idToAnnotation.containsKey(anntotation.id),
         "you can only set existing annotations");
-    _idToAnnotation[annoation.id] = annoation;
-    final oldLayerIndex = _idToLayerIndex[annoation.id];
-    final layerIndex = selectLayer != null ? selectLayer!(annoation) : 0;
+    _idToAnnotation[anntotation.id] = anntotation;
+    final oldLayerIndex = _idToLayerIndex[anntotation.id];
+    final layerIndex = selectLayer != null ? selectLayer!(anntotation) : 0;
     if (oldLayerIndex != layerIndex) {
       // if the annotation has to be moved to another layer/source we have to
       // set all
       await _setAll();
     } else {
       await controller.setGeoJsonFeature(
-          _makeLayerId(layerIndex), annoation.toGeoJson());
+          _makeLayerId(layerIndex), anntotation.toGeoJson());
     }
   }
 }

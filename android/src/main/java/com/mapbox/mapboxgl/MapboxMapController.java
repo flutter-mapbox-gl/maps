@@ -212,10 +212,9 @@ final class MapboxMapController
       mapView.setOnTouchListener(new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-          Feature feature = draggedFeature;
           androidGesturesManager.onTouchEvent(event);
 
-          return feature != null;
+          return draggedFeature != null;
         }
       });
     }
@@ -1353,30 +1352,30 @@ final class MapboxMapController
 
 
   boolean onMove(MoveGestureDetector detector) {
-    if (draggedFeature != null && detector.getPointersCount() > 1) {
-      stopDragging();
-      return true;
-    }
-
     if (draggedFeature != null) {
-        PointF pointf = detector.getFocalPoint();
-        LatLng current = mapboxMap.getProjection().fromScreenLocation(pointf);
+      if (detector.getPointersCount() > 1) {
+        stopDragging();
+        return true;
+      }
+    
+      PointF pointf = detector.getFocalPoint();
+      LatLng current = mapboxMap.getProjection().fromScreenLocation(pointf);
 
-        final Map<String, Object> arguments = new HashMap<>(9);
-        arguments.put("id", draggedFeature.id());
-        arguments.put("x", pointf.x);
-        arguments.put("y", pointf.y);
+      final Map<String, Object> arguments = new HashMap<>(9);
+      arguments.put("id", draggedFeature.id());
+      arguments.put("x", pointf.x);
+      arguments.put("y", pointf.y);
 
-        arguments.put("originLng", dragOrigin.getLongitude());
-        arguments.put("originLat", dragOrigin.getLatitude());
-        arguments.put("currentLng", current.getLongitude());
-        arguments.put("currentLat", current.getLatitude());
-        arguments.put("deltaLng", current.getLongitude() - dragPrevious.getLongitude());
-        arguments.put("deltaLat", current.getLatitude() - dragPrevious.getLatitude());
+      arguments.put("originLng", dragOrigin.getLongitude());
+      arguments.put("originLat", dragOrigin.getLatitude());
+      arguments.put("currentLng", current.getLongitude());
+      arguments.put("currentLat", current.getLatitude());
+      arguments.put("deltaLng", current.getLongitude() - dragPrevious.getLongitude());
+      arguments.put("deltaLat", current.getLatitude() - dragPrevious.getLatitude());
 
-        methodChannel.invokeMethod("feature#onDrag", arguments);
-        dragPrevious = current;
-        return false;
+      methodChannel.invokeMethod("feature#onDrag", arguments);
+      dragPrevious = current;
+      return false;
     }
     return true;
   }
