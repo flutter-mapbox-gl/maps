@@ -4,6 +4,7 @@ import 'dart:async';
 // FIXED HERE: https://github.com/dart-lang/linter/pull/1985
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:html';
+// ignore: unused_import
 import 'dart:js';
 import 'dart:math';
 import 'dart:typed_data';
@@ -23,9 +24,4 @@ import 'package:mapbox_gl_web/src/layer_tools.dart';
 part 'src/convert.dart';
 part 'src/mapbox_map_plugin.dart';
 part 'src/options_sink.dart';
-part 'src/feature_manager/feature_manager.dart';
-part 'src/feature_manager/symbol_manager.dart';
-part 'src/feature_manager/line_manager.dart';
-part 'src/feature_manager/circle_manager.dart';
-part 'src/feature_manager/fill_manager.dart';
-part 'src/mapbox_map_controller.dart';
+part 'src/mapbox_web_gl_platform.dart';

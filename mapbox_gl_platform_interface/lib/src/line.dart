@@ -6,7 +6,7 @@
 
 part of mapbox_gl_platform_interface;
 
-class Line {
+class Line implements Annotation {
   Line(this._id, this.options, [this._data]);
 
   /// A unique identifier for this line.
@@ -26,6 +26,20 @@ class Line {
   /// The returned value does not reflect any changes made to the line through
   /// touch events. Add listeners to the owning map controller to track those.
   LineOptions options;
+
+  Map<String, dynamic> toGeoJson() {
+    final geojson = options.toGeoJson();
+    geojson["id"] = id;
+    geojson["properties"]["id"] = id;
+
+    return geojson;
+  }
+
+  @override
+  void translate(LatLng delta) {
+    options = options.copyWith(LineOptions(
+        geometry: this.options.geometry?.map((e) => e + delta).toList()));
+  }
 }
 
 /// Configuration options for [Line] instances.
@@ -78,7 +92,7 @@ class LineOptions {
     );
   }
 
-  dynamic toJson() {
+  dynamic toJson([bool addGeometry = true]) {
     final Map<String, dynamic> json = <String, dynamic>{};
 
     void addIfPresent(String fieldName, dynamic value) {
@@ -95,9 +109,22 @@ class LineOptions {
     addIfPresent('lineOffset', lineOffset);
     addIfPresent('lineBlur', lineBlur);
     addIfPresent('linePattern', linePattern);
-    addIfPresent(
-        'geometry', geometry?.map((LatLng latLng) => latLng.toJson()).toList());
+    if (addGeometry) {
+      addIfPresent('geometry',
+          geometry?.map((LatLng latLng) => latLng.toJson()).toList());
+    }
     addIfPresent('draggable', draggable);
     return json;
+  }
+
+  Map<String, dynamic> toGeoJson() {
+    return {
+      "type": "Feature",
+      "properties": toJson(false),
+      "geometry": {
+        "type": "LineString",
+        "coordinates": geometry!.map((c) => c.toGeoJsonCoordinates()).toList()
+      }
+    };
   }
 }

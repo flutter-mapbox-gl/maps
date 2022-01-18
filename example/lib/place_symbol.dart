@@ -87,8 +87,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     );
   }
 
-  void _updateSelectedSymbol(SymbolOptions changes) {
-    controller!.updateSymbol(_selectedSymbol!, changes);
+  void _updateSelectedSymbol(SymbolOptions changes) async {
+    await controller!.updateSymbol(_selectedSymbol!, changes);
   }
 
   void _add(String iconImage) {
@@ -126,6 +126,8 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
           )
         : SymbolOptions(
             geometry: geometry,
+            textField: 'Airport',
+            textOffset: Offset(0, 0.8),
             iconImage: iconImage,
           );
   }
@@ -274,6 +276,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
       _iconAllowOverlap = !_iconAllowOverlap;
     });
     controller!.setSymbolIconAllowOverlap(_iconAllowOverlap);
+    controller!.setSymbolTextAllowOverlap(_iconAllowOverlap);
   }
 
   @override

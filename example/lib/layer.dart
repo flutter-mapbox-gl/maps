@@ -26,19 +26,18 @@ class LayerState extends State {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: MapboxMap(
-        accessToken: MapsDemo.ACCESS_TOKEN,
-        onMapCreated: _onMapCreated,
-        onMapClick: (point, latLong) =>
-            print(point.toString() + latLong.toString()),
-        onStyleLoadedCallback: _onStyleLoadedCallback,
-        initialCameraPosition: CameraPosition(
-          target: center,
-          zoom: 11.0,
-        ),
-        annotationOrder: const [],
+    return MapboxMap(
+      accessToken: MapsDemo.ACCESS_TOKEN,
+      dragEnabled: false,
+      onMapCreated: _onMapCreated,
+      onMapClick: (point, latLong) =>
+          print(point.toString() + latLong.toString()),
+      onStyleLoadedCallback: _onStyleLoadedCallback,
+      initialCameraPosition: CameraPosition(
+        target: center,
+        zoom: 11.0,
       ),
+      annotationOrder: const [],
     );
   }
 
@@ -118,22 +117,23 @@ class LayerState extends State {
     );
 
     await controller.addSymbolLayer(
-        "moving",
-        "moving",
-        SymbolLayerProperties(
-          textField: [Expressions.get, "name"],
-          textHaloWidth: 1,
-          textSize: 10,
-          textHaloColor: Colors.white.toHexStringRGB(),
-          textOffset: [
-            Expressions.literal,
-            [0, 2]
-          ],
-          iconImage: "bicycle-15",
-          iconSize: 2,
-          iconAllowOverlap: true,
-          textAllowOverlap: true,
-        ));
+      "moving",
+      "moving",
+      SymbolLayerProperties(
+        textField: [Expressions.get, "name"],
+        textHaloWidth: 1,
+        textSize: 10,
+        textHaloColor: Colors.white.toHexStringRGB(),
+        textOffset: [
+          Expressions.literal,
+          [0, 2]
+        ],
+        iconImage: "bicycle-15",
+        iconSize: 2,
+        iconAllowOverlap: true,
+        textAllowOverlap: true,
+      ),
+    );
     timer = Timer.periodic(
         Duration(milliseconds: 10),
         (t) => controller.setGeoJsonSource(

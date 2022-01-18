@@ -19,6 +19,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.MotionEvent;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +35,8 @@ import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineResult;
+import com.mapbox.android.gestures.MoveGestureDetector;
+import com.mapbox.android.gestures.AndroidGesturesManager;
 import com.mapbox.android.telemetry.TelemetryEnabler;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -55,20 +59,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
-import com.mapbox.mapboxsdk.plugins.annotation.Annotation;
-import com.mapbox.mapboxsdk.plugins.annotation.Circle;
-import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
-import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
-import com.mapbox.mapboxsdk.plugins.annotation.Fill;
-import com.mapbox.mapboxsdk.plugins.annotation.FillManager;
-import com.mapbox.mapboxsdk.plugins.annotation.FillOptions;
-import com.mapbox.mapboxsdk.plugins.annotation.Line;
-import com.mapbox.mapboxsdk.plugins.annotation.LineManager;
-import com.mapbox.mapboxsdk.plugins.annotation.LineOptions;
-import com.mapbox.mapboxsdk.plugins.annotation.OnAnnotationClickListener;
-import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.Layer;
@@ -85,6 +75,7 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -117,17 +108,12 @@ final class MapboxMapController
   MapboxMap.OnCameraMoveListener,
   MapboxMap.OnCameraMoveStartedListener,
   MapView.OnDidBecomeIdleListener,
-  OnAnnotationClickListener,
   MapboxMap.OnMapClickListener,
   MapboxMap.OnMapLongClickListener,
   MapboxMapOptionsSink,
   MethodChannel.MethodCallHandler,
   OnMapReadyCallback,
   OnCameraTrackingChangedListener,
-  OnSymbolTappedListener,
-  OnLineTappedListener,
-  OnCircleTappedListener,
-  OnFillTappedListener,
   PlatformView {
   private static final String TAG = "MapboxMapController";
   private final int id;
@@ -135,19 +121,12 @@ final class MapboxMapController
   private final MapboxMapsPlugin.LifecycleProvider lifecycleProvider;
   private MapView mapView;
   private MapboxMap mapboxMap;
-  private final Map<String, SymbolController> symbols;
-  private final Map<String, LineController> lines;
-  private final Map<String, CircleController> circles;
-  private final Map<String, FillController> fills;
-  private SymbolManager symbolManager;
-  private LineManager lineManager;
-  private CircleManager circleManager;
-  private FillManager fillManager;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
   private int myLocationTrackingMode = 0;
   private int myLocationRenderMode = 0;
   private boolean disposed = false;
+  private boolean dragEnabled = true;
   private final float density;
   private MethodChannel.Result mapReadyResult;
   private final Context context;
@@ -157,12 +136,16 @@ final class MapboxMapController
   private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
   private LocalizationPlugin localizationPlugin;
   private Style style;
-  private List<String> annotationOrder;
-  private List<String> annotationConsumeTapEvents;
-  private Set<String> featureLayerIdentifiers;
+  private Feature draggedFeature;
+  private AndroidGesturesManager androidGesturesManager;
+
+  private LatLng dragOrigin;
+  private LatLng dragPrevious;
+
+  private Set<String> interactiveFeatureLayerIds;
+  private Map<String, FeatureCollection> addedFeaturesByLayer;
+
   private LatLngBounds bounds = null;
-  private static final String annotationManagerNotCreatedErrorCode = "NO ANNOTATION MANAGER";
-  private static final String annotationManagerNotCreatedErrorMessage = "To use %ss please add it to the annotation list";
 
   MapboxMapController(
     int id,
@@ -172,24 +155,23 @@ final class MapboxMapController
     MapboxMapOptions options,
     String accessToken,
     String styleStringInitial,
-    List<String> annotationOrder,
-    List<String> annotationConsumeTapEvents) {
+    boolean dragEnabled) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
+    this.dragEnabled = dragEnabled;
     this.styleStringInitial = styleStringInitial;
     this.mapView = new MapView(context, options);
-    this.featureLayerIdentifiers = new HashSet<>();
-    this.symbols = new HashMap<>();
-    this.lines = new HashMap<>();
-    this.circles = new HashMap<>();
-    this.fills = new HashMap<>();
+    this.interactiveFeatureLayerIds = new HashSet<>();
+    this.addedFeaturesByLayer = new HashMap<String, FeatureCollection>();
     this.density = context.getResources().getDisplayMetrics().density;
     this.lifecycleProvider = lifecycleProvider;
+    if(dragEnabled){
+      this.androidGesturesManager = new AndroidGesturesManager(this.mapView.getContext(), false);
+    }
+
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
-    this.annotationOrder = annotationOrder;
-    this.annotationConsumeTapEvents = annotationConsumeTapEvents;
   }
 
   @Override
@@ -214,71 +196,6 @@ final class MapboxMapController
     return trackCameraPosition ? mapboxMap.getCameraPosition() : null;
   }
 
-  private SymbolController symbol(String symbolId) {
-    final SymbolController symbol = symbols.get(symbolId);
-    if (symbol == null) {
-      throw new IllegalArgumentException("Unknown symbol: " + symbolId);
-    }
-    return symbol;
-  }
-
-  private LineBuilder newLineBuilder() {
-    return new LineBuilder(lineManager);
-  }
-
-  private void removeLine(String lineId) {
-    final LineController lineController = lines.remove(lineId);
-    if (lineController != null) {
-      lineController.remove(lineManager);
-    }
-  }
-
-  private LineController line(String lineId) {
-    final LineController line = lines.get(lineId);
-    if (line == null) {
-      throw new IllegalArgumentException("Unknown line: " + lineId);
-    }
-    return line;
-  }
-
-  private CircleBuilder newCircleBuilder() {
-    return new CircleBuilder(circleManager);
-  }
-
-  private void removeCircle(String circleId) {
-    final CircleController circleController = circles.remove(circleId);
-    if (circleController != null) {
-      circleController.remove(circleManager);
-    }
-  }
-
-  private CircleController circle(String circleId) {
-    final CircleController circle = circles.get(circleId);
-    if (circle == null) {
-      throw new IllegalArgumentException("Unknown circle: " + circleId);
-    }
-    return circle;
-  }
-
-  private FillBuilder newFillBuilder() {
-    return new FillBuilder(fillManager);
-  }
-
-  private void removeFill(String fillId) {
-    final FillController fillController = fills.remove(fillId);
-    if (fillController != null) {
-      fillController.remove(fillManager);
-    }
-  }
-
-  private FillController fill(String fillId) {
-    final FillController fill = fills.get(fillId);
-    if (fill == null) {
-      throw new IllegalArgumentException("Unknown fill: " + fillId);
-    }
-    return fill;
-  }
-
   @Override
   public void onMapReady(MapboxMap mapboxMap) {
     this.mapboxMap = mapboxMap;
@@ -289,6 +206,18 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveStartedListener(this);
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
+
+    if(androidGesturesManager != null){
+      androidGesturesManager.setMoveGestureListener(new MoveGestureListener());
+      mapView.setOnTouchListener(new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+          androidGesturesManager.onTouchEvent(event);
+
+          return draggedFeature != null;
+        }
+      });
+    }
 
     mapView.addOnStyleImageMissingListener((id) -> {
       DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
@@ -331,32 +260,6 @@ final class MapboxMapController
     public void onStyleLoaded(@NonNull Style style) {
       MapboxMapController.this.style = style;
 
-      // only add managers once to avoid issues with getLayerId after a style switch
-      if(symbolManager == null && circleManager == null && lineManager == null && fillManager == null)
-      {
-        final List<String> orderReversed = new ArrayList<String>(annotationOrder);
-        Collections.reverse(orderReversed);
-        String belowLayer = null;
-        for(String annotationType : orderReversed) {
-          switch (annotationType) {
-            case "AnnotationType.fill":
-              belowLayer = enableFillManager(style, belowLayer);
-              break;
-            case "AnnotationType.line":
-              belowLayer = enableLineManager(style, belowLayer);
-              break;
-            case "AnnotationType.circle":
-              belowLayer = enableCircleManager(style, belowLayer);
-              break;
-            case "AnnotationType.symbol":
-              belowLayer = enableSymbolManager(style, belowLayer);
-              break;
-            default:
-              throw new IllegalArgumentException("Unknown annotation type: " + annotationType + ", must be either 'fill', 'line', 'circle' or 'symbol'");
-          }
-        }
-      }
-
       if (myLocationEnabled) {
         enableLocationComponent(style);
       }
@@ -365,8 +268,6 @@ final class MapboxMapController
         mapboxMap.setLatLngBoundsForCameraTarget(bounds);
       }
       
-      // needs to be placed after SymbolManager#addClickListener,
-      // is fixed with 0.6.0 of annotations plugin
       mapboxMap.addOnMapClickListener(MapboxMapController.this);
       mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
 	    localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
@@ -422,15 +323,35 @@ final class MapboxMapController
   private void addGeoJsonSource(String sourceName, String source) {
     FeatureCollection featureCollection = FeatureCollection.fromJson(source);
     GeoJsonSource geoJsonSource = new GeoJsonSource(sourceName, featureCollection);
+    addedFeaturesByLayer.put(sourceName, featureCollection);
 
     style.addSource(geoJsonSource);
   }
 
-  private void setGeoJsonSource(String sourceName, String source) {
-    FeatureCollection featureCollection = FeatureCollection.fromJson(source);
+  private void setGeoJsonSource(String sourceName, String geojson) {
+    FeatureCollection featureCollection = FeatureCollection.fromJson(geojson);
     GeoJsonSource geoJsonSource = style.getSourceAs(sourceName);
+    addedFeaturesByLayer.put(sourceName, featureCollection);
 
     geoJsonSource.setGeoJson(featureCollection);
+  }
+
+  private void setGeoJsonFeature(String sourceName, String geojsonFeature) {
+    Feature feature = Feature.fromJson(geojsonFeature);
+    FeatureCollection featureCollection = addedFeaturesByLayer.get(sourceName);
+    GeoJsonSource geoJsonSource = style.getSourceAs(sourceName);
+    if(featureCollection != null && geoJsonSource != null){
+      final List<Feature> features = featureCollection.features();
+      for (int i = 0; i < features.size(); i++) {
+        final String id = features.get(i).id();
+        if(id.equals(feature.id())){
+          features.set(i, feature);
+          break;
+        }
+      }
+
+      geoJsonSource.setGeoJson(featureCollection);
+    }
   }
 
   private void addSymbolLayer(String layerName,
@@ -438,6 +359,7 @@ final class MapboxMapController
                               String belowLayerId,
                               String sourceLayer,
                               PropertyValue[] properties,
+                              boolean enableInteraction,
                               Expression filter) {
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
     symbolLayer.setProperties(properties);
@@ -452,7 +374,9 @@ final class MapboxMapController
     {
       style.addLayer(symbolLayer);
     }
-    featureLayerIdentifiers.add(layerName);
+    if(enableInteraction){
+      interactiveFeatureLayerIds.add(layerName);
+    }
   }
 
   private void addLineLayer(String layerName,
@@ -460,6 +384,7 @@ final class MapboxMapController
                             String belowLayerId,
                             String sourceLayer,
                             PropertyValue[] properties,
+                            boolean enableInteraction,
                             Expression filter) {
     LineLayer lineLayer = new LineLayer(layerName, sourceName);
     lineLayer.setProperties(properties);
@@ -474,7 +399,9 @@ final class MapboxMapController
     {
       style.addLayer(lineLayer);
     }
-    featureLayerIdentifiers.add(layerName);
+    if(enableInteraction){
+      interactiveFeatureLayerIds.add(layerName);
+    }
   }
 
   private void addFillLayer(String layerName,
@@ -482,6 +409,7 @@ final class MapboxMapController
                             String belowLayerId,
                             String sourceLayer,
                             PropertyValue[] properties,
+                            boolean enableInteraction,
                             Expression filter) {
     FillLayer fillLayer = new FillLayer(layerName, sourceName);
     fillLayer.setProperties(properties);
@@ -496,7 +424,9 @@ final class MapboxMapController
     {
       style.addLayer(fillLayer);
     }
-    featureLayerIdentifiers.add(layerName);
+    if(enableInteraction){
+      interactiveFeatureLayerIds.add(layerName);
+    }
   }
 
   private void addCircleLayer(String layerName,
@@ -504,6 +434,7 @@ final class MapboxMapController
                             String belowLayerId,
                             String sourceLayer,
                             PropertyValue[] properties,
+                            boolean enableInteraction,
                             Expression filter) {
     CircleLayer circleLayer = new CircleLayer(layerName, sourceName);
     circleLayer.setProperties(properties);
@@ -511,7 +442,6 @@ final class MapboxMapController
       circleLayer.setSourceLayer(sourceLayer);
     }
 
-    featureLayerIdentifiers.add(layerName);
     if(belowLayerId != null){
       style.addLayerBelow(circleLayer, belowLayerId);
     }
@@ -519,8 +449,11 @@ final class MapboxMapController
     {
       style.addLayer(circleLayer);
     }
+    if(enableInteraction){
+      interactiveFeatureLayerIds.add(layerName);
+    };
   }
-
+  
   private void addRasterLayer(String layerName,
                             String sourceName,
                             String belowLayerId,
@@ -538,7 +471,7 @@ final class MapboxMapController
     }
   }
 
-    private void addHillshadeLayer(String layerName,
+  private void addHillshadeLayer(String layerName,
                             String sourceName,
                             String belowLayerId,
                             PropertyValue[] properties,
@@ -555,49 +488,13 @@ final class MapboxMapController
     }
   }
 
-  private String enableSymbolManager(@NonNull Style style, @Nullable String belowLayer) {
-    if (symbolManager == null) {
-      symbolManager = new SymbolManager(mapView, mapboxMap, style, belowLayer);
-      symbolManager.setIconAllowOverlap(true);
-      symbolManager.setIconIgnorePlacement(true);
-      symbolManager.setTextAllowOverlap(true);
-      symbolManager.setTextIgnorePlacement(true);
-      symbolManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-    }
-    return symbolManager.getLayerId();
-  }
-
-  private String enableLineManager(@NonNull Style style, @Nullable String belowLayer) {
-    if (lineManager == null) {
-      lineManager = new LineManager(mapView, mapboxMap, style, belowLayer);
-      lineManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-    }
-    return lineManager.getLayerId();
-  }
-
-  private String enableCircleManager(@NonNull Style style, @Nullable String belowLayer) {
-    if (circleManager == null) {
-      circleManager = new CircleManager(mapView, mapboxMap, style, belowLayer);
-      circleManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-    }
-    return circleManager.getLayerId();
-  }
-
-  private String enableFillManager(@NonNull Style style, @Nullable String belowLayer) {
-    if (fillManager ==  null) {
-      fillManager = new FillManager(mapView, mapboxMap, style, belowLayer);
-      fillManager.addClickListener(MapboxMapController.this::onAnnotationClick);
-    }
-    return fillManager.getLayerId();
-  }
-
   private Feature firstFeatureOnLayers(RectF in) {
     if(style != null){
       final List<Layer> layers = style.getLayers();
       final List<String> layersInOrder = new ArrayList<String>();
       for (Layer layer : layers){
         String id = layer.getId();
-        if(featureLayerIdentifiers.contains(id))
+        if(interactiveFeatureLayerIds.contains(id))
           layersInOrder.add(id);
       }
       Collections.reverse(layersInOrder);
@@ -812,406 +709,6 @@ final class MapboxMapController
         });
         break;
       }
-      case "symbols#addAll": {
-        if(symbolManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "symbol"), null);
-          return;
-        }
-        List<String> newSymbolIds = new ArrayList<String>();
-        final List<Object> options = call.argument("options");
-        List<SymbolOptions> symbolOptionsList = new ArrayList<SymbolOptions>();
-        if (options != null) {
-          SymbolBuilder symbolBuilder;
-          for (Object o : options) {
-            symbolBuilder =  new SymbolBuilder();
-            Convert.interpretSymbolOptions(o, symbolBuilder);
-            symbolOptionsList.add(symbolBuilder.getSymbolOptions());
-          }
-          if (!symbolOptionsList.isEmpty()) {
-            List<Symbol> newSymbols = symbolManager.create(symbolOptionsList);
-            String symbolId;
-            for (Symbol symbol : newSymbols) {
-              symbolId = String.valueOf(symbol.getId());
-              newSymbolIds.add(symbolId);
-              symbols.put(symbolId, new SymbolController(symbol, annotationConsumeTapEvents.contains("AnnotationType.symbol"), this));
-            }
-          }
-        }
-        result.success(newSymbolIds);
-        break;
-      }
-      case "symbols#removeAll": {
-        if(symbolManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "symbol"), null);
-          return;
-        }
-        final ArrayList<String> symbolIds = call.argument("ids");
-        SymbolController symbolController;
-
-        List<Symbol> symbolList = new ArrayList<Symbol>();
-        for(String symbolId : symbolIds){
-            symbolController = symbols.remove(symbolId);
-            if (symbolController != null) {
-              symbolList.add(symbolController.getSymbol());
-            }
-        }
-        if(!symbolList.isEmpty()) {
-          symbolManager.delete(symbolList);
-        }
-        result.success(null);
-        break;
-      }
-      case "symbol#update": {
-        if(symbolManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "symbol"), null);
-          return;
-        }
-        final String symbolId = call.argument("symbol");
-        final SymbolController symbol = symbol(symbolId);
-        Convert.interpretSymbolOptions(call.argument("options"), symbol);
-        symbol.update(symbolManager);
-        result.success(null);
-        break;
-      }
-      case "symbol#getGeometry": {
-        if(symbolManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "symbol"), null);
-          return;
-        }
-        final String symbolId = call.argument("symbol");
-        final SymbolController symbol = symbol(symbolId);
-        final LatLng symbolLatLng = symbol.getGeometry();
-        Map<String, Double> hashMapLatLng = new HashMap<>();
-        hashMapLatLng.put("latitude", symbolLatLng.getLatitude());
-        hashMapLatLng.put("longitude", symbolLatLng.getLongitude());
-        result.success(hashMapLatLng);
-      }
-      case "symbolManager#iconAllowOverlap": {
-        if(symbolManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "symbol"), null);
-          return;
-        }
-        final Boolean value = call.argument("iconAllowOverlap");
-        symbolManager.setIconAllowOverlap(value);
-        result.success(null);
-        break;
-      }
-      case "symbolManager#iconIgnorePlacement": {
-        if(symbolManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "symbol"), null);
-          return;
-        }
-        final Boolean value = call.argument("iconIgnorePlacement");
-        symbolManager.setIconIgnorePlacement(value);
-        result.success(null);
-        break;
-      }
-      case "symbolManager#textAllowOverlap": {
-        if(symbolManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "symbol"), null);
-          return;
-        }
-        final Boolean value = call.argument("textAllowOverlap");
-        symbolManager.setTextAllowOverlap(value);
-        result.success(null);
-        break;
-      }
-      case "symbolManager#textIgnorePlacement": {
-        if(symbolManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "symbol"), null);
-          return;
-        }
-        final Boolean iconAllowOverlap = call.argument("textIgnorePlacement");
-        symbolManager.setTextIgnorePlacement(iconAllowOverlap);
-        result.success(null);
-        break;
-      }
-      case "line#add": {
-        if(lineManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "line"), null);
-          return;
-        }
-        final LineBuilder lineBuilder = newLineBuilder();
-        Convert.interpretLineOptions(call.argument("options"), lineBuilder);
-        final Line line = lineBuilder.build();
-        final String lineId = String.valueOf(line.getId());
-        lines.put(lineId, new LineController(line,  annotationConsumeTapEvents.contains("AnnotationType.line"), this));
-        result.success(lineId);
-        break;
-      }
-      case "line#remove": {
-        if(lineManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "line"), null);
-          return;
-        }
-        final String lineId = call.argument("line");
-        removeLine(lineId);
-        result.success(null);
-        break;
-      }
-      case "line#addAll": {
-        if(lineManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "line"), null);
-          return;
-        }
-        List<String> newIds = new ArrayList<String>();
-        final List<Object> options = call.argument("options");
-        List<LineOptions> optionList = new ArrayList<LineOptions>();
-        if (options != null) {
-          LineBuilder builder;
-          for (Object o : options) {
-            builder = newLineBuilder();
-            Convert.interpretLineOptions(o, builder);
-            optionList.add(builder.getLineOptions());
-          }
-          if (!optionList.isEmpty()) {
-            List<Line> newLines = lineManager.create(optionList);
-            String id;
-            for (Line line : newLines) {
-              id = String.valueOf(line.getId());
-              newIds.add(id);
-              lines.put(id, new LineController(line, true, this));
-            }
-          }
-        }
-        result.success(newIds);
-        break;
-      }
-      case "line#removeAll": {
-        if(lineManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "line"), null);
-          return;
-        }
-        final ArrayList<String> ids = call.argument("ids");
-        LineController lineController;
-
-        List<Line> toBeRemoved = new ArrayList<Line>();
-        for(String id : ids){
-            lineController = lines.remove(id);
-            if (lineController != null) {
-              toBeRemoved.add(lineController.getLine());
-            }
-        }
-        if(!toBeRemoved.isEmpty()) {
-          lineManager.delete(toBeRemoved);
-        }
-        result.success(null);
-        break;
-      }
-      case "line#update": {
-        if(lineManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "line"), null);
-          return;
-        }
-        final String lineId = call.argument("line");
-        final LineController line = line(lineId);
-        Convert.interpretLineOptions(call.argument("options"), line);
-        line.update(lineManager);
-        result.success(null);
-        break;
-      }
-      case "line#getGeometry": {
-        if(lineManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "line"), null);
-          return;
-        }
-        final String lineId = call.argument("line");
-        final LineController line = line(lineId);
-        final List<LatLng> lineLatLngs = line.getGeometry();
-        final List<Object> resultList = new ArrayList<>();
-        for (LatLng latLng: lineLatLngs){
-          Map<String, Double> hashMapLatLng = new HashMap<>();
-          hashMapLatLng.put("latitude", latLng.getLatitude());
-          hashMapLatLng.put("longitude", latLng.getLongitude());
-          resultList.add(hashMapLatLng);
-        }
-        result.success(resultList);
-        break;
-      }
-      case "circle#add": {
-        if(circleManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "circle"), null);
-          return;
-        }
-        final CircleBuilder circleBuilder = newCircleBuilder();
-        Convert.interpretCircleOptions(call.argument("options"), circleBuilder);
-        final Circle circle = circleBuilder.build();
-        final String circleId = String.valueOf(circle.getId());
-        circles.put(circleId, new CircleController(circle,  annotationConsumeTapEvents.contains("AnnotationType.circle"), this));
-        result.success(circleId);
-        break;
-      }
-      case "circle#addAll": {
-        if(circleManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "circle"), null);
-          return;
-        }
-        List<String> newIds = new ArrayList<String>();
-        final List<Object> options = call.argument("options");
-        List<CircleOptions> optionList = new ArrayList<CircleOptions>();
-        if (options != null) {
-          CircleBuilder builder;
-          for (Object o : options) {
-            builder = newCircleBuilder();
-            Convert.interpretCircleOptions(o, builder);
-            optionList.add(builder.getCircleOptions());
-          }
-          if (!optionList.isEmpty()) {
-            List<Circle> newCircles = circleManager.create(optionList);
-            String id;
-            for (Circle circle : newCircles) {
-              id = String.valueOf(circle.getId());
-              newIds.add(id);
-              circles.put(id, new CircleController(circle, true, this));
-            }
-          }
-        }
-        result.success(newIds);
-        break;
-      }
-      case "circle#removeAll": {
-        if(circleManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "circle"), null);
-          return;
-        }
-        final ArrayList<String> ids = call.argument("ids");
-        CircleController circleController;
-
-        List<Circle> toBeRemoved = new ArrayList<Circle>();
-        for(String id : ids){
-            circleController = circles.remove(id);
-            if (circleController != null) {
-              toBeRemoved.add(circleController.getCircle());
-            }
-        }
-        if(!toBeRemoved.isEmpty()) {
-          circleManager.delete(toBeRemoved);
-        }
-        result.success(null);
-        break;
-      }
-      case "circle#remove": {
-        if(circleManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "circle"), null);
-          return;
-        }
-        final String circleId = call.argument("circle");
-        removeCircle(circleId);
-        result.success(null);
-        break;
-      }
-      case "circle#update": {
-        if(circleManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "circle"), null);
-          return;
-        }
-        Log.e(TAG, "update circle");
-        final String circleId = call.argument("circle");
-        final CircleController circle = circle(circleId);
-        Convert.interpretCircleOptions(call.argument("options"), circle);
-        circle.update(circleManager);
-        result.success(null);
-        break;
-      }
-      case "circle#getGeometry": {
-        if(circleManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "circle"), null);
-          return;
-        }
-        final String circleId = call.argument("circle");
-        final CircleController circle = circle(circleId);
-        final LatLng circleLatLng = circle.getGeometry();
-        Map<String, Double> hashMapLatLng = new HashMap<>();
-        hashMapLatLng.put("latitude", circleLatLng.getLatitude());
-        hashMapLatLng.put("longitude", circleLatLng.getLongitude());
-        result.success(hashMapLatLng);
-        break;
-      }
-      case "fill#add": {
-        if(fillManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "fill"), null);
-          return;
-        }
-        final FillBuilder fillBuilder = newFillBuilder();
-        Convert.interpretFillOptions(call.argument("options"), fillBuilder);
-        final Fill fill = fillBuilder.build();
-        final String fillId = String.valueOf(fill.getId());
-        fills.put(fillId, new FillController(fill,  annotationConsumeTapEvents.contains("AnnotationType.fill"), this));
-        result.success(fillId);
-        break;
-      }
-
-      case "fill#addAll": {
-        if(fillManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "fill"), null);
-          return;
-        }
-        List<String> newIds = new ArrayList<String>();
-        final List<Object> options = call.argument("options");
-        List<FillOptions> optionList = new ArrayList<FillOptions>();
-        if (options != null) {
-          FillBuilder builder;
-          for (Object o : options) {
-            builder = newFillBuilder();
-            Convert.interpretFillOptions(o, builder);
-            optionList.add(builder.getFillOptions());
-          }
-          if (!optionList.isEmpty()) {
-            List<Fill> newFills = fillManager.create(optionList);
-            String id;
-            for (Fill fill : newFills) {
-              id = String.valueOf(fill.getId());
-              newIds.add(id);
-              fills.put(id, new FillController(fill, true, this));
-            }
-          }
-        }
-        result.success(newIds);
-        break;
-      }
-      case "fill#removeAll": {
-        if(fillManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "fill"), null);
-          return;
-        }
-        final ArrayList<String> ids = call.argument("ids");
-        FillController fillController;
-
-        List<Fill> toBeRemoved = new ArrayList<Fill>();
-        for(String id : ids){
-            fillController = fills.remove(id);
-            if (fillController != null) {
-              toBeRemoved.add(fillController.getFill());
-            }
-        }
-        if(!toBeRemoved.isEmpty()) {
-          fillManager.delete(toBeRemoved);
-        }
-        result.success(null);
-        break;
-      }
-      case "fill#remove": {
-        if(fillManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "fill"), null);
-          return;
-        }
-        final String fillId = call.argument("fill");
-        removeFill(fillId);
-        result.success(null);
-        break;
-      }
-      case "fill#update": {
-        if(fillManager == null){
-          result.error(annotationManagerNotCreatedErrorCode, String.format(annotationManagerNotCreatedErrorCode, "fill"), null);
-          return;
-        }
-        final String fillId = call.argument("fill");
-        final FillController fill = fill(fillId);
-        Convert.interpretFillOptions(call.argument("options"), fill);
-        fill.update(fillManager);
-        result.success(null);
-        break;
-      }
       case "source#addGeoJson": {
         final String sourceId = call.argument("sourceId");
         final String geojson = call.argument("geojson");
@@ -1226,13 +723,21 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case  "source#setFeature":{
+        final String sourceId = call.argument("sourceId");
+        final String geojsonFeature = call.argument("geojsonFeature");
+        setGeoJsonFeature(sourceId, geojsonFeature);
+        result.success(null);
+        break;
+      }
       case "symbolLayer#add": {
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
         final String sourceLayer = call.argument("sourceLayer");
+        final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
-        addSymbolLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, null);
+        addSymbolLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
         result.success(null);
         break;
       }
@@ -1241,8 +746,9 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
         final String sourceLayer = call.argument("sourceLayer");
+        final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
-        addLineLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, null);
+        addLineLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
         result.success(null);
         break;
       }
@@ -1251,8 +757,9 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
         final String sourceLayer = call.argument("sourceLayer");
+        final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
-        addFillLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, null);
+        addFillLayer(layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
         result.success(null);
         break;
       }
@@ -1261,8 +768,9 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
         final String sourceLayer = call.argument("sourceLayer");
+        final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
-        addCircleLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, null);
+        addCircleLayer(layerId, sourceId, belowLayerId, sourceLayer,  properties, enableInteraction, null);
         result.success(null);
         break;
       }
@@ -1343,14 +851,6 @@ final class MapboxMapController
         result.success(null);
         break;
       }
-      case "style#setSource": {
-        if (style == null) {
-          result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
-        }
-        style.removeSource((String) call.argument("sourceId"));
-        result.success(null);
-        break;
-      }
       case "style#addLayer": {
         if (style == null) {
           result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
@@ -1373,7 +873,7 @@ final class MapboxMapController
         }
         String layerId = call.argument("layerId");
         style.removeLayer(layerId);
-        featureLayerIdentifiers.remove(layerId);
+        interactiveFeatureLayerIds.remove(layerId);
 
         result.success(null);
         break;
@@ -1426,65 +926,6 @@ final class MapboxMapController
   @Override
   public void onDidBecomeIdle() {
     methodChannel.invokeMethod("map#onIdle", new HashMap<>());
-  }
-
-  @Override
-  public boolean onAnnotationClick(Annotation annotation) {
-    if (annotation instanceof Symbol) {
-      final SymbolController symbolController = symbols.get(String.valueOf(annotation.getId()));
-      if (symbolController != null) {
-        return symbolController.onTap();
-      }
-    }
-
-    if (annotation instanceof Line) {
-      final LineController lineController = lines.get(String.valueOf(annotation.getId()));
-      if (lineController != null) {
-        return lineController.onTap();
-      }
-    }
-
-    if (annotation instanceof Circle) {
-      final CircleController circleController = circles.get(String.valueOf(annotation.getId()));
-      if (circleController != null) {
-        return circleController.onTap();
-      }
-    }
-    if (annotation instanceof Fill) {
-      final FillController fillController = fills.get(String.valueOf(annotation.getId()));
-      if (fillController != null) {
-        return fillController.onTap();
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public void onSymbolTapped(Symbol symbol) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-    arguments.put("symbol", String.valueOf(symbol.getId()));
-    methodChannel.invokeMethod("symbol#onTap", arguments);
-  }
-
-  @Override
-  public void onLineTapped(Line line) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-    arguments.put("line", String.valueOf(line.getId()));
-    methodChannel.invokeMethod("line#onTap", arguments);
-  }
-
-  @Override
-  public void onCircleTapped(Circle circle) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-    arguments.put("circle", String.valueOf(circle.getId()));
-    methodChannel.invokeMethod("circle#onTap", arguments);
-  }
-
-  @Override
-  public void onFillTapped(Fill fill) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-    arguments.put("fill", String.valueOf(fill.getId()));
-    methodChannel.invokeMethod("fill#onTap", arguments);
   }
 
   @Override
@@ -1544,18 +985,6 @@ final class MapboxMapController
 
     if (locationComponent != null) {
       locationComponent.setLocationComponentEnabled(false);
-    }
-    if (symbolManager != null) {
-      symbolManager.onDestroy();
-    }
-    if (lineManager != null) {
-      lineManager.onDestroy();
-    }
-    if (circleManager != null) {
-      circleManager.onDestroy();
-    }
-    if (fillManager != null) {
-      fillManager.onDestroy();
     }
     stopListeningForLocationUpdates();
 
@@ -1901,6 +1330,99 @@ final class MapboxMapController
 
     @Override
     public void onCancel() {
+    }
+  }
+
+   boolean onMoveBegin(MoveGestureDetector detector) {
+    // onMoveBegin gets called even during a move - move end is also not called unless this function returns
+    // true at least once. To avoid redundant queries only check for feature if the previous event was ACTION_DOWN
+    if (detector.getPreviousEvent().getActionMasked() == MotionEvent.ACTION_DOWN && detector.getPointersCount() == 1) {
+      PointF pointf = detector.getFocalPoint();
+      LatLng origin = mapboxMap.getProjection().fromScreenLocation(pointf);
+      RectF rectF = new RectF(
+        pointf.x - 10,
+        pointf.y - 10,
+        pointf.x + 10,
+        pointf.y + 10
+      );
+      Feature feature = firstFeatureOnLayers(rectF);
+      if (feature != null && startDragging(feature, origin)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  boolean onMove(MoveGestureDetector detector) {
+    if (draggedFeature != null) {
+      if (detector.getPointersCount() > 1) {
+        stopDragging();
+        return true;
+      }
+    
+      PointF pointf = detector.getFocalPoint();
+      LatLng current = mapboxMap.getProjection().fromScreenLocation(pointf);
+
+      final Map<String, Object> arguments = new HashMap<>(9);
+      arguments.put("id", draggedFeature.id());
+      arguments.put("x", pointf.x);
+      arguments.put("y", pointf.y);
+
+      arguments.put("originLng", dragOrigin.getLongitude());
+      arguments.put("originLat", dragOrigin.getLatitude());
+      arguments.put("currentLng", current.getLongitude());
+      arguments.put("currentLat", current.getLatitude());
+      arguments.put("deltaLng", current.getLongitude() - dragPrevious.getLongitude());
+      arguments.put("deltaLat", current.getLatitude() - dragPrevious.getLatitude());
+
+      methodChannel.invokeMethod("feature#onDrag", arguments);
+      dragPrevious = current;
+      return false;
+    }
+    return true;
+  }
+
+  void onMoveEnd() {
+    stopDragging();
+  }
+
+  boolean startDragging(@NonNull Feature feature, @NonNull LatLng origin) {
+    final boolean draggable = feature.hasNonNullValueForProperty("draggable") ? 
+                              feature.getBooleanProperty("draggable") : false;
+    if (draggable) {
+      draggedFeature = feature;
+      dragPrevious = origin;
+      dragOrigin = origin;
+      return true;
+    }
+    return false;
+  }
+
+  
+  void stopDragging() {
+    draggedFeature = null;
+    dragOrigin = null;
+    dragPrevious = null;
+  }
+
+
+
+  private class MoveGestureListener implements MoveGestureDetector.OnMoveGestureListener {
+
+    @Override
+    public boolean onMoveBegin(MoveGestureDetector detector) {
+      return MapboxMapController.this.onMoveBegin(detector);
+    }
+
+    @Override
+    public boolean onMove(MoveGestureDetector detector, float distanceX, float distanceY) {
+     return MapboxMapController.this.onMove(detector);
+    }
+
+    @Override
+    public void onMoveEnd(MoveGestureDetector detector, float velocityX, float velocityY) {
+      MapboxMapController.this.onMoveEnd();
     }
   }
 }
