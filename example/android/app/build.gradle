@@ -69,4 +69,12 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
+    constraints {
+        implementation('com.google.android.gms:play-services-location') {
+            version {
+                strictly "16.0.0"
+            }
+            because 'location: 4.2.3 does not specify version play-services-location'
+            }
+    }
 }
