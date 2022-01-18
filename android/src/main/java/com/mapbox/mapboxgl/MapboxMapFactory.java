@@ -1,25 +1,20 @@
 package com.mapbox.mapboxgl;
 
 import android.content.Context;
-
 import com.mapbox.mapboxsdk.camera.CameraPosition;
-
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.platform.PlatformView;
 import io.flutter.plugin.platform.PlatformViewFactory;
-
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.List;
-import java.util.ArrayList;
 
 public class MapboxMapFactory extends PlatformViewFactory {
 
   private final BinaryMessenger messenger;
   private final MapboxMapsPlugin.LifecycleProvider lifecycleProvider;
 
-  public MapboxMapFactory(BinaryMessenger messenger, MapboxMapsPlugin.LifecycleProvider lifecycleProvider) {
+  public MapboxMapFactory(
+      BinaryMessenger messenger, MapboxMapsPlugin.LifecycleProvider lifecycleProvider) {
     super(StandardMessageCodec.INSTANCE);
     this.messenger = messenger;
     this.lifecycleProvider = lifecycleProvider;
@@ -40,6 +35,7 @@ public class MapboxMapFactory extends PlatformViewFactory {
       builder.setDragEnabled(dragEnabled);
     }
 
-    return builder.build(id, context, messenger, lifecycleProvider, (String) params.get("accessToken"));
+    return builder.build(
+        id, context, messenger, lifecycleProvider, (String) params.get("accessToken"));
   }
 }

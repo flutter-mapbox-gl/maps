@@ -7,29 +7,23 @@ package com.mapbox.mapboxgl;
 import android.content.Context;
 import android.graphics.Point;
 import android.util.DisplayMetrics;
-
 import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
-import com.mapbox.mapboxsdk.log.Logger;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Conversions between JSON-like values and MapboxMaps data types.
- */
+/** Conversions between JSON-like values and MapboxMaps data types. */
 class Convert {
 
-  private final static String TAG = "Convert";
+  private static final String TAG = "Convert";
 
   static boolean toBoolean(Object o) {
     return (Boolean) o;
@@ -57,15 +51,17 @@ class Convert {
       case "newLatLng":
         return CameraUpdateFactory.newLatLng(toLatLng(data.get(1)));
       case "newLatLngBounds":
-        return CameraUpdateFactory.newLatLngBounds(toLatLngBounds(data.get(1)), toPixels(data.get(2), density),
-            toPixels(data.get(3), density), toPixels(data.get(4), density), toPixels(data.get(5), density));
+        return CameraUpdateFactory.newLatLngBounds(
+            toLatLngBounds(data.get(1)),
+            toPixels(data.get(2), density),
+            toPixels(data.get(3), density),
+            toPixels(data.get(4), density),
+            toPixels(data.get(5), density));
       case "newLatLngZoom":
         return CameraUpdateFactory.newLatLngZoom(toLatLng(data.get(1)), toFloat(data.get(2)));
       case "scrollBy":
         mapboxMap.scrollBy(
-          toFractionalPixels(data.get(1), density),
-          toFractionalPixels(data.get(2), density)
-        );
+            toFractionalPixels(data.get(1), density), toFractionalPixels(data.get(2), density));
         return null;
       case "zoomBy":
         if (data.size() == 2) {
@@ -143,12 +139,11 @@ class Convert {
     }
     final List<?> data = toList(o);
     List<LatLng> latLngList = new ArrayList<>();
-    for (int i=0; i<data.size(); i++) {
+    for (int i = 0; i < data.size(); i++) {
       final List<?> coords = toList(data.get(i));
-      if(flippedOrder){
+      if (flippedOrder) {
         latLngList.add(new LatLng(toDouble(coords.get(1)), toDouble(coords.get(0))));
-      }
-      else{
+      } else {
         latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
       }
     }
@@ -173,7 +168,8 @@ class Convert {
     for (List<LatLng> innerGeometry : geometry) {
       List<com.mapbox.geojson.Point> innerPoints = new ArrayList<>(innerGeometry.size());
       for (LatLng latLng : innerGeometry) {
-        innerPoints.add(com.mapbox.geojson.Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude()));
+        innerPoints.add(
+            com.mapbox.geojson.Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude()));
       }
       points.add(innerPoints);
     }
@@ -229,8 +225,8 @@ class Convert {
     if (minMaxZoomPreference != null) {
       final List<?> zoomPreferenceData = toList(minMaxZoomPreference);
       sink.setMinMaxZoomPreference( //
-        toFloatWrapper(zoomPreferenceData.get(0)), //
-        toFloatWrapper(zoomPreferenceData.get(1)));
+          toFloatWrapper(zoomPreferenceData.get(0)), //
+          toFloatWrapper(zoomPreferenceData.get(1)));
     }
     final Object rotateGesturesEnabled = data.get("rotateGesturesEnabled");
     if (rotateGesturesEnabled != null) {
@@ -265,27 +261,27 @@ class Convert {
       sink.setMyLocationRenderMode(toInt(myLocationRenderMode));
     }
     final Object logoViewMargins = data.get("logoViewMargins");
-    if(logoViewMargins != null){
+    if (logoViewMargins != null) {
       final List logoViewMarginsData = toList(logoViewMargins);
       final Point point = toPoint(logoViewMarginsData, metrics.density);
       sink.setLogoViewMargins(point.x, point.y);
     }
     final Object compassGravity = data.get("compassViewPosition");
-    if(compassGravity != null){
+    if (compassGravity != null) {
       sink.setCompassGravity(toInt(compassGravity));
     }
     final Object compassViewMargins = data.get("compassViewMargins");
-    if(compassViewMargins != null){
+    if (compassViewMargins != null) {
       final List compassViewMarginsData = toList(compassViewMargins);
       final Point point = toPoint(compassViewMarginsData, metrics.density);
       sink.setCompassViewMargins(point.x, point.y);
     }
     final Object attributionButtonGravity = data.get("attributionButtonPosition");
-    if(attributionButtonGravity != null){
+    if (attributionButtonGravity != null) {
       sink.setAttributionButtonGravity(toInt(attributionButtonGravity));
     }
     final Object attributionButtonMargins = data.get("attributionButtonMargins");
-    if(attributionButtonMargins != null){
+    if (attributionButtonMargins != null) {
       final List attributionButtonMarginsData = toList(attributionButtonMargins);
       final Point point = toPoint(attributionButtonMarginsData, metrics.density);
       sink.setAttributionButtonMargins(point.x, point.y);

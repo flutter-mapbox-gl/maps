@@ -39,7 +39,20 @@ jobs:
     - run: chmod +x swiftformat_linux
     - name: Check Swift formatting 
       run: ./swiftformat_linux --swiftversion 4.2 --maxwidth 100 --lint ios
+
+  check-java-formatting:
+    name: "Check Java formatting"
+    runs-on: ubuntu-latest
     
+    steps:
+    - uses: actions/checkout@v1
+    - name: get google-java-format
+      run: wget https://github.com/google/google-java-format/releases/download/v1.13.0/google-java-format-1.13.0-all-deps.jar
+    - run: java --version
+    - name: Check Java formatting 
+      run: java -jar google-java-format-1.13.0-all-deps.jar --set-exit-if-changed -n $(find . -type f -name "*.java")
+
+
   build-android:
     environment: ANDROID_CI_DOWNLOADS_TOKEN
     name: "Build Android apk"
