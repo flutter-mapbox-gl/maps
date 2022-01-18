@@ -117,6 +117,7 @@ final class MapboxMapController
     MapboxMap.OnMapLongClickListener,
     MapboxMap.OnScaleListener,
     MapboxMap.OnRotateListener,
+    MapboxMap.OnFlingListener,
     MapboxMapOptionsSink,
     MethodChannel.MethodCallHandler,
     OnMapReadyCallback,
@@ -287,6 +288,7 @@ final class MapboxMapController
     mapboxMap.addOnCameraIdleListener(this);
     mapboxMap.addOnRotateListener(this);
     mapboxMap.addOnScaleListener(this);
+    mapboxMap.addOnFlingListener(this);
 
     mapView.addOnStyleImageMissingListener(
       id -> {
@@ -1484,12 +1486,17 @@ final class MapboxMapController
   }
 
   @Override
-  public void onScale(@NonNull StandardScaleGestureDetector detector) {
+  public void onScale() {
     final Map<String, Object> arguments = new HashMap<>(2);
     if (trackCameraPosition) {
       arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
     }
     methodChannel.invokeMethod("camera#onCameraZoom", arguments);
+  }
+
+  @Override
+  public void onRotateBegin(@NonNull RotateGestureDetector detector) {
+
   }
 
   @Override
@@ -1500,6 +1507,21 @@ final class MapboxMapController
       arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
     }
     methodChannel.invokeMethod("map#onRotate", arguments);
+  }
+
+  @Override
+  public void onRotateEnd(@NonNull RotateGestureDetector detector) {
+
+  }
+
+  @Override
+  public void onFling() {
+    final Map<String, Object> arguments = new HashMap<>(2);
+
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onFling", arguments);
   }
 
   @Override
@@ -1700,6 +1722,8 @@ final class MapboxMapController
     }
     destroyMapViewIfNecessary();
   }
+
+
 
   // MapboxMapOptionsSink methods
   @Override
@@ -1989,6 +2013,21 @@ final class MapboxMapController
       }
     }
     return bitmap;
+  }
+
+  @Override
+  public void onScaleBegin(@NonNull StandardScaleGestureDetector detector) {
+
+  }
+
+  @Override
+  public void onScale(@NonNull StandardScaleGestureDetector detector) {
+
+  }
+
+  @Override
+  public void onScaleEnd(@NonNull StandardScaleGestureDetector detector) {
+
   }
 
   /**
