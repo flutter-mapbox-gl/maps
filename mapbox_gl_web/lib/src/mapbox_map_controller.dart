@@ -354,10 +354,20 @@ class MapboxMapController extends MapboxGlPlatform
     _map.on('movestart', _onCameraMoveStarted);
     _map.on('move', _onCameraMove);
     _map.on('moveend', _onCameraIdle);
-    _map.on('camerazoom', _onCameraZoom);
+    _map.on('scale', _onScale);
     _map.on('rotate', _onRotate);
     _map.on('fling', _onFling);
+    _map.on('rotatebegin', _onRotateBegin);
+    _map.on('rotateend', _onRotateEnd);
+    _map.on('scalebegin', _onScaleBegin);
+    _map.on('scaleend', _onScaleEnd);
+    _map.on('shove', _onShove);
+    _map.on('shovebegin', _onShoveBegin);
+    _map.on('shoveend', _onShoveEnd);
     _map.on('resize', _onMapResize);
+    _map.on('mapmove', _onMapMove);
+    _map.on('mapmovebegin', _onMapMove);
+    _map.on('mapmoveend', _onMapMove);
   }
 
   void _onMapResize(Event e) {
@@ -412,18 +422,6 @@ class MapboxMapController extends MapboxGlPlatform
     onCameraIdlePlatform(camera);
   }
 
-  void _onCameraZoom(_) {
-    final center = _map.getCenter();
-    var camera = CameraPosition(
-      bearing: _map.getBearing(),
-      target: LatLng(center.lat, center.lng),
-      tilt: _map.getPitch(),
-      zoom: _map.getZoom(),
-    );
-
-    onCameraZoomPlatform(camera);
-  }
-
   void _onRotate() {
     final center = _map.getCenter();
     var camera = CameraPosition(
@@ -434,6 +432,138 @@ class MapboxMapController extends MapboxGlPlatform
     );
 
     onRotatePlatform(camera);
+  }
+
+  void _onRotateBegin() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onRotateBeginPlatform(camera);
+  }
+
+  void _onRotateEnd() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onRotateEndPlatform(camera);
+  }
+
+  void _onScaleBegin() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onScaleBeginPlatform(camera);
+  }
+
+  void _onScaleEnd() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onScaleEndPlatform(camera);
+  }
+
+  void _onShoveBegin() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onShoveBeginPlatform(camera);
+  }
+
+  void _onShove() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onShovePlatform(camera);
+  }
+
+  void _onMapMove() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onMapMovePlatform(camera);
+  }
+
+  void _onMapMoveBegin() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onMapMoveBeginPlatform(camera);
+  }
+
+  void _onMapMoveEnd() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onMapMoveEndPlatform(camera);
+  }
+
+  void _onScale() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onScalePlatform(camera);
+  }
+
+  void _onShoveEnd() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    onShoveEndPlatform(camera);
   }
 
   void _onFling() {

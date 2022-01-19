@@ -49,10 +49,43 @@ abstract class MapboxGlPlatform {
   final ArgumentCallbacks<CameraPosition> onCameraZoomPlatform =
       ArgumentCallbacks<CameraPosition>();
 
+  final ArgumentCallbacks<CameraPosition> onRotateBeginPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
   final ArgumentCallbacks<CameraPosition> onRotatePlatform =
       ArgumentCallbacks<CameraPosition>();
 
+  final ArgumentCallbacks<CameraPosition> onRotateEndPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
   final ArgumentCallbacks<CameraPosition> onFlingPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onShoveBeginPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onShovePlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onMapMovePlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onMapMoveEndPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onMapMoveBeginPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onScalePlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onScaleBeginPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onScaleEndPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onShoveEndPlatform =
       ArgumentCallbacks<CameraPosition>();
 
   final ArgumentCallbacks<void> onMapStyleLoadedPlatform =

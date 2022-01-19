@@ -34,7 +34,9 @@ import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineResult;
+import com.mapbox.android.gestures.MoveGestureDetector;
 import com.mapbox.android.gestures.RotateGestureDetector;
+import com.mapbox.android.gestures.ShoveGestureDetector;
 import com.mapbox.android.gestures.StandardScaleGestureDetector;
 import com.mapbox.android.telemetry.TelemetryEnabler;
 import com.mapbox.geojson.BoundingBox;
@@ -118,6 +120,8 @@ final class MapboxMapController
     MapboxMap.OnScaleListener,
     MapboxMap.OnRotateListener,
     MapboxMap.OnFlingListener,
+    MapboxMap.OnShoveListener,
+    MapboxMap.OnMoveListener,
     MapboxMapOptionsSink,
     MethodChannel.MethodCallHandler,
     OnMapReadyCallback,
@@ -289,6 +293,7 @@ final class MapboxMapController
     mapboxMap.addOnRotateListener(this);
     mapboxMap.addOnScaleListener(this);
     mapboxMap.addOnFlingListener(this);
+    mapboxMap.addOnShoveListener(this);
 
     mapView.addOnStyleImageMissingListener(
       id -> {
@@ -1496,7 +1501,12 @@ final class MapboxMapController
 
   @Override
   public void onRotateBegin(@NonNull RotateGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
 
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onRotateBegin", arguments);
   }
 
   @Override
@@ -1511,7 +1521,12 @@ final class MapboxMapController
 
   @Override
   public void onRotateEnd(@NonNull RotateGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
 
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onRotateEnd", arguments);
   }
 
   @Override
@@ -2017,17 +2032,92 @@ final class MapboxMapController
 
   @Override
   public void onScaleBegin(@NonNull StandardScaleGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
 
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onScaleBegin", arguments);
   }
 
   @Override
   public void onScale(@NonNull StandardScaleGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
 
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onScale", arguments);
   }
 
   @Override
   public void onScaleEnd(@NonNull StandardScaleGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
 
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onScaleEnd", arguments);
+  }
+
+  @Override
+  public void onShoveBegin(@NonNull ShoveGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onShoveBegin", arguments);
+  }
+
+  @Override
+  public void onShove(@NonNull ShoveGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onShove", arguments);
+  }
+
+  @Override
+  public void onShoveEnd(@NonNull ShoveGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onShoveEnd", arguments);
+  }
+
+  @Override
+  public void onMoveBegin(@NonNull MoveGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onMapMoveBegin", arguments);
+  }
+
+  @Override
+  public void onMove(@NonNull MoveGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onMapMove", arguments);
+  }
+
+  @Override
+  public void onMoveEnd(@NonNull MoveGestureDetector detector) {
+    final Map<String, Object> arguments = new HashMap<>(2);
+
+    if (trackCameraPosition) {
+      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
+    }
+    methodChannel.invokeMethod("map#onMoveEnd", arguments);
   }
 
   /**
