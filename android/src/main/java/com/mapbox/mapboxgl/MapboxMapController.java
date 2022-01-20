@@ -294,6 +294,7 @@ final class MapboxMapController
     mapboxMap.addOnScaleListener(this);
     mapboxMap.addOnFlingListener(this);
     mapboxMap.addOnShoveListener(this);
+    mapboxMap.addOnMoveListener(this);
 
     mapView.addOnStyleImageMissingListener(
       id -> {

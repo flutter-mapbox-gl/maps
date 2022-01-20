@@ -204,43 +204,43 @@ class MapboxMap extends StatefulWidget {
 
   final OnCameraZoomCallback onCameraZoom;
 
-  // Called when map is rotated
+  /// Called when map is rotated
   final OnRotateCallback onRotate;
 
-  // Called when map is flinged
+  /// Called when map is flinged
   final OnFlingCallback onFling;
 
-  // Called when zoom gesture begins
+  /// Called when zoom gesture begins
   final OnScaleBeginCallback onScaleBegin;
 
-  // Called when zoom gesture ends
+  /// Called when zoom gesture ends
   final OnScaleEndCallback onScaleEnd;
 
-  // Called when map is shoved
+  /// Called when map is shoved
   final OnShoveCallback onShove;
 
-  // Called when shove gesture ends;
+  /// Called when shove gesture ends;
   final OnShoveEndCallback onShoveEnd;
 
-  // Called when shove gesture begins
+  /// Called when shove gesture begins
   final OnShoveBeginCallback onShoveBegin;
 
-  // Called when rotate Gesture begins
+  /// Called when rotate Gesture begins
   final OnRotateBeginCallback onRotateBegin;
 
-  // Called when rotate gesture ends
+  /// Called when rotate gesture ends
   final OnRotateEndCallback onRotateEnd;
 
-  // Called when map is zoomed
+  /// Called when map is zoomed
   final OnScaleCallback onScale;
 
-  // Called when map is moved
+  /// Called when map is moved
   final OnMapMoveCallback onMapMove;
 
-  // Called when pan gesture is started
+  /// Called when pan gesture is started
   final OnMapMoveBeginCallback onMapMoveBegin;
 
-  // Called when pan gesture ends
+  /// Called when pan gesture ends
   final OnMapMoveEndCallback onMapMoveEnd;
 
   /// Called when map view is entering an idle state, and no more drawing will
