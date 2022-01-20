@@ -15,7 +15,6 @@ typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
 typedef void OnCameraIdleCallback();
-typedef void OnCameraZoomCallback();
 typedef void OnRotateBeginCallback();
 typedef void OnRotateCallback();
 typedef void OnRotateEndCallback();
@@ -58,7 +57,6 @@ class MapboxMapController extends ChangeNotifier {
     this.onMapIdle,
     this.onUserLocationUpdated,
     this.onCameraIdle,
-    this.onCameraZoom,
     this.onRotate,
     this.onFling,
     this.onRotateBegin,
@@ -133,19 +131,6 @@ class MapboxMapController extends ChangeNotifier {
       }
       if (onCameraIdle != null) {
         onCameraIdle();
-      }
-      notifyListeners();
-    });
-
-    MapboxGlPlatform.getInstance(_id)
-        .onCameraZoomPlatform
-        .add((cameraPosition) {
-      if (cameraPosition != null) {
-        _cameraPosition = cameraPosition;
-      }
-
-      if (onCameraZoom != null) {
-        onCameraZoom();
       }
       notifyListeners();
     });
@@ -370,7 +355,6 @@ class MapboxMapController extends ChangeNotifier {
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
       OnCameraIdleCallback onCameraIdle,
-      OnCameraZoomCallback onCameraZoom,
       OnRotateCallback onRotate,
       OnFlingCallback onFling,
       OnRotateBeginCallback onRotateBegin,
@@ -394,7 +378,6 @@ class MapboxMapController extends ChangeNotifier {
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
         onCameraIdle: onCameraIdle,
-        onCameraZoom: onCameraZoom,
         onRotate: onRotate,
         onFling: onFling,
         onMapMove: onMapMove,
@@ -427,7 +410,6 @@ class MapboxMapController extends ChangeNotifier {
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
 
   final OnCameraIdleCallback onCameraIdle;
-  final OnCameraZoomCallback onCameraZoom;
   final OnRotateCallback onRotate;
   final OnFlingCallback onFling;
   final OnRotateBeginCallback onRotateBegin;

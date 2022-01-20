@@ -46,9 +46,6 @@ abstract class MapboxGlPlatform {
   final ArgumentCallbacks<CameraPosition> onCameraIdlePlatform =
       ArgumentCallbacks<CameraPosition>();
 
-  final ArgumentCallbacks<CameraPosition> onCameraZoomPlatform =
-      ArgumentCallbacks<CameraPosition>();
-
   final ArgumentCallbacks<CameraPosition> onRotateBeginPlatform =
       ArgumentCallbacks<CameraPosition>();
 

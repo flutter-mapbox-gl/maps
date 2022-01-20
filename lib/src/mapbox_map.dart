@@ -38,7 +38,6 @@ class MapboxMap extends StatefulWidget {
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
     this.onCameraIdle,
-    this.onCameraZoom,
     this.onRotate,
     this.onFling,
     this.onRotateBegin,
@@ -202,7 +201,6 @@ class MapboxMap extends StatefulWidget {
   // Called when camera movement has ended.
   final OnCameraIdleCallback onCameraIdle;
 
-  final OnCameraZoomCallback onCameraZoom;
 
   /// Called when map is rotated
   final OnRotateCallback onRotate;
@@ -320,7 +318,6 @@ class _MapboxMapState extends State<MapboxMap> {
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged,
         onCameraIdle: widget.onCameraIdle,
-        onCameraZoom: widget.onCameraZoom,
         onRotate: widget.onRotate,
         onFling: widget.onFling,
         onRotateBegin: widget.onRotateBegin,

@@ -1492,15 +1492,6 @@ final class MapboxMapController
   }
 
   @Override
-  public void onScale() {
-    final Map<String, Object> arguments = new HashMap<>(2);
-    if (trackCameraPosition) {
-      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
-    }
-    methodChannel.invokeMethod("camera#onCameraZoom", arguments);
-  }
-
-  @Override
   public void onRotateBegin(@NonNull RotateGestureDetector detector) {
     final Map<String, Object> arguments = new HashMap<>(2);
 
@@ -1740,6 +1731,10 @@ final class MapboxMapController
   }
 
 
+  @Override
+  public void onScale() {
+
+  }
 
   // MapboxMapOptionsSink methods
   @Override
