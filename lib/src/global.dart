@@ -100,8 +100,8 @@ Future<OfflineRegion> downloadOfflineRegion(
   String channelName =
       'downloadOfflineRegion_${DateTime.now().microsecondsSinceEpoch}';
 
-  final result =
-      _globalChannel.invokeMethod('downloadOfflineRegion', <String, dynamic>{
+  final result = await _globalChannel
+      .invokeMethod('downloadOfflineRegion', <String, dynamic>{
     'accessToken': accessToken,
     'channelName': channelName,
     'definition': definition.toMap(),
@@ -153,5 +153,5 @@ Future<OfflineRegion> downloadOfflineRegion(
     });
   }
 
-  return OfflineRegion.fromMap(json.decode(await result));
+  return OfflineRegion.fromMap(json.decode(result));
 }
