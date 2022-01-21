@@ -46,7 +46,7 @@ class SourcePropertyConverter {
     class func buildVectorTileSource(identifier: String,
                                      properties: [String: Any]) -> MGLVectorTileSource?
     {
-        if let url = properties["url"] as? String, let url = URL(string: url) {
+        if let rawUrl = properties["url"] as? String, let url = URL(string: rawUrl) {
             return MGLVectorTileSource(identifier: identifier, configurationURL: url)
         }
         if let tiles = properties["tiles"] as? [String] {
@@ -62,7 +62,7 @@ class SourcePropertyConverter {
     class func buildRasterDemSource(identifier: String,
                                     properties: [String: Any]) -> MGLRasterDEMSource?
     {
-        if let url = properties["url"] as? String, let url = URL(string: url) {
+        if let rawUrl = properties["url"] as? String, let url = URL(string: rawUrl) {
             return MGLRasterDEMSource(identifier: identifier, configurationURL: url)
         }
         if let tiles = properties["tiles"] as? [String] {
@@ -123,7 +123,7 @@ class SourcePropertyConverter {
     }
 
     class func buildImageSource(identifier: String, properties: [String: Any]) -> MGLImageSource? {
-        if let url = properties["url"] as? String, let url = URL(string: url),
+        if let rawUrl = properties["url"] as? String, let url = URL(string: rawUrl),
            let coordinates = properties["coordinates"] as? [[Double]]
         {
             return MGLImageSource(
