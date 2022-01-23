@@ -15,19 +15,20 @@ typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
 typedef void OnCameraIdleCallback();
+// TODO: Include additional parameters for i.e previous camera position and current camera position
 typedef void OnRotateBeginCallback();
 typedef void OnRotateCallback();
 typedef void OnRotateEndCallback();
 typedef void OnFlingCallback();
-typedef void OnMapIdleCallback();
 typedef void OnScaleBeginCallback();
+typedef void OnScaleCallback();
 typedef void OnScaleEndCallback();
+typedef void OnMapIdleCallback();
 typedef void OnShoveBeginCallback();
 typedef void OnShoveCallback();
 typedef void OnShoveEndCallback();
-typedef void OnScaleCallback();
-typedef void OnMapMoveCallback();
 typedef void OnMapMoveBeginCallback();
+typedef void OnMapMoveCallback();
 typedef void OnMapMoveEndCallback();
 
 /// Controller for a single MapboxMap instance running on the host platform.
@@ -153,8 +154,8 @@ class MapboxMapController extends ChangeNotifier {
         _cameraPosition = cameraPosition;
       }
 
-      if (onRotate != null) {
-        onRotate();
+      if (onRotateBegin != null) {
+        onRotateBegin();
       }
       notifyListeners();
     });

@@ -58,7 +58,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
 
   @Override
   public void onScale() {
-
+    // do nothing.
   }
 
   @Override

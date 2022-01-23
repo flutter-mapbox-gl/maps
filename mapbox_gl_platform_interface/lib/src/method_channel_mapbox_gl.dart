@@ -48,15 +48,35 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
             CameraPosition.fromMap(call.arguments['position']);
         onCameraIdlePlatform(cameraPosition);
         break;
+      case 'map#onScaleBegin':
+        final CameraPosition cameraPosition =
+            CameraPosition.fromMap(call.arguments['position']);
+        onScaleBeginPlatform(cameraPosition);
+        break;
       case 'map#onScale':
         final CameraPosition cameraPosition =
             CameraPosition.fromMap(call.arguments['position']);
         onScalePlatform(cameraPosition);
         break;
+      case 'map#onScaleEnd':
+        final CameraPosition cameraPosition =
+            CameraPosition.fromMap(call.arguments['position']);
+        onScaleEndPlatform(cameraPosition);
+        break;
+      case 'map#onRotateBegin':
+        final CameraPosition cameraPosition =
+            CameraPosition.fromMap(call.arguments['position']);
+        onRotateBeginPlatform(cameraPosition);
+        break;
       case 'map#onRotate':
         final CameraPosition cameraPosition =
             CameraPosition.fromMap(call.arguments['position']);
         onRotatePlatform(cameraPosition);
+        break;
+      case 'map#onRotateEnd':
+        final CameraPosition cameraPosition =
+            CameraPosition.fromMap(call.arguments['position']);
+        onRotateEndPlatform(cameraPosition);
         break;
       case 'map#onFling':
         final CameraPosition cameraPosition =
@@ -68,15 +88,15 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
             CameraPosition.fromMap(call.arguments['position']);
         onMapMoveBeginPlatform(cameraPosition);
         break;
-      case 'map#onMapMoveEnd':
-        final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
-        onMapMoveEndPlatform(cameraPosition);
-        break;
       case 'map#onMapMove':
         final CameraPosition cameraPosition =
             CameraPosition.fromMap(call.arguments['position']);
         onMapMovePlatform(cameraPosition);
+        break;
+      case 'map#onMapMoveEnd':
+        final CameraPosition cameraPosition =
+            CameraPosition.fromMap(call.arguments['position']);
+        onMapMoveEndPlatform(cameraPosition);
         break;
       case 'map#onShoveBegin':
         final CameraPosition cameraPosition =
@@ -92,31 +112,6 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         final CameraPosition cameraPosition =
             CameraPosition.fromMap(call.arguments['position']);
         onShoveEndPlatform(cameraPosition);
-        break;
-      case 'map#onRotateBegin':
-        final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
-        onRotateBeginPlatform(cameraPosition);
-        break;
-      case 'map#onRotateEnd':
-        final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
-        onRotateEndPlatform(cameraPosition);
-        break;
-      case 'map#onScaleBegin':
-        final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
-        onScaleBeginPlatform(cameraPosition);
-        break;
-      case 'map#onRotateBegin':
-        final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
-        onRotateBeginPlatform(cameraPosition);
-        break;
-      case 'map#onRotateEnd':
-        final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
-        onRotateEndPlatform(cameraPosition);
         break;
       case 'map#onStyleLoaded':
         onMapStyleLoadedPlatform(null);

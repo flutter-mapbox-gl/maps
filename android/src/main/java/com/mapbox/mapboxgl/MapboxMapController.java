@@ -1733,7 +1733,7 @@ final class MapboxMapController
 
   @Override
   public void onScale() {
-
+    // Do nothing.
   }
 
   // MapboxMapOptionsSink methods
@@ -2113,7 +2113,7 @@ final class MapboxMapController
     if (trackCameraPosition) {
       arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
     }
-    methodChannel.invokeMethod("map#onMoveEnd", arguments);
+    methodChannel.invokeMethod("map#onMapMoveEnd", arguments);
   }
 
   /**
