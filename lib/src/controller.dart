@@ -15,8 +15,21 @@ typedef void OnCameraTrackingDismissedCallback();
 typedef void OnCameraTrackingChangedCallback(MyLocationTrackingMode mode);
 
 typedef void OnCameraIdleCallback();
-
+// TODO: Include additional parameters for i.e previous camera position and current camera position
+typedef void OnRotateBeginCallback();
+typedef void OnRotateCallback();
+typedef void OnRotateEndCallback();
+typedef void OnFlingCallback();
+typedef void OnScaleBeginCallback();
+typedef void OnScaleCallback();
+typedef void OnScaleEndCallback();
 typedef void OnMapIdleCallback();
+typedef void OnShoveBeginCallback();
+typedef void OnShoveCallback();
+typedef void OnShoveEndCallback();
+typedef void OnMapMoveBeginCallback();
+typedef void OnMapMoveCallback();
+typedef void OnMapMoveEndCallback();
 
 /// Controller for a single MapboxMap instance running on the host platform.
 ///
@@ -34,16 +47,31 @@ typedef void OnMapIdleCallback();
 /// Line tap events can be received by adding callbacks to [onLineTapped].
 /// Circle tap events can be received by adding callbacks to [onCircleTapped].
 class MapboxMapController extends ChangeNotifier {
-  MapboxMapController._(this._id, CameraPosition initialCameraPosition,
-      {this.onStyleLoadedCallback,
-      this.onMapClick,
-      this.onMapLongClick,
-      this.onCameraTrackingDismissed,
-      this.onCameraTrackingChanged,
-      this.onMapIdle,
-      this.onUserLocationUpdated,
-      this.onCameraIdle})
-      : assert(_id != null) {
+  MapboxMapController._(
+    this._id,
+    CameraPosition initialCameraPosition, {
+    this.onStyleLoadedCallback,
+    this.onMapClick,
+    this.onMapLongClick,
+    this.onCameraTrackingDismissed,
+    this.onCameraTrackingChanged,
+    this.onMapIdle,
+    this.onUserLocationUpdated,
+    this.onCameraIdle,
+    this.onRotate,
+    this.onFling,
+    this.onRotateBegin,
+    this.onRotateEnd,
+    this.onScaleBegin,
+    this.onScaleEnd,
+    this.onShoveBegin,
+    this.onShove,
+    this.onShoveEnd,
+    this.onMapMoveBegin,
+    this.onMapMove,
+    this.onMapMoveEnd,
+    this.onScale,
+  }) : assert(_id != null) {
     _cameraPosition = initialCameraPosition;
 
     MapboxGlPlatform.getInstance(_id)
@@ -108,6 +136,172 @@ class MapboxMapController extends ChangeNotifier {
       notifyListeners();
     });
 
+    MapboxGlPlatform.getInstance(_id).onRotatePlatform.add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onRotate != null) {
+        onRotate();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id)
+        .onRotateBeginPlatform
+        .add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onRotateBegin != null) {
+        onRotateBegin();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id).onFlingPlatform.add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onFling != null) {
+        onFling();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id)
+        .onMapMoveBeginPlatform
+        .add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onMapMove != null) {
+        onMapMoveBegin();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id).onMapMovePlatform.add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onMapMove != null) {
+        onMapMove();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id)
+        .onMapMoveEndPlatform
+        .add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onMapMoveEnd != null) {
+        onMapMoveEnd();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id).onScalePlatform.add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onScale != null) {
+        onScale();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id)
+        .onShoveBeginPlatform
+        .add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onShoveBegin != null) {
+        onShoveBegin();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id).onShovePlatform.add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onShove != null) {
+        onShove();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id).onShoveEndPlatform.add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onShoveEnd != null) {
+        onShoveEnd();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id)
+        .onRotateBeginPlatform
+        .add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onRotateBegin != null) {
+        onRotateBegin();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id).onRotateEndPlatform.add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onRotateEnd != null) {
+        onRotateEnd();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id)
+        .onScaleBeginPlatform
+        .add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onScaleBegin != null) {
+        onScaleBegin();
+      }
+      notifyListeners();
+    });
+
+    MapboxGlPlatform.getInstance(_id).onScaleEndPlatform.add((cameraPosition) {
+      if (cameraPosition != null) {
+        _cameraPosition = cameraPosition;
+      }
+
+      if (onScaleEnd != null) {
+        onScaleEnd();
+      }
+      notifyListeners();
+    });
+
     MapboxGlPlatform.getInstance(_id).onMapStyleLoadedPlatform.add((_) {
       if (onStyleLoadedCallback != null) {
         onStyleLoadedCallback();
@@ -162,6 +356,19 @@ class MapboxMapController extends ChangeNotifier {
       OnCameraTrackingDismissedCallback onCameraTrackingDismissed,
       OnCameraTrackingChangedCallback onCameraTrackingChanged,
       OnCameraIdleCallback onCameraIdle,
+      OnRotateCallback onRotate,
+      OnFlingCallback onFling,
+      OnRotateBeginCallback onRotateBegin,
+      OnRotateEndCallback onRotateEnd,
+      OnScaleBeginCallback onScaleBegin,
+      OnScaleEndCallback onScaleEnd,
+      OnShoveBeginCallback onShoveBegin,
+      OnShoveEndCallback onShoveEnd,
+      OnShoveCallback onShove,
+      OnScaleCallback onScale,
+      OnMapMoveBeginCallback onMapMoveBegin,
+      OnMapMoveCallback onMapMove,
+      OnMapMoveEndCallback onMapMoveEnd,
       OnMapIdleCallback onMapIdle}) {
     assert(id != null);
     return MapboxMapController._(id, initialCameraPosition,
@@ -172,6 +379,19 @@ class MapboxMapController extends ChangeNotifier {
         onCameraTrackingDismissed: onCameraTrackingDismissed,
         onCameraTrackingChanged: onCameraTrackingChanged,
         onCameraIdle: onCameraIdle,
+        onRotate: onRotate,
+        onFling: onFling,
+        onMapMove: onMapMove,
+        onMapMoveBegin: onMapMoveBegin,
+        onMapMoveEnd: onMapMoveEnd,
+        onScale: onScale,
+        onRotateBegin: onRotateBegin,
+        onRotateEnd: onRotateEnd,
+        onScaleBegin: onScaleBegin,
+        onScaleEnd: onScaleEnd,
+        onShove: onShove,
+        onShoveBegin: onShoveBegin,
+        onShoveEnd: onShoveEnd,
         onMapIdle: onMapIdle);
   }
 
@@ -191,7 +411,19 @@ class MapboxMapController extends ChangeNotifier {
   final OnCameraTrackingChangedCallback onCameraTrackingChanged;
 
   final OnCameraIdleCallback onCameraIdle;
-
+  final OnRotateCallback onRotate;
+  final OnFlingCallback onFling;
+  final OnRotateBeginCallback onRotateBegin;
+  final OnRotateEndCallback onRotateEnd;
+  final OnScaleBeginCallback onScaleBegin;
+  final OnScaleEndCallback onScaleEnd;
+  final OnShoveBeginCallback onShoveBegin;
+  final OnShoveCallback onShove;
+  final OnShoveEndCallback onShoveEnd;
+  final OnMapMoveBeginCallback onMapMoveBegin;
+  final OnMapMoveEndCallback onMapMoveEnd;
+  final OnMapMoveCallback onMapMove;
+  final OnScaleCallback onScale;
   final OnMapIdleCallback onMapIdle;
 
   /// Callbacks to receive tap events for symbols placed on this map.
@@ -293,7 +525,8 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Add properties to existing layer
-  Future<void> addLayerProperties(String layerId, Map<String, dynamic> properties) async {
+  Future<void> addLayerProperties(
+      String layerId, Map<String, dynamic> properties) async {
     await MapboxGlPlatform.getInstance(_id)
         .addLayerProperties(layerId, properties);
   }
@@ -891,8 +1124,10 @@ class MapboxMapController extends ChangeNotifier {
         .getMetersPerPixelAtLatitude(latitude);
   }
 
-  Future<void> toggleLayerVisibility(List<String> layerIds, bool isVisible) async {
-    return MapboxGlPlatform.getInstance(_id).toggleLayerVisibility(layerIds, isVisible);
+  Future<void> toggleLayerVisibility(
+      List<String> layerIds, bool isVisible) async {
+    return MapboxGlPlatform.getInstance(_id)
+        .toggleLayerVisibility(layerIds, isVisible);
   }
 
   Future<void> setStyleString(String styleString) async {

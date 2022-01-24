@@ -38,7 +38,20 @@ class MapboxMap extends StatefulWidget {
     this.onCameraTrackingDismissed,
     this.onCameraTrackingChanged,
     this.onCameraIdle,
+    this.onRotate,
+    this.onFling,
+    this.onRotateBegin,
+    this.onRotateEnd,
+    this.onScaleBegin,
+    this.onScaleEnd,
+    this.onShove,
+    this.onShoveBegin,
+    this.onShoveEnd,
     this.onMapIdle,
+    this.onScale,
+    this.onMapMove,
+    this.onMapMoveBegin,
+    this.onMapMoveEnd,
     this.annotationOrder = const [
       AnnotationType.line,
       AnnotationType.symbol,
@@ -188,6 +201,46 @@ class MapboxMap extends StatefulWidget {
   // Called when camera movement has ended.
   final OnCameraIdleCallback onCameraIdle;
 
+
+  /// Called when map is rotated
+  final OnRotateCallback onRotate;
+
+  /// Called when map is flinged
+  final OnFlingCallback onFling;
+
+  /// Called when zoom gesture begins
+  final OnScaleBeginCallback onScaleBegin;
+
+  /// Called when zoom gesture ends
+  final OnScaleEndCallback onScaleEnd;
+
+  /// Called when map is shoved
+  final OnShoveCallback onShove;
+
+  /// Called when shove gesture ends;
+  final OnShoveEndCallback onShoveEnd;
+
+  /// Called when shove gesture begins
+  final OnShoveBeginCallback onShoveBegin;
+
+  /// Called when rotate Gesture begins
+  final OnRotateBeginCallback onRotateBegin;
+
+  /// Called when rotate gesture ends
+  final OnRotateEndCallback onRotateEnd;
+
+  /// Called when map is zoomed
+  final OnScaleCallback onScale;
+
+  /// Called when map is moved
+  final OnMapMoveCallback onMapMove;
+
+  /// Called when pan gesture is started
+  final OnMapMoveBeginCallback onMapMoveBegin;
+
+  /// Called when pan gesture ends
+  final OnMapMoveEndCallback onMapMoveEnd;
+
   /// Called when map view is entering an idle state, and no more drawing will
   /// be necessary until new data is loaded or there is some interaction with
   /// the map.
@@ -265,6 +318,19 @@ class _MapboxMapState extends State<MapboxMap> {
         onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged,
         onCameraIdle: widget.onCameraIdle,
+        onRotate: widget.onRotate,
+        onFling: widget.onFling,
+        onRotateBegin: widget.onRotateBegin,
+        onRotateEnd: widget.onRotateEnd,
+        onScaleBegin: widget.onScaleBegin,
+        onScaleEnd: widget.onScaleEnd,
+        onShove: widget.onShove,
+        onShoveEnd: widget.onShoveEnd,
+        onShoveBegin: widget.onShoveBegin,
+        onMapMove: widget.onMapMove,
+        onMapMoveBegin: widget.onMapMoveBegin,
+        onMapMoveEnd: widget.onMapMoveEnd,
+        onScale: widget.onScale,
         onMapIdle: widget.onMapIdle);
     await MapboxMapController.initPlatform(id);
     _controller.complete(controller);

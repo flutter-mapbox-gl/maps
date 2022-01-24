@@ -10,7 +10,9 @@ import com.mapbox.mapboxsdk.geometry.LatLngBounds;
  * Receiver of MapboxMap configuration options.
  */
 interface MapboxMapOptionsSink {
-  void setCameraTargetBounds(LatLngBounds bounds); //todo: dddd replace with CameraPosition.Builder target
+    void onScale();
+
+    void setCameraTargetBounds(LatLngBounds bounds); //todo: dddd replace with CameraPosition.Builder target
 
   void setCompassEnabled(boolean compassEnabled);
 

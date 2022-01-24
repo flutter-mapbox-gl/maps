@@ -57,6 +57,11 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   }
 
   @Override
+  public void onScale() {
+    // do nothing.
+  }
+
+  @Override
   public void setCameraTargetBounds(LatLngBounds bounds) {
     Log.e(TAG, "setCameraTargetBounds is supported only after map initiated.");
     //throw new UnsupportedOperationException("setCameraTargetBounds is supported only after map initiated.");

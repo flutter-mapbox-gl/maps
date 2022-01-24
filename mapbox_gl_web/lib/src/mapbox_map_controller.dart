@@ -75,6 +75,18 @@ class MapboxMapController extends MapboxGlPlatform
     await link.onLoad.first;
   }
 
+  CameraPosition _getCurrentCameraPosition() {
+    final center = _map.getCenter();
+    var camera = CameraPosition(
+      bearing: _map.getBearing(),
+      target: LatLng(center.lat, center.lng),
+      tilt: _map.getPitch(),
+      zoom: _map.getZoom(),
+    );
+
+    return camera;
+  }
+
   @override
   Future<CameraPosition> updateMapOptions(
       Map<String, dynamic> optionsUpdate) async {
@@ -354,7 +366,20 @@ class MapboxMapController extends MapboxGlPlatform
     _map.on('movestart', _onCameraMoveStarted);
     _map.on('move', _onCameraMove);
     _map.on('moveend', _onCameraIdle);
+    _map.on('scale', _onScale);
+    _map.on('rotate', _onRotate);
+    _map.on('fling', _onFling);
+    _map.on('rotatebegin', _onRotateBegin);
+    _map.on('rotateend', _onRotateEnd);
+    _map.on('scalebegin', _onScaleBegin);
+    _map.on('scaleend', _onScaleEnd);
+    _map.on('shove', _onShove);
+    _map.on('shovebegin', _onShoveBegin);
+    _map.on('shoveend', _onShoveEnd);
     _map.on('resize', _onMapResize);
+    _map.on('mapmove', _onMapMove);
+    _map.on('mapmovebegin', _onMapMoveBegin);
+    _map.on('mapmoveend', _onMapMoveEnd);
   }
 
   void _onMapResize(Event e) {
@@ -407,6 +432,58 @@ class MapboxMapController extends MapboxGlPlatform
       zoom: _map.getZoom(),
     );
     onCameraIdlePlatform(camera);
+  }
+
+  void _onRotateBegin() {
+    onRotateBeginPlatform(_getCurrentCameraPosition());
+  }
+
+  void _onRotate() {
+    onRotatePlatform(_getCurrentCameraPosition());
+  }
+
+  void _onRotateEnd() {
+    onRotateEndPlatform(_getCurrentCameraPosition());
+  }
+
+  void _onScaleBegin() {
+    onScaleBeginPlatform(_getCurrentCameraPosition());
+  }
+
+  void _onScale() {
+    onScalePlatform(_getCurrentCameraPosition());
+  }
+
+  void _onScaleEnd() {
+    onScaleEndPlatform(_getCurrentCameraPosition());
+  }
+
+  void _onShoveBegin() {
+    onShoveBeginPlatform(_getCurrentCameraPosition());
+  }
+
+  void _onShove() {
+    onShovePlatform(_getCurrentCameraPosition());
+  }
+
+  void _onShoveEnd() {
+    onShoveEndPlatform(_getCurrentCameraPosition());
+  }
+
+  void _onMapMoveBegin() {
+    onMapMoveBeginPlatform(_getCurrentCameraPosition());
+  }
+
+  void _onMapMove() {
+    onMapMovePlatform(_getCurrentCameraPosition());
+  }
+
+  void _onMapMoveEnd() {
+    onMapMoveEndPlatform(_getCurrentCameraPosition());
+  }
+
+  void _onFling() {
+    onFlingPlatform(_getCurrentCameraPosition());
   }
 
   void _onCameraTrackingChanged(bool isTracking) {
