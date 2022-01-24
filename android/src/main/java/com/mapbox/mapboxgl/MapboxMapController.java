@@ -2026,94 +2026,59 @@ final class MapboxMapController
     return bitmap;
   }
 
-  @Override
-  public void onScaleBegin(@NonNull StandardScaleGestureDetector detector) {
+  Map<String, Object> getCameraPositionMap() {
     final Map<String, Object> arguments = new HashMap<>(2);
 
     if (trackCameraPosition) {
       arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
     }
-    methodChannel.invokeMethod("map#onScaleBegin", arguments);
+
+    return arguments;
+  }
+
+  @Override
+  public void onScaleBegin(@NonNull StandardScaleGestureDetector detector) {
+    methodChannel.invokeMethod("map#onScaleBegin", getCameraPositionMap());
   }
 
   @Override
   public void onScale(@NonNull StandardScaleGestureDetector detector) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-
-    if (trackCameraPosition) {
-      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
-    }
-    methodChannel.invokeMethod("map#onScale", arguments);
+    methodChannel.invokeMethod("map#onScale", getCameraPositionMap());
   }
 
   @Override
   public void onScaleEnd(@NonNull StandardScaleGestureDetector detector) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-
-    if (trackCameraPosition) {
-      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
-    }
-    methodChannel.invokeMethod("map#onScaleEnd", arguments);
+    methodChannel.invokeMethod("map#onScaleEnd", getCameraPositionMap());
   }
 
   @Override
   public void onShoveBegin(@NonNull ShoveGestureDetector detector) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-
-    if (trackCameraPosition) {
-      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
-    }
-    methodChannel.invokeMethod("map#onShoveBegin", arguments);
+    methodChannel.invokeMethod("map#onShoveBegin", getCameraPositionMap());
   }
 
   @Override
   public void onShove(@NonNull ShoveGestureDetector detector) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-
-    if (trackCameraPosition) {
-      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
-    }
-    methodChannel.invokeMethod("map#onShove", arguments);
+    methodChannel.invokeMethod("map#onShove", getCameraPositionMap());
   }
 
   @Override
   public void onShoveEnd(@NonNull ShoveGestureDetector detector) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-
-    if (trackCameraPosition) {
-      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
-    }
-    methodChannel.invokeMethod("map#onShoveEnd", arguments);
+    methodChannel.invokeMethod("map#onShoveEnd", getCameraPositionMap());
   }
 
   @Override
   public void onMoveBegin(@NonNull MoveGestureDetector detector) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-
-    if (trackCameraPosition) {
-      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
-    }
-    methodChannel.invokeMethod("map#onMapMoveBegin", arguments);
+    methodChannel.invokeMethod("map#onMapMoveBegin", getCameraPositionMap());
   }
 
   @Override
   public void onMove(@NonNull MoveGestureDetector detector) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-
-    if (trackCameraPosition) {
-      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
-    }
-    methodChannel.invokeMethod("map#onMapMove", arguments);
+    methodChannel.invokeMethod("map#onMapMove", getCameraPositionMap());
   }
 
   @Override
   public void onMoveEnd(@NonNull MoveGestureDetector detector) {
-    final Map<String, Object> arguments = new HashMap<>(2);
-
-    if (trackCameraPosition) {
-      arguments.put("position", Convert.toJson(mapboxMap.getCameraPosition()));
-    }
-    methodChannel.invokeMethod("map#onMapMoveEnd", arguments);
+    methodChannel.invokeMethod("map#onMapMoveEnd", getCameraPositionMap());
   }
 
   /**
