@@ -9,6 +9,8 @@ protocol MapboxMapOptionsSink {
     func setRotateGesturesEnabled(rotateGesturesEnabled: Bool)
     func setScrollGesturesEnabled(scrollGesturesEnabled: Bool)
     func setTiltGesturesEnabled(tiltGesturesEnabled: Bool)
+    func setAttributionEnabled(attributionEnabled: Bool)
+    func setLogoEnabled(logoEnabled: Bool)
     func setTrackCameraPosition(trackCameraPosition: Bool)
     func setZoomGesturesEnabled(zoomGesturesEnabled: Bool)
     func setMyLocationEnabled(myLocationEnabled: Bool)

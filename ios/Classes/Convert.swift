@@ -29,6 +29,12 @@ class Convert {
         if let tiltGesturesEnabled = options["tiltGesturesEnabled"] as? Bool {
             delegate.setTiltGesturesEnabled(tiltGesturesEnabled: tiltGesturesEnabled)
         }
+        if let attributionEnabled = options["attributionEnabled"] as? Bool {
+                    delegate.setAttributionEnabled(attributionEnabled: attributionEnabled)
+                }
+                if let logoEnabled = options["logoEnabled"] as? Bool {
+                            delegate.setLogoEnabled(logoEnabled: logoEnabled)
+                        }
         if let trackCameraPosition = options["trackCameraPosition"] as? Bool {
             delegate.setTrackCameraPosition(trackCameraPosition: trackCameraPosition)
         }

@@ -1254,6 +1254,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         mapView.allowsTilting = tiltGesturesEnabled
     }
 
+     func setAttributionEnabled(attributionEnabled: Bool) {
+            mapView.attributionButton.isHidden = attributionEnabled
+        }
+
+         func setLogoEnabled(logoEnabled: Bool) {
+                mapView.logoView.isHidden  = logoEnabled
+            }
+
     func setTrackCameraPosition(trackCameraPosition: Bool) {
         self.trackCameraPosition = trackCameraPosition
     }
