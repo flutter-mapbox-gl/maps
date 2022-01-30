@@ -43,4 +43,8 @@ interface MapboxMapOptionsSink {
   void setAttributionButtonGravity(int gravity);
 
   void setAttributionButtonMargins(int x, int y);
+
+  void setAttributionEnabled(boolean attributionEnabled);
+
+  void setLogoEnabled(boolean logoEnabled);
 }

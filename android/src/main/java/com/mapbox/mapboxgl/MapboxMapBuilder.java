@@ -210,6 +210,16 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     }
   }
 
+  @Override
+  public void setAttributionEnabled(boolean attributionEnabled) {
+    options.attributionEnabled(attributionEnabled);
+  }
+
+  @Override
+  public void setLogoEnabled(boolean logoEnabled) {
+options.logoEnabled(logoEnabled);
+  }
+
   public void setDragEnabled(boolean enabled) {
     this.dragEnabled = enabled;
   }

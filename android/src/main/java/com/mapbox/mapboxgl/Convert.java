@@ -240,6 +240,14 @@ class Convert {
     if (tiltGesturesEnabled != null) {
       sink.setTiltGesturesEnabled(toBoolean(tiltGesturesEnabled));
     }
+    final Object attributionEnabled = data.get("attributionEnabled");
+    if (attributionEnabled != null) {
+      sink.setAttributionEnabled(toBoolean(attributionEnabled));
+    }
+    final Object logoEnabled = data.get("logoEnabled");
+    if (logoEnabled != null) {
+      sink.setLogoEnabled(toBoolean(logoEnabled));
+    }
     final Object trackCameraPosition = data.get("trackCameraPosition");
     if (trackCameraPosition != null) {
       sink.setTrackCameraPosition(toBoolean(trackCameraPosition));

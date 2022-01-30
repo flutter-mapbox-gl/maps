@@ -1160,6 +1160,16 @@ final class MapboxMapController
   }
 
   @Override
+  public void setAttributionEnabled(boolean attributionEnabled) {
+    mapboxMap.getUiSettings().setAttributionEnabled(attributionEnabled);
+  }
+
+  @Override
+  public void setLogoEnabled(boolean logoEnabled) {
+    mapboxMap.getUiSettings().setLogoEnabled(logoEnabled);
+  }
+
+  @Override
   public void setMinMaxZoomPreference(Float min, Float max) {
     mapboxMap.setMinZoomPreference(min != null ? min : MapboxConstants.MINIMUM_ZOOM);
     mapboxMap.setMaxZoomPreference(max != null ? max : MapboxConstants.MAXIMUM_ZOOM);

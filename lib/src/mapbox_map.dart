@@ -26,6 +26,8 @@ class MapboxMap extends StatefulWidget {
     this.tiltGesturesEnabled = true,
     this.doubleClickZoomEnabled,
     this.dragEnabled = true,
+    this.attributionEnabled = true,
+    this.logoEnabled = true,
     this.trackCameraPosition = false,
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.None,
@@ -97,6 +99,10 @@ class MapboxMap extends StatefulWidget {
   /// Disable to avoid performance issues that from the drag event listeners.
   /// Biggest impact in android
   final bool dragEnabled;
+
+  final bool logoEnabled;
+
+  final bool attributionEnabled;
 
   /// Geographical bounding box for the camera target.
   final CameraTargetBounds cameraTargetBounds;
@@ -325,6 +331,8 @@ class _MapboxMapOptions {
     required this.rotateGesturesEnabled,
     required this.scrollGesturesEnabled,
     required this.tiltGesturesEnabled,
+    required this.attributionEnabled,
+    required this.logoEnabled,
     required this.zoomGesturesEnabled,
     required this.doubleClickZoomEnabled,
     this.trackCameraPosition,
@@ -347,6 +355,8 @@ class _MapboxMapOptions {
       rotateGesturesEnabled: map.rotateGesturesEnabled,
       scrollGesturesEnabled: map.scrollGesturesEnabled,
       tiltGesturesEnabled: map.tiltGesturesEnabled,
+      attributionEnabled : map.attributionEnabled,
+      logoEnabled : map.logoEnabled,
       trackCameraPosition: map.trackCameraPosition,
       zoomGesturesEnabled: map.zoomGesturesEnabled,
       doubleClickZoomEnabled:
@@ -375,6 +385,10 @@ class _MapboxMapOptions {
   final bool scrollGesturesEnabled;
 
   final bool tiltGesturesEnabled;
+
+  final bool attributionEnabled;
+
+  final bool logoEnabled;
 
   final bool zoomGesturesEnabled;
 
@@ -431,6 +445,8 @@ class _MapboxMapOptions {
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);
     addIfNonNull('scrollGesturesEnabled', scrollGesturesEnabled);
     addIfNonNull('tiltGesturesEnabled', tiltGesturesEnabled);
+    addIfNonNull('attributionEnabled', attributionEnabled);
+    addIfNonNull('logoEnabled', logoEnabled);
     addIfNonNull('zoomGesturesEnabled', zoomGesturesEnabled);
     addIfNonNull('doubleClickZoomEnabled', doubleClickZoomEnabled);
 
