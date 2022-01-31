@@ -201,7 +201,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "map#queryRenderedFeatures":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             var styleLayerIdentifiers: Set<String>?
-            if let layerIds = arguments["layerIds"] as? [String]{
+            if let layerIds = arguments["layerIds"] as? [String] {
                 styleLayerIdentifiers = Set<String>(layerIds)
             }
             var filterExpression: NSPredicate?
