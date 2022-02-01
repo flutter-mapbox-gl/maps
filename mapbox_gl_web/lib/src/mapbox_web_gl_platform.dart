@@ -1,7 +1,7 @@
 part of mapbox_gl_web;
 
 const _mapboxGlCssUrl =
-    'https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css';
+    'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css';
 
 class MapboxWebGlPlatform extends MapboxGlPlatform
     implements MapboxMapOptionsSink {
