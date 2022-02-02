@@ -4,7 +4,7 @@ We welcome contributions to this repository. Please follow these steps if you're
 
 - Please familiarize yourself with the process of running the example app and adding Mapbox access tokens as described in the Readme. 
 
-- Ensure that existing [pull requests](https://github.com/tobrun/flutter-mapbox-gl/pulls) and [issues](https://github.com/tobrun/flutter-mapbox-gl/issues) don’t already cover your contributions or questions.
+- Ensure that existing [pull requests](https://github.com/flutter-mapbox-gl/maps/pulls) and [issues](https://github.com/flutter-mapbox-gl/maps/issues) don’t already cover your contributions or questions.
 
 - Create a new branch that will contain your contributed code. Along with your contribution you should also adapt the example app to showcase any new features or APIs you have developed. This also makes testing your contribution much easier. In an ideal case, you also make your contribution cross platform but this isn't a true requirement. Eventually create a pull request once you're done making changes.
 

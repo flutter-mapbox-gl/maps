@@ -2,7 +2,7 @@
 
 > **Please note that this project is community driven and is not an official Mapbox product.** 
 > 
-> We welcome [feedback](https://github.com/tobrun/flutter-mapbox-gl/issues) and contributions.
+> We welcome [feedback](https://github.com/flutter-mapbox-gl/maps/issues) and contributions.
 
 This Flutter plugin allows to show embedded interactive and customizable vector maps inside a Flutter widget. For the Android and iOS integration, we use [mapbox-gl-native](https://github.com/mapbox/mapbox-gl-native). For web, we rely on [mapbox-gl-js](https://github.com/mapbox/mapbox-gl-js). This project only supports a subset of the API exposed by these libraries. 
 
@@ -162,4 +162,4 @@ xml ...
 
 ## Contributing
 
-We welcome contributions to this repository! If you're interested in helping build this Mapbox-Flutter integration, please read [the contribution guide](https://github.com/tobrun/flutter-mapbox-gl/blob/master/CONTRIBUTING.md) to learn how to get started.
+We welcome contributions to this repository! If you're interested in helping build this Mapbox-Flutter integration, please read [the contribution guide](https://github.com/flutter-mapbox-gl/maps/blob/master/CONTRIBUTING.md) to learn how to get started.
