@@ -306,7 +306,7 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
 
   void _onStyleLoaded(_) {
     _mapReady = true;
-
+    _map.resize();
     onMapStyleLoadedPlatform(null);
   }
 
