@@ -36,7 +36,7 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
     ndkVersion "20.1.5948944"
 
     defaultConfig {
