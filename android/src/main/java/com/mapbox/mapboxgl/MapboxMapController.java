@@ -536,7 +536,12 @@ final class MapboxMapController
             Convert.toPixels(insets.get("right"), density),
             Convert.toPixels(insets.get("bottom"), density)
           );
-          moveCamera(cameraUpdate, result);
+
+          if (call.argument("animated")) {
+            animateCamera(cameraUpdate, null, result);
+          } else {
+            moveCamera(cameraUpdate, result);
+          }
           break;
         }
       case "map#setMapLanguage":
@@ -633,29 +638,7 @@ final class MapboxMapController
               Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
           final Integer duration = call.argument("duration");
 
-          final OnCameraMoveFinishedListener onCameraMoveFinishedListener =
-              new OnCameraMoveFinishedListener() {
-                @Override
-                public void onFinish() {
-                  super.onFinish();
-                  result.success(true);
-                }
-
-                @Override
-                public void onCancel() {
-                  super.onCancel();
-                  result.success(false);
-                }
-              };
-          if (cameraUpdate != null && duration != null) {
-            // camera transformation not handled yet
-            mapboxMap.animateCamera(cameraUpdate, duration, onCameraMoveFinishedListener);
-          } else if (cameraUpdate != null) {
-            // camera transformation not handled yet
-            mapboxMap.animateCamera(cameraUpdate, onCameraMoveFinishedListener);
-          } else {
-            result.success(false);
-          }
+          animateCamera(cameraUpdate, duration, result);
           break;
         }
       case "map#queryRenderedFeatures":
@@ -1073,6 +1056,35 @@ final class MapboxMapController
               });
 
       // moveCamera(cameraUpdate);
+    } else {
+      result.success(false);
+    }
+  }
+
+  private void animateCamera(
+      CameraUpdate cameraUpdate,
+      Integer duration,
+      MethodChannel.Result result) {
+    final OnCameraMoveFinishedListener onCameraMoveFinishedListener =
+            new OnCameraMoveFinishedListener() {
+              @Override
+              public void onFinish() {
+                super.onFinish();
+                result.success(true);
+              }
+
+              @Override
+              public void onCancel() {
+                super.onCancel();
+                result.success(false);
+              }
+            };
+    if (cameraUpdate != null && duration != null) {
+      // camera transformation not handled yet
+      mapboxMap.animateCamera(cameraUpdate, duration, onCameraMoveFinishedListener);
+    } else if (cameraUpdate != null) {
+      // camera transformation not handled yet
+      mapboxMap.animateCamera(cameraUpdate, onCameraMoveFinishedListener);
     } else {
       result.success(false);
     }
