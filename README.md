@@ -18,9 +18,11 @@ Get it by running the following command:
 flutter pub add mapbox_gl
 ```
 
-### Private Mapbox access token
+### Mobile
 
-On mobile, a secret access token with the *Downloads: Read* scope is **required** for the underlying Mapbox SDKs to be downloaded.
+#### Secret Mapbox access token
+
+A secret access token with the `Downloads: Read` scope is required for the underlying Mapbox SDKs to be downloaded.
 Information on setting it up is available in the Mapbox documentation:
 [Android](https://docs.mapbox.com/android/maps/guides/install/),
 [iOS](https://docs.mapbox.com/ios/maps/guides/install/).
@@ -39,31 +41,6 @@ A problem occurred evaluating project ':mapbox_gl'.
 curl: (22) The requested URL returned error: 401 Unauthorized
 ```
 
-### Public Mapbox access token
-
-A public access token must be provided to a MapboxMap widget for retrieving styles and resources.
-While you can hardcode it directly into source files,
-it's good practise to retrieve access tokens from some external source
-(e.g. a config file or an environment variable).
-The example app uses the following technique:
-
-The access token is passed via the command line arguments when either building or running the application:
-
-```
-flutter build <platform> --dart-define=ACCESS_TOKEN=YOUR_TOKEN_HERE
-/
-flutter run --dart-define=ACCESS_TOKEN=YOUR_TOKEN_HERE
-```
-
-Then it's retrieved at runtime:
-```
-MapBoxMap(
-   ...
-   accessToken: String.fromEnvironment("ACCESS_TOKEN"),
-   ...
-)
-```
-
 ### Web
 
 Include the JavaScript and CSS files in the `<head>` of your `index.html` file:
@@ -74,6 +51,37 @@ Include the JavaScript and CSS files in the `<head>` of your `index.html` file:
 ```
 
 *Note: Look for latest version in [Mapbox GL JS documentation](https://docs.mapbox.com/mapbox-gl-js/guides/).*
+
+### All platforms
+
+#### Public Mapbox access token
+
+A public access token must be provided to a MapboxMap widget for retrieving styles and resources.
+While you can hardcode it directly into source files,
+it's good practise to retrieve access tokens from some external source
+(e.g. a config file or an environment variable).
+The example app uses the following technique:
+
+The access token is passed via the command line arguments when either building
+
+```
+flutter build <platform> --dart-define=ACCESS_TOKEN=YOUR_TOKEN_HERE
+```
+
+or running the application
+
+```
+flutter run --dart-define=ACCESS_TOKEN=YOUR_TOKEN_HERE
+```
+
+Then it's retrieved at runtime:
+```
+MapBoxMap(
+  ...
+  accessToken: String.fromEnvironment("ACCESS_TOKEN"),
+  ...
+)
+```
 
 ## Supported API
 
