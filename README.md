@@ -8,10 +8,15 @@ This Flutter plugin allows to show embedded interactive and customizable vector 
 
 ![screenshot.png](screenshot.png)
 
-
 ## How to use
 
-This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), follow the [instructions](https://flutter.dev/docs/development/packages-and-plugins/using-packages#adding-a-package-dependency-to-an-app) to add a package into your flutter application. 
+This package is available on [pub.dev](https://pub.dev/packages/mapbox_gl).
+
+Get it by running the following command:
+
+```
+flutter pub add mapbox_gl
+```
 
 ### Private Mapbox access token
 
