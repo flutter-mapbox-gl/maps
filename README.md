@@ -8,7 +8,7 @@ This Flutter plugin allows to show embedded interactive and customizable vector 
 
 ![screenshot.png](screenshot.png)
 
-## How to use
+## Setting up
 
 This package is available on [pub.dev](https://pub.dev/packages/mapbox_gl).
 
