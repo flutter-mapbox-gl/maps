@@ -76,7 +76,7 @@ flutter run --dart-define ACCESS_TOKEN=YOUR_TOKEN_HERE
 
 Then it's retrieved in Dart:
 ```
-MapBoxMap(
+MapboxMap(
   ...
   accessToken: const String.fromEnvironment("ACCESS_TOKEN"),
   ...
