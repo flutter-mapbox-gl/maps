@@ -36,11 +36,27 @@ curl: (22) The requested URL returned error: 401 Unauthorized
 
 ### Public Mapbox access token
 
-Next to a private access token you will need to provide an public access token
-to retrieve the style and underlying resources. This can be done with running your application with an additional define statement:
+A public access token must be provided to a MapboxMap widget for retrieving styles and resources.
+While you can hardcode it directly into source files,
+it's good practise to retrieve access tokens from some external source
+(e.g. a config file or an environment variable).
+The example app uses the following technique:
+
+The access token is passed via the command line arguments when either building or running the application:
 
 ```
-flutter run -d {device_id} --dart-define=ACCESS_TOKEN=ADD_YOUR_TOKEN_HERE`
+flutter build <platform> --dart-define=ACCESS_TOKEN=YOUR_TOKEN_HERE
+/
+flutter run --dart-define=ACCESS_TOKEN=YOUR_TOKEN_HERE
+```
+
+Then it's retrieved at runtime:
+```
+MapBoxMap(
+   ...
+   accessToken: String.fromEnvironment("ACCESS_TOKEN"),
+   ...
+)
 ```
 
 ## Supported API
