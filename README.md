@@ -65,20 +65,20 @@ The example app uses the following technique:
 The access token is passed via the command line arguments when either building
 
 ```
-flutter build <platform> --dart-define=ACCESS_TOKEN=YOUR_TOKEN_HERE
+flutter build <platform> --dart-define ACCESS_TOKEN=YOUR_TOKEN_HERE
 ```
 
 or running the application
 
 ```
-flutter run --dart-define=ACCESS_TOKEN=YOUR_TOKEN_HERE
+flutter run --dart-define ACCESS_TOKEN=YOUR_TOKEN_HERE
 ```
 
-Then it's retrieved at runtime:
+Then it's retrieved in Dart:
 ```
 MapBoxMap(
   ...
-  accessToken: String.fromEnvironment("ACCESS_TOKEN"),
+  accessToken: const String.fromEnvironment("ACCESS_TOKEN"),
   ...
 )
 ```
