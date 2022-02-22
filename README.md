@@ -15,21 +15,20 @@ This project is available on [pub.dev](https://pub.dev/packages/mapbox_gl), foll
 
 ### Private Mapbox access token
 
-This project does require a Mapbox access token to download the underlying Android/iOS SDKs. The secret access token must have the *Download: read* scope for
-[Android](https://docs.mapbox.com/android/maps/guides/install/) and/or 
+On mobile, a secret access token with the *Downloads: Read* scope is **required** for the underlying Mapbox SDKs to be downloaded.
+Information on setting it up is available in the Mapbox documentation:
+[Android](https://docs.mapbox.com/android/maps/guides/install/),
 [iOS](https://docs.mapbox.com/ios/maps/guides/install/).
 
-If this configuration is not present, an error like the following appears during 
-the build process:
+If the properly configured token is not present,
+the build process fails with one the following errors *(for Android/iOS respectively)*:
 
-#### Android
 ```
 * What went wrong:
 A problem occurred evaluating project ':mapbox_gl'.
 > SDK Registry token is null. See README.md for more information.
 ```
 
-#### iOS
 ```
 [!] Error installing Mapbox-iOS-SDK
 curl: (22) The requested URL returned error: 401 Unauthorized
