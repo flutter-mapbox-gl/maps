@@ -64,6 +64,17 @@ MapBoxMap(
 )
 ```
 
+### Web
+
+Include the JavaScript and CSS files in the `<head>` of your `index.html` file:
+
+```
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' rel='stylesheet' />
+```
+
+*Note: Look for latest version in [Mapbox GL JS documentation](https://docs.mapbox.com/mapbox-gl-js/guides/).*
+
 ## Supported API
 
 | Feature | Android | iOS | Web |
