@@ -186,7 +186,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 reply["latitude"] = loc.latitude as NSObject
                 reply["longitude"] = loc.longitude as NSObject
                 result(reply)
-            }else {
+            } else {
                 result(nil)
             }
         case "map#setMapLanguage":
