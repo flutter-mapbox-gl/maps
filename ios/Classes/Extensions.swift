@@ -87,7 +87,7 @@ extension UIImage {
         if Bundle.main.path(forResource: absolutePath, ofType: nil) == nil {
             absolutePath = "\(path)\(imageName)"
         } else {
-            // found asset with higher resoultion increase scale even futher
+            // found asset with higher resolution - increase scale even further to compensate
             scale *= scale
         }
         // Load image if it exists.
