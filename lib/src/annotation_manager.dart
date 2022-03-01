@@ -103,6 +103,14 @@ abstract class AnnotationManager<T extends Annotation> {
     await _setAll();
   }
 
+  /// Removes multiple annotations from the map
+  Future<void> removeAll(Iterable<T> annotations) async {
+    for (var a in annotations) {
+      _idToAnnotation.remove(a.id);
+    }
+    await _setAll();
+  }
+
   /// Remove a single annotation form the map
   Future<void> remove(T annotation) async {
     _idToAnnotation.remove(annotation.id);
