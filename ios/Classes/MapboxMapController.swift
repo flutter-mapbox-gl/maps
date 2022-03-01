@@ -671,22 +671,27 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
+    private func loadIconImage(name: String) -> UIImage? {
+        // Build up the full path of the asset.
+        // First find the last '/' ans split the image name in the asset directory and the image file name.
+        if let range = name.range(of: "/", options: [.backwards]) {
+            let directory = String(name[..<range.lowerBound])
+            let assetPath = registrar.lookupKey(forAsset: "\(directory)/")
+            let fileName = String(name[range.upperBound...])
+            // If we can load the image from file then add it to the map.
+            return UIImage.loadFromFile(
+                imagePath: assetPath,
+                imageName: fileName
+            )
+        }
+        return nil
+    }
+
     private func addIconImageToMap(iconImageName: String) {
         // Check if the image has already been added to the map.
         if mapView.style?.image(forName: iconImageName) == nil {
-            // Build up the full path of the asset.
-            // First find the last '/' ans split the image name in the asset directory and the image file name.
-            if let range = iconImageName.range(of: "/", options: [.backwards]) {
-                let directory = String(iconImageName[..<range.lowerBound])
-                let assetPath = registrar.lookupKey(forAsset: "\(directory)/")
-                let fileName = String(iconImageName[range.upperBound...])
-                // If we can load the image from file then add it to the map.
-                if let imageFromAsset = UIImage.loadFromFile(
-                    imagePath: assetPath,
-                    imageName: fileName
-                ) {
-                    mapView.style?.setImage(imageFromAsset, forName: iconImageName)
-                }
+            if let imageFromAsset = loadIconImage(name: iconImageName) {
+                mapView.style?.setImage(imageFromAsset, forName: iconImageName)
             }
         }
     }
@@ -870,6 +875,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 channel.invokeMethod("map#onStyleLoaded", arguments: nil)
             }
         }
+    }
+
+    // handle missing images
+    func mapView(_: MGLMapView, didFailToLoadImage name: String) -> UIImage? {
+        return loadIconImage(name: name)
     }
 
     func mapView(_ mapView: MGLMapView, shouldChangeFrom _: MGLMapCamera,
