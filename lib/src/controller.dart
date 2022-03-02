@@ -610,9 +610,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeSymbols(Iterable<Symbol> symbols) async {
-    for (var symbol in symbols) {
-      await symbolManager!.remove(symbol);
-    }
+    await symbolManager!.removeAll(symbols);
     notifyListeners();
   }
 
@@ -702,10 +700,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeLines(Iterable<Line> lines) async {
-    for (var line in lines) {
-      await lineManager!.remove(line);
-    }
-
+    await lineManager!.removeAll(lines);
     notifyListeners();
   }
 
@@ -799,9 +794,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeCircles(Iterable<Circle> circles) async {
-    for (var circle in circles) {
-      await circleManager!.remove(circle);
-    }
+    await circleManager!.removeAll(circles);
     notifyListeners();
   }
 
@@ -900,10 +893,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeFills(Iterable<Fill> fills) async {
-    for (var fill in fills) {
-      await fillManager!.remove(fill);
-    }
-
+    await fillManager!.removeAll(fills);
     notifyListeners();
   }
 
