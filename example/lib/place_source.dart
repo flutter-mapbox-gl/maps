@@ -134,7 +134,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                       child: const Text('Remove source (asset image)'),
                       onPressed: sourceAdded
                           ? () async {
-                              await removeLayer(LAYER_ID);
+                              removeLayer(LAYER_ID);
                               removeImageSource(SOURCE_ID).then((value) {
                                 setState(() => sourceAdded = false);
                               });
