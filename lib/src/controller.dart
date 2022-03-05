@@ -991,6 +991,11 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.addImageSource(imageSourceId, bytes, coordinates);
   }
 
+  ///Check if an image source is existed
+  Future<bool> checkImageSourceExisted(String imageSourceId) async {
+    return _mapboxGlPlatform.checkImageSourceExisted(imageSourceId);
+  }
+
   /// Removes previously added image source by id
   @Deprecated("This method was renamed to removeSource")
   Future<void> removeImageSource(String imageSourceId) {

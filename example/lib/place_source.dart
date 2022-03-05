@@ -122,7 +122,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                       child: const Text('Add source (asset image)'),
                       onPressed: sourceAdded
                           ? null
-                          : () {
+                          : () async {
                               addImageSourceFromAsset(
                                       SOURCE_ID, 'assets/sydney.png')
                                   .then((value) {
@@ -140,6 +140,22 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                               });
                             }
                           : null,
+                    ),
+                    TextButton(
+                      child: const Text('Check if source exits'),
+                      onPressed: () async {
+                        final exist =
+                            await controller.checkImageSourceExisted(SOURCE_ID);
+
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            duration: const Duration(milliseconds: 600),
+                            content: Text(
+                                "Source ${exist ? '' : 'does not'} exists"),
+                          ),
+                        );
+                      },
                     ),
                     TextButton(
                       child: const Text('Show layer'),

@@ -78,7 +78,10 @@ abstract class MapboxGlPlatform {
   Future<void> addImageSource(
       String imageSourceId, Uint8List bytes, LatLngQuad coordinates);
 
+  Future<bool> checkImageSourceExisted(String imageSourceId);
+
   Future<void> addLayer(String imageLayerId, String imageSourceId);
+
   Future<void> addLayerBelow(
       String imageLayerId, String imageSourceId, String belowLayerId);
 

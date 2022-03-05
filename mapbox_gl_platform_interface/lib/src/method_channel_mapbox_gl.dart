@@ -346,6 +346,18 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<bool> checkImageSourceExisted(String imageSourceId) async {
+    try {
+      return await _channel
+          .invokeMethod('style#checkImageSourceExisted', <String, Object>{
+        'imageSourceId': imageSourceId,
+      });
+    } catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
   Future<Point> toScreenLocation(LatLng latLng) async {
     try {
       var screenPosMap =
