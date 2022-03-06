@@ -346,11 +346,10 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<bool> checkImageSourceExisted(String imageSourceId) async {
+  Future<bool> sourceExists(String sourceId) async {
     try {
-      return await _channel
-          .invokeMethod('style#checkImageSourceExisted', <String, Object>{
-        'imageSourceId': imageSourceId,
+      return await _channel.invokeMethod('style#sourceExists', <String, Object>{
+        'sourceId': sourceId,
       });
     } catch (e) {
       return new Future.error(e);

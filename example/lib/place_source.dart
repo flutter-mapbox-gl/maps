@@ -144,8 +144,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                     TextButton(
                       child: const Text('Check if source exits'),
                       onPressed: () async {
-                        final exist =
-                            await controller.checkImageSourceExisted(SOURCE_ID);
+                        final exist = await controller.sourceExists(SOURCE_ID);
 
                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
                         ScaffoldMessenger.of(context).showSnackBar(

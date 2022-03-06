@@ -878,6 +878,26 @@ final class MapboxMapController
           result.success(null);
           break;
         }
+
+      case "style#sourceExists":
+        {
+          if (style == null) {
+            result.error(
+                "STYLE IS NULL",
+                "The style is null. Has onStyleLoaded() already been invoked?",
+                null);
+          }
+          final String id = Convert.toString(call.argument("sourceId"));
+
+          if(style.getSource(id) == null){
+            result.success(false);
+          }else{
+            result.success(true);
+          }
+          
+          break;
+        }
+
       case "style#addSource":
         {
           final String id = Convert.toString(call.argument("sourceId"));
