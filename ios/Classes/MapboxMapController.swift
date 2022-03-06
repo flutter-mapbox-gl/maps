@@ -496,7 +496,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "style#sourceExists":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
-            guard let source = mapView.style?.source(withIdentifier: sourceId) else {  return result(false) }
+            guard let source = mapView.style?.source(withIdentifier: sourceId)
+            else { return result(false) }
 
             result(true)
 
@@ -506,7 +507,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let source = mapView.style?.source(withIdentifier: sourceId) else { return }
             mapView.style?.removeSource(source)
             result(nil)
-            
+
         case "style#addLayer":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
