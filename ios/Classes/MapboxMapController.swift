@@ -340,11 +340,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addSymbolLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -358,11 +362,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addLineLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -376,11 +384,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addFillLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -394,11 +406,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let enableInteraction = arguments["enableInteraction"] as? Bool else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addCircleLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -410,10 +426,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addHillshadeLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 properties: properties
             )
             result(nil)
@@ -424,10 +444,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addRasterLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 properties: properties
             )
             result(nil)
@@ -502,6 +526,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
             guard let imageSourceId = arguments["imageSourceId"] as? String else { return }
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
 
             // Check for duplicateLayer error
             if (mapView.style?.layer(withIdentifier: imageLayerId)) != nil {
@@ -523,6 +549,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
 
             let layer = MGLRasterStyleLayer(identifier: imageLayerId, source: source)
+
+            if let minzoom = minzoom {
+                layer.minimumZoomLevel = Float(minzoom)
+            }
+
+            if let maxzoom = maxzoom {
+                layer.maximumZoomLevel = Float(maxzoom)
+            }
+
             mapView.style?.addLayer(layer)
             result(nil)
         case "style#addLayerBelow":
@@ -530,6 +565,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let imageLayerId = arguments["imageLayerId"] as? String else { return }
             guard let imageSourceId = arguments["imageSourceId"] as? String else { return }
             guard let belowLayerId = arguments["belowLayerId"] as? String else { return }
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
 
             // Check for duplicateLayer error
             if (mapView.style?.layer(withIdentifier: imageLayerId)) != nil {
@@ -558,7 +595,17 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 ))
                 return
             }
+
             let layer = MGLRasterStyleLayer(identifier: imageLayerId, source: source)
+
+            if let minzoom = minzoom {
+                layer.minimumZoomLevel = Float(minzoom)
+            }
+
+            if let maxzoom = maxzoom {
+                layer.maximumZoomLevel = Float(maxzoom)
+            }
+
             mapView.style?.insertLayer(layer, below: belowLayer)
             result(nil)
 
@@ -570,11 +617,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addSymbolLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -588,11 +639,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addLineLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -606,11 +661,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addFillLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -624,11 +683,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let properties = arguments["properties"] as? [String: String] else { return }
             let belowLayerId = arguments["belowLayerId"] as? String
             let sourceLayer = arguments["sourceLayer"] as? String
+            let minzoom = arguments["minzoom"] as? Double
+            let maxzoom = arguments["maxzoom"] as? Double
             addCircleLayer(
                 sourceId: sourceId,
                 layerId: layerId,
                 belowLayerId: belowLayerId,
                 sourceLayerIdentifier: sourceLayer,
+                minimumZoomLevel: minzoom,
+                maximumZoomLevel: maxzoom,
                 enableInteraction: enableInteraction,
                 properties: properties
             )
@@ -936,6 +999,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         layerId: String,
         belowLayerId: String?,
         sourceLayerIdentifier: String?,
+        minimumZoomLevel: Double?,
+        maximumZoomLevel: Double?,
         enableInteraction: Bool,
         properties: [String: String]
     ) {
@@ -948,6 +1013,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 )
                 if let sourceLayerIdentifier = sourceLayerIdentifier {
                     layer.sourceLayerIdentifier = sourceLayerIdentifier
+                }
+                if let minimumZoomLevel = minimumZoomLevel {
+                    layer.minimumZoomLevel = Float(minimumZoomLevel)
+                }
+                if let maximumZoomLevel = maximumZoomLevel {
+                    layer.maximumZoomLevel = Float(maximumZoomLevel)
                 }
                 if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id) {
                     style.insertLayer(layer, below: belowLayer)
@@ -966,6 +1037,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         layerId: String,
         belowLayerId: String?,
         sourceLayerIdentifier: String?,
+        minimumZoomLevel: Double?,
+        maximumZoomLevel: Double?,
         enableInteraction: Bool,
         properties: [String: String]
     ) {
@@ -975,6 +1048,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 LayerPropertyConverter.addLineProperties(lineLayer: layer, properties: properties)
                 if let sourceLayerIdentifier = sourceLayerIdentifier {
                     layer.sourceLayerIdentifier = sourceLayerIdentifier
+                }
+                if let minimumZoomLevel = minimumZoomLevel {
+                    layer.minimumZoomLevel = Float(minimumZoomLevel)
+                }
+                if let maximumZoomLevel = maximumZoomLevel {
+                    layer.maximumZoomLevel = Float(maximumZoomLevel)
                 }
                 if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id) {
                     style.insertLayer(layer, below: belowLayer)
@@ -993,6 +1072,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         layerId: String,
         belowLayerId: String?,
         sourceLayerIdentifier: String?,
+        minimumZoomLevel: Double?,
+        maximumZoomLevel: Double?,
         enableInteraction: Bool,
         properties: [String: String]
     ) {
@@ -1002,6 +1083,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 LayerPropertyConverter.addFillProperties(fillLayer: layer, properties: properties)
                 if let sourceLayerIdentifier = sourceLayerIdentifier {
                     layer.sourceLayerIdentifier = sourceLayerIdentifier
+                }
+                if let minimumZoomLevel = minimumZoomLevel {
+                    layer.minimumZoomLevel = Float(minimumZoomLevel)
+                }
+                if let maximumZoomLevel = maximumZoomLevel {
+                    layer.maximumZoomLevel = Float(maximumZoomLevel)
                 }
                 if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id) {
                     style.insertLayer(layer, below: belowLayer)
@@ -1020,6 +1107,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         layerId: String,
         belowLayerId: String?,
         sourceLayerIdentifier: String?,
+        minimumZoomLevel: Double?,
+        maximumZoomLevel: Double?,
         enableInteraction: Bool,
         properties: [String: String]
     ) {
@@ -1032,6 +1121,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 )
                 if let sourceLayerIdentifier = sourceLayerIdentifier {
                     layer.sourceLayerIdentifier = sourceLayerIdentifier
+                }
+                if let minimumZoomLevel = minimumZoomLevel {
+                    layer.minimumZoomLevel = Float(minimumZoomLevel)
+                }
+                if let maximumZoomLevel = maximumZoomLevel {
+                    layer.maximumZoomLevel = Float(maximumZoomLevel)
                 }
                 if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id) {
                     style.insertLayer(layer, below: belowLayer)
@@ -1049,6 +1144,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         sourceId: String,
         layerId: String,
         belowLayerId: String?,
+        minimumZoomLevel: Double?,
+        maximumZoomLevel: Double?,
         properties: [String: String]
     ) {
         if let style = mapView.style {
@@ -1058,6 +1155,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                     hillshadeLayer: layer,
                     properties: properties
                 )
+                if let minimumZoomLevel = minimumZoomLevel {
+                    layer.minimumZoomLevel = Float(minimumZoomLevel)
+                }
+                if let maximumZoomLevel = maximumZoomLevel {
+                    layer.maximumZoomLevel = Float(maximumZoomLevel)
+                }
                 if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id) {
                     style.insertLayer(layer, below: belowLayer)
                 } else {
@@ -1071,6 +1174,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         sourceId: String,
         layerId: String,
         belowLayerId: String?,
+        minimumZoomLevel: Double?,
+        maximumZoomLevel: Double?,
         properties: [String: String]
     ) {
         if let style = mapView.style {
@@ -1080,6 +1185,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                     rasterLayer: layer,
                     properties: properties
                 )
+                if let minimumZoomLevel = minimumZoomLevel {
+                    layer.minimumZoomLevel = Float(minimumZoomLevel)
+                }
+                if let maximumZoomLevel = maximumZoomLevel {
+                    layer.maximumZoomLevel = Float(maximumZoomLevel)
+                }
                 if let id = belowLayerId, let belowLayer = style.layer(withIdentifier: id) {
                     style.insertLayer(layer, below: belowLayer)
                 } else {

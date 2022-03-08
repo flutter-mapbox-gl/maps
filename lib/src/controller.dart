@@ -340,6 +340,8 @@ class MapboxMapController extends ChangeNotifier {
       String sourceId, String layerId, SymbolLayerProperties properties,
       {String? belowLayerId,
       String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
       bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addSymbolLayer(
       sourceId,
@@ -347,6 +349,8 @@ class MapboxMapController extends ChangeNotifier {
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      minzoom: minzoom,
+      maxzoom: maxzoom,
       enableInteraction: enableInteraction,
     );
   }
@@ -366,6 +370,8 @@ class MapboxMapController extends ChangeNotifier {
       String sourceId, String layerId, LineLayerProperties properties,
       {String? belowLayerId,
       String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
       bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addLineLayer(
       sourceId,
@@ -373,6 +379,8 @@ class MapboxMapController extends ChangeNotifier {
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      minzoom: minzoom,
+      maxzoom: maxzoom,
       enableInteraction: enableInteraction,
     );
   }
@@ -392,6 +400,8 @@ class MapboxMapController extends ChangeNotifier {
       String sourceId, String layerId, FillLayerProperties properties,
       {String? belowLayerId,
       String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
       bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addFillLayer(
       sourceId,
@@ -399,6 +409,8 @@ class MapboxMapController extends ChangeNotifier {
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      minzoom: minzoom,
+      maxzoom: maxzoom,
       enableInteraction: enableInteraction,
     );
   }
@@ -418,6 +430,8 @@ class MapboxMapController extends ChangeNotifier {
       String sourceId, String layerId, CircleLayerProperties properties,
       {String? belowLayerId,
       String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
       bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addCircleLayer(
       sourceId,
@@ -425,6 +439,8 @@ class MapboxMapController extends ChangeNotifier {
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      minzoom: minzoom,
+      maxzoom: maxzoom,
       enableInteraction: enableInteraction,
     );
   }
@@ -441,13 +457,18 @@ class MapboxMapController extends ChangeNotifier {
   /// Raster source
   Future<void> addRasterLayer(
       String sourceId, String layerId, RasterLayerProperties properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
     await _mapboxGlPlatform.addRasterLayer(
       sourceId,
       layerId,
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      minzoom: minzoom,
+      maxzoom: maxzoom,
     );
   }
 
@@ -463,13 +484,18 @@ class MapboxMapController extends ChangeNotifier {
   /// Raster source
   Future<void> addHillshadeLayer(
       String sourceId, String layerId, HillshadeLayerProperties properties,
-      {String? belowLayerId, String? sourceLayer}) async {
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
     await _mapboxGlPlatform.addHillshadeLayer(
       sourceId,
       layerId,
       properties.toJson(),
       belowLayerId: belowLayerId,
       sourceLayer: sourceLayer,
+      minzoom: minzoom,
+      maxzoom: maxzoom,
     );
   }
 
@@ -1003,21 +1029,26 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Adds a Mapbox image layer to the map's style at render time.
-  Future<void> addImageLayer(String layerId, String imageSourceId) {
-    return _mapboxGlPlatform.addLayer(layerId, imageSourceId);
+  Future<void> addImageLayer(String layerId, String imageSourceId,
+      {double? minzoom, double? maxzoom}) {
+    return _mapboxGlPlatform.addLayer(layerId, imageSourceId, minzoom, maxzoom);
   }
 
   /// Adds a Mapbox image layer below the layer provided with belowLayerId to the map's style at render time.
   Future<void> addImageLayerBelow(
-      String layerId, String sourceId, String imageSourceId) {
-    return _mapboxGlPlatform.addLayerBelow(layerId, sourceId, imageSourceId);
+      String layerId, String sourceId, String imageSourceId,
+      {double? minzoom, double? maxzoom}) {
+    return _mapboxGlPlatform.addLayerBelow(
+        layerId, sourceId, imageSourceId, minzoom, maxzoom);
   }
 
   /// Adds a Mapbox image layer below the layer provided with belowLayerId to the map's style at render time. Only works for image sources!
   @Deprecated("This method was renamed to addImageLayerBelow for clarity.")
   Future<void> addLayerBelow(
-      String layerId, String sourceId, String imageSourceId) {
-    return _mapboxGlPlatform.addLayerBelow(layerId, sourceId, imageSourceId);
+      String layerId, String sourceId, String imageSourceId,
+      {double? minzoom, double? maxzoom}) {
+    return _mapboxGlPlatform.addLayerBelow(
+        layerId, sourceId, imageSourceId, minzoom, maxzoom);
   }
 
   /// Removes a Mapbox style layer
@@ -1070,33 +1101,49 @@ class MapboxMapController extends ChangeNotifier {
       String sourceId, String layerId, LayerProperties properties,
       {String? belowLayerId,
       bool enableInteraction = true,
-      String? sourceLayer}) async {
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
     if (properties is FillLayerProperties) {
       addFillLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           enableInteraction: enableInteraction,
-          sourceLayer: sourceLayer);
+          sourceLayer: sourceLayer,
+          minzoom: minzoom,
+          maxzoom: maxzoom);
     } else if (properties is LineLayerProperties) {
       addLineLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           enableInteraction: enableInteraction,
-          sourceLayer: sourceLayer);
+          sourceLayer: sourceLayer,
+          minzoom: minzoom,
+          maxzoom: maxzoom);
     } else if (properties is SymbolLayerProperties) {
       addSymbolLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           enableInteraction: enableInteraction,
-          sourceLayer: sourceLayer);
+          sourceLayer: sourceLayer,
+          minzoom: minzoom,
+          maxzoom: maxzoom);
     } else if (properties is CircleLayerProperties) {
       addCircleLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           enableInteraction: enableInteraction,
-          sourceLayer: sourceLayer);
+          sourceLayer: sourceLayer,
+          minzoom: minzoom,
+          maxzoom: maxzoom);
     } else if (properties is RasterLayerProperties) {
       addRasterLayer(sourceId, layerId, properties,
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+          belowLayerId: belowLayerId,
+          sourceLayer: sourceLayer,
+          minzoom: minzoom,
+          maxzoom: maxzoom);
     } else if (properties is HillshadeLayerProperties) {
       addHillshadeLayer(sourceId, layerId, properties,
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+          belowLayerId: belowLayerId,
+          sourceLayer: sourceLayer,
+          minzoom: minzoom,
+          maxzoom: maxzoom);
     } else {
       throw UnimplementedError("Unknown layer type $properties");
     }

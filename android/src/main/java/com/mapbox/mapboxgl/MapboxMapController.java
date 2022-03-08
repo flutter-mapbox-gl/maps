@@ -348,6 +348,8 @@ final class MapboxMapController
       String sourceName,
       String belowLayerId,
       String sourceLayer,
+      Float minZoom,
+      Float maxZoom,
       PropertyValue[] properties,
       boolean enableInteraction,
       Expression filter) {
@@ -356,7 +358,12 @@ final class MapboxMapController
     if (sourceLayer != null) {
       symbolLayer.setSourceLayer(sourceLayer);
     }
-
+    if (minZoom != null) {
+      symbolLayer.setMinZoom(minZoom);
+    }
+    if (maxZoom != null) {
+      symbolLayer.setMaxZoom(maxZoom);
+    }
     if (belowLayerId != null) {
       style.addLayerBelow(symbolLayer, belowLayerId);
     } else {
@@ -372,6 +379,8 @@ final class MapboxMapController
       String sourceName,
       String belowLayerId,
       String sourceLayer,
+      Float minZoom,
+      Float maxZoom,
       PropertyValue[] properties,
       boolean enableInteraction,
       Expression filter) {
@@ -380,7 +389,12 @@ final class MapboxMapController
     if (sourceLayer != null) {
       lineLayer.setSourceLayer(sourceLayer);
     }
-
+    if (minZoom != null) {
+      lineLayer.setMinZoom(minZoom);
+    }
+    if (maxZoom != null) {
+      lineLayer.setMaxZoom(maxZoom);
+    }
     if (belowLayerId != null) {
       style.addLayerBelow(lineLayer, belowLayerId);
     } else {
@@ -396,6 +410,8 @@ final class MapboxMapController
       String sourceName,
       String belowLayerId,
       String sourceLayer,
+      Float minZoom,
+      Float maxZoom,
       PropertyValue[] properties,
       boolean enableInteraction,
       Expression filter) {
@@ -404,7 +420,12 @@ final class MapboxMapController
     if (sourceLayer != null) {
       fillLayer.setSourceLayer(sourceLayer);
     }
-
+    if (minZoom != null) {
+      fillLayer.setMinZoom(minZoom);
+    }
+    if (maxZoom != null) {
+      fillLayer.setMaxZoom(maxZoom);
+    }
     if (belowLayerId != null) {
       style.addLayerBelow(fillLayer, belowLayerId);
     } else {
@@ -420,6 +441,8 @@ final class MapboxMapController
       String sourceName,
       String belowLayerId,
       String sourceLayer,
+      Float minZoom,
+      Float maxZoom,
       PropertyValue[] properties,
       boolean enableInteraction,
       Expression filter) {
@@ -428,7 +451,12 @@ final class MapboxMapController
     if (sourceLayer != null) {
       circleLayer.setSourceLayer(sourceLayer);
     }
-
+    if (minZoom != null) {
+      circleLayer.setMinZoom(minZoom);
+    }
+    if (maxZoom != null) {
+      circleLayer.setMaxZoom(maxZoom);
+    }
     if (belowLayerId != null) {
       style.addLayerBelow(circleLayer, belowLayerId);
     } else {
@@ -443,12 +471,19 @@ final class MapboxMapController
   private void addRasterLayer(
       String layerName,
       String sourceName,
+      Float minZoom,
+      Float maxZoom,
       String belowLayerId,
       PropertyValue[] properties,
       Expression filter) {
     RasterLayer layer = new RasterLayer(layerName, sourceName);
     layer.setProperties(properties);
-
+    if (minZoom != null) {
+      layer.setMinZoom(minZoom);
+    }
+    if (maxZoom != null) {
+      layer.setMaxZoom(maxZoom);
+    }
     if (belowLayerId != null) {
       style.addLayerBelow(layer, belowLayerId);
     } else {
@@ -459,12 +494,19 @@ final class MapboxMapController
   private void addHillshadeLayer(
       String layerName,
       String sourceName,
+      Float minZoom,
+      Float maxZoom,
       String belowLayerId,
       PropertyValue[] properties,
       Expression filter) {
     HillshadeLayer layer = new HillshadeLayer(layerName, sourceName);
     layer.setProperties(properties);
-
+    if (minZoom != null) {
+      layer.setMinZoom(minZoom);
+    }
+    if (maxZoom != null) {
+      layer.setMaxZoom(maxZoom);
+    }
     if (belowLayerId != null) {
       style.addLayerBelow(layer, belowLayerId);
     } else {
@@ -741,11 +783,21 @@ final class MapboxMapController
           final String layerId = call.argument("layerId");
           final String belowLayerId = call.argument("belowLayerId");
           final String sourceLayer = call.argument("sourceLayer");
+          final Double minzoom = call.argument("minzoom");
+          final Double maxzoom = call.argument("maxzoom");
           final boolean enableInteraction = call.argument("enableInteraction");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
           addSymbolLayer(
-              layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
+              layerId,
+              sourceId,
+              belowLayerId,
+              sourceLayer,
+              minzoom != null ? minzoom.floatValue() : null,
+              maxzoom != null ? maxzoom.floatValue() : null,
+              properties,
+              enableInteraction,
+              null);
           result.success(null);
           break;
         }
@@ -755,11 +807,21 @@ final class MapboxMapController
           final String layerId = call.argument("layerId");
           final String belowLayerId = call.argument("belowLayerId");
           final String sourceLayer = call.argument("sourceLayer");
+          final Double minzoom = call.argument("minzoom");
+          final Double maxzoom = call.argument("maxzoom");
           final boolean enableInteraction = call.argument("enableInteraction");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
           addLineLayer(
-              layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
+              layerId,
+              sourceId,
+              belowLayerId,
+              sourceLayer,
+              minzoom != null ? minzoom.floatValue() : null,
+              maxzoom != null ? maxzoom.floatValue() : null,
+              properties,
+              enableInteraction,
+              null);
           result.success(null);
           break;
         }
@@ -769,11 +831,21 @@ final class MapboxMapController
           final String layerId = call.argument("layerId");
           final String belowLayerId = call.argument("belowLayerId");
           final String sourceLayer = call.argument("sourceLayer");
+          final Double minzoom = call.argument("minzoom");
+          final Double maxzoom = call.argument("maxzoom");
           final boolean enableInteraction = call.argument("enableInteraction");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
           addFillLayer(
-              layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
+              layerId,
+              sourceId,
+              belowLayerId,
+              sourceLayer,
+              minzoom != null ? minzoom.floatValue() : null,
+              maxzoom != null ? maxzoom.floatValue() : null,
+              properties,
+              enableInteraction,
+              null);
           result.success(null);
           break;
         }
@@ -783,11 +855,21 @@ final class MapboxMapController
           final String layerId = call.argument("layerId");
           final String belowLayerId = call.argument("belowLayerId");
           final String sourceLayer = call.argument("sourceLayer");
+          final Double minzoom = call.argument("minzoom");
+          final Double maxzoom = call.argument("maxzoom");
           final boolean enableInteraction = call.argument("enableInteraction");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
           addCircleLayer(
-              layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
+              layerId,
+              sourceId,
+              belowLayerId,
+              sourceLayer,
+              minzoom != null ? minzoom.floatValue() : null,
+              maxzoom != null ? maxzoom.floatValue() : null,
+              properties,
+              enableInteraction,
+              null);
           result.success(null);
           break;
         }
@@ -796,9 +878,18 @@ final class MapboxMapController
           final String sourceId = call.argument("sourceId");
           final String layerId = call.argument("layerId");
           final String belowLayerId = call.argument("belowLayerId");
+          final Double minzoom = call.argument("minzoom");
+          final Double maxzoom = call.argument("maxzoom");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretRasterLayerProperties(call.argument("properties"));
-          addRasterLayer(layerId, sourceId, belowLayerId, properties, null);
+          addRasterLayer(
+              layerId,
+              sourceId,
+              minzoom != null ? minzoom.floatValue() : null,
+              maxzoom != null ? maxzoom.floatValue() : null,
+              belowLayerId,
+              properties,
+              null);
           result.success(null);
           break;
         }
@@ -807,9 +898,18 @@ final class MapboxMapController
           final String sourceId = call.argument("sourceId");
           final String layerId = call.argument("layerId");
           final String belowLayerId = call.argument("belowLayerId");
+          final Double minzoom = call.argument("minzoom");
+          final Double maxzoom = call.argument("maxzoom");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretHillshadeLayerProperties(call.argument("properties"));
-          addHillshadeLayer(layerId, sourceId, belowLayerId, properties, null);
+          addHillshadeLayer(
+              layerId,
+              sourceId,
+              minzoom != null ? minzoom.floatValue() : null,
+              maxzoom != null ? maxzoom.floatValue() : null,
+              belowLayerId,
+              properties,
+              null);
           result.success(null);
           break;
         }
@@ -907,8 +1007,18 @@ final class MapboxMapController
                 "The style is null. Has onStyleLoaded() already been invoked?",
                 null);
           }
-          style.addLayer(
-              new RasterLayer(call.argument("imageLayerId"), call.argument("imageSourceId")));
+          addRasterLayer(
+              call.argument("imageLayerId"),
+              call.argument("imageSourceId"),
+              call.argument("minzoom") != null
+                  ? ((Double) call.argument("minzoom")).floatValue()
+                  : null,
+              call.argument("maxzoom") != null
+                  ? ((Double) call.argument("maxzoom")).floatValue()
+                  : null,
+              null,
+              new PropertyValue[] {},
+              null);
           result.success(null);
           break;
         }
@@ -920,9 +1030,18 @@ final class MapboxMapController
                 "The style is null. Has onStyleLoaded() already been invoked?",
                 null);
           }
-          style.addLayerBelow(
-              new RasterLayer(call.argument("imageLayerId"), call.argument("imageSourceId")),
-              call.argument("belowLayerId"));
+          addRasterLayer(
+              call.argument("imageLayerId"),
+              call.argument("imageSourceId"),
+              call.argument("minzoom") != null
+                  ? ((Double) call.argument("minzoom")).floatValue()
+                  : null,
+              call.argument("maxzoom") != null
+                  ? ((Double) call.argument("maxzoom")).floatValue()
+                  : null,
+              call.argument("belowLayerId"),
+              new PropertyValue[] {},
+              null);
           result.success(null);
           break;
         }
