@@ -133,6 +133,7 @@ class LayerState extends State {
         iconAllowOverlap: true,
         textAllowOverlap: true,
       ),
+      minzoom: 11,
     );
     timer = Timer.periodic(
         Duration(milliseconds: 10),
