@@ -225,7 +225,7 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
 
   @override
   Future<List> queryRenderedFeaturesInRect(
-      Rect rect, List<String> layerIds, String? filter) async {
+      Rect rect, List<String> layerIds, List<Object>? filter) async {
     Map<String, dynamic> options = {};
     if (layerIds.length > 0) {
       options['layers'] = layerIds;

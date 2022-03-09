@@ -931,7 +931,7 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Query rendered features in a Rect in screen coordinates
   Future<List> queryRenderedFeaturesInRect(
-      Rect rect, List<String> layerIds, String? filter) async {
+      Rect rect, List<String> layerIds, List<Object>? filter) async {
     return _mapboxGlPlatform.queryRenderedFeaturesInRect(
         rect, layerIds, filter);
   }

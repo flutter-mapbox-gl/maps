@@ -67,7 +67,7 @@ abstract class MapboxGlPlatform {
       Point<double> point, List<String> layerIds, List<Object>? filter);
 
   Future<List> queryRenderedFeaturesInRect(
-      Rect rect, List<String> layerIds, String? filter);
+      Rect rect, List<String> layerIds, List<Object>? filter);
   Future invalidateAmbientCache();
   Future<LatLng?> requestMyLocationLatLng();
 
