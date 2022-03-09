@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -26,9 +27,8 @@ class FullMap extends StatefulWidget {
 class _FullMapState extends State<FullMap> {
   MapboxMapController? controller;
 
-  final sourceId = 'NenDiaLy2N5N';
-  final layerId = 'CongTrinhTonGiaoTinNguong';
-  final sourceLayer = 'CongTrinhTonGiaoTinNguong';
+  final sourceId = 'points';
+  final layerId = 'symbols';
 
   _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
@@ -46,6 +46,7 @@ class _FullMapState extends State<FullMap> {
           const SymbolLayerProperties(
             iconImage: 'icon',
             iconAnchor: 'bottom',
+            iconSize: kIsWeb ? 0.5 : 1.0,
             textField: '{ten}',
             textColor: '#601B1B',
             textSize: 12,
@@ -54,7 +55,6 @@ class _FullMapState extends State<FullMap> {
             textHaloWidth: 0.5,
             textHaloColor: 'rgba(255, 255, 255, 1)',
           ),
-          sourceLayer: sourceLayer,
         );
       });
     });
@@ -145,315 +145,231 @@ const _features = {
   "features": [
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.1",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50484084, 21.13757161]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 1,
+        "id": 1,
         "madoituong": "BP03",
         "ten": "Đền Chúa Bản Tỉnh",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.2",
       "geometry": {
         "type": "Point",
         "coordinates": [105.49988233, 21.14436791]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 2,
+        "id": 2,
         "madoituong": "BP03",
         "ten": "Đền Giáp",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.3",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50034321, 21.14113785]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 3,
+        "id": 3,
         "madoituong": "BP03",
         "ten": "Đền Kiếp Bạc",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.4",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50425331, 21.13881287]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 4,
+        "id": 4,
         "madoituong": "BP03",
         "ten": "Đền Kính Thiên",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.5",
       "geometry": {
         "type": "Point",
         "coordinates": [105.48545591, 21.13864893]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 5,
+        "id": 5,
         "madoituong": "BP03",
         "ten": "Đền Và",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.6",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50106879, 21.1280937]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 6,
+        "id": 6,
         "madoituong": "BO03",
         "ten": "Chùa Trì",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.7",
       "geometry": {
         "type": "Point",
         "coordinates": [105.5090232, 21.13580011]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 7,
+        "id": 7,
         "madoituong": "BO03",
         "ten": "Chùa Thuần Nghệ",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.8",
       "geometry": {
         "type": "Point",
         "coordinates": [105.5042187, 21.13611567]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 8,
+        "id": 8,
         "madoituong": "BO03",
         "ten": "Chùa Linh Ứng",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.9",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50255942, 21.14230481]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 9,
+        "id": 9,
         "madoituong": "BO03",
         "ten": "Chùa Linh Sơn",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.10",
       "geometry": {
         "type": "Point",
         "coordinates": [105.49815767, 21.12558376]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 10,
+        "id": 10,
         "madoituong": "BP02",
         "ten": "Đình Lăng Mỗ",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.11",
       "geometry": {
         "type": "Point",
         "coordinates": [105.49430803, 21.13038998]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 11,
+        "id": 11,
         "madoituong": "BP02",
         "ten": "Đình Vân Gia",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.12",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50861465, 21.13563377]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 12,
+        "id": 12,
         "madoituong": "BP02",
         "ten": "Đình Thuần Nghệ",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.13",
       "geometry": {
         "type": "Point",
         "coordinates": [105.5065032, 21.14262125]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 13,
+        "id": 13,
         "madoituong": "BO04",
         "ten": "Nhà thờ Sơn Tây",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.14",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50646655, 21.14392447]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 14,
+        "id": 14,
         "madoituong": "BO03",
         "ten": "Chùa Hậu An",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.15",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50025604, 21.14190215]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 15,
+        "id": 15,
         "madoituong": "BO03",
         "ten": "Chùa Phúc Hưng",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.16",
       "geometry": {
         "type": "Point",
         "coordinates": [105.48925672, 21.13141519]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 16,
+        "id": 16,
         "madoituong": "BO03",
         "ten": "Chùa Vân Gia",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.17",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50663852, 21.14382634]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 17,
+        "id": 17,
         "madoituong": "BP02",
         "ten": "Đình Hậu An",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.18",
       "geometry": {
         "type": "Point",
         "coordinates": [105.50328466, 21.14290086]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 18,
+        "id": 18,
         "madoituong": "BP02",
         "ten": "Đình Hàng Đàn",
-        "diachi": null,
-        "xephangditich": null
       }
     },
     {
       "type": "Feature",
-      "id": "CongTrinhTonGiaoTinNguong.19",
       "geometry": {
         "type": "Point",
         "coordinates": [105.5014738, 21.14178775]
       },
-      "geometry_name": "geom",
       "properties": {
-        "fid": 19,
+        "id": 19,
         "madoituong": "BP02",
         "ten": "Đình Đệ Nhị",
-        "diachi": null,
-        "xephangditich": null
       }
     }
   ],
-  "totalFeatures": 19,
-  "numberMatched": 19,
-  "numberReturned": 19,
-  "timeStamp": "2022-03-09T14:18:55.887Z",
-  "crs": {
-    "type": "name",
-    "properties": {"name": "urn:ogc:def:crs:EPSG::4326"}
-  }
 };
