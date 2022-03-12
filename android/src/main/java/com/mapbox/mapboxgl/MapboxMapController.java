@@ -845,31 +845,6 @@ final class MapboxMapController
                   result.error("", "", null); // ???
                 }
               });
-<<<<<<< HEAD
-        }
-        break;
-      }
-      case "style#addImage": {
-        if (style == null) {
-          result.error(
-              "STYLE IS NULL",
-              "The style is null. Has onStyleLoaded() already been invoked?",
-              null);
-        }
-        style.addImage(
-            call.argument("name"),
-            BitmapFactory.decodeByteArray(call.argument("bytes"), 0, call.argument("length")),
-            call.argument("sdf"));
-        result.success(null);
-        break;
-      }
-      case "style#addImageSource": {
-        if (style == null) {
-          result.error(
-              "STYLE IS NULL",
-              "The style is null. Has onStyleLoaded() already been invoked?",
-              null);
-=======
           break;
         }
       case "source#addGeoJson":
@@ -1031,7 +1006,6 @@ final class MapboxMapController
               null);
           result.success(null);
           break;
->>>>>>> 4867ed767998392818f6c21799092809dfbb6b44
         }
         List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"), false);
         style.addSource(
