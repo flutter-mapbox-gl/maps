@@ -754,11 +754,21 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
         final String sourceLayer = call.argument("sourceLayer");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
         final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter
             .interpretSymbolLayerProperties(call.argument("properties"));
         addSymbolLayer(
-            layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
+            layerId,
+            sourceId,
+            belowLayerId,
+            sourceLayer,
+            minzoom != null ? minzoom.floatValue() : null,
+            maxzoom != null ? maxzoom.floatValue() : null,
+            properties,
+            enableInteraction,
+            null);
         result.success(null);
         break;
       }
@@ -767,11 +777,21 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
         final String sourceLayer = call.argument("sourceLayer");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
         final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter
             .interpretLineLayerProperties(call.argument("properties"));
         addLineLayer(
-            layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
+            layerId,
+            sourceId,
+            belowLayerId,
+            sourceLayer,
+            minzoom != null ? minzoom.floatValue() : null,
+            maxzoom != null ? maxzoom.floatValue() : null,
+            properties,
+            enableInteraction,
+            null);
         result.success(null);
         break;
       }
@@ -780,11 +800,21 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
         final String sourceLayer = call.argument("sourceLayer");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
         final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter
             .interpretFillLayerProperties(call.argument("properties"));
         addFillLayer(
-            layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
+            layerId,
+            sourceId,
+            belowLayerId,
+            sourceLayer,
+            minzoom != null ? minzoom.floatValue() : null,
+            maxzoom != null ? maxzoom.floatValue() : null,
+            properties,
+            enableInteraction,
+            null);
         result.success(null);
         break;
       }
@@ -793,11 +823,21 @@ final class MapboxMapController
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
         final String sourceLayer = call.argument("sourceLayer");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
         final boolean enableInteraction = call.argument("enableInteraction");
         final PropertyValue[] properties = LayerPropertyConverter
             .interpretCircleLayerProperties(call.argument("properties"));
         addCircleLayer(
-            layerId, sourceId, belowLayerId, sourceLayer, properties, enableInteraction, null);
+            layerId,
+            sourceId,
+            belowLayerId,
+            sourceLayer,
+            minzoom != null ? minzoom.floatValue() : null,
+            maxzoom != null ? maxzoom.floatValue() : null,
+            properties,
+            enableInteraction,
+            null);
         result.success(null);
         break;
       }
@@ -805,9 +845,18 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
         final PropertyValue[] properties = LayerPropertyConverter
             .interpretRasterLayerProperties(call.argument("properties"));
-        addRasterLayer(layerId, sourceId, belowLayerId, properties, null);
+        addRasterLayer(
+            layerId,
+            sourceId,
+            minzoom != null ? minzoom.floatValue() : null,
+            maxzoom != null ? maxzoom.floatValue() : null,
+            belowLayerId,
+            properties,
+            null);
         result.success(null);
         break;
       }
@@ -815,9 +864,18 @@ final class MapboxMapController
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
         final String belowLayerId = call.argument("belowLayerId");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
         final PropertyValue[] properties = LayerPropertyConverter
             .interpretHillshadeLayerProperties(call.argument("properties"));
-        addHillshadeLayer(layerId, sourceId, belowLayerId, properties, null);
+        addHillshadeLayer(
+            layerId,
+            sourceId,
+            minzoom != null ? minzoom.floatValue() : null,
+            maxzoom != null ? maxzoom.floatValue() : null,
+            belowLayerId,
+            properties,
+            null);
         result.success(null);
         break;
       }
@@ -883,6 +941,13 @@ final class MapboxMapController
         result.success(null);
         break;
       }
+      case "style#addSource": {
+        final String id = Convert.toString(call.argument("sourceId"));
+        final Map<String, Object> properties = (Map<String, Object>) call.argument("properties");
+        SourcePropertyConverter.addSource(id, properties, style);
+        result.success(null);
+        break;
+      }
 
       case "style#sourceExists": {
         if (style == null) {
@@ -907,14 +972,6 @@ final class MapboxMapController
         break;
       }
 
-      case "style#addSource": {
-        final String id = Convert.toString(call.argument("sourceId"));
-        final Map<String, Object> properties = (Map<String, Object>) call.argument("properties");
-        SourcePropertyConverter.addSource(id, properties, style);
-        result.success(null);
-        break;
-      }
-
       case "style#removeSource": {
         if (style == null) {
           result.error(
@@ -922,55 +979,51 @@ final class MapboxMapController
               "The style is null. Has onStyleLoaded() already been invoked?",
               null);
         }
-      case "style#addLayer":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          addRasterLayer(
-              call.argument("imageLayerId"),
-              call.argument("imageSourceId"),
-              call.argument("minzoom") != null
-                  ? ((Double) call.argument("minzoom")).floatValue()
-                  : null,
-              call.argument("maxzoom") != null
-                  ? ((Double) call.argument("maxzoom")).floatValue()
-                  : null,
-              null,
-              new PropertyValue[] {},
+        style.removeSource((String) call.argument("sourceId"));
+        result.success(null);
+        break;
+      }
+      case "style#addLayer": {
+        if (style == null) {
+          result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
               null);
-          result.success(null);
-          break;
         }
-      case "style#addLayerBelow":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          addRasterLayer(
-              call.argument("imageLayerId"),
-              call.argument("imageSourceId"),
-              call.argument("minzoom") != null
-                  ? ((Double) call.argument("minzoom")).floatValue()
-                  : null,
-              call.argument("maxzoom") != null
-                  ? ((Double) call.argument("maxzoom")).floatValue()
-                  : null,
-              call.argument("belowLayerId"),
-              new PropertyValue[] {},
+        addRasterLayer(
+            call.argument("imageLayerId"),
+            call.argument("imageSourceId"),
+            call.argument("minzoom") != null
+                ? ((Double) call.argument("minzoom")).floatValue()
+                : null,
+            call.argument("maxzoom") != null
+                ? ((Double) call.argument("maxzoom")).floatValue()
+                : null,
+            null,
+            new PropertyValue[] {},
+            null);
+        result.success(null);
+        break;
+      }
+      case "style#addLayerBelow": {
+        if (style == null) {
+          result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
               null);
-          result.success(null);
-          break;
         }
-        style.addLayerBelow(
-            new RasterLayer(call.argument("imageLayerId"), call.argument("imageSourceId")),
-            call.argument("belowLayerId"));
+        addRasterLayer(
+            call.argument("imageLayerId"),
+            call.argument("imageSourceId"),
+            call.argument("minzoom") != null
+                ? ((Double) call.argument("minzoom")).floatValue()
+                : null,
+            call.argument("maxzoom") != null
+                ? ((Double) call.argument("maxzoom")).floatValue()
+                : null,
+            call.argument("belowLayerId"),
+            new PropertyValue[] {},
+            null);
         result.success(null);
         break;
       }
