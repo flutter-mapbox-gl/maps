@@ -845,167 +845,29 @@ final class MapboxMapController
                   result.error("", "", null); // ???
                 }
               });
-          break;
         }
-      case "source#addGeoJson":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String geojson = call.argument("geojson");
-          addGeoJsonSource(sourceId, geojson);
-          result.success(null);
-          break;
-        }
-      case "source#setGeoJson":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String geojson = call.argument("geojson");
-          setGeoJsonSource(sourceId, geojson);
-          result.success(null);
-          break;
-        }
-      case "source#setFeature":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String geojsonFeature = call.argument("geojsonFeature");
-          setGeoJsonFeature(sourceId, geojsonFeature);
-          result.success(null);
-          break;
-        }
-      case "symbolLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final String sourceLayer = call.argument("sourceLayer");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final boolean enableInteraction = call.argument("enableInteraction");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
-          addSymbolLayer(
-              layerId,
-              sourceId,
-              belowLayerId,
-              sourceLayer,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              properties,
-              enableInteraction,
+        break;
+      }
+      case "style#addImage": {
+        if (style == null) {
+          result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
               null);
-          result.success(null);
-          break;
         }
-      case "lineLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final String sourceLayer = call.argument("sourceLayer");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final boolean enableInteraction = call.argument("enableInteraction");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
-          addLineLayer(
-              layerId,
-              sourceId,
-              belowLayerId,
-              sourceLayer,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              properties,
-              enableInteraction,
+        style.addImage(
+            call.argument("name"),
+            BitmapFactory.decodeByteArray(call.argument("bytes"), 0, call.argument("length")),
+            call.argument("sdf"));
+        result.success(null);
+        break;
+      }
+      case "style#addImageSource": {
+        if (style == null) {
+          result.error(
+              "STYLE IS NULL",
+              "The style is null. Has onStyleLoaded() already been invoked?",
               null);
-          result.success(null);
-          break;
-        }
-      case "fillLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final String sourceLayer = call.argument("sourceLayer");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final boolean enableInteraction = call.argument("enableInteraction");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
-          addFillLayer(
-              layerId,
-              sourceId,
-              belowLayerId,
-              sourceLayer,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              properties,
-              enableInteraction,
-              null);
-          result.success(null);
-          break;
-        }
-      case "circleLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final String sourceLayer = call.argument("sourceLayer");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final boolean enableInteraction = call.argument("enableInteraction");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
-          addCircleLayer(
-              layerId,
-              sourceId,
-              belowLayerId,
-              sourceLayer,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              properties,
-              enableInteraction,
-              null);
-          result.success(null);
-          break;
-        }
-      case "rasterLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretRasterLayerProperties(call.argument("properties"));
-          addRasterLayer(
-              layerId,
-              sourceId,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              belowLayerId,
-              properties,
-              null);
-          result.success(null);
-          break;
-        }
-      case "hillshadeLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretHillshadeLayerProperties(call.argument("properties"));
-          addHillshadeLayer(
-              layerId,
-              sourceId,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              belowLayerId,
-              properties,
-              null);
-          result.success(null);
-          break;
         }
         List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"), false);
         style.addSource(
