@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
@@ -11,6 +13,7 @@ import 'package:mapbox_gl_example/offline_regions.dart';
 import 'package:mapbox_gl_example/place_batch.dart';
 import 'package:mapbox_gl_example/layer.dart';
 import 'package:mapbox_gl_example/sources.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import 'animate_camera.dart';
 import 'annotation_order_maps.dart';
@@ -26,6 +29,7 @@ import 'place_source.dart';
 import 'place_symbol.dart';
 import 'place_fill.dart';
 import 'scrolling_map.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 
 final List<ExamplePage> _allPages = <ExamplePage>[
   MapUiPage(),
@@ -48,7 +52,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   Sources()
 ];
 
-class MapsDemo extends StatelessWidget {
+class MapsDemo extends StatefulWidget {
   // FIXME: You need to pass in your access token via the command line argument
   // --dart-define=ACCESS_TOKEN=ADD_YOUR_TOKEN_HERE
   // It is also possible to pass it in while running the app via an IDE by
@@ -57,6 +61,31 @@ class MapsDemo extends StatelessWidget {
   // Alternatively you can replace `String.fromEnvironment("ACCESS_TOKEN")`
   // in the following line with your access token directly.
   static const String ACCESS_TOKEN = String.fromEnvironment("ACCESS_TOKEN");
+
+  @override
+  State<MapsDemo> createState() => _MapsDemoState();
+}
+
+class _MapsDemoState extends State<MapsDemo> {
+  @override
+  void initState() {
+    initHybridComposition();
+    super.initState();
+  }
+
+  /// Determine the android version of the phone and turn off HybridComposition
+  /// on older sdk versions to improve performance for these
+  Future<void> initHybridComposition() async {
+    if (!kIsWeb && Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final sdkVersion = androidInfo.version.sdkInt;
+      if (sdkVersion != null && sdkVersion >= 29) {
+        MapboxMap.useHybridComposition = true;
+      } else {
+        MapboxMap.useHybridComposition = false;
+      }
+    }
+  }
 
   void _pushPage(BuildContext context, ExamplePage page) async {
     if (!kIsWeb) {
@@ -77,7 +106,8 @@ class MapsDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('MapboxMaps examples')),
-      body: ACCESS_TOKEN.isEmpty || ACCESS_TOKEN.contains("YOUR_TOKEN")
+      body: MapsDemo.ACCESS_TOKEN.isEmpty ||
+              MapsDemo.ACCESS_TOKEN.contains("YOUR_TOKEN")
           ? buildAccessTokenWarning()
           : ListView.separated(
               itemCount: _allPages.length,
