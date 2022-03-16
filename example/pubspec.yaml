@@ -17,6 +17,7 @@ dependencies:
   path_provider: ^2.0.0
   http: ^0.13.0
   collection: ^1.0.0
+  device_info_plus: ^3.2.2
 
 dependency_overrides:
   mapbox_gl_platform_interface:
