@@ -191,6 +191,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             } else {
                 result(nil)
             }
+        case "locationComponent#getLastLocation":
+            var reply = [String: NSObject]()
+            if let loc = mapView.userLocation?.location?.coordinate {
+                reply["latitude"] = loc.latitude as NSObject
+                reply["longitude"] = loc.longitude as NSObject
+                result(reply)
+            } else {
+                result(nil)
+            }
         case "map#setMapLanguage":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             if let localIdentifier = arguments["language"] as? String, let style = mapView.style {

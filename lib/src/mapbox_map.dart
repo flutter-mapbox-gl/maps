@@ -222,6 +222,14 @@ class MapboxMap extends StatefulWidget {
   /// * All fade/transition animations have completed
   final OnMapIdleCallback? onMapIdle;
 
+  /// Set `MapboxMap.useHybridComposition` to `false` in order use Virtual-Display
+  /// (better for Android 9 and below but may result in errors on Android 12)
+  /// or leave it `true` (default) to use Hybrid composition (Slower on Android 9 and below).
+  static bool get useHybridComposition =>
+      MethodChannelMapboxGl.useHybridComposition;
+  static set useHybridComposition(bool useHybridComposition) =>
+      MethodChannelMapboxGl.useHybridComposition = useHybridComposition;
+
   @override
   State createState() => _MapboxMapState();
 }
