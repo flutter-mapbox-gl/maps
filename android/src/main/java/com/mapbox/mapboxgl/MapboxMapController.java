@@ -215,7 +215,6 @@ final class MapboxMapController
     mapView.addOnDidBecomeIdleListener(this);
 
     setStyleString(styleStringInitial);
-    // updateMyLocationEnabled();
   }
 
   @Override
@@ -1370,8 +1369,11 @@ final class MapboxMapController
       return;
     }
     this.myLocationTrackingMode = myLocationTrackingMode;
-    if (mapboxMap != null && locationComponent != null) {
-      updateMyLocationTrackingMode();
+    if (mapboxMap != null) {
+      updateMyLocationEnabled();
+      if (locationComponent != null) {
+        updateMyLocationTrackingMode();
+      }
     }
   }
 
@@ -1477,7 +1479,9 @@ final class MapboxMapController
       stopListeningForLocationUpdates();
     }
 
-    locationComponent.setLocationComponentEnabled(myLocationEnabled);
+    if (locationComponent != null) {
+      locationComponent.setLocationComponentEnabled(myLocationEnabled);
+    }
   }
 
   private void startListeningForLocationUpdates() {
