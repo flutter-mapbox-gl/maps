@@ -29,7 +29,8 @@ class MapboxStyles {
   /// Satellite Streets: Global satellite and aerial imagery with unobtrusive labels. Using this
   /// constant means your map style will always use the latest version and may change as we
   /// improve the style.
-  static const String SATELLITE_STREETS = "mapbox://styles/mapbox/satellite-streets-v11";
+  static const String SATELLITE_STREETS =
+      "mapbox://styles/mapbox/satellite-streets-v11";
 
   /// Traffic Day: Color-coded roads based on live traffic congestion data. Traffic data is currently
   /// available in
@@ -128,7 +129,8 @@ class MinMaxZoomPreference {
   final double? maxZoom;
 
   /// Unbounded zooming.
-  static const MinMaxZoomPreference unbounded = MinMaxZoomPreference(null, null);
+  static const MinMaxZoomPreference unbounded =
+      MinMaxZoomPreference(null, null);
 
   dynamic toJson() => <dynamic>[minZoom, maxZoom];
 

@@ -27,7 +27,8 @@ class ArgumentCallbacks<T> {
     if (length == 1) {
       _callbacks[0].call(argument);
     } else if (0 < length) {
-      for (ArgumentCallback<T> callback in List<ArgumentCallback<T>>.from(_callbacks)) {
+      for (ArgumentCallback<T> callback
+          in List<ArgumentCallback<T>>.from(_callbacks)) {
         callback(argument);
       }
     }
