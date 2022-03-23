@@ -1365,15 +1365,16 @@ final class MapboxMapController
 
   @Override
   public void setMyLocationTrackingMode(int myLocationTrackingMode) {
+    if (mapboxMap != null) {
+      // ensure that location is trackable
+      updateMyLocationEnabled();
+    }
     if (this.myLocationTrackingMode == myLocationTrackingMode) {
       return;
     }
     this.myLocationTrackingMode = myLocationTrackingMode;
-    if (mapboxMap != null) {
-      updateMyLocationEnabled();
-      if (locationComponent != null) {
-        updateMyLocationTrackingMode();
-      }
+    if (mapboxMap != null && locationComponent != null) {
+      updateMyLocationTrackingMode();
     }
   }
 
