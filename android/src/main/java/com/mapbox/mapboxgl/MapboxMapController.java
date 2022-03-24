@@ -215,7 +215,6 @@ final class MapboxMapController
     mapView.addOnDidBecomeIdleListener(this);
 
     setStyleString(styleStringInitial);
-    // updateMyLocationEnabled();
   }
 
   @Override
@@ -1366,6 +1365,10 @@ final class MapboxMapController
 
   @Override
   public void setMyLocationTrackingMode(int myLocationTrackingMode) {
+    if (mapboxMap != null) {
+      // ensure that location is trackable
+      updateMyLocationEnabled();
+    }
     if (this.myLocationTrackingMode == myLocationTrackingMode) {
       return;
     }
