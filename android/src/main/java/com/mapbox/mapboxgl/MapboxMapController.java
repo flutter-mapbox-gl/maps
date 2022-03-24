@@ -281,8 +281,8 @@ final class MapboxMapController
     }
   }
 
-  private void updateLocationLocationComponentLayer() {
-    if (locationComponent != null && style != null) {
+  private void updateLocationComponentLayer() {
+    if (locationComponent != null && locationComponentRequiresUpdate()) {
       locationComponent.applyStyle(buildLocationComponentOptions(style));
     }
   }
@@ -293,6 +293,19 @@ final class MapboxMapController
     }
   }
 
+  /// only update if the last layer is not the mapbox-location-bearing-layer
+  boolean locationComponentRequiresUpdate() {
+    if (style != null) {
+      final List<Layer> layers = style.getLayers();
+
+      if (layers.size() > 0) {
+        final String layerID = layers.get(layers.size() - 1).getId();
+        return !layerID.equals("mapbox-location-bearing-layer");
+      }
+    }
+    return false;
+  }
+
   private LocationComponentOptions buildLocationComponentOptions(Style style) {
     final LocationComponentOptions.Builder optionsBuilder =
         LocationComponentOptions.builder(context);
@@ -301,8 +314,8 @@ final class MapboxMapController
     if (style != null) {
       final List<Layer> layers = style.getLayers();
       if (layers.size() > 0) {
-        optionsBuilder.layerAbove(layers.get(layers.size() - 1).getId());
-        Log.i(TAG, layers.get(layers.size() - 1).getId());
+        final String lastLayerId = layers.get(layers.size() - 1).getId();
+        optionsBuilder.layerAbove(lastLayerId);
       }
     }
     return optionsBuilder.build();
@@ -822,7 +835,7 @@ final class MapboxMapController
               properties,
               enableInteraction,
               null);
-          updateLocationLocationComponentLayer();
+          updateLocationComponentLayer();
 
           result.success(null);
           break;
@@ -848,7 +861,7 @@ final class MapboxMapController
               properties,
               enableInteraction,
               null);
-          updateLocationLocationComponentLayer();
+          updateLocationComponentLayer();
 
           result.success(null);
           break;
@@ -874,7 +887,7 @@ final class MapboxMapController
               properties,
               enableInteraction,
               null);
-          updateLocationLocationComponentLayer();
+          updateLocationComponentLayer();
 
           result.success(null);
           break;
@@ -900,7 +913,7 @@ final class MapboxMapController
               properties,
               enableInteraction,
               null);
-          updateLocationLocationComponentLayer();
+          updateLocationComponentLayer();
 
           result.success(null);
           break;
@@ -922,7 +935,7 @@ final class MapboxMapController
               belowLayerId,
               properties,
               null);
-          updateLocationLocationComponentLayer();
+          updateLocationComponentLayer();
 
           result.success(null);
           break;
@@ -944,7 +957,7 @@ final class MapboxMapController
               belowLayerId,
               properties,
               null);
-          updateLocationLocationComponentLayer();
+          updateLocationComponentLayer();
 
           result.success(null);
           break;
