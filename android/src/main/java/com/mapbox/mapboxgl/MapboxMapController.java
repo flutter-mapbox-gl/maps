@@ -1477,7 +1477,9 @@ final class MapboxMapController
       stopListeningForLocationUpdates();
     }
 
-    locationComponent.setLocationComponentEnabled(myLocationEnabled);
+    if (locationComponent != null) {
+      locationComponent.setLocationComponentEnabled(myLocationEnabled);
+    }
   }
 
   private void startListeningForLocationUpdates() {
