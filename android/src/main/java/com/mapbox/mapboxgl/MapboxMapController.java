@@ -293,17 +293,21 @@ final class MapboxMapController
     }
   }
 
-  /// only update if the last layer is not the mapbox-location-bearing-layer
-  boolean locationComponentRequiresUpdate() {
+  String getLastLayerOnStyle(Style style) {
     if (style != null) {
       final List<Layer> layers = style.getLayers();
 
       if (layers.size() > 0) {
-        final String layerID = layers.get(layers.size() - 1).getId();
-        return !layerID.equals("mapbox-location-bearing-layer");
+        return layers.get(layers.size() - 1).getId();
       }
     }
-    return false;
+    return null;
+  }
+
+  /// only update if the last layer is not the mapbox-location-bearing-layer
+  boolean locationComponentRequiresUpdate() {
+    final String lastLayerId = getLastLayerOnStyle(style);
+    return lastLayerId != null && !lastLayerId.equals("mapbox-location-bearing-layer");
   }
 
   private LocationComponentOptions buildLocationComponentOptions(Style style) {
@@ -311,12 +315,9 @@ final class MapboxMapController
         LocationComponentOptions.builder(context);
     optionsBuilder.trackingGesturesManagement(true);
 
-    if (style != null) {
-      final List<Layer> layers = style.getLayers();
-      if (layers.size() > 0) {
-        final String lastLayerId = layers.get(layers.size() - 1).getId();
-        optionsBuilder.layerAbove(lastLayerId);
-      }
+    final String lastLayerId = getLastLayerOnStyle(style);
+    if (lastLayerId != null) {
+      optionsBuilder.layerAbove(lastLayerId);
     }
     return optionsBuilder.build();
   }
