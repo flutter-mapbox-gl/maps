@@ -1338,6 +1338,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
                     source.shape = MGLShapeCollectionFeature(shapes: shapes)
                 }
+
+                addedShapesByLayer[sourceId] = source.shape
             }
 
         } catch {}
