@@ -215,11 +215,13 @@ final class MapboxMapController
     mapView.addOnDidBecomeIdleListener(this);
 
     setStyleString(styleStringInitial);
-    // updateMyLocationEnabled();
   }
 
   @Override
   public void setStyleString(String styleString) {
+    // clear old layer id from the location Component
+    clearLocationComponentLayer();
+
     // Check if json, url, absolute path or asset path:
     if (styleString == null || styleString.isEmpty()) {
       Log.e(TAG, "setStyleString - string empty or null");
@@ -246,9 +248,7 @@ final class MapboxMapController
         public void onStyleLoaded(@NonNull Style style) {
           MapboxMapController.this.style = style;
 
-          if (myLocationEnabled) {
-            enableLocationComponent(style);
-          }
+          updateMyLocationEnabled();
 
           if (null != bounds) {
             mapboxMap.setLatLngBoundsForCameraTarget(bounds);
@@ -266,23 +266,61 @@ final class MapboxMapController
   private void enableLocationComponent(@NonNull Style style) {
     if (hasLocationPermission()) {
       locationEngine = LocationEngineProvider.getBestLocationEngine(context);
-      LocationComponentOptions locationComponentOptions =
-          LocationComponentOptions.builder(context).trackingGesturesManagement(true).build();
       locationComponent = mapboxMap.getLocationComponent();
-      locationComponent.activateLocationComponent(context, style, locationComponentOptions);
+      locationComponent.activateLocationComponent(
+          context, style, buildLocationComponentOptions(style));
       locationComponent.setLocationComponentEnabled(true);
       // locationComponent.setRenderMode(RenderMode.COMPASS); // remove or keep
       // default?
       locationComponent.setLocationEngine(locationEngine);
       locationComponent.setMaxAnimationFps(30);
       updateMyLocationTrackingMode();
-      setMyLocationTrackingMode(this.myLocationTrackingMode);
       updateMyLocationRenderMode();
-      setMyLocationRenderMode(this.myLocationRenderMode);
       locationComponent.addOnCameraTrackingChangedListener(this);
     } else {
       Log.e(TAG, "missing location permissions");
     }
+  }
+
+  private void updateLocationComponentLayer() {
+    if (locationComponent != null && locationComponentRequiresUpdate()) {
+      locationComponent.applyStyle(buildLocationComponentOptions(style));
+    }
+  }
+
+  private void clearLocationComponentLayer() {
+    if (locationComponent != null) {
+      locationComponent.applyStyle(buildLocationComponentOptions(null));
+    }
+  }
+
+  String getLastLayerOnStyle(Style style) {
+    if (style != null) {
+      final List<Layer> layers = style.getLayers();
+
+      if (layers.size() > 0) {
+        return layers.get(layers.size() - 1).getId();
+      }
+    }
+    return null;
+  }
+
+  /// only update if the last layer is not the mapbox-location-bearing-layer
+  boolean locationComponentRequiresUpdate() {
+    final String lastLayerId = getLastLayerOnStyle(style);
+    return lastLayerId != null && !lastLayerId.equals("mapbox-location-bearing-layer");
+  }
+
+  private LocationComponentOptions buildLocationComponentOptions(Style style) {
+    final LocationComponentOptions.Builder optionsBuilder =
+        LocationComponentOptions.builder(context);
+    optionsBuilder.trackingGesturesManagement(true);
+
+    final String lastLayerId = getLastLayerOnStyle(style);
+    if (lastLayerId != null) {
+      optionsBuilder.layerAbove(lastLayerId);
+    }
+    return optionsBuilder.build();
   }
 
   private void onUserLocationUpdate(Location location) {
@@ -799,6 +837,8 @@ final class MapboxMapController
               properties,
               enableInteraction,
               null);
+          updateLocationComponentLayer();
+
           result.success(null);
           break;
         }
@@ -823,6 +863,8 @@ final class MapboxMapController
               properties,
               enableInteraction,
               null);
+          updateLocationComponentLayer();
+
           result.success(null);
           break;
         }
@@ -847,6 +889,8 @@ final class MapboxMapController
               properties,
               enableInteraction,
               null);
+          updateLocationComponentLayer();
+
           result.success(null);
           break;
         }
@@ -871,6 +915,8 @@ final class MapboxMapController
               properties,
               enableInteraction,
               null);
+          updateLocationComponentLayer();
+
           result.success(null);
           break;
         }
@@ -891,6 +937,8 @@ final class MapboxMapController
               belowLayerId,
               properties,
               null);
+          updateLocationComponentLayer();
+
           result.success(null);
           break;
         }
@@ -911,6 +959,8 @@ final class MapboxMapController
               belowLayerId,
               properties,
               null);
+          updateLocationComponentLayer();
+
           result.success(null);
           break;
         }
@@ -1354,6 +1404,10 @@ final class MapboxMapController
 
   @Override
   public void setMyLocationTrackingMode(int myLocationTrackingMode) {
+    if (mapboxMap != null) {
+      // ensure that location is trackable
+      updateMyLocationEnabled();
+    }
     if (this.myLocationTrackingMode == myLocationTrackingMode) {
       return;
     }
@@ -1465,7 +1519,9 @@ final class MapboxMapController
       stopListeningForLocationUpdates();
     }
 
-    locationComponent.setLocationComponentEnabled(myLocationEnabled);
+    if (locationComponent != null) {
+      locationComponent.setLocationComponentEnabled(myLocationEnabled);
+    }
   }
 
   private void startListeningForLocationUpdates() {

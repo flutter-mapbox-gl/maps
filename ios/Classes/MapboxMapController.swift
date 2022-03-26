@@ -537,7 +537,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "style#removeSource":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
-            guard let source = mapView.style?.source(withIdentifier: sourceId) else { return }
+            guard let source = mapView.style?.source(withIdentifier: sourceId) else {
+                result(nil)
+                return
+            }
             mapView.style?.removeSource(source)
             result(nil)
 
@@ -719,7 +722,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "style#removeLayer":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let layerId = arguments["layerId"] as? String else { return }
-            guard let layer = mapView.style?.layer(withIdentifier: layerId) else { return }
+            guard let layer = mapView.style?.layer(withIdentifier: layerId) else {
+                result(nil)
+                return
+            }
             interactiveFeatureLayerIds.remove(layerId)
             mapView.style?.removeLayer(layer)
             result(nil)
@@ -1330,6 +1336,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                         if let id = $0.identifier as? String,
                            let featureId = feature.identifier as? String
                         { return id == featureId }
+
+                        if let id = $0.identifier as? NSNumber,
+                           let featureId = feature.identifier as? NSNumber
+                        { return id == featureId }
                         return false
                     })
                 {
@@ -1338,6 +1348,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
                     source.shape = MGLShapeCollectionFeature(shapes: shapes)
                 }
+
+                addedShapesByLayer[sourceId] = source.shape
             }
 
         } catch {}
