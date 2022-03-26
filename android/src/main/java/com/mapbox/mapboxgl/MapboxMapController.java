@@ -1037,6 +1037,28 @@ final class MapboxMapController
           break;
         }
 
+      case "style#sourceExists":
+        {
+          if (style == null) {
+            result.error(
+                "STYLE IS NULL",
+                "The style is null. Has onStyleLoaded() already been invoked?",
+                null);
+          }
+          final String id = Convert.toString(call.argument("sourceId"));
+
+          try {
+            if (style.getSource(id) == null) {
+              result.success(false);
+            } else {
+              result.success(true);
+            }
+          } catch (RuntimeException e) {
+            result.success(false);
+          }
+          break;
+        }
+
       case "style#removeSource":
         {
           if (style == null) {
