@@ -30,6 +30,16 @@ Future<dynamic> setOffline(
       },
     );
 
+Future<void> setMapboxHttpClient(String cookie, int timeOutInSeconds)
+{
+  var params =  <String, dynamic>{
+    'cookie': cookie,
+    'timeout' :timeOutInSeconds
+  };
+  return _globalChannel.invokeMethod('setHttpClient', params);
+}
+
+
 Future<List<OfflineRegion>> mergeOfflineRegions(
   String path, {
   String? accessToken,

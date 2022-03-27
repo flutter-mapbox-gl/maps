@@ -13,6 +13,24 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
 
         channel.setMethodCallHandler { methodCall, result in
             switch methodCall.method {
+                        case "setHttpClient":
+                           print("*****************************")
+                         guard let arguments = methodCall.arguments as? [String: Any],
+                                            let cookie = arguments["cookie"] as? String else {
+                                                result(FlutterError(
+                                                    code: "SetOfflineTileCountLimitError",
+                                                    message: "could not decode arguments",
+                                                    details: nil
+                                                ))
+                                                return
+                                        }
+
+                        let sessionConfig = URLSessionConfiguration.default
+                        sessionConfig.httpAdditionalHeaders = ["cookie":cookie] // your headers here
+                        MGLNetworkConfiguration.sharedManager.sessionConfiguration = sessionConfig
+
+
+                        print(cookie)
             case "installOfflineMapTiles":
                 guard let arguments = methodCall.arguments as? [String: String] else { return }
                 let tilesdb = arguments["tilesdb"]
