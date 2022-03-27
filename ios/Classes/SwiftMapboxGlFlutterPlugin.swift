@@ -1,5 +1,7 @@
 import Flutter
 import UIKit
+import Foundation
+import Mapbox
 
 public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -13,12 +15,11 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
 
         channel.setMethodCallHandler { methodCall, result in
             switch methodCall.method {
-                        case "setHttpClient":
-                           print("*****************************")
+                        case "setHttpHeaders":
                          guard let arguments = methodCall.arguments as? [String: Any],
-                                            let cookie = arguments["cookie"] as? String else {
+                                            let headers = arguments["headers"] as? [String: String] else {
                                                 result(FlutterError(
-                                                    code: "SetOfflineTileCountLimitError",
+                                                    code: "setHttpHeadersError",
                                                     message: "could not decode arguments",
                                                     details: nil
                                                 ))
@@ -26,11 +27,8 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                                         }
 
                         let sessionConfig = URLSessionConfiguration.default
-                        sessionConfig.httpAdditionalHeaders = ["cookie":cookie] // your headers here
+                        sessionConfig.httpAdditionalHeaders = headers // your headers here
                         MGLNetworkConfiguration.sharedManager.sessionConfiguration = sessionConfig
-
-
-                        print(cookie)
             case "installOfflineMapTiles":
                 guard let arguments = methodCall.arguments as? [String: String] else { return }
                 let tilesdb = arguments["tilesdb"]

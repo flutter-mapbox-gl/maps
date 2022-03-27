@@ -30,13 +30,11 @@ Future<dynamic> setOffline(
       },
     );
 
-Future<void> setMapboxHttpClient(String cookie, int timeOutInSeconds)
+Future<void> setHttpHeaders(Map<String, String> headers)
 {
-  var params =  <String, dynamic>{
-    'cookie': cookie,
-    'timeout' :timeOutInSeconds
-  };
-  return _globalChannel.invokeMethod('setHttpClient', params);
+  return _globalChannel.invokeMethod('setHttpHeaders',   <String, dynamic>{
+    'headers': headers,
+  },);
 }
 
 
