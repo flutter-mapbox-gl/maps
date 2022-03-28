@@ -4,6 +4,7 @@ import com.mapbox.mapboxsdk.module.http.HttpRequestUtil;
 
 import java.util.Map;
 
+import io.flutter.plugin.common.MethodChannel;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -11,12 +12,12 @@ import okhttp3.Request;
 abstract class MapboxHttpRequestUtil {
 
 
-    public static void setHttpHeaders(Map<String, String> headers)
-    {
-        HttpRequestUtil.setOkHttpClient(getOkHttpClient(headers).build());
+    public static void setHttpHeaders(Map<String, String> headers, MethodChannel.Result result) {
+        HttpRequestUtil.setOkHttpClient(getOkHttpClient(headers, result).build());
+        result.success(null);
     }
 
-    private static OkHttpClient.Builder getOkHttpClient(Map<String, String> headers) {
+    private static OkHttpClient.Builder getOkHttpClient(Map<String, String> headers, MethodChannel.Result result) {
         try {
             return new OkHttpClient.Builder().addNetworkInterceptor(chain -> {
                 Request.Builder builder = chain.request().newBuilder();
@@ -33,6 +34,8 @@ abstract class MapboxHttpRequestUtil {
                 return chain.proceed(builder.build());
             });
         } catch (Exception e) {
+            result.error("OK_HTTP_CLIENT_ERROR",
+                    "An unexcepted error happened during creating http client" + e.getMessage(), null);
             throw new RuntimeException(e);
         }
     }
