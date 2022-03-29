@@ -1,31 +1,32 @@
 import Flutter
-import UIKit
 import Foundation
 import Mapbox
+import UIKit
 
 public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = MapboxMapFactory(withRegistrar: registrar)
         registrar.register(instance, withId: "plugins.flutter.io/mapbox_gl")
-        
+
         let channel = FlutterMethodChannel(
             name: "plugins.flutter.io/mapbox_gl",
             binaryMessenger: registrar.messenger()
         )
-        
+
         channel.setMethodCallHandler { methodCall, result in
             switch methodCall.method {
             case "setHttpHeaders":
                 guard let arguments = methodCall.arguments as? [String: Any],
-                      let headers = arguments["headers"] as? [String: String] else {
-                          result(FlutterError(
-                            code: "setHttpHeadersError",
-                            message: "could not decode arguments",
-                            details: nil
-                          ))
-                          result(nil)
-                          return
-                      }                
+                      let headers = arguments["headers"] as? [String: String]
+                else {
+                    result(FlutterError(
+                        code: "setHttpHeadersError",
+                        message: "could not decode arguments",
+                        details: nil
+                    ))
+                    result(nil)
+                    return
+                }
                 let sessionConfig = URLSessionConfiguration.default
                 sessionConfig.httpAdditionalHeaders = headers // your headers here
                 MGLNetworkConfiguration.sharedManager.sessionConfiguration = sessionConfig
@@ -89,14 +90,14 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
     }
-    
+
     private static func getTilesUrl() -> URL {
         guard var cachesUrl = FileManager.default.urls(
             for: .applicationSupportDirectory,
-               in: .userDomainMask
+            in: .userDomainMask
         ).first,
-              let bundleId = Bundle.main
-                .object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String
+            let bundleId = Bundle.main
+            .object(forInfoDictionaryKey: kCFBundleIdentifierKey as String) as? String
         else {
             fatalError("Could not get map tiles directory")
         }
@@ -105,7 +106,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
         cachesUrl.appendPathComponent("cache.db")
         return cachesUrl
     }
-    
+
     // Copies the "offline" tiles to where Mapbox expects them
     private static func installOfflineMapTiles(registrar: FlutterPluginRegistrar, tilesdb: String) {
         var tilesUrl = getTilesUrl()
@@ -131,7 +132,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
             NSLog("Error copying bundled tiles: \(error)")
         }
     }
-    
+
     private static func getTilesDbPath(registrar: FlutterPluginRegistrar,
                                        tilesdb: String) -> String?
     {
