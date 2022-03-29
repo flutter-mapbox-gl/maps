@@ -12,7 +12,8 @@ import okhttp3.Request;
 abstract class MapboxHttpRequestUtil {
 
 
-    public static void setHttpHeaders(Map<String, String> headers, MethodChannel.Result result) {
+    public static void setHttpHeaders(Map<String, String> headers,
+                                      MethodChannel.Result result) {
         HttpRequestUtil.setOkHttpClient(getOkHttpClient(headers, result).build());
         result.success(null);
     }
@@ -35,7 +36,8 @@ abstract class MapboxHttpRequestUtil {
             });
         } catch (Exception e) {
             result.error("OK_HTTP_CLIENT_ERROR",
-                    "An unexcepted error happened during creating http client" + e.getMessage(), null);
+                    "An unexcepted error happened during creating http " +
+                            "client" + e.getMessage(), null);
             throw new RuntimeException(e);
         }
     }
