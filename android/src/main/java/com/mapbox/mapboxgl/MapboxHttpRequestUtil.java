@@ -1,10 +1,8 @@
 package com.mapbox.mapboxgl;
 
 import com.mapbox.mapboxsdk.module.http.HttpRequestUtil;
-
-import java.util.Map;
-
 import io.flutter.plugin.common.MethodChannel;
+import java.util.Map;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 

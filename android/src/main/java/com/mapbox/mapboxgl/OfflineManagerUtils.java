@@ -2,7 +2,6 @@ package com.mapbox.mapboxgl;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.google.gson.Gson;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -12,15 +11,13 @@ import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineRegionError;
 import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
-
+import io.flutter.plugin.common.MethodChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import io.flutter.plugin.common.MethodChannel;
 
 abstract class OfflineManagerUtils {
   private static final String TAG = "OfflineManagerUtils";
