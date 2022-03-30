@@ -30,6 +30,15 @@ Future<dynamic> setOffline(
       },
     );
 
+Future<void> setHttpHeaders(Map<String, String> headers) {
+  return _globalChannel.invokeMethod(
+    'setHttpHeaders',
+    <String, dynamic>{
+      'headers': headers,
+    },
+  );
+}
+
 Future<List<OfflineRegion>> mergeOfflineRegions(
   String path, {
   String? accessToken,

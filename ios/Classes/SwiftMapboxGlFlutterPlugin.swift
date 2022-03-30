@@ -1,4 +1,6 @@
 import Flutter
+import Foundation
+import Mapbox
 import UIKit
 
 public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
@@ -13,6 +15,22 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
 
         channel.setMethodCallHandler { methodCall, result in
             switch methodCall.method {
+            case "setHttpHeaders":
+                guard let arguments = methodCall.arguments as? [String: Any],
+                      let headers = arguments["headers"] as? [String: String]
+                else {
+                    result(FlutterError(
+                        code: "setHttpHeadersError",
+                        message: "could not decode arguments",
+                        details: nil
+                    ))
+                    result(nil)
+                    return
+                }
+                let sessionConfig = URLSessionConfiguration.default
+                sessionConfig.httpAdditionalHeaders = headers // your headers here
+                MGLNetworkConfiguration.sharedManager.sessionConfiguration = sessionConfig
+                result(nil)
             case "installOfflineMapTiles":
                 guard let arguments = methodCall.arguments as? [String: String] else { return }
                 let tilesdb = arguments["tilesdb"]

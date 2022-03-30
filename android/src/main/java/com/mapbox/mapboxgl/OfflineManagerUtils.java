@@ -84,23 +84,29 @@ abstract class OfflineManagerUtils {
                     new OfflineRegion.OfflineRegionObserver() {
                       @Override
                       public void onStatusChanged(OfflineRegionStatus status) {
-                        // Calculate progress of downloading
+                        // Calculate progress of
+                        // downloading
                         double progress =
                             calculateDownloadingProgress(
                                 status.getRequiredResourceCount(),
                                 status.getCompletedResourceCount());
-                        // Check if downloading is complete
+                        // Check if downloading is
+                        // complete
                         if (status.isComplete()) {
-                          Log.i(TAG, "Region downloaded successfully.");
+                          Log.i(TAG, "Region " + "downloaded " + "successfully.");
                           // Reset downloading state
                           _offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
-                          // This can be called multiple times, and result can be called only once,
-                          // so there is need to prevent it
+                          // This can be called
+                          // multiple times, and
+                          // result can be called
+                          // only once,
+                          // so there is need to
+                          // prevent it
                           if (isComplete.get()) return;
                           isComplete.set(true);
                           channelHandler.onSuccess();
                         } else {
-                          Log.i(TAG, "Region download progress = " + progress);
+                          Log.i(TAG, "Region " + "download " + "progress = " + progress);
                           channelHandler.onProgress(progress);
                         }
                       }
@@ -118,16 +124,19 @@ abstract class OfflineManagerUtils {
 
                       @Override
                       public void mapboxTileCountLimitExceeded(long limit) {
-                        Log.e(TAG, "Mapbox tile count limit exceeded: " + limit);
+                        Log.e(TAG, "Mapbox tile count" + " limit exceeded: " + limit);
                         // Reset downloading state
                         _offlineRegion.setDownloadState(OfflineRegion.STATE_INACTIVE);
                         isComplete.set(true);
                         channelHandler.onError(
                             "mapboxTileCountLimitExceeded",
-                            "Mapbox tile count limit exceeded: " + limit,
+                            "Mapbox tile count " + "limit " + "exceeded: " + limit,
                             null);
-                        // Mapbox even after crash and not downloading fully region still keeps part
-                        // of it in database, so we have to remove it
+                        // Mapbox even after crash
+                        // and not downloading fully
+                        // region still keeps part
+                        // of it in database, so we
+                        // have to remove it
                         deleteRegion(null, context, _offlineRegion.getID());
                       }
                     };
@@ -206,7 +215,9 @@ abstract class OfflineManagerUtils {
                 }
                 if (result == null) return;
                 result.error(
-                    "UpdateMetadataError", "There is no region with given id to update.", null);
+                    "UpdateMetadataError",
+                    "There is no " + "region with given id to " + "update.",
+                    null);
               }
 
               @Override
@@ -244,7 +255,9 @@ abstract class OfflineManagerUtils {
                 }
                 if (result == null) return;
                 result.error(
-                    "DeleteRegionError", "There is no region with given id to delete.", null);
+                    "DeleteRegionError",
+                    "There is no " + "region with given id to " + "delete.",
+                    null);
               }
 
               @Override
