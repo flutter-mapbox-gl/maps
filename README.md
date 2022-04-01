@@ -4,6 +4,30 @@
 > 
 > We welcome [feedback](https://github.com/tobrun/flutter-mapbox-gl/issues) and contributions.
 
+
+## Table of contents
+
+- [Flutter Mapbox GL](#flutter-mapbox-gl)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Setting up](#setting-up)
+    - [Mobile](#mobile)
+      - [Secret Mapbox access token](#secret-mapbox-access-token)
+    - [Web](#web)
+    - [All platforms](#all-platforms)
+      - [Public Mapbox access token](#public-mapbox-access-token)
+  - [Supported API](#supported-api)
+  - [Map Styles](#map-styles)
+  - [Offline Sideloading](#offline-sideloading)
+  - [Downloading Offline Regions](#downloading-offline-regions)
+  - [Location features](#location-features)
+    - [Android](#android)
+    - [iOS](#ios)
+  - [Running the example code](#running-the-example-code)
+  - [Contributing](#contributing)
+
+## Introduction
+
 This Flutter plugin allows to show embedded interactive and customizable vector maps inside a Flutter widget. For the Android and iOS integration, we use [mapbox-gl-native](https://github.com/mapbox/mapbox-gl-native). For web, we rely on [mapbox-gl-js](https://github.com/mapbox/mapbox-gl-js). This project only supports a subset of the API exposed by these libraries. 
 
 ![screenshot.png](screenshot.png)
@@ -200,6 +224,8 @@ xml ...
 
 [Recommended](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location)  explanation about "Shows your location on the map and helps improve the map".
 
+## Running the example code
+See the [documentation about this topic](doc/RUNNING_EXAMPLE_CODE.md)
 
 ## Contributing
 

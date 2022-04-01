@@ -1,8 +1,6 @@
 # Running the example code
 
-- Clone this repo
-- You'll find the example code in the `example` folder
-
+- You'll find the example code in the `example` folder of this repository
 
 ## Secret Mapbox access token
 
@@ -26,6 +24,7 @@ curl: (22) The requested URL returned error: 401 Unauthorized
 ```
 
 ## iOS
+- Clone this repo
 - Open `example/ios/Runner.xcworkspace` in XCode
 - On the left, select Runner and change the Bundle identifier on the `general` tab to something of your own.
 
