@@ -30,6 +30,7 @@ class MapboxMap extends StatefulWidget {
     this.myLocationEnabled = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.None,
     this.myLocationRenderMode = MyLocationRenderMode.COMPASS,
+    this.myLocationStyle = const MyLocationStyle(),
     this.logoViewMargins,
     this.compassViewPosition,
     this.compassViewMargins,
@@ -166,6 +167,9 @@ class MapboxMap extends StatefulWidget {
 
   /// The mode to render the user location symbol
   final MyLocationRenderMode myLocationRenderMode;
+
+  /// The style of the user location annotation
+  final MyLocationStyle myLocationStyle;
 
   /// Set the layout margins for the Mapbox Logo
   final Point? logoViewMargins;
@@ -339,6 +343,7 @@ class _MapboxMapOptions {
     this.myLocationEnabled,
     this.myLocationTrackingMode,
     this.myLocationRenderMode,
+    this.myLocationStyle,
     this.logoViewMargins,
     this.compassViewPosition,
     this.compassViewMargins,
@@ -362,6 +367,7 @@ class _MapboxMapOptions {
       myLocationEnabled: map.myLocationEnabled,
       myLocationTrackingMode: map.myLocationTrackingMode,
       myLocationRenderMode: map.myLocationRenderMode,
+      myLocationStyle: map.myLocationStyle,
       logoViewMargins: map.logoViewMargins,
       compassViewPosition: map.compassViewPosition,
       compassViewMargins: map.compassViewMargins,
@@ -395,6 +401,8 @@ class _MapboxMapOptions {
   final MyLocationTrackingMode? myLocationTrackingMode;
 
   final MyLocationRenderMode? myLocationRenderMode;
+
+  final MyLocationStyle? myLocationStyle;
 
   final Point? logoViewMargins;
 
@@ -446,6 +454,7 @@ class _MapboxMapOptions {
     addIfNonNull('myLocationEnabled', myLocationEnabled);
     addIfNonNull('myLocationTrackingMode', myLocationTrackingMode?.index);
     addIfNonNull('myLocationRenderMode', myLocationRenderMode?.index);
+    addIfNonNull('myLocationStyle', myLocationStyle?.toJson());
     addIfNonNull('logoViewMargins', pointToArray(logoViewMargins));
     addIfNonNull('compassViewPosition', compassViewPosition?.index);
     addIfNonNull('compassViewMargins', pointToArray(compassViewMargins));

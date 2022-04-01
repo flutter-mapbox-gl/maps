@@ -5,6 +5,7 @@
 package com.mapbox.mapboxgl;
 
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import java.util.Map;
 
 /** Receiver of MapboxMap configuration options. */
 interface MapboxMapOptionsSink {
@@ -33,6 +34,8 @@ interface MapboxMapOptionsSink {
   void setMyLocationTrackingMode(int myLocationTrackingMode);
 
   void setMyLocationRenderMode(int myLocationRenderMode);
+
+  void setMyLocationStyle(Map myLocationStyle);
 
   void setLogoViewMargins(int x, int y);
 

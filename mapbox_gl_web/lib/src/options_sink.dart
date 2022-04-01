@@ -27,6 +27,8 @@ abstract class MapboxMapOptionsSink {
 
   void setMyLocationRenderMode(int myLocationRenderMode);
 
+  void setMyLocationStyle(MyLocationStyle myLocationStyle);
+
   void setLogoViewMargins(int x, int y);
 
   void setCompassAlignment(CompassViewPosition position);

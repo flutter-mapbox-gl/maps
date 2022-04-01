@@ -260,6 +260,11 @@ class Convert {
     if (myLocationRenderMode != null) {
       sink.setMyLocationRenderMode(toInt(myLocationRenderMode));
     }
+    final Object myLocationStyle = data.get("myLocationStyle");
+    if (myLocationStyle != null) {
+      final Map myLocationStyleData = toMap(myLocationStyle);
+      sink.setMyLocationStyle(myLocationStyleData);
+    }
     final Object logoViewMargins = data.get("logoViewMargins");
     if (logoViewMargins != null) {
       final List logoViewMarginsData = toList(logoViewMargins);

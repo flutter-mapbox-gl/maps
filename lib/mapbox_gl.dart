@@ -17,6 +17,7 @@ import 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart';
 
 export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
     show
+        MapBoxColorConversion,
         LatLng,
         LatLngBounds,
         LatLngQuad,
@@ -32,6 +33,7 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         MapboxStyles,
         MyLocationTrackingMode,
         MyLocationRenderMode,
+        MyLocationStyle,
         CompassViewPosition,
         AttributionButtonPosition,
         Annotation,
@@ -56,6 +58,5 @@ part 'src/offline_region.dart';
 part 'src/download_region_status.dart';
 part 'src/layer_expressions.dart';
 part 'src/layer_properties.dart';
-part 'src/color_tools.dart';
 part 'src/annotation_manager.dart';
 part 'src/util.dart';

@@ -556,6 +556,11 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   }
 
   @override
+  void setMyLocationStyle(MyLocationStyle myLocationStyle) {
+    print('myLocationStyle not available in web');
+  }
+
+  @override
   void setMyLocationTrackingMode(int myLocationTrackingMode) {
     if (_geolocateControl == null) {
       //myLocationEnabled is false, ignore myLocationTrackingMode

@@ -48,6 +48,9 @@ class Convert {
         {
             delegate.setMyLocationRenderMode(myLocationRenderMode: renderMode)
         }
+        if let myLocationStyle = options["myLocationStyle"] as? [String: String] {
+            delegate.setMyLocationStyle(style: myLocationStyle)
+        }
         if let logoViewMargins = options["logoViewMargins"] as? [Double] {
             delegate.setLogoViewMargins(x: logoViewMargins[0], y: logoViewMargins[1])
         }

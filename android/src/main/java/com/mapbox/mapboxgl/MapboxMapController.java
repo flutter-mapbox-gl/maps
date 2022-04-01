@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
@@ -127,6 +128,7 @@ final class MapboxMapController
 
   private Set<String> interactiveFeatureLayerIds;
   private Map<String, FeatureCollection> addedFeaturesByLayer;
+  private Map myLocationStyle;
 
   private LatLngBounds bounds = null;
 
@@ -148,6 +150,7 @@ final class MapboxMapController
     this.interactiveFeatureLayerIds = new HashSet<>();
     this.addedFeaturesByLayer = new HashMap<String, FeatureCollection>();
     this.density = context.getResources().getDisplayMetrics().density;
+    this.myLocationStyle = Collections.emptyMap();
     this.lifecycleProvider = lifecycleProvider;
     if (dragEnabled) {
       this.androidGesturesManager = new AndroidGesturesManager(this.mapView.getContext(), false);
@@ -314,6 +317,14 @@ final class MapboxMapController
     final LocationComponentOptions.Builder optionsBuilder =
         LocationComponentOptions.builder(context);
     optionsBuilder.trackingGesturesManagement(true);
+    if (myLocationStyle.get("puckColor") != null) {
+      final int color = Color.parseColor((String) myLocationStyle.get("puckColor"));
+      optionsBuilder.foregroundTintColor(color);
+    }
+    if (myLocationStyle.get("pulsingColor") != null) {
+      final int color = Color.parseColor((String) myLocationStyle.get("pulsingColor"));
+      optionsBuilder.accuracyColor(color);
+    }
 
     final String lastLayerId = getLastLayerOnStyle(style);
     if (lastLayerId != null) {
@@ -1401,6 +1412,12 @@ final class MapboxMapController
     if (mapboxMap != null && locationComponent != null) {
       updateMyLocationRenderMode();
     }
+  }
+
+  @Override
+  public void setMyLocationStyle(Map myLocationStyle) {
+    this.myLocationStyle = myLocationStyle;
+    updateLocationComponentLayer();
   }
 
   public void setLogoViewMargins(int x, int y) {

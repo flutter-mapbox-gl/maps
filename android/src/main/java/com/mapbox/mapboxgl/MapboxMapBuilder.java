@@ -11,6 +11,8 @@ import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.Style;
 import io.flutter.plugin.common.BinaryMessenger;
+import java.util.Collections;
+import java.util.Map;
 
 class MapboxMapBuilder implements MapboxMapOptionsSink {
   public final String TAG = getClass().getSimpleName();
@@ -21,6 +23,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   private int myLocationTrackingMode = 0;
   private int myLocationRenderMode = 0;
   private String styleString = Style.MAPBOX_STREETS;
+  private Map myLocationStyle = Collections.emptyMap();
   private LatLngBounds bounds = null;
 
   MapboxMapController build(
@@ -44,7 +47,7 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
     controller.setMyLocationTrackingMode(myLocationTrackingMode);
     controller.setMyLocationRenderMode(myLocationRenderMode);
     controller.setTrackCameraPosition(trackCameraPosition);
-
+    controller.setMyLocationStyle(myLocationStyle);
     if (null != bounds) {
       controller.setCameraTargetBounds(bounds);
     }
@@ -120,6 +123,11 @@ class MapboxMapBuilder implements MapboxMapOptionsSink {
   @Override
   public void setMyLocationRenderMode(int myLocationRenderMode) {
     this.myLocationRenderMode = myLocationRenderMode;
+  }
+
+  @Override
+  public void setMyLocationStyle(Map myLocationStyle) {
+    this.myLocationStyle = myLocationStyle;
   }
 
   public void setLogoViewMargins(int x, int y) {

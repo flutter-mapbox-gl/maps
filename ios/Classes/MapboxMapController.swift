@@ -28,6 +28,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var interactiveFeatureLayerIds = Set<String>()
     private var addedShapesByLayer = [String: MGLShape]()
 
+    private var userLocationAnnotationViewStyle = MGLUserLocationAnnotationViewStyle()
+
     func view() -> UIView {
         return mapView
     }
@@ -1285,6 +1287,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
+    func mapView(styleForDefaultUserLocationAnnotationView _: MGLMapView)
+        -> MGLUserLocationAnnotationViewStyle
+    {
+        return userLocationAnnotationViewStyle
+    }
+
     func addSourceGeojson(sourceId: String, geojson: String) {
         do {
             let parsed = try MGLShape(
@@ -1428,6 +1436,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case .Gps:
             NSLog("RenderMode.GPS currently not supported")
         }
+    }
+
+    func setMyLocationStyle(style: [String: String]) {
+        if let puckColor = UIColor(hexString: style["puckColor"] ?? "") {
+            userLocationAnnotationViewStyle.puckFillColor = puckColor
+        }
+        if let pulsingColor = UIColor(hexString: style["pulsingColor"] ?? "") {
+            userLocationAnnotationViewStyle.haloFillColor = pulsingColor
+        }
+        mapView.updateUserLocationAnnotationView()
     }
 
     func setLogoViewMargins(x: Double, y: Double) {
