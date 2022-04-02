@@ -1635,6 +1635,24 @@ final class MapboxMapController
       RectF rectF = new RectF(pointf.x - 10, pointf.y - 10, pointf.x + 10, pointf.y + 10);
       Feature feature = firstFeatureOnLayers(rectF);
       if (feature != null && startDragging(feature, origin)) {
+
+        LatLng current = mapboxMap.getProjection().fromScreenLocation(pointf);
+
+        final Map<String, Object> arguments = new HashMap<>(9);
+        arguments.put("id", draggedFeature.id());
+        arguments.put("x", pointf.x);
+        arguments.put("y", pointf.y);
+
+        arguments.put("originLng", dragOrigin.getLongitude());
+        arguments.put("originLat", dragOrigin.getLatitude());
+        arguments.put("currentLng", current.getLongitude());
+        arguments.put("currentLat", current.getLatitude());
+        arguments.put("eventType", "start");
+        arguments.put("deltaLng", current.getLongitude() - dragPrevious.getLongitude());
+        arguments.put("deltaLat", current.getLatitude() - dragPrevious.getLatitude());
+
+        methodChannel.invokeMethod("feature#onDrag", arguments);
+
         return true;
       }
     }
@@ -1660,6 +1678,7 @@ final class MapboxMapController
       arguments.put("originLat", dragOrigin.getLatitude());
       arguments.put("currentLng", current.getLongitude());
       arguments.put("currentLat", current.getLatitude());
+      arguments.put("eventType", "drag");
       arguments.put("deltaLng", current.getLongitude() - dragPrevious.getLongitude());
       arguments.put("deltaLat", current.getLatitude() - dragPrevious.getLatitude());
 
@@ -1670,7 +1689,25 @@ final class MapboxMapController
     return true;
   }
 
-  void onMoveEnd() {
+  void onMoveEnd(MoveGestureDetector detector) {
+
+    PointF pointf = detector.getFocalPoint();
+    LatLng current = mapboxMap.getProjection().fromScreenLocation(pointf);
+
+    final Map<String, Object> arguments = new HashMap<>(9);
+    arguments.put("id", draggedFeature.id());
+    arguments.put("x", pointf.x);
+    arguments.put("y", pointf.y);
+
+    arguments.put("originLng", dragOrigin.getLongitude());
+    arguments.put("originLat", dragOrigin.getLatitude());
+    arguments.put("currentLng", current.getLongitude());
+    arguments.put("currentLat", current.getLatitude());
+    arguments.put("eventType", "end");
+    arguments.put("deltaLng", current.getLongitude() - dragPrevious.getLongitude());
+    arguments.put("deltaLat", current.getLatitude() - dragPrevious.getLatitude());
+
+    methodChannel.invokeMethod("feature#onDrag", arguments);
     stopDragging();
   }
 
@@ -1708,7 +1745,7 @@ final class MapboxMapController
 
     @Override
     public void onMoveEnd(MoveGestureDetector detector, float velocityX, float velocityY) {
-      MapboxMapController.this.onMoveEnd();
+      MapboxMapController.this.onMoveEnd(detector);
     }
   }
 }
