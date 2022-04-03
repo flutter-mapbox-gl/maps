@@ -860,23 +860,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 }
             }
             channel?.invokeMethod("feature#onDrag", arguments: [
-                            "id": feature.identifier,
-                            "x": point.x,
-                            "y": point.y,
-                            "originLng": coordinate.longitude,
-                            "originLat": coordinate.latitude,
-                            "currentLng": coordinate.longitude,
-                            "currentLat": coordinate.latitude,
-                            "deltaLng":0,
-                            "eventType":"start",
-                            "deltaLat":0,
-              ])
+                "id": feature.identifier,
+                "x": point.x,
+                "y": point.y,
+                "originLng": coordinate.longitude,
+                "originLat": coordinate.latitude,
+                "currentLng": coordinate.longitude,
+                "currentLat": coordinate.latitude,
+                "deltaLng": 0,
+                "eventType": "start",
+                "deltaLat": 0,
+            ])
 
         } else if sender.state == UIGestureRecognizer.State.ended || sender.numberOfTouches != 1 {
-            
-            
-            let prevLat = previousDragCoordinate?.latitude ?? 0;
-            let prevLng = previousDragCoordinate?.longitude ?? 0;
+            let prevLat = previousDragCoordinate?.latitude ?? 0
+            let prevLng = previousDragCoordinate?.longitude ?? 0
 
             channel?.invokeMethod("feature#onDrag", arguments: [
                 "id": dragFeature?.identifier,
@@ -887,10 +885,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 "currentLng": coordinate.longitude,
                 "currentLat": coordinate.latitude,
                 "deltaLng": coordinate.longitude - prevLng,
-                "eventType":"end",
+                "eventType": "end",
                 "deltaLat": coordinate.latitude - prevLat,
             ])
-            
 
             sender.state = UIGestureRecognizer.State.ended
             mapView.allowsScrolling = scrollingEnabled
@@ -912,7 +909,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 "currentLng": coordinate.longitude,
                 "currentLat": coordinate.latitude,
                 "deltaLng": coordinate.longitude - previous.longitude,
-                "eventType":"drag",
+                "eventType": "drag",
                 "deltaLat": coordinate.latitude - previous.latitude,
             ])
             previousDragCoordinate = coordinate
