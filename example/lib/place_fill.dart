@@ -61,7 +61,11 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   }
 
   void _onFeatureDrag(id,
-      {required current, required delta, required origin, required point, required eventType}) {
+      {required current,
+      required delta,
+      required origin,
+      required point,
+      required eventType}) {
     DragEventType type = eventType;
     switch (type) {
       case DragEventType.start:
@@ -105,7 +109,10 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
 
   void _add() {
     controller!.addFill(
-      FillOptions(geometry: _defaultGeometry, fillColor: "#FF0000", fillOutlineColor: "#FF0000"),
+      FillOptions(
+          geometry: _defaultGeometry,
+          fillColor: "#FF0000",
+          fillOutlineColor: "#FF0000"),
     );
     setState(() {
       _fillCount += 1;
@@ -127,9 +134,14 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
       geometry = _defaultGeometry;
     }
 
-    _updateSelectedFill(FillOptions(geometry: geometry.map((list) => list.map(
-        // Move to right with 0.1 degree on longitude
-        (latLng) => LatLng(latLng.latitude, latLng.longitude + 0.1)).toList()).toList()));
+    _updateSelectedFill(FillOptions(
+        geometry: geometry
+            .map((list) => list
+                .map(
+                    // Move to right with 0.1 degree on longitude
+                    (latLng) => LatLng(latLng.latitude, latLng.longitude + 0.1))
+                .toList())
+            .toList()));
   }
 
   void _changeDraggable() {
@@ -180,7 +192,8 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   }
 
   Future<void> _changeFillPattern() async {
-    String? current = _selectedFill!.options.fillPattern == null ? "assetImage" : null;
+    String? current =
+        _selectedFill!.options.fillPattern == null ? "assetImage" : null;
     _updateSelectedFill(
       FillOptions(fillPattern: current),
     );
@@ -230,27 +243,36 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
                       children: <Widget>[
                         TextButton(
                           child: const Text('change fill-opacity'),
-                          onPressed: (_selectedFill == null) ? null : _changeFillOpacity,
+                          onPressed: (_selectedFill == null)
+                              ? null
+                              : _changeFillOpacity,
                         ),
                         TextButton(
                           child: const Text('change fill-color'),
-                          onPressed: (_selectedFill == null) ? null : _changeFillColor,
+                          onPressed:
+                              (_selectedFill == null) ? null : _changeFillColor,
                         ),
                         TextButton(
                           child: const Text('change fill-outline-color'),
-                          onPressed: (_selectedFill == null) ? null : _changeFillOutlineColor,
+                          onPressed: (_selectedFill == null)
+                              ? null
+                              : _changeFillOutlineColor,
                         ),
                         TextButton(
                           child: const Text('change fill-pattern'),
-                          onPressed: (_selectedFill == null) ? null : _changeFillPattern,
+                          onPressed: (_selectedFill == null)
+                              ? null
+                              : _changeFillPattern,
                         ),
                         TextButton(
                           child: const Text('change position'),
-                          onPressed: (_selectedFill == null) ? null : _changePosition,
+                          onPressed:
+                              (_selectedFill == null) ? null : _changePosition,
                         ),
                         TextButton(
                           child: const Text('toggle draggable'),
-                          onPressed: (_selectedFill == null) ? null : _changeDraggable,
+                          onPressed:
+                              (_selectedFill == null) ? null : _changeDraggable,
                         ),
                       ],
                     ),

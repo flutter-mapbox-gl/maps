@@ -4,7 +4,8 @@
 
 part of mapbox_gl;
 
-final MethodChannel _globalChannel = MethodChannel('plugins.flutter.io/mapbox_gl');
+final MethodChannel _globalChannel =
+    MethodChannel('plugins.flutter.io/mapbox_gl');
 
 /// Copy tiles db file passed in to the tiles cache directory (sideloaded) to
 /// make tiles available offline.
@@ -92,7 +93,8 @@ Future<dynamic> setOfflineTileCountLimit(int limit, {String? accessToken}) =>
       },
     );
 
-Future<dynamic> deleteOfflineRegion(int id, {String? accessToken}) => _globalChannel.invokeMethod(
+Future<dynamic> deleteOfflineRegion(int id, {String? accessToken}) =>
+    _globalChannel.invokeMethod(
       'deleteOfflineRegion',
       <String, dynamic>{
         'id': id,
@@ -106,9 +108,11 @@ Future<OfflineRegion> downloadOfflineRegion(
   String? accessToken,
   Function(DownloadRegionStatus event)? onEvent,
 }) async {
-  String channelName = 'downloadOfflineRegion_${DateTime.now().microsecondsSinceEpoch}';
+  String channelName =
+      'downloadOfflineRegion_${DateTime.now().microsecondsSinceEpoch}';
 
-  final result = await _globalChannel.invokeMethod('downloadOfflineRegion', <String, dynamic>{
+  final result = await _globalChannel
+      .invokeMethod('downloadOfflineRegion', <String, dynamic>{
     'accessToken': accessToken,
     'channelName': channelName,
     'definition': definition.toMap(),
@@ -124,7 +128,8 @@ Future<OfflineRegion> downloadOfflineRegion(
       var unknownError = Error(
         PlatformException(
           code: 'UnknowException',
-          message: 'This error is unhandled by plugin. Please contact us if needed.',
+          message:
+              'This error is unhandled by plugin. Please contact us if needed.',
           details: error,
         ),
       );

@@ -1,6 +1,5 @@
 part of mapbox_gl_platform_interface;
 
-
 class MethodChannelMapboxGl extends MapboxGlPlatform {
   late MethodChannel _channel;
   static bool useHybridComposition = true;
@@ -38,9 +37,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
 
         final double deltaLat = call.arguments['deltaLat'];
         final double deltaLng = call.arguments['deltaLng'];
-        final String eventType= call.arguments['eventType'];
-
-
+        final String eventType = call.arguments['eventType'];
 
         onFeatureDraggedPlatform({
           'id': id,
@@ -48,7 +45,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           'origin': LatLng(originLat, originLng),
           'current': LatLng(currentLat, currentLng),
           'delta': LatLng(deltaLat, deltaLng),
-          'eventType':eventType,
+          'eventType': eventType,
         });
         break;
 

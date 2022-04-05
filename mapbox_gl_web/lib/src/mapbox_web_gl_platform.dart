@@ -1,8 +1,10 @@
 part of mapbox_gl_web;
 
-const _mapboxGlCssUrl = 'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css';
+const _mapboxGlCssUrl =
+    'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css';
 
-class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSink {
+class MapboxWebGlPlatform extends MapboxGlPlatform
+    implements MapboxMapOptionsSink {
   late DivElement _mapElement;
 
   late Map<String, dynamic> _creationParams;
@@ -30,7 +32,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
       Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers) {
     _creationParams = creationParams;
     _registerViewFactory(onPlatformViewCreated, this.hashCode);
-    return HtmlElementView(viewType: 'plugins.flutter.io/mapbox_gl_${this.hashCode}');
+    return HtmlElementView(
+        viewType: 'plugins.flutter.io/mapbox_gl_${this.hashCode}');
   }
 
   @override
@@ -41,8 +44,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
 
   void _registerViewFactory(Function(int) callback, int identifier) {
     // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory('plugins.flutter.io/mapbox_gl_$identifier',
-        (int viewId) {
+    ui.platformViewRegistry.registerViewFactory(
+        'plugins.flutter.io/mapbox_gl_$identifier', (int viewId) {
       _mapElement = DivElement()
         ..style.width = '100%'
         ..style.height = '100%';
@@ -106,7 +109,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
       _dragOrigin = LatLng(coords.lat as double, coords.lng as double);
 
       if (_draggedFeatureId != null) {
-        final current = LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble());
+        final current =
+            LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble());
         final payload = {
           'id': _draggedFeatureId,
           'point': Point<double>(e.point.x.toDouble(), e.point.y.toDouble()),
@@ -165,7 +169,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<CameraPosition?> updateMapOptions(Map<String, dynamic> optionsUpdate) async {
+  Future<CameraPosition?> updateMapOptions(
+      Map<String, dynamic> optionsUpdate) async {
     // FIX: why is called indefinitely? (map_ui page)
     Convert.interpretMapboxMapOptions(optionsUpdate, this);
     return _getCameraPosition();
@@ -186,7 +191,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<void> updateMyLocationTrackingMode(MyLocationTrackingMode myLocationTrackingMode) async {
+  Future<void> updateMyLocationTrackingMode(
+      MyLocationTrackingMode myLocationTrackingMode) async {
     setMyLocationTrackingMode(myLocationTrackingMode.index);
   }
 
@@ -245,7 +251,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<List> queryRenderedFeaturesInRect(Rect rect, List<String> layerIds, String? filter) async {
+  Future<List> queryRenderedFeaturesInRect(
+      Rect rect, List<String> layerIds, String? filter) async {
     Map<String, dynamic> options = {};
     if (layerIds.length > 0) {
       options['layers'] = layerIds;
@@ -297,7 +304,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<void> addImage(String name, Uint8List bytes, [bool sdf = false]) async {
+  Future<void> addImage(String name, Uint8List bytes,
+      [bool sdf = false]) async {
     final photo = decodeImage(bytes)!;
     if (!_map.hasImage(name)) {
       _map.addImage(
@@ -349,8 +357,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   void _onMapClick(Event e) {
-    final features = _map.queryRenderedFeatures(
-        [e.point.x, e.point.y], {"layers": _interactiveFeatureLayerIds.toList()});
+    final features = _map.queryRenderedFeatures([e.point.x, e.point.y],
+        {"layers": _interactiveFeatureLayerIds.toList()});
     final payload = {
       'point': Point<double>(e.point.x.toDouble(), e.point.y.toDouble()),
       'latLng': LatLng(e.lngLat.lat.toDouble(), e.lngLat.lng.toDouble()),
@@ -613,21 +621,24 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
 
   @override
   Future<Point> toScreenLocation(LatLng latLng) async {
-    var screenPosition = _map.project(LngLat(latLng.longitude, latLng.latitude));
+    var screenPosition =
+        _map.project(LngLat(latLng.longitude, latLng.latitude));
     return Point(screenPosition.x.round(), screenPosition.y.round());
   }
 
   @override
   Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
     return latLngs.map((latLng) {
-      var screenPosition = _map.project(LngLat(latLng.longitude, latLng.latitude));
+      var screenPosition =
+          _map.project(LngLat(latLng.longitude, latLng.latitude));
       return Point(screenPosition.x.round(), screenPosition.y.round());
     }).toList(growable: false);
   }
 
   @override
   Future<LatLng> toLatLng(Point screenLocation) async {
-    var lngLat = _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
+    var lngLat =
+        _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
     return LatLng(lngLat.lat as double, lngLat.lng as double);
   }
 
@@ -672,7 +683,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<void> setGeoJsonSource(String sourceId, Map<String, dynamic> geojson) async {
+  Future<void> setGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
     final source = _map.getSource(sourceId) as GeoJsonSource;
     final data = _makeFeatureCollection(geojson);
     _addedFeaturesByLayer[sourceId] = data;
@@ -680,7 +692,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<void> addCircleLayer(String sourceId, String layerId, Map<String, dynamic> properties,
+  Future<void> addCircleLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId,
       String? sourceLayer,
       double? minzoom,
@@ -695,7 +708,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<void> addFillLayer(String sourceId, String layerId, Map<String, dynamic> properties,
+  Future<void> addFillLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId,
       String? sourceLayer,
       double? minzoom,
@@ -710,7 +724,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<void> addLineLayer(String sourceId, String layerId, Map<String, dynamic> properties,
+  Future<void> addLineLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId,
       String? sourceLayer,
       double? minzoom,
@@ -725,7 +740,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<void> addSymbolLayer(String sourceId, String layerId, Map<String, dynamic> properties,
+  Future<void> addSymbolLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId,
       String? sourceLayer,
       double? minzoom,
@@ -740,8 +756,12 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<void> addHillshadeLayer(String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId, String? sourceLayer, double? minzoom, double? maxzoom}) async {
+  Future<void> addHillshadeLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
     return _addLayer(sourceId, layerId, properties, "hillshade",
         belowLayerId: belowLayerId,
         sourceLayer: sourceLayer,
@@ -751,8 +771,12 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
   }
 
   @override
-  Future<void> addRasterLayer(String sourceId, String layerId, Map<String, dynamic> properties,
-      {String? belowLayerId, String? sourceLayer, double? minzoom, double? maxzoom}) async {
+  Future<void> addRasterLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
     await _addLayer(sourceId, layerId, properties, "raster",
         belowLayerId: belowLayerId,
         sourceLayer: sourceLayer,
@@ -761,17 +785,17 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
         enableInteraction: false);
   }
 
-  Future<void> _addLayer(
-      String sourceId, String layerId, Map<String, dynamic> properties, String layerType,
+  Future<void> _addLayer(String sourceId, String layerId,
+      Map<String, dynamic> properties, String layerType,
       {String? belowLayerId,
       String? sourceLayer,
       double? minzoom,
       double? maxzoom,
       required bool enableInteraction}) async {
-    final layout =
-        Map.fromEntries(properties.entries.where((entry) => isLayoutProperty(entry.key)));
-    final paint =
-        Map.fromEntries(properties.entries.where((entry) => !isLayoutProperty(entry.key)));
+    final layout = Map.fromEntries(
+        properties.entries.where((entry) => isLayoutProperty(entry.key)));
+    final paint = Map.fromEntries(
+        properties.entries.where((entry) => !isLayoutProperty(entry.key)));
 
     _map.addLayer({
       'id': layerId,
@@ -865,21 +889,22 @@ class MapboxWebGlPlatform extends MapboxGlPlatform implements MapboxMapOptionsSi
     _map.addSource(sourceId, source.toJson());
   }
 
-  Future<void> addImageSource(String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
+  Future<void> addImageSource(
+      String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
     // TODO: implement addImageSource
     throw UnimplementedError();
   }
 
   @override
-  Future<void> addLayer(
-      String imageLayerId, String imageSourceId, double? minzoom, double? maxzoom) {
+  Future<void> addLayer(String imageLayerId, String imageSourceId,
+      double? minzoom, double? maxzoom) {
     // TODO: implement addLayer
     throw UnimplementedError();
   }
 
   @override
-  Future<void> addLayerBelow(String imageLayerId, String imageSourceId, String belowLayerId,
-      double? minzoom, double? maxzoom) {
+  Future<void> addLayerBelow(String imageLayerId, String imageSourceId,
+      String belowLayerId, double? minzoom, double? maxzoom) {
     // TODO: implement addLayerBelow
     throw UnimplementedError();
   }

@@ -835,71 +835,16 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
     }
 
-    /*
-     *  UITapGestureRecognizer
-     *  On pan might invoke the feature#onDrag callback.
-     */
-    @IBAction func handleMapPan(sender: UIPanGestureRecognizer) {
-        let point = sender.location(in: mapView)
-        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
-
-        if sender.state == UIGestureRecognizer.State.began,
-           sender.numberOfTouches == 1,
-           let feature = firstFeatureOnLayers(at: point),
-           let draggable = feature.attribute(forKey: "draggable") as? Bool,
-           draggable
+    fileprivate func invokeFeatureDrag(
+        _ point: CGPoint,
+        _ coordinate: CLLocationCoordinate2D,
+        _ eventType: String
+    ) {
+        if let feature = dragFeature,
+           let id = feature.identifier,
+           let previous = previousDragCoordinate,
+           let origin = originDragCoordinate
         {
-            dragFeature = feature
-            originDragCoordinate = coordinate
-            previousDragCoordinate = coordinate
-            mapView.allowsScrolling = false
-            for gestureRecognizer in mapView.gestureRecognizers! {
-                if let _ = gestureRecognizer as? UIPanGestureRecognizer {
-                    gestureRecognizer.addTarget(self, action: #selector(handleMapPan))
-                    break
-                }
-            }
-            channel?.invokeMethod("feature#onDrag", arguments: [
-                "id": feature.identifier,
-                "x": point.x,
-                "y": point.y,
-                "originLng": coordinate.longitude,
-                "originLat": coordinate.latitude,
-                "currentLng": coordinate.longitude,
-                "currentLat": coordinate.latitude,
-                "deltaLng": 0,
-                "eventType": "start",
-                "deltaLat": 0,
-            ])
-
-        } else if sender.state == UIGestureRecognizer.State.ended || sender.numberOfTouches != 1 {
-            let prevLat = previousDragCoordinate?.latitude ?? 0
-            let prevLng = previousDragCoordinate?.longitude ?? 0
-
-            channel?.invokeMethod("feature#onDrag", arguments: [
-                "id": dragFeature?.identifier,
-                "x": point.x,
-                "y": point.y,
-                "originLng": originDragCoordinate?.longitude,
-                "originLat": originDragCoordinate?.latitude,
-                "currentLng": coordinate.longitude,
-                "currentLat": coordinate.latitude,
-                "deltaLng": coordinate.longitude - prevLng,
-                "eventType": "end",
-                "deltaLat": coordinate.latitude - prevLat,
-            ])
-
-            sender.state = UIGestureRecognizer.State.ended
-            mapView.allowsScrolling = scrollingEnabled
-            dragFeature = nil
-            originDragCoordinate = nil
-            previousDragCoordinate = nil
-        } else if let feature = dragFeature,
-                  let id = feature.identifier,
-                  let previous = previousDragCoordinate,
-                  let origin = originDragCoordinate
-        {
-            print("in drag")
             channel?.invokeMethod("feature#onDrag", arguments: [
                 "id": id,
                 "x": point.x,
@@ -908,10 +853,52 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 "originLat": origin.latitude,
                 "currentLng": coordinate.longitude,
                 "currentLat": coordinate.latitude,
+                "eventType": eventType,
                 "deltaLng": coordinate.longitude - previous.longitude,
-                "eventType": "drag",
                 "deltaLat": coordinate.latitude - previous.latitude,
             ])
+        }
+    }
+
+    @IBAction func handleMapPan(sender: UIPanGestureRecognizer) {
+        let began = sender.state == UIGestureRecognizer.State.began
+        let end = sender.state == UIGestureRecognizer.State.ended
+        let point = sender.location(in: mapView)
+        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+
+        if dragFeature == nil, began, sender.numberOfTouches == 1,
+           let feature = firstFeatureOnLayers(at: point),
+           let draggable = feature.attribute(forKey: "draggable") as? Bool,
+           draggable
+        {
+            sender.state = UIGestureRecognizer.State.began
+            dragFeature = feature
+            originDragCoordinate = coordinate
+            previousDragCoordinate = coordinate
+            print("drag start")
+            mapView.allowsScrolling = false
+            let eventType = "sart"
+            invokeFeatureDrag(point, coordinate, eventType)
+            for gestureRecognizer in mapView.gestureRecognizers! {
+                if let _ = gestureRecognizer as? UIPanGestureRecognizer {
+                    gestureRecognizer.addTarget(self, action: #selector(handleMapPan))
+                    break
+                }
+            }
+        }
+        if end, dragFeature != nil {
+            mapView.allowsScrolling = true
+            print("drag end")
+            let eventType = "end"
+            invokeFeatureDrag(point, coordinate, eventType)
+            dragFeature = nil
+            originDragCoordinate = nil
+            previousDragCoordinate = nil
+        }
+
+        if !began, !end, dragFeature != nil {
+            let eventType = "drag"
+            invokeFeatureDrag(point, coordinate, eventType)
             previousDragCoordinate = coordinate
         }
     }
