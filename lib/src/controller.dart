@@ -532,13 +532,13 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   /// Adds a raw geojson FeatureCollection string
-  Future<void> addSourceFeatures(String sourceId, String features) async {
+  Future<void> addSourceFeaturesCustom(String sourceId, String features) async {
     await MapboxGlPlatform.getInstance(_id)
-        .addSourceFeatures(sourceId, features);
+        .addSourceFeaturesCustom(sourceId, features);
   }
 
   /// Add a layer of type symbol
-  Future<void> addSymbolLayer(
+  Future<void> addSymbolLayerCustom(
     String sourceId,
     String layerId,
     Map<String, String> properties, {
@@ -546,12 +546,12 @@ class MapboxMapController extends ChangeNotifier {
     String placeBelowLayerId,
     String placeAboveLayerId,
   }) async {
-    await MapboxGlPlatform.getInstance(_id).addSymbolLayer(sourceId, layerId,
-        properties, filter, placeBelowLayerId, placeAboveLayerId);
+    await MapboxGlPlatform.getInstance(_id).addSymbolLayerCustom(sourceId,
+        layerId, properties, filter, placeBelowLayerId, placeAboveLayerId);
   }
 
   /// Adds a layer of type line
-  Future<void> addLineLayer(
+  Future<void> addLineLayerCustom(
     String sourceId,
     String layerId,
     Map<String, String> properties, {
@@ -559,12 +559,12 @@ class MapboxMapController extends ChangeNotifier {
     String placeBelowLayerId,
     String placeAboveLayerId,
   }) async {
-    await MapboxGlPlatform.getInstance(_id).addLineLayer(sourceId, layerId,
-        properties, filter, placeBelowLayerId, placeAboveLayerId);
+    await MapboxGlPlatform.getInstance(_id).addLineLayerCustom(sourceId,
+        layerId, properties, filter, placeBelowLayerId, placeAboveLayerId);
   }
 
   /// Add a layer of type Fill
-  Future<void> addFillLayer(
+  Future<void> addFillLayerCustom(
     String sourceId,
     String layerId,
     Map<String, String> properties, {
@@ -572,8 +572,8 @@ class MapboxMapController extends ChangeNotifier {
     String placeBelowLayerId,
     String placeAboveLayerId,
   }) async {
-    await MapboxGlPlatform.getInstance(_id).addFillLayer(sourceId, layerId,
-        properties, filter, placeBelowLayerId, placeAboveLayerId);
+    await MapboxGlPlatform.getInstance(_id).addFillLayerCustom(sourceId,
+        layerId, properties, filter, placeBelowLayerId, placeAboveLayerId);
   }
 
   /// Updates user location tracking mode.

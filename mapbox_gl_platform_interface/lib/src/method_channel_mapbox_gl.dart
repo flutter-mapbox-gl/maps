@@ -590,7 +590,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addSourceFeatures(String sourceId, String features) async {
+  Future<void> addSourceFeaturesCustom(String sourceId, String features) async {
     await _channel.invokeMethod('source#addFeatures', <String, dynamic>{
       'sourceId': sourceId,
       'features': features,
@@ -606,7 +606,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addSymbolLayer(
+  Future<void> addSymbolLayerCustom(
     String sourceId,
     String layerId,
     Map<String, String> properties,
@@ -625,7 +625,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addLineLayer(
+  Future<void> addLineLayerCustom(
     String sourceId,
     String layerId,
     Map<String, String> properties,
@@ -644,7 +644,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> addFillLayer(
+  Future<void> addFillLayerCustom(
     String sourceId,
     String layerId,
     Map<String, String> properties,

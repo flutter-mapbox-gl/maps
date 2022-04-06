@@ -499,7 +499,7 @@ final class MapboxMapController
   }
 
   // replace features of an existing source
-  private void addSourceFeatures(String sourceName, String features) {
+  private void addSourceFeaturesCustom(String sourceName, String features) {
     final Source source = mapboxMap.getStyle().getSource(sourceName);
     if (source instanceof GeoJsonSource) {
       final GeoJsonSource geoJsonSource = (GeoJsonSource) source;
@@ -513,7 +513,7 @@ final class MapboxMapController
   }
 
   // add a custom symbol layer
-  private void addSymbolLayer(
+  private void addSymbolLayerCustom(
     String layerName,
     String sourceName,
     PropertyValue[] properties,
@@ -533,7 +533,7 @@ final class MapboxMapController
   }
 
   // add a custom line layer
-  private void addLineLayer(
+  private void addLineLayerCustom(
     String layerName,
     String sourceName,
     PropertyValue[] properties,
@@ -548,7 +548,7 @@ final class MapboxMapController
   }
 
   // add a custom fill layer
-  private void addFillLayer(
+  private void addFillLayerCustom(
     String layerName,
     String sourceName,
     PropertyValue[] properties,
@@ -1147,7 +1147,7 @@ final class MapboxMapController
         {
           final String sourceId = call.argument("sourceId");
           final String features = call.argument("features");
-          addSourceFeatures(sourceId, features);
+          addSourceFeaturesCustom(sourceId, features);
           result.success(null);
           break;
         }
@@ -1170,7 +1170,7 @@ final class MapboxMapController
             filter = Expression.Converter.convert(filterString);
           }
 
-          addSymbolLayer(
+          addSymbolLayerCustom(
             layerId,
             sourceId,
             properties,
@@ -1198,7 +1198,7 @@ final class MapboxMapController
             filter = Expression.Converter.convert(filterString);
           }
 
-          addLineLayer(
+          addLineLayerCustom(
             layerId,
             sourceId,
             properties,
@@ -1226,7 +1226,7 @@ final class MapboxMapController
             filter = Expression.Converter.convert(filterString);
           }
 
-          addFillLayer(
+          addFillLayerCustom(
             layerId,
             sourceId,
             properties,

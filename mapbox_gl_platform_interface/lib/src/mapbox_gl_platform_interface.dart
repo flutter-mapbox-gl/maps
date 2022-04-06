@@ -278,11 +278,12 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('addLayerProperties() has not been implemented.');
   }
 
-  Future<void> addSourceFeatures(String sourceId, String features) async {
-    throw UnimplementedError('addSourceFeatures() has not been implemented.');
+  Future<void> addSourceFeaturesCustom(String sourceId, String features) async {
+    throw UnimplementedError(
+        'addSourceFeaturesCustom() has not been implemented.');
   }
 
-  Future<void> addSymbolLayer(
+  Future<void> addSymbolLayerCustom(
     String sourceId,
     String layerId,
     Map<String, String> properties,
@@ -290,10 +291,11 @@ abstract class MapboxGlPlatform {
     String placeBelowLayerId,
     String placeAboveLayerId,
   ) async {
-    throw UnimplementedError('addSymbolLayer() has not been implemented.');
+    throw UnimplementedError(
+        'addSymbolLayerCustom() has not been implemented.');
   }
 
-  Future<void> addLineLayer(
+  Future<void> addLineLayerCustom(
     String sourceId,
     String layerId,
     Map<String, String> properties,
@@ -301,10 +303,10 @@ abstract class MapboxGlPlatform {
     String placeBelowLayerId,
     String placeAboveLayerId,
   ) async {
-    throw UnimplementedError('addLineLayer() has not been implemented.');
+    throw UnimplementedError('addLineLayerCustom() has not been implemented.');
   }
 
-  Future<void> addFillLayer(
+  Future<void> addFillLayerCustom(
     String sourceId,
     String layerId,
     Map<String, String> properties,
@@ -312,7 +314,7 @@ abstract class MapboxGlPlatform {
     String placeBelowLayerId,
     String placeAboveLayerId,
   ) async {
-    throw UnimplementedError('addFillLayer() has not been implemented.');
+    throw UnimplementedError('addFillLayerCustom() has not been implemented.');
   }
 
   Future<void> addImageSource(
