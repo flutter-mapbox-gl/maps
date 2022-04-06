@@ -23,11 +23,11 @@ class OfflineRegionDefinition {
 
     static func fromDictionary(_ jsonDict: [String: Any]) -> OfflineRegionDefinition? {
         guard let bounds = jsonDict["bounds"] as? [[Double]],
-            let mapStyleUrlString = jsonDict["mapStyleUrl"] as? String,
-            let mapStyleUrl = URL(string: mapStyleUrlString),
-            let minZoom = jsonDict["minZoom"] as? Double,
-            let maxZoom = jsonDict["maxZoom"] as? Double
-            else { return nil }
+              let mapStyleUrlString = jsonDict["mapStyleUrl"] as? String,
+              let mapStyleUrl = URL(string: mapStyleUrlString),
+              let minZoom = jsonDict["minZoom"] as? Double,
+              let maxZoom = jsonDict["maxZoom"] as? Double
+        else { return nil }
         return OfflineRegionDefinition(
             bounds: bounds,
             mapStyleUrl: mapStyleUrl,
@@ -38,11 +38,11 @@ class OfflineRegionDefinition {
 
     func toDictionary() -> [String: Any] {
         return [
-            "bounds": self.bounds,
-            "mapStyleUrl": self.mapStyleUrl.absoluteString,
-            "minZoom": self.minZoom,
-            "maxZoom": self.maxZoom,
-        ];
+            "bounds": bounds,
+            "mapStyleUrl": mapStyleUrl.absoluteString,
+            "minZoom": minZoom,
+            "maxZoom": maxZoom,
+        ]
     }
 
     func toMGLTilePyramidOfflineRegion() -> MGLTilePyramidOfflineRegion {

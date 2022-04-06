@@ -16,7 +16,7 @@ class OfflineManagerUtils {
         definition: OfflineRegionDefinition,
         metadata: [String: Any],
         result: @escaping FlutterResult,
-        registrar: FlutterPluginRegistrar,
+        registrar _: FlutterPluginRegistrar,
         channelHandler: OfflineChannelHandler
     ) {
         // Prepare downloader
@@ -40,13 +40,13 @@ class OfflineManagerUtils {
             return
         }
         let regionsArgs = packs.compactMap { pack in
-            return OfflineRegion.fromOfflinePack(pack)?.toDictionary()
+            OfflineRegion.fromOfflinePack(pack)?.toDictionary()
         }
         guard let regionsArgsJsonData = try? JSONSerialization.data(withJSONObject: regionsArgs),
-            let regionsArgsJsonString = String(data: regionsArgsJsonData, encoding: .utf8)
-            else {
-                result(FlutterError(code: "RegionListError", message: nil, details: nil))
-                return
+              let regionsArgsJsonString = String(data: regionsArgsJsonData, encoding: .utf8)
+        else {
+            result(FlutterError(code: "RegionListError", message: nil, details: nil))
+            return
         }
         result(regionsArgsJsonString)
     }
@@ -70,6 +70,10 @@ class OfflineManagerUtils {
             }
         })
         if let packToRemoveUnwrapped = packToRemove {
+            // deletion is only safe if the download is suspended
+            packToRemoveUnwrapped.suspend()
+            OfflineManagerUtils.releaseDownloader(id: id)
+
             offlineStorage.removePack(packToRemoveUnwrapped) { error in
                 if let error = error {
                     result(FlutterError(

@@ -4,8 +4,9 @@
 
 package com.mapbox.mapboxgl;
 
+import android.content.Context;
 import android.graphics.Point;
-import android.util.Log;
+import android.util.DisplayMetrics;
 
 import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
@@ -63,7 +64,7 @@ class Convert {
 //    }
 //  }
 
-  private static boolean toBoolean(Object o) {
+  static boolean toBoolean(Object o) {
     return (Boolean) o;
   }
 
@@ -133,15 +134,15 @@ class Convert {
     }
   }
 
-  private static double toDouble(Object o) {
+  static double toDouble(Object o) {
     return ((Number) o).doubleValue();
   }
 
-  private static float toFloat(Object o) {
+  static float toFloat(Object o) {
     return ((Number) o).floatValue();
   }
 
-  private static Float toFloatWrapper(Object o) {
+  static Float toFloatWrapper(Object o) {
     return (o == null) ? null : toFloat(o);
   }
 
@@ -165,12 +166,12 @@ class Convert {
     return Arrays.asList(latLng.getLatitude(), latLng.getLongitude());
   }
 
-  private static LatLng toLatLng(Object o) {
+  static LatLng toLatLng(Object o) {
     final List<?> data = toList(o);
     return new LatLng(toDouble(data.get(0)), toDouble(data.get(1)));
   }
 
-  private static LatLngBounds toLatLngBounds(Object o) {
+  static LatLngBounds toLatLngBounds(Object o) {
     if (o == null) {
       return null;
     }
@@ -182,7 +183,7 @@ class Convert {
     return builder.build();
   }
 
-  static List<LatLng> toLatLngList(Object o) {
+  static List<LatLng> toLatLngList(Object o, boolean flippedOrder) {
     if (o == null) {
       return null;
     }
@@ -190,7 +191,12 @@ class Convert {
     List<LatLng> latLngList = new ArrayList<>();
     for (int i=0; i<data.size(); i++) {
       final List<?> coords = toList(data.get(i));
-      latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
+      if(flippedOrder){
+        latLngList.add(new LatLng(toDouble(coords.get(1)), toDouble(coords.get(0))));
+      }
+      else{
+        latLngList.add(new LatLng(toDouble(coords.get(0)), toDouble(coords.get(1))));
+      }
     }
     return latLngList;
   }
@@ -202,7 +208,7 @@ class Convert {
     final List<?> data = toList(o);
     List<List<LatLng>> latLngListList = new ArrayList<>();
     for (int i = 0; i < data.size(); i++) {
-      List<LatLng> latLngList = toLatLngList(data.get(i));
+      List<LatLng> latLngList = toLatLngList(data.get(i), false);
       latLngListList.add(latLngList);
     }
     return latLngListList;
@@ -220,7 +226,7 @@ class Convert {
     return Polygon.fromLngLats(points);
   }
 
-  private static List<?> toList(Object o) {
+  static List<?> toList(Object o) {
     return (List<?>) o;
   }
 
@@ -245,11 +251,12 @@ class Convert {
     return new Point(toPixels(data.get(0), density), toPixels(data.get(1), density));
   }
 
-  private static String toString(Object o) {
+  static String toString(Object o) {
     return (String) o;
   }
 
-  static void interpretMapboxMapOptions(Object o, MapboxMapOptionsSink sink) {
+  static void interpretMapboxMapOptions(Object o, MapboxMapOptionsSink sink, Context context) {
+    final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
     final Map<?, ?> data = toMap(o);
     final Object cameraTargetBounds = data.get("cameraTargetBounds");
     if (cameraTargetBounds != null) {
@@ -306,7 +313,8 @@ class Convert {
     final Object logoViewMargins = data.get("logoViewMargins");
     if(logoViewMargins != null){
       final List logoViewMarginsData = toList(logoViewMargins);
-      sink.setLogoViewMargins(toInt(logoViewMarginsData.get(0)), toInt(logoViewMarginsData.get(1)));
+      final Point point = toPoint(logoViewMarginsData, metrics.density);
+      sink.setLogoViewMargins(point.x, point.y);
     }
     final Object compassGravity = data.get("compassViewPosition");
     if(compassGravity != null){
@@ -315,12 +323,18 @@ class Convert {
     final Object compassViewMargins = data.get("compassViewMargins");
     if(compassViewMargins != null){
       final List compassViewMarginsData = toList(compassViewMargins);
-      sink.setCompassViewMargins(toInt(compassViewMarginsData.get(0)), toInt(compassViewMarginsData.get(1)));
+      final Point point = toPoint(compassViewMarginsData, metrics.density);
+      sink.setCompassViewMargins(point.x, point.y);
+    }
+    final Object attributionButtonGravity = data.get("attributionButtonPosition");
+    if(attributionButtonGravity != null){
+      sink.setAttributionButtonGravity(toInt(attributionButtonGravity));
     }
     final Object attributionButtonMargins = data.get("attributionButtonMargins");
     if(attributionButtonMargins != null){
       final List attributionButtonMarginsData = toList(attributionButtonMargins);
-      sink.setAttributionButtonMargins(toInt(attributionButtonMarginsData.get(0)), toInt(attributionButtonMarginsData.get(1)));
+      final Point point = toPoint(attributionButtonMarginsData, metrics.density);
+      sink.setAttributionButtonMargins(point.x, point.y);
     }
   }
 
@@ -524,7 +538,7 @@ class Convert {
     final Object geometry = data.get("geometry");
     if (geometry != null) {
       Logger.e(TAG, "SetGeometry");
-      sink.setGeometry(toLatLngList(geometry));
+      sink.setGeometry(toLatLngList(geometry, false));
     }
     final Object draggable = data.get("draggable");
     if (draggable != null) {

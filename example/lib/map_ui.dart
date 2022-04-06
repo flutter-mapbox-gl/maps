@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
@@ -40,10 +40,11 @@ class MapUiBodyState extends State<MapUiBody> {
     zoom: 11.0,
   );
 
-  MapboxMapController mapController;
+  MapboxMapController? mapController;
   CameraPosition _position = _kInitialPosition;
   bool _isMoving = false;
   bool _compassEnabled = true;
+  bool _mapExpanded = true;
   CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
   MinMaxZoomPreference _minMaxZoomPreference = MinMaxZoomPreference.unbounded;
   int _styleStringIndex = 0;
@@ -61,13 +62,14 @@ class MapUiBodyState extends State<MapUiBody> {
   ];
   bool _rotateGesturesEnabled = true;
   bool _scrollGesturesEnabled = true;
+  bool? _doubleClickToZoomEnabled;
   bool _tiltGesturesEnabled = true;
   bool _zoomGesturesEnabled = true;
   bool _myLocationEnabled = true;
   bool _telemetryEnabled = true;
   MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.None;
-  List<Object> _featureQueryFilter;
-  Fill _selectedFill;
+  List<Object>? _featureQueryFilter;
+  Fill? _selectedFill;
 
   @override
   void initState() {
@@ -81,13 +83,14 @@ class MapUiBodyState extends State<MapUiBody> {
   }
 
   void _extractMapInfo() {
-    _position = mapController.cameraPosition;
-    _isMoving = mapController.isCameraMoving;
+    final position = mapController!.cameraPosition;
+    if (position != null) _position = position;
+    _isMoving = mapController!.isCameraMoving;
   }
 
   @override
   void dispose() {
-    mapController.removeListener(_onMapChanged);
+    mapController?.removeListener(_onMapChanged);
     super.dispose();
   }
 
@@ -120,6 +123,17 @@ class MapUiBodyState extends State<MapUiBody> {
           } else {
             _featureQueryFilter = null;
           }
+        });
+      },
+    );
+  }
+
+  Widget _mapSizeToggler() {
+    return TextButton(
+      child: Text('${_mapExpanded ? 'shrink' : 'expand'} map'),
+      onPressed: () {
+        setState(() {
+          _mapExpanded = !_mapExpanded;
         });
       },
     );
@@ -202,6 +216,28 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  Widget _doubleClickToZoomToggler() {
+    final stateInfo = _doubleClickToZoomEnabled == null
+        ? "disable"
+        : _doubleClickToZoomEnabled!
+            ? 'unset'
+            : 'enable';
+    return TextButton(
+      child: Text('$stateInfo double click to zoom'),
+      onPressed: () {
+        setState(() {
+          if (_doubleClickToZoomEnabled == null) {
+            _doubleClickToZoomEnabled = false;
+          } else if (!_doubleClickToZoomEnabled!) {
+            _doubleClickToZoomEnabled = true;
+          } else {
+            _doubleClickToZoomEnabled = null;
+          }
+        });
+      },
+    );
+  }
+
   Widget _tiltToggler() {
     return TextButton(
       child: Text('${_tiltGesturesEnabled ? 'disable' : 'enable'} tilt'),
@@ -251,7 +287,7 @@ class MapUiBodyState extends State<MapUiBody> {
     return TextButton(
       child: Text('get currently visible region'),
       onPressed: () async {
-        var result = await mapController.getVisibleRegion();
+        var result = await mapController!.getVisibleRegion();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
               "SW: ${result.southwest.toString()} NE: ${result.northeast.toString()}"),
@@ -262,23 +298,24 @@ class MapUiBodyState extends State<MapUiBody> {
 
   _clearFill() {
     if (_selectedFill != null) {
-      mapController.removeFill(_selectedFill);
+      mapController!.removeFill(_selectedFill!);
       setState(() {
         _selectedFill = null;
       });
     }
   }
 
-  _drawFill(features) async {
-    Map<String, dynamic> feature = jsonDecode(features[0]);
-    if (feature['geometry']['type'] == 'Polygon') {
-      var coordinates = feature['geometry']['coordinates'];
-      List<List<LatLng>> geometry = coordinates
+  _drawFill(List<dynamic> features) async {
+    Map<String, dynamic>? feature =
+        features.firstWhereOrNull((f) => f['geometry']['type'] == 'Polygon');
+
+    if (feature != null) {
+      List<List<LatLng>> geometry = feature['geometry']['coordinates']
           .map(
               (ll) => ll.map((l) => LatLng(l[1], l[0])).toList().cast<LatLng>())
           .toList()
           .cast<List<LatLng>>();
-      Fill fill = await mapController.addFill(FillOptions(
+      Fill fill = await mapController!.addFill(FillOptions(
         geometry: geometry,
         fillColor: "#FF0000",
         fillOutlineColor: "#FF0000",
@@ -305,6 +342,7 @@ class MapUiBodyState extends State<MapUiBody> {
       scrollGesturesEnabled: _scrollGesturesEnabled,
       tiltGesturesEnabled: _tiltGesturesEnabled,
       zoomGesturesEnabled: _zoomGesturesEnabled,
+      doubleClickZoomEnabled: _doubleClickToZoomEnabled,
       myLocationEnabled: _myLocationEnabled,
       myLocationTrackingMode: _myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
@@ -312,32 +350,32 @@ class MapUiBodyState extends State<MapUiBody> {
         print(
             "Map click: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
         print("Filter $_featureQueryFilter");
-        List features = await mapController.queryRenderedFeatures(
-            point, [], _featureQueryFilter);
+        List features = await mapController!
+            .queryRenderedFeatures(point, [], _featureQueryFilter);
         print('# features: ${features.length}');
         _clearFill();
-        if (features.length == 0 && _featureQueryFilter != null) {
+        if (features.isEmpty && _featureQueryFilter != null) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('QueryRenderedFeatures: No features found!')));
-        } else {
+        } else if (features.isNotEmpty) {
           _drawFill(features);
         }
       },
       onMapLongClick: (point, latLng) async {
         print(
             "Map long press: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
-        Point convertedPoint = await mapController.toScreenLocation(latLng);
-        LatLng convertedLatLng = await mapController.toLatLng(point);
+        Point convertedPoint = await mapController!.toScreenLocation(latLng);
+        LatLng convertedLatLng = await mapController!.toLatLng(point);
         print(
             "Map long press converted: ${convertedPoint.x},${convertedPoint.y}   ${convertedLatLng.latitude}/${convertedLatLng.longitude}");
         double metersPerPixel =
-            await mapController.getMetersPerPixelAtLatitude(latLng.latitude);
+            await mapController!.getMetersPerPixelAtLatitude(latLng.latitude);
 
         print(
             "Map long press The distance measured in meters at latitude ${latLng.latitude} is $metersPerPixel m");
 
         List features =
-            await mapController.queryRenderedFeatures(point, [], null);
+            await mapController!.queryRenderedFeatures(point, [], null);
         if (features.length > 0) {
           print(features[0]);
         }
@@ -353,62 +391,60 @@ class MapUiBodyState extends State<MapUiBody> {
       },
     );
 
-    final List<Widget> columnChildren = <Widget>[
-      Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Center(
+    final List<Widget> listViewChildren = <Widget>[];
+
+    if (mapController != null) {
+      listViewChildren.addAll(
+        <Widget>[
+          Text('camera bearing: ${_position.bearing}'),
+          Text('camera target: ${_position.target.latitude.toStringAsFixed(4)},'
+              '${_position.target.longitude.toStringAsFixed(4)}'),
+          Text('camera zoom: ${_position.zoom}'),
+          Text('camera tilt: ${_position.tilt}'),
+          Text(_isMoving ? '(Camera moving)' : '(Camera idle)'),
+          _mapSizeToggler(),
+          _queryFilterToggler(),
+          _compassToggler(),
+          _myLocationTrackingModeCycler(),
+          _latLngBoundsToggler(),
+          _setStyleToSatellite(),
+          _zoomBoundsToggler(),
+          _rotateToggler(),
+          _scrollToggler(),
+          _doubleClickToZoomToggler(),
+          _tiltToggler(),
+          _zoomToggler(),
+          _myLocationToggler(),
+          _telemetryToggler(),
+          _visibleRegionGetter(),
+        ],
+      );
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Center(
           child: SizedBox(
-            width: 300.0,
+            width: _mapExpanded ? null : 300.0,
             height: 200.0,
             child: mapboxMap,
           ),
         ),
-      ),
-    ];
-
-    if (mapController != null) {
-      columnChildren.add(
         Expanded(
           child: ListView(
-            children: <Widget>[
-              Text('camera bearing: ${_position.bearing}'),
-              Text(
-                  'camera target: ${_position.target.latitude.toStringAsFixed(4)},'
-                  '${_position.target.longitude.toStringAsFixed(4)}'),
-              Text('camera zoom: ${_position.zoom}'),
-              Text('camera tilt: ${_position.tilt}'),
-              Text(_isMoving ? '(Camera moving)' : '(Camera idle)'),
-              _queryFilterToggler(),
-              _compassToggler(),
-              _myLocationTrackingModeCycler(),
-              _latLngBoundsToggler(),
-              _setStyleToSatellite(),
-              _zoomBoundsToggler(),
-              _rotateToggler(),
-              _scrollToggler(),
-              _tiltToggler(),
-              _zoomToggler(),
-              _myLocationToggler(),
-              _telemetryToggler(),
-              _visibleRegionGetter(),
-            ],
+            children: listViewChildren,
           ),
-        ),
-      );
-    }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: columnChildren,
+        )
+      ],
     );
   }
 
   void onMapCreated(MapboxMapController controller) {
     mapController = controller;
-    mapController.addListener(_onMapChanged);
+    mapController!.addListener(_onMapChanged);
     _extractMapInfo();
 
-    mapController.getTelemetryEnabled().then((isEnabled) => setState(() {
+    mapController!.getTelemetryEnabled().then((isEnabled) => setState(() {
           _telemetryEnabled = isEnabled;
         }));
   }

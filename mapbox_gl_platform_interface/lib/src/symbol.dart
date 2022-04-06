@@ -16,8 +16,8 @@ class Symbol {
 
   String get id => _id;
 
-  final Map _data;
-  Map get data => _data;
+  final Map? _data;
+  Map? get data => _data;
 
   /// The symbol configuration options most recently applied programmatically
   /// via the map controller.
@@ -27,7 +27,7 @@ class Symbol {
   SymbolOptions options;
 }
 
-dynamic _offsetToJson(Offset offset) {
+dynamic _offsetToJson(Offset? offset) {
   if (offset == null) {
     return null;
   }
@@ -74,41 +74,38 @@ class SymbolOptions {
     this.draggable,
   });
 
-  final double iconSize;
-  final String iconImage;
-  final double iconRotate;
-  final Offset iconOffset;
-  final String iconAnchor;
-  final List<String> fontNames;
-  final String textField;
-  final double textSize;
-  final double textMaxWidth;
-  final double textLetterSpacing;
-  final String textJustify;
-  final String textAnchor;
-  final double textRotate;
-  final String textTransform;
-  final Offset textOffset;
-  final double iconOpacity;
-  final String iconColor;
-  final String iconHaloColor;
-  final double iconHaloWidth;
-  final double iconHaloBlur;
-  final double textOpacity;
-  final String textColor;
-  final String textHaloColor;
-  final double textHaloWidth;
-  final double textHaloBlur;
-  final LatLng geometry;
-  final int zIndex;
-  final bool draggable;
+  final double? iconSize;
+  final String? iconImage;
+  final double? iconRotate;
+  final Offset? iconOffset;
+  final String? iconAnchor;
+  final List<String>? fontNames;
+  final String? textField;
+  final double? textSize;
+  final double? textMaxWidth;
+  final double? textLetterSpacing;
+  final String? textJustify;
+  final String? textAnchor;
+  final double? textRotate;
+  final String? textTransform;
+  final Offset? textOffset;
+  final double? iconOpacity;
+  final String? iconColor;
+  final String? iconHaloColor;
+  final double? iconHaloWidth;
+  final double? iconHaloBlur;
+  final double? textOpacity;
+  final String? textColor;
+  final String? textHaloColor;
+  final double? textHaloWidth;
+  final double? textHaloBlur;
+  final LatLng? geometry;
+  final int? zIndex;
+  final bool? draggable;
 
   static const SymbolOptions defaultOptions = SymbolOptions();
 
   SymbolOptions copyWith(SymbolOptions changes) {
-    if (changes == null) {
-      return this;
-    }
     return SymbolOptions(
       iconSize: changes.iconSize ?? iconSize,
       iconImage: changes.iconImage ?? iconImage,
