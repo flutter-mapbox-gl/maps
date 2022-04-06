@@ -26,7 +26,7 @@ class GeometryPolygon extends Geometry {
     return GeometryPolygon(
         (map['coordinates'] as List)
             .map((a) =>
-                (a as List).map((b) => GeometryPoint.fromMap(b)).toList())
+                (a as List).map((b) => GeometryPoint.fromMap(b)!).toList())
             .toList(),
         bbox: map['bbox']);
   }

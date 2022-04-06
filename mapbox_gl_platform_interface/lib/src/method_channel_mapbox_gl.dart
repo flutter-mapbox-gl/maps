@@ -62,67 +62,67 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         break;
       case 'map#onScaleBegin':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onScaleBeginPlatform(cameraPosition);
         break;
       case 'map#onScale':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onScalePlatform(cameraPosition);
         break;
       case 'map#onScaleEnd':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onScaleEndPlatform(cameraPosition);
         break;
       case 'map#onRotateBegin':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onRotateBeginPlatform(cameraPosition);
         break;
       case 'map#onRotate':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onRotatePlatform(cameraPosition);
         break;
       case 'map#onRotateEnd':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onRotateEndPlatform(cameraPosition);
         break;
       case 'map#onFling':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onFlingPlatform(cameraPosition);
         break;
       case 'map#onMapMoveBegin':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onMapMoveBeginPlatform(cameraPosition);
         break;
       case 'map#onMapMove':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onMapMovePlatform(cameraPosition);
         break;
       case 'map#onMapMoveEnd':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onMapMoveEndPlatform(cameraPosition);
         break;
       case 'map#onShoveBegin':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onShoveBeginPlatform(cameraPosition);
         break;
       case 'map#onShove':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onShovePlatform(cameraPosition);
         break;
       case 'map#onShoveEnd':
         final CameraPosition cameraPosition =
-            CameraPosition.fromMap(call.arguments['position']);
+            CameraPosition.fromMap(call.arguments['position'])!;
         onShoveEndPlatform(cameraPosition);
         break;
       case 'map#onStyleLoaded':
@@ -695,8 +695,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     String layerId,
     Map<String, String> properties,
     String filter,
-    String placeBelowLayerId,
-    String placeAboveLayerId,
+    String? placeBelowLayerId,
+    String? placeAboveLayerId,
   ) async {
     await _channel.invokeMethod('symbolLayer#add', <String, dynamic>{
       'sourceId': sourceId,
@@ -883,7 +883,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> setStyleString(String styleString) async {
+  Future<void> setStyleString(String? styleString) async {
     return await _channel.invokeMethod('style#set', <String, dynamic>{
       'style': styleString,
     });

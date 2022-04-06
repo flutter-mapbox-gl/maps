@@ -791,235 +791,235 @@ class MapboxMapController extends MapboxGlPlatform
     _map.getCanvas().style.cursor = '';
   }
 
+  // @override
+  // Future<void> setStyleString(String? styleString) async {
+  //   //remove old mouseenter callbacks to avoid multicalling
+  //   for (var layerId in _featureLayerIdentifiers) {
+  //     _map.off('mouseenter', layerId, _onMouseEnterFeature);
+  //     _map.off('mousemouve', layerId, _onMouseEnterFeature);
+  //     _map.off('mouseleave', layerId, _onMouseLeaveFeature);
+  //   }
+  //   _featureLayerIdentifiers.clear();
+  // }
+
   @override
-  void setStyleString(String? styleString) {
-    //remove old mouseenter callbacks to avoid multicalling
-    for (var layerId in _featureLayerIdentifiers) {
-      _map.off('mouseenter', layerId, _onMouseEnterFeature);
-      _map.off('mousemouve', layerId, _onMouseEnterFeature);
-      _map.off('mouseleave', layerId, _onMouseLeaveFeature);
+  void setScrollGesturesEnabled(bool scrollGesturesEnabled) {
+    if (scrollGesturesEnabled) {
+      _map.dragPan.enable();
+      _map.keyboard.enable();
+    } else {
+      _map.dragPan.disable();
+      _map.keyboard.disable();
     }
-    _featureLayerIdentifiers.clear();
+  }
 
-    @override
-    void setScrollGesturesEnabled(bool scrollGesturesEnabled) {
-      if (scrollGesturesEnabled) {
-        _map.dragPan.enable();
-        _map.keyboard.enable();
-      } else {
-        _map.dragPan.disable();
-        _map.keyboard.disable();
-      }
+  @override
+  Future<void> setStyleString(String? styleString) async {
+    _map.setStyle(styleString);
+    // catch style loaded for later style changes
+    if (_mapReady) {
+      _map.once("styledata", _onStyleLoaded);
     }
+  }
 
-    @override
-    Future<void> setStyleString(String styleString) async {
-      _map.setStyle(styleString);
-      // catch style loaded for later style changes
-      if (_mapReady) {
-        _map.once("styledata", _onStyleLoaded);
-      }
-    }
+  @override
+  void setTrackCameraPosition(bool trackCameraPosition) {
+    _trackCameraPosition = trackCameraPosition;
+  }
 
-    @override
-    void setTrackCameraPosition(bool trackCameraPosition) {
-      _trackCameraPosition = trackCameraPosition;
-    }
+  @override
+  Future<Point> toScreenLocation(LatLng latLng) async {
+    var screenPosition =
+        _map.project(LngLat(latLng.longitude, latLng.latitude));
+    return Point(screenPosition.x.round(), screenPosition.y.round());
+  }
 
-    @override
-    Future<Point> toScreenLocation(LatLng latLng) async {
+  @override
+  Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
+    return latLngs.map((latLng) {
       var screenPosition =
           _map.project(LngLat(latLng.longitude, latLng.latitude));
       return Point(screenPosition.x.round(), screenPosition.y.round());
+    }).toList(growable: false);
+  }
+
+  @override
+  Future<LatLng> toLatLng(Point screenLocation) async {
+    var lngLat =
+        _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
+    return LatLng(lngLat.lat as double, lngLat.lng as double);
+  }
+
+  @override
+  Future<double> getMetersPerPixelAtLatitude(double latitude) async {
+    //https://wiki.openstreetmap.org/wiki/Zoom_levels
+    var circumference = 40075017.686;
+    var zoom = _map.getZoom();
+    return circumference * cos(latitude * (pi / 180)) / pow(2, zoom + 9);
+  }
+
+  @override
+  Future<void> removeLayer(String layerId) async {
+    _featureLayerIdentifiers.remove(layerId);
+    _map.removeLayer(layerId);
+  }
+
+  @override
+  Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
+      {String? promoteId}) async {
+    _map.addSource(sourceId, {
+      "type": 'geojson',
+      "data": geojson,
+      if (promoteId != null) "promoteId": promoteId
+    });
+  }
+
+  @override
+  Future<void> setGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
+    final source = _map.getSource(sourceId) as GeoJsonSource;
+    final data = FeatureCollection(features: [
+      for (final f in geojson["features"] ?? [])
+        Feature(
+            geometry: Geometry(
+                type: f["geometry"]["type"],
+                coordinates: f["geometry"]["coordinates"]),
+            properties: f["properties"],
+            id: f["id"])
+    ]);
+    source.setData(data);
+  }
+
+  Future<void> _addLayer(String sourceId, String layerId,
+      Map<String, dynamic> properties, String layerType,
+      {String? belowLayerId, String? sourceLayer}) async {
+    final layout = Map.fromEntries(
+        properties.entries.where((entry) => isLayoutProperty(entry.key)));
+    final paint = Map.fromEntries(
+        properties.entries.where((entry) => !isLayoutProperty(entry.key)));
+
+    _map.addLayer({
+      'id': layerId,
+      'type': layerType,
+      'source': sourceId,
+      'layout': layout,
+      'paint': paint,
+      if (sourceLayer != null) 'source-layer': sourceLayer
+    }, belowLayerId);
+
+    _featureLayerIdentifiers.add(layerId);
+    if (layerType == "fill") {
+      _map.on('mousemove', layerId, _onMouseEnterFeature);
+    } else {
+      _map.on('mouseenter', layerId, _onMouseEnterFeature);
+    }
+    _map.on('mouseleave', layerId, _onMouseLeaveFeature);
+  }
+
+  @override
+  Future<void> addCircleLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "circle",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  @override
+  Future<void> addFillLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "fill",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  @override
+  Future<void> addLineLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "line",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  @override
+  Future<void> addSymbolLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "symbol",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  @override
+  Future<void> addHillshadeLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    return _addLayer(sourceId, layerId, properties, "hillshade",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
+  }
+
+  @override
+  void setGestures(
+      {required bool rotateGesturesEnabled,
+      required bool scrollGesturesEnabled,
+      required bool tiltGesturesEnabled,
+      required bool zoomGesturesEnabled,
+      required bool doubleClickZoomEnabled}) {
+    if (rotateGesturesEnabled &&
+        scrollGesturesEnabled &&
+        tiltGesturesEnabled &&
+        zoomGesturesEnabled) {
+      _map.keyboard.enable();
+    } else {
+      _map.keyboard.disable();
     }
 
-    @override
-    Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
-      return latLngs.map((latLng) {
-        var screenPosition =
-            _map.project(LngLat(latLng.longitude, latLng.latitude));
-        return Point(screenPosition.x.round(), screenPosition.y.round());
-      }).toList(growable: false);
+    if (scrollGesturesEnabled) {
+      _map.dragPan.enable();
+    } else {
+      _map.dragPan.disable();
     }
 
-    @override
-    Future<LatLng> toLatLng(Point screenLocation) async {
-      var lngLat =
-          _map.unproject(mapbox.Point(screenLocation.x, screenLocation.y));
-      return LatLng(lngLat.lat as double, lngLat.lng as double);
+    if (zoomGesturesEnabled) {
+      _map.doubleClickZoom.enable();
+      _map.boxZoom.enable();
+      _map.scrollZoom.enable();
+      _map.touchZoomRotate.enable();
+    } else {
+      _map.doubleClickZoom.disable();
+      _map.boxZoom.disable();
+      _map.scrollZoom.disable();
+      _map.touchZoomRotate.disable();
     }
 
-    @override
-    Future<double> getMetersPerPixelAtLatitude(double latitude) async {
-      //https://wiki.openstreetmap.org/wiki/Zoom_levels
-      var circumference = 40075017.686;
-      var zoom = _map.getZoom();
-      return circumference * cos(latitude * (pi / 180)) / pow(2, zoom + 9);
+    if (doubleClickZoomEnabled) {
+      _map.doubleClickZoom.enable();
+    } else {
+      _map.doubleClickZoom.disable();
     }
 
-    @override
-    Future<void> removeLayer(String layerId) async {
-      _featureLayerIdentifiers.remove(layerId);
-      _map.removeLayer(layerId);
+    if (rotateGesturesEnabled) {
+      _map.touchZoomRotate.enableRotation();
+    } else {
+      _map.touchZoomRotate.disableRotation();
     }
 
-    @override
-    Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
-        {String? promoteId}) async {
-      _map.addSource(sourceId, {
-        "type": 'geojson',
-        "data": geojson,
-        if (promoteId != null) "promoteId": promoteId
-      });
+    // dragRotate is shared by both gestures
+    if (tiltGesturesEnabled && rotateGesturesEnabled) {
+      _map.dragRotate.enable();
+    } else {
+      _map.dragRotate.disable();
     }
+  }
 
-    @override
-    Future<void> setGeoJsonSource(
-        String sourceId, Map<String, dynamic> geojson) async {
-      final source = _map.getSource(sourceId) as GeoJsonSource;
-      final data = FeatureCollection(features: [
-        for (final f in geojson["features"] ?? [])
-          Feature(
-              geometry: Geometry(
-                  type: f["geometry"]["type"],
-                  coordinates: f["geometry"]["coordinates"]),
-              properties: f["properties"],
-              id: f["id"])
-      ]);
-      source.setData(data);
-    }
+  @override
+  Future<void> addSource(String sourceId, SourceProperties source) async {
+    _map.addSource(sourceId, source.toJson());
+  }
 
-    Future<void> _addLayer(String sourceId, String layerId,
-        Map<String, dynamic> properties, String layerType,
-        {String? belowLayerId, String? sourceLayer}) async {
-      final layout = Map.fromEntries(
-          properties.entries.where((entry) => isLayoutProperty(entry.key)));
-      final paint = Map.fromEntries(
-          properties.entries.where((entry) => !isLayoutProperty(entry.key)));
-
-      _map.addLayer({
-        'id': layerId,
-        'type': layerType,
-        'source': sourceId,
-        'layout': layout,
-        'paint': paint,
-        if (sourceLayer != null) 'source-layer': sourceLayer
-      }, belowLayerId);
-
-      _featureLayerIdentifiers.add(layerId);
-      if (layerType == "fill") {
-        _map.on('mousemove', layerId, _onMouseEnterFeature);
-      } else {
-        _map.on('mouseenter', layerId, _onMouseEnterFeature);
-      }
-      _map.on('mouseleave', layerId, _onMouseLeaveFeature);
-    }
-
-    @override
-    Future<void> addCircleLayer(
-        String sourceId, String layerId, Map<String, dynamic> properties,
-        {String? belowLayerId, String? sourceLayer}) async {
-      return _addLayer(sourceId, layerId, properties, "circle",
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
-    }
-
-    @override
-    Future<void> addFillLayer(
-        String sourceId, String layerId, Map<String, dynamic> properties,
-        {String? belowLayerId, String? sourceLayer}) async {
-      return _addLayer(sourceId, layerId, properties, "fill",
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
-    }
-
-    @override
-    Future<void> addLineLayer(
-        String sourceId, String layerId, Map<String, dynamic> properties,
-        {String? belowLayerId, String? sourceLayer}) async {
-      return _addLayer(sourceId, layerId, properties, "line",
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
-    }
-
-    @override
-    Future<void> addSymbolLayer(
-        String sourceId, String layerId, Map<String, dynamic> properties,
-        {String? belowLayerId, String? sourceLayer}) async {
-      return _addLayer(sourceId, layerId, properties, "symbol",
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
-    }
-
-    @override
-    Future<void> addHillshadeLayer(
-        String sourceId, String layerId, Map<String, dynamic> properties,
-        {String? belowLayerId, String? sourceLayer}) async {
-      return _addLayer(sourceId, layerId, properties, "hillshade",
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
-    }
-
-    @override
-    void setGestures(
-        {required bool rotateGesturesEnabled,
-        required bool scrollGesturesEnabled,
-        required bool tiltGesturesEnabled,
-        required bool zoomGesturesEnabled,
-        required bool doubleClickZoomEnabled}) {
-      if (rotateGesturesEnabled &&
-          scrollGesturesEnabled &&
-          tiltGesturesEnabled &&
-          zoomGesturesEnabled) {
-        _map.keyboard.enable();
-      } else {
-        _map.keyboard.disable();
-      }
-
-      if (scrollGesturesEnabled) {
-        _map.dragPan.enable();
-      } else {
-        _map.dragPan.disable();
-      }
-
-      if (zoomGesturesEnabled) {
-        _map.doubleClickZoom.enable();
-        _map.boxZoom.enable();
-        _map.scrollZoom.enable();
-        _map.touchZoomRotate.enable();
-      } else {
-        _map.doubleClickZoom.disable();
-        _map.boxZoom.disable();
-        _map.scrollZoom.disable();
-        _map.touchZoomRotate.disable();
-      }
-
-      if (doubleClickZoomEnabled) {
-        _map.doubleClickZoom.enable();
-      } else {
-        _map.doubleClickZoom.disable();
-      }
-
-      if (rotateGesturesEnabled) {
-        _map.touchZoomRotate.enableRotation();
-      } else {
-        _map.touchZoomRotate.disableRotation();
-      }
-
-      // dragRotate is shared by both gestures
-      if (tiltGesturesEnabled && rotateGesturesEnabled) {
-        _map.dragRotate.enable();
-      } else {
-        _map.dragRotate.disable();
-      }
-    }
-
-    @override
-    Future<void> addSource(String sourceId, SourceProperties source) async {
-      _map.addSource(sourceId, source.toJson());
-    }
-
-    @override
-    Future<void> addRasterLayer(
-        String sourceId, String layerId, Map<String, dynamic> properties,
-        {String? belowLayerId, String? sourceLayer}) async {
-      await _addLayer(sourceId, layerId, properties, "raster",
-          belowLayerId: belowLayerId, sourceLayer: sourceLayer);
-    }
+  @override
+  Future<void> addRasterLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId, String? sourceLayer}) async {
+    await _addLayer(sourceId, layerId, properties, "raster",
+        belowLayerId: belowLayerId, sourceLayer: sourceLayer);
   }
 }

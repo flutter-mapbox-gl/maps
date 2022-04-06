@@ -46,17 +46,17 @@ class FeatureCollection extends GeoJson {
   /// @return a new instance of this class defined by the values passed inside this static factory
   ///   method
   /// @since 1.0.0
-  static FeatureCollection fromJson(String jsonString) {
+  static FeatureCollection? fromJson(String jsonString) {
     final jsonObject = json.decode(jsonString);
     return fromMap(jsonObject);
   }
 
-  static FeatureCollection fromMap(Map<String, dynamic> map) {
+  static FeatureCollection? fromMap(Map<String, dynamic> map) {
     if (map['features'] == null) return null;
 
     final featureCollection = FeatureCollection(
       (map['features'] as List<dynamic>)
-          .map((e) => Feature.fromJson(e))
+          .map((e) => Feature.fromJson(e)!)
           .toList(),
       bbox: map['bbox'],
     );

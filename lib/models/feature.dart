@@ -147,7 +147,7 @@ class Feature extends GeoJson {
         bbox.toString() +
         ", " +
         "id=" +
-        id +
+        id.toString() +
         ", " +
         "geometry=" +
         geometry.toString() +

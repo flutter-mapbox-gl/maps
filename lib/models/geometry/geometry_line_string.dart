@@ -65,18 +65,18 @@ class GeometryLineString extends Geometry {
   ///   method
   /// @since 1.0.0
 
-  static GeometryLineString fromJson(String jsonString) {
+  static GeometryLineString? fromJson(String jsonString) {
     final jsonMap = json.decode(jsonString);
 
     return fromMap(jsonMap);
   }
 
-  static GeometryLineString fromMap(Map<String, dynamic> map) {
+  static GeometryLineString? fromMap(Map<String, dynamic> map) {
     if (!map.containsKey('coordinates')) return null;
 
     return GeometryLineString(
         (map['coordinates'] as List<dynamic>)
-            .map((e) => GeometryPoint.fromMap(e))
+            .map((e) => GeometryPoint.fromMap(e)!)
             .toList(),
         bbox: map['bbox']);
   }
@@ -87,7 +87,7 @@ class GeometryLineString extends Geometry {
       "type": type,
       "coordinates": coordinates.map((c) => [c.longitude, c.latitude]).toList()
     };
-    if (bbox != null) map['bbox'] = bbox;
+    if (bbox != null) map['bbox'] = bbox!;
 
     return map;
   }

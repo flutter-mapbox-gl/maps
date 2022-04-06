@@ -212,6 +212,11 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError('addFill() has not been implemented.');
   }
 
+  Future<List<Fill>> addFills(List<FillOptions> options,
+      [List<Map>? data]) async {
+    throw UnimplementedError('addFills() has not been implemented.');
+  }
+
   Future<void> updateFill(Fill fill, FillOptions changes) async {
     throw UnimplementedError('updateFill() has not been implemented.');
   }
@@ -294,8 +299,8 @@ abstract class MapboxGlPlatform {
     String layerId,
     Map<String, String> properties,
     String filter,
-    String placeBelowLayerId,
-    String placeAboveLayerId,
+    String? placeBelowLayerId,
+    String? placeAboveLayerId,
   ) async {
     throw UnimplementedError(
         'addSymbolLayerCustom() has not been implemented.');
@@ -365,7 +370,7 @@ abstract class MapboxGlPlatform {
         'toggleLayerVisibility() has not been implemented.');
   }
 
-  Future<void> setStyleString(String styleString) async {
+  Future<void> setStyleString(String? styleString) async {
     throw UnimplementedError('setStyleString() has not been implemented.');
   }
 

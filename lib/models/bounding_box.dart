@@ -31,7 +31,7 @@ class BoundingBox {
   /// @return a new instance of this class defined by the values passed inside this static factory
   ///   method
   /// @since 3.0.0
-  static BoundingBox fromJson(String jsonString) {
+  static BoundingBox? fromJson(String jsonString) {
     final jsonObject = json.decode(jsonString);
 
     if (jsonObject['southwest'] != null && jsonObject['northeast'] != null) {

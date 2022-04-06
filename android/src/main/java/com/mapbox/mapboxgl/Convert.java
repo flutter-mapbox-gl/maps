@@ -6,6 +6,7 @@ package com.mapbox.mapboxgl;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.util.Log;
 import android.util.DisplayMetrics;
 
 import com.mapbox.geojson.Polygon;
