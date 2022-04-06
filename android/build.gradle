@@ -8,15 +8,11 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:7.0.4'
     }
 }
 
 rootProject.allprojects {
-    def token = System.getenv('SDK_REGISTRY_TOKEN') ?: project.properties['MAPBOX_DOWNLOADS_TOKEN']
-    if (token == null || token.empty) {
-        throw new Exception("SDK Registry token is null. See README.md for more information.")
-    }
     repositories {
         google()
         mavenCentral()
@@ -27,7 +23,7 @@ rootProject.allprojects {
             }
             credentials {
                 username = "mapbox"
-                password = token
+                password = MAPBOX_DOWNLOADS_TOKEN
             }
         }
     }
@@ -40,7 +36,7 @@ android {
     ndkVersion "20.1.5948944"
 
     defaultConfig {
-        minSdkVersion 20
+        minSdkVersion 21
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -57,6 +53,9 @@ android {
         implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-localization-v9:0.12.0"
         implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-offline-v9:0.7.0'
         implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+        implementation ('com.mapbox.maps:android:10.3.0') {
+         exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-telemetry'
+        }
     }
     compileOptions {
         sourceCompatibility 1.8
