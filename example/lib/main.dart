@@ -69,12 +69,13 @@ class MapsDemo extends StatefulWidget {
 class _MapsDemoState extends State<MapsDemo> {
   @override
   void initState() {
-    initHybridComposition();
     super.initState();
   }
 
   /// Determine the android version of the phone and turn off HybridComposition
   /// on older sdk versions to improve performance for these
+  ///
+  /// !!! Hybrid composition is currently broken do no use !!!
   Future<void> initHybridComposition() async {
     if (!kIsWeb && Platform.isAndroid) {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
