@@ -296,6 +296,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
               initialCameraPosition: const CameraPosition(
                 target: LatLng(-33.852, 151.211),
                 zoom: 11.0,
+                tilt: 60,
               ),
             ),
           ),
