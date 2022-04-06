@@ -25,7 +25,7 @@ import 'package:mapbox_gl/models/geometry/geo_json.dart';
 class FeatureCollection extends GeoJson {
   static const String TYPE = "FeatureCollection";
 
-  String type;
+  late final String type;
 
   FeatureCollection(
     this.features, {
@@ -34,7 +34,7 @@ class FeatureCollection extends GeoJson {
     type = TYPE;
   }
 
-  final BoundingBox bbox;
+  final BoundingBox? bbox;
 
   final List<Feature> features;
 
@@ -87,7 +87,7 @@ class FeatureCollection extends GeoJson {
   }
 
   @override
-  set bbox(BoundingBox _bbox) {
+  set bbox(BoundingBox? _bbox) {
     bbox = _bbox;
   }
 

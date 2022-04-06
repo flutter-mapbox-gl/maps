@@ -714,8 +714,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     String layerId,
     Map<String, String> properties,
     String filter,
-    String placeBelowLayerId,
-    String placeAboveLayerId,
+    String? placeBelowLayerId,
+    String? placeAboveLayerId,
   ) async {
     await _channel.invokeMethod('lineLayer#add', <String, dynamic>{
       'sourceId': sourceId,
@@ -733,8 +733,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     String layerId,
     Map<String, String> properties,
     String filter,
-    String placeBelowLayerId,
-    String placeAboveLayerId,
+    String? placeBelowLayerId,
+    String? placeAboveLayerId,
   ) async {
     await _channel.invokeMethod('fillLayer#add', <String, dynamic>{
       'sourceId': sourceId,

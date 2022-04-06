@@ -444,21 +444,19 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
-  Future<void> addSource(String sourceId, String geojson) async {
-    await MapboxGlPlatform.getInstance(_id).addSource(sourceId, geojson);
-  }
+  // Future<void> addSource(String sourceId, String geojson) async {
+  //   await _mapboxGlPlatform.addSource(sourceId, geojson);
+  // }
 
   /// Add properties to existing layer
   Future<void> addLayerProperties(
       String layerId, Map<String, dynamic> properties) async {
-    await MapboxGlPlatform.getInstance(_id)
-        .addLayerProperties(layerId, properties);
+    await _mapboxGlPlatform.addLayerProperties(layerId, properties);
   }
 
   /// Adds a raw geojson FeatureCollection string
   Future<void> addSourceFeaturesCustom(String sourceId, String features) async {
-    await MapboxGlPlatform.getInstance(_id)
-        .addSourceFeaturesCustom(sourceId, features);
+    await _mapboxGlPlatform.addSourceFeaturesCustom(sourceId, features);
   }
 
   /// Add a layer of type symbol
@@ -467,11 +465,11 @@ class MapboxMapController extends ChangeNotifier {
     String layerId,
     Map<String, String> properties, {
     filter,
-    String placeBelowLayerId,
-    String placeAboveLayerId,
+    String? placeBelowLayerId,
+    String? placeAboveLayerId,
   }) async {
-    await MapboxGlPlatform.getInstance(_id).addSymbolLayerCustom(sourceId,
-        layerId, properties, filter, placeBelowLayerId, placeAboveLayerId);
+    await _mapboxGlPlatform.addSymbolLayerCustom(sourceId, layerId, properties,
+        filter, placeBelowLayerId, placeAboveLayerId);
   }
 
   /// Adds a layer of type line
@@ -480,11 +478,11 @@ class MapboxMapController extends ChangeNotifier {
     String layerId,
     Map<String, String> properties, {
     filter,
-    String placeBelowLayerId,
-    String placeAboveLayerId,
+    String? placeBelowLayerId,
+    String? placeAboveLayerId,
   }) async {
-    await MapboxGlPlatform.getInstance(_id).addLineLayerCustom(sourceId,
-        layerId, properties, filter, placeBelowLayerId, placeAboveLayerId);
+    await _mapboxGlPlatform.addLineLayerCustom(sourceId, layerId, properties,
+        filter, placeBelowLayerId, placeAboveLayerId);
   }
 
   /// Add a layer of type Fill
@@ -493,11 +491,11 @@ class MapboxMapController extends ChangeNotifier {
     String layerId,
     Map<String, String> properties, {
     filter,
-    String placeBelowLayerId,
-    String placeAboveLayerId,
+    String? placeBelowLayerId,
+    String? placeAboveLayerId,
   }) async {
-    await MapboxGlPlatform.getInstance(_id).addFillLayerCustom(sourceId,
-        layerId, properties, filter, placeBelowLayerId, placeAboveLayerId);
+    await _mapboxGlPlatform.addFillLayerCustom(sourceId, layerId, properties,
+        filter, placeBelowLayerId, placeAboveLayerId);
   }
 
   /// Updates user location tracking mode.
@@ -1150,15 +1148,14 @@ class MapboxMapController extends ChangeNotifier {
 
   Future<void> toggleLayerVisibility(
       List<String> layerIds, bool isVisible) async {
-    return MapboxGlPlatform.getInstance(_id)
-        .toggleLayerVisibility(layerIds, isVisible);
+    return _mapboxGlPlatform.toggleLayerVisibility(layerIds, isVisible);
   }
 
   Future<void> setStyleString(String styleString) async {
-    return MapboxGlPlatform.getInstance(_id).setStyleString(styleString);
+    return _mapboxGlPlatform.setStyleString(styleString);
   }
 
   Future<void> setFilter(List<String> layerIds, String filterString) async {
-    return MapboxGlPlatform.getInstance(_id).setFilter(layerIds, filterString);
+    return _mapboxGlPlatform.setFilter(layerIds, filterString);
   }
 }

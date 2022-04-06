@@ -51,6 +51,45 @@ abstract class MapboxGlPlatform {
 
   final onUserLocationUpdatedPlatform = ArgumentCallbacks<UserLocation>();
 
+  final ArgumentCallbacks<CameraPosition> onRotateBeginPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onRotatePlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onRotateEndPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onFlingPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onShoveBeginPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onShovePlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onMapMovePlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onMapMoveEndPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onMapMoveBeginPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onScalePlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onScaleBeginPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onScaleEndPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
+  final ArgumentCallbacks<CameraPosition> onShoveEndPlatform =
+      ArgumentCallbacks<CameraPosition>();
+
   Future<void> initPlatform(int id) async {
     throw UnimplementedError('initPlatform() has not been implemented.');
   }
@@ -267,8 +306,8 @@ abstract class MapboxGlPlatform {
     String layerId,
     Map<String, String> properties,
     String filter,
-    String placeBelowLayerId,
-    String placeAboveLayerId,
+    String? placeBelowLayerId,
+    String? placeAboveLayerId,
   ) async {
     throw UnimplementedError('addLineLayerCustom() has not been implemented.');
   }
@@ -278,8 +317,8 @@ abstract class MapboxGlPlatform {
     String layerId,
     Map<String, String> properties,
     String filter,
-    String placeBelowLayerId,
-    String placeAboveLayerId,
+    String? placeBelowLayerId,
+    String? placeAboveLayerId,
   ) async {
     throw UnimplementedError('addFillLayerCustom() has not been implemented.');
   }

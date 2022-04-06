@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:mapbox_gl_example/main.dart';
 import 'package:mapbox_gl/models/feature.dart';
 import 'package:mapbox_gl/models/feature_collection.dart';
 import 'package:mapbox_gl/models/geometry/geometry_point.dart';
+import 'package:mapbox_gl_example/main.dart';
 import 'package:mapbox_gl_example/page.dart';
 
 class DynamicSymbolsPage extends ExamplePage {
@@ -24,7 +24,7 @@ class LayerBody extends StatefulWidget {
 class LayerState extends State {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
   static const String CUSTOM_SYMBOL_SOURCE = 'my-custom-symbol-source';
-  
+
   final FeatureCollection featureCollection = FeatureCollection([
     Feature(
       GeometryPoint(
@@ -42,7 +42,7 @@ class LayerState extends State {
     )
   ]);
 
-  MapboxMapController controller;
+  late MapboxMapController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +88,7 @@ class LayerState extends State {
 
     // Sets the image according to the image-name property on the feature
     await controller
-        .addSymbolLayer(CUSTOM_SYMBOL_SOURCE, 'my-custom-symbol-layer', {
+        .addSymbolLayerCustom(CUSTOM_SYMBOL_SOURCE, 'my-custom-symbol-layer', {
       'icon-size': '''[
         "interpolate",
         ["linear"],
@@ -105,7 +105,7 @@ class LayerState extends State {
     ));
 
     // update the source while the map is running
-    controller.addSourceFeatures(
+    controller.addSourceFeaturesCustom(
         CUSTOM_SYMBOL_SOURCE, featureCollection.toJson());
   }
 }

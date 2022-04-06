@@ -7,20 +7,20 @@ import 'package:mapbox_gl/models/geometry/geometry_point.dart';
 
 class GeometryPolygon extends Geometry {
   static const TYPE = "Polygon";
-  String type;
+  late final String type;
 
   List<List<GeometryPoint>> coordinates = [];
 
-  final BoundingBox bbox;
+  final BoundingBox? bbox;
 
   GeometryPolygon(this.coordinates, {this.bbox}) {
     type = TYPE;
   }
 
-  static GeometryPolygon fromJson(String jsonString) =>
+  static GeometryPolygon? fromJson(String jsonString) =>
       fromMap(json.decode(jsonString));
 
-  static GeometryPolygon fromMap(Map<String, dynamic> map) {
+  static GeometryPolygon? fromMap(Map<String, dynamic> map) {
     if (!map.containsKey('coordinates')) return null;
 
     return GeometryPolygon(
@@ -58,9 +58,7 @@ class GeometryPolygon extends Geometry {
         currentPoly
             .add(GeometryPoint(coordinate.latitude, coordinate.longitude));
       }
-      if (currentPoly?.first != null) {
-        currentPoly.add(currentPoly.first);
-      }
+      currentPoly.add(currentPoly.first);
       coordinates[index] = currentPoly;
     }
   }
