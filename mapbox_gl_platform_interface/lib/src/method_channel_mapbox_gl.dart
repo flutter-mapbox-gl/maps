@@ -140,38 +140,29 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers) {
     if (defaultTargetPlatform == TargetPlatform.android) {
       if (useHybridComposition) {
+        final String viewType = 'plugins.flutter.io/mapbox_gl';
+
         return PlatformViewLink(
-          viewType: 'plugins.flutter.io/mapbox_gl',
-          surfaceFactory: (
-            BuildContext context,
-            PlatformViewController controller,
-          ) {
+          viewType: viewType,
+          surfaceFactory:
+              (BuildContext context, PlatformViewController controller) {
             return AndroidViewSurface(
               controller: controller as AndroidViewController,
-              gestureRecognizers: gestureRecognizers ??
-                  const <Factory<OneSequenceGestureRecognizer>>{},
+              gestureRecognizers: gestureRecognizers ?? {},
               hitTestBehavior: PlatformViewHitTestBehavior.opaque,
             );
           },
           onCreatePlatformView: (PlatformViewCreationParams params) {
-            final SurfaceAndroidViewController controller =
-                PlatformViewsService.initSurfaceAndroidView(
+            return PlatformViewsService.initSurfaceAndroidView(
               id: params.id,
-              viewType: 'plugins.flutter.io/mapbox_gl',
+              viewType: viewType,
               layoutDirection: TextDirection.ltr,
               creationParams: creationParams,
               creationParamsCodec: const StandardMessageCodec(),
-              onFocus: () => params.onFocusChanged(true),
-            );
-            controller.addOnPlatformViewCreatedListener(
-              params.onPlatformViewCreated,
-            );
-            controller.addOnPlatformViewCreatedListener(
-              onPlatformViewCreated,
-            );
-
-            controller.create();
-            return controller;
+            )
+              ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+              ..addOnPlatformViewCreatedListener(onPlatformViewCreated)
+              ..create();
           },
         );
       } else {
