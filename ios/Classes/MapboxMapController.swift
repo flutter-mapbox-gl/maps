@@ -875,7 +875,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             dragFeature = feature
             originDragCoordinate = coordinate
             previousDragCoordinate = coordinate
-            print("drag start")
             mapView.allowsScrolling = false
             let eventType = "sart"
             invokeFeatureDrag(point, coordinate, eventType)
@@ -888,7 +887,6 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         if end, dragFeature != nil {
             mapView.allowsScrolling = true
-            print("drag end")
             let eventType = "end"
             invokeFeatureDrag(point, coordinate, eventType)
             dragFeature = nil
