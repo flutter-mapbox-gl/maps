@@ -27,6 +27,7 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -59,7 +60,9 @@ import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
+import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer;
 import com.mapbox.mapboxsdk.style.layers.FillLayer;
+import com.mapbox.mapboxsdk.style.layers.HeatmapLayer;
 import com.mapbox.mapboxsdk.style.layers.HillshadeLayer;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
@@ -1106,6 +1109,46 @@ final class MapboxMapController
           String layerId = call.argument("layerId");
           style.removeLayer(layerId);
           interactiveFeatureLayerIds.remove(layerId);
+
+          result.success(null);
+          break;
+        }
+      case "style#setFilter":
+        {
+          if (style == null) {
+            result.error(
+                "STYLE IS NULL",
+                "The style is null. Has onStyleLoaded() already been invoked?",
+                null);
+          }
+          String layerId = call.argument("layerId");
+          String filter = call.argument("filter");
+
+          Layer layer = style.getLayer(layerId);
+
+          JsonParser parser = new JsonParser();
+          JsonElement jsonElement = parser.parse(filter);
+          Expression expression = Expression.Converter.convert(jsonElement);
+
+          if (layer instanceof CircleLayer) {
+            ((CircleLayer) layer).setFilter(expression);
+          } else if (layer instanceof FillExtrusionLayer) {
+            ((FillExtrusionLayer) layer).setFilter(expression);
+          } else if (layer instanceof FillLayer) {
+            ((FillLayer) layer).setFilter(expression);
+          } else if (layer instanceof HeatmapLayer) {
+            ((HeatmapLayer) layer).setFilter(expression);
+          } else if (layer instanceof LineLayer) {
+            ((LineLayer) layer).setFilter(expression);
+          } else if (layer instanceof SymbolLayer) {
+            ((SymbolLayer) layer).setFilter(expression);
+          } else {
+            result.error(
+                "INVALID LAYER TYPE",
+                String.format("Layer '%s' does not support filtering.", layerId),
+                null);
+            break;
+          }
 
           result.success(null);
           break;
