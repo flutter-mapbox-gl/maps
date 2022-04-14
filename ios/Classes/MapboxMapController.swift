@@ -62,9 +62,17 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             target: self,
             action: #selector(handleMapTap(sender:))
         )
+        
+        singleTap.delegate = self
+        
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            return true
+        }
+
         for recognizer in mapView.gestureRecognizers! where recognizer is UITapGestureRecognizer {
             singleTap.require(toFail: recognizer)
         }
+        
         mapView.addGestureRecognizer(singleTap)
 
         let longPress = UILongPressGestureRecognizer(
@@ -834,7 +842,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             ])
         }
     }
-
+    
     /*
      *  UITapGestureRecognizer
      *  On pan might invoke the feature#onDrag callback.
@@ -1405,6 +1413,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     func setZoomGesturesEnabled(zoomGesturesEnabled: Bool) {
         mapView.allowsZooming = zoomGesturesEnabled
+        
     }
 
     func setMyLocationEnabled(myLocationEnabled: Bool) {
