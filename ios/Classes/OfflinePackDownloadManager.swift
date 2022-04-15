@@ -56,7 +56,8 @@ class OfflinePackDownloader {
         let tilePyramidRegion = regionDefinition.toMGLTilePyramidOfflineRegion()
         storage
             .addPack(for: tilePyramidRegion,
-                     withContext: regionData.prepareContext()) { [weak self] pack, error in
+                     withContext: regionData.prepareContext())
+            { [weak self] pack, error in
                 if let pack = pack {
                     self?.onPackCreated(pack: pack)
                 } else {

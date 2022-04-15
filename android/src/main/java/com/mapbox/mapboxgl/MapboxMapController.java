@@ -1044,7 +1044,7 @@ final class MapboxMapController
                 "STYLE IS NULL",
                 "The style is null. Has onStyleLoaded() already been invoked?",
                 null);
-                break;
+            break;
           }
           final String id = Convert.toString(call.argument("sourceId"));
 
