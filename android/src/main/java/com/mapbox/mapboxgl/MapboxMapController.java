@@ -1590,6 +1590,22 @@ final class MapboxMapController
         }
         break;
       }
+      case "layer#addProperties": {
+        final String layerId = call.argument("layerId");
+        final HashMap<String, Object> properties = call.argument(
+                "properties"
+        );
+        addLayerProperties(layerId, properties);
+        result.success(null);
+        break;
+      }
+      case "source#addFeatures": {
+        final String sourceId = call.argument("sourceId");
+        final String features = call.argument("features");
+        addSourceFeaturesCustom(sourceId, features);
+        result.success(null);
+        break;
+      }
       case "symbolLayerCustom#add": {
         final String sourceId = call.argument("sourceId");
         final String layerId = call.argument("layerId");
