@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:mapbox_gl/models/bounding_box.dart';
 
 abstract class GeoJson {
@@ -9,7 +10,7 @@ abstract class GeoJson {
   /// @return a String which describes the type of geometry, for this object it will always return
   ///   {@code Feature}
   /// @since 1.0.0
-  String type;
+  late String type;
 
   /// A GeoJson object MAY have a member named "bbox" to include information on the coordinate range
   /// for its Geometries, Features, or FeatureCollections.  The value of the bbox member MUST be an
@@ -20,7 +21,7 @@ abstract class GeoJson {
   /// @return a double array with the length 2*n where n is the number of dimensions represented in
   ///   the contained geometries
   /// @since 3.0.0
-  BoundingBox bbox;
+  BoundingBox? bbox;
 
   /// This takes the currently defined values found inside the GeoJson instance and converts it to a
   /// GeoJson string.

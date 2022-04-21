@@ -1,15 +1,9 @@
 part of mapbox_gl_web;
 
-/// Signature for when a tap has occurred.
-typedef LineTapCallback = void Function(String id);
-
 class LineManager extends FeatureManager<LineOptions> {
-  final MapboxMap map;
-  final LineTapCallback onTap;
-
   LineManager({
-    @required this.map,
-    this.onTap,
+    required MapboxMap map,
+    ArgumentCallbacks<String>? onTap,
   }) : super(
           sourceId: 'line_source',
           layerId: 'line_layer',
@@ -40,7 +34,7 @@ class LineManager extends FeatureManager<LineOptions> {
   }
 
   void update(String lineId, LineOptions changes) {
-    Feature olfFeature = getFeature(lineId);
+    Feature olfFeature = getFeature(lineId)!;
     Feature newFeature = Convert.interpretLineOptions(changes, olfFeature);
     updateFeature(newFeature);
   }

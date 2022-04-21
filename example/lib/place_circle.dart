@@ -32,9 +32,9 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
 
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
 
-  MapboxMapController controller;
+  MapboxMapController? controller;
   int _circleCount = 0;
-  Circle _selectedCircle;
+  Circle? _selectedCircle;
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
@@ -43,7 +43,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
 
   @override
   void dispose() {
-    controller?.onCircleTapped?.remove(_onCircleTapped);
+    controller?.onCircleTapped.remove(_onCircleTapped);
     super.dispose();
   }
 
@@ -64,11 +64,11 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   void _updateSelectedCircle(CircleOptions changes) {
-    controller.updateCircle(_selectedCircle, changes);
+    controller!.updateCircle(_selectedCircle!, changes);
   }
 
   void _add() {
-    controller.addCircle(
+    controller!.addCircle(
       CircleOptions(
           geometry: LatLng(
             center.latitude + sin(_circleCount * pi / 6.0) / 20.0,
@@ -82,7 +82,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   void _remove() {
-    controller.removeCircle(_selectedCircle);
+    controller!.removeCircle(_selectedCircle!);
     setState(() {
       _selectedCircle = null;
       _circleCount -= 1;
@@ -90,7 +90,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   void _changePosition() {
-    final LatLng current = _selectedCircle.options.geometry;
+    final LatLng current = _selectedCircle!.options.geometry!;
     final Offset offset = Offset(
       center.latitude - current.latitude,
       center.longitude - current.longitude,
@@ -106,7 +106,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   void _changeDraggable() {
-    bool draggable = _selectedCircle.options.draggable;
+    bool? draggable = _selectedCircle!.options.draggable;
     if (draggable == null) {
       // default value
       draggable = false;
@@ -119,7 +119,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   void _getLatLng() async {
-    LatLng latLng = await controller.getCircleLatLng(_selectedCircle);
+    LatLng latLng = await controller!.getCircleLatLng(_selectedCircle!);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(latLng.toString()),
@@ -128,7 +128,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   void _changeCircleStrokeOpacity() {
-    double current = _selectedCircle.options.circleStrokeOpacity;
+    double? current = _selectedCircle!.options.circleStrokeOpacity;
     if (current == null) {
       // default value
       current = 1.0;
@@ -140,7 +140,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   void _changeCircleStrokeWidth() {
-    double current = _selectedCircle.options.circleStrokeWidth;
+    double? current = _selectedCircle!.options.circleStrokeWidth;
     if (current == null) {
       // default value
       current = 0;
@@ -150,7 +150,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   Future<void> _changeCircleStrokeColor() async {
-    String current = _selectedCircle.options.circleStrokeColor;
+    String? current = _selectedCircle!.options.circleStrokeColor;
     if (current == null) {
       // default value
       current = "#FFFFFF";
@@ -163,7 +163,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   Future<void> _changeCircleOpacity() async {
-    double current = _selectedCircle.options.circleOpacity;
+    double? current = _selectedCircle!.options.circleOpacity;
     if (current == null) {
       // default value
       current = 1.0;
@@ -175,7 +175,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   Future<void> _changeCircleRadius() async {
-    double current = _selectedCircle.options.circleRadius;
+    double? current = _selectedCircle!.options.circleRadius;
     if (current == null) {
       // default value
       current = 0;
@@ -186,7 +186,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   Future<void> _changeCircleColor() async {
-    String current = _selectedCircle.options.circleColor;
+    String? current = _selectedCircle!.options.circleColor;
     if (current == null) {
       // default value
       current = "#FF0000";
@@ -198,7 +198,7 @@ class PlaceCircleBodyState extends State<PlaceCircleBody> {
   }
 
   Future<void> _changeCircleBlur() async {
-    double current = _selectedCircle.options.circleBlur;
+    double? current = _selectedCircle!.options.circleBlur;
     if (current == null) {
       // default value
       current = 0;

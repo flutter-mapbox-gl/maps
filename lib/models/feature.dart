@@ -35,13 +35,13 @@ import 'package:mapbox_gl/models/geometry/geometry.dart';
 class Feature extends GeoJson {
   static const String TYPE = "Feature";
   @override
-  String type;
+  late final String type;
 
-  final String id;
+  final String? id;
 
-  final BoundingBox bbox;
+  final BoundingBox? bbox;
   @override
-  set bbox(BoundingBox _bbox) {
+  set bbox(BoundingBox? _bbox) {
     bbox = _bbox;
   }
 
@@ -49,7 +49,7 @@ class Feature extends GeoJson {
   /// depending on the line type you're adding it to
   final Geometry geometry;
 
-  final Map<String, dynamic> properties;
+  final Map<String, dynamic>? properties;
 
   /// [geometry] could be one of [GeometryLineString], [GeometryPoint], [GeometryPolygon]
   /// depending on the line type you're adding it to
@@ -71,13 +71,13 @@ class Feature extends GeoJson {
   ///   method
   /// @since 1.0.0
 
-  static Feature fromJson(String jsonString) {
+  static Feature? fromJson(String jsonString) {
     final jsonObject = json.decode(jsonString);
 
     return fromMap(jsonObject);
   }
 
-  static Feature fromMap(Map<String, dynamic> map) {
+  static Feature? fromMap(Map<String, dynamic> map) {
     if (map['geometry'] == null) return null;
 
     return Feature(
@@ -96,7 +96,7 @@ class Feature extends GeoJson {
       "properties": properties,
     };
 
-    if (bbox != null) map["bbox"] = bbox.toJson();
+    if (bbox != null) map["bbox"] = bbox!.toJson();
 
     return map;
   }
@@ -108,7 +108,7 @@ class Feature extends GeoJson {
   /// @since 1.0.0
 
   void addProperty(String key, dynamic value) {
-    properties[key] = value;
+    properties?[key] = value;
   }
 
   /// Convenience method to get a String member.
@@ -118,7 +118,7 @@ class Feature extends GeoJson {
   /// @since 1.0.0
 
   dynamic getProperty(String key) {
-    return properties[key];
+    return properties?[key];
   }
 
   /// Removes the property from the object properties.
@@ -127,7 +127,7 @@ class Feature extends GeoJson {
   /// @return Removed {@code property} from the key string passed in through the parameter.
   /// @since 1.0.0
 
-  dynamic removeProperty(String key) => properties.remove(key);
+  dynamic removeProperty(String key) => properties?.remove(key);
 
   /// Convenience method to check if a member with the specified name is present in this object.
   ///
@@ -135,7 +135,7 @@ class Feature extends GeoJson {
   /// @return true if there is the member has the specified name, false otherwise.
   /// @since 1.0.0
 
-  bool hasProperty(String key) => properties.containsKey(key);
+  bool hasProperty(String key) => properties?.containsKey(key) ?? false;
 
   @override
   String toString() {
@@ -147,7 +147,7 @@ class Feature extends GeoJson {
         bbox.toString() +
         ", " +
         "id=" +
-        id +
+        id.toString() +
         ", " +
         "geometry=" +
         geometry.toString() +

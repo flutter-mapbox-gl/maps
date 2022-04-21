@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:mapbox_gl_example/main.dart';
 import 'package:mapbox_gl/models/feature.dart';
 import 'package:mapbox_gl/models/feature_collection.dart';
 import 'package:mapbox_gl/models/geometry/geometry_point.dart';
 import 'package:mapbox_gl/models/geometry/geometry_polygon.dart';
+import 'package:mapbox_gl_example/main.dart';
 import 'package:mapbox_gl_example/page.dart';
 
 class PolygonPage extends ExamplePage {
@@ -35,9 +35,9 @@ class LayerState extends State {
     ],
   ]);
 
-  FeatureCollection polygonCollection;
+  late FeatureCollection polygonCollection;
 
-  MapboxMapController controller;
+  late MapboxMapController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +77,7 @@ class LayerState extends State {
     polygonCollection = FeatureCollection([Feature(polygon)]);
 
     await controller.addSource("source_1", polygonCollection.toJson());
-    await controller.addFillLayer(
+    await controller.addFillLayerCustom(
         "source_1",
         "layer_1",
         {
@@ -101,6 +101,6 @@ class LayerState extends State {
     polygon.coordinates.first.add(polygon.coordinates.first.first);
 
     // update the source while the map is running
-    controller.addSourceFeatures("source_1", polygonCollection.toJson());
+    controller.addSourceFeaturesCustom("source_1", polygonCollection.toJson());
   }
 }

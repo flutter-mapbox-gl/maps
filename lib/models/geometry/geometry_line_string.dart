@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:mapbox_gl/models/bounding_box.dart';
 import 'package:mapbox_gl/models/geometry/geometry.dart';
 import 'package:mapbox_gl/models/geometry/geometry_point.dart';
@@ -42,9 +41,9 @@ class GeometryLineString extends Geometry {
 
   static const String TYPE = "LineString";
 
-  String type;
+  late final String type;
 
-  final BoundingBox bbox;
+  final BoundingBox? bbox;
 
   List<GeometryPoint> coordinates = [];
 
@@ -66,18 +65,18 @@ class GeometryLineString extends Geometry {
   ///   method
   /// @since 1.0.0
 
-  static GeometryLineString fromJson(String jsonString) {
+  static GeometryLineString? fromJson(String jsonString) {
     final jsonMap = json.decode(jsonString);
 
     return fromMap(jsonMap);
   }
 
-  static GeometryLineString fromMap(Map<String, dynamic> map) {
+  static GeometryLineString? fromMap(Map<String, dynamic> map) {
     if (!map.containsKey('coordinates')) return null;
 
     return GeometryLineString(
         (map['coordinates'] as List<dynamic>)
-            .map((e) => GeometryPoint.fromMap(e))
+            .map((e) => GeometryPoint.fromMap(e)!)
             .toList(),
         bbox: map['bbox']);
   }
@@ -88,7 +87,7 @@ class GeometryLineString extends Geometry {
       "type": type,
       "coordinates": coordinates.map((c) => [c.longitude, c.latitude]).toList()
     };
-    if (bbox != null) map['bbox'] = bbox;
+    if (bbox != null) map['bbox'] = bbox!;
 
     return map;
   }

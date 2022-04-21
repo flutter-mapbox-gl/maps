@@ -21,6 +21,10 @@ class CircleBuilder implements CircleOptionsSink {
     this.circleOptions = new CircleOptions();
   }
 
+  public CircleOptions getCircleOptions(){
+    return this.circleOptions;
+  }
+
   Circle build() {
     return circleManager.create(circleOptions);
   }

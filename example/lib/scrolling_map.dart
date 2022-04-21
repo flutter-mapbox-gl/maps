@@ -5,6 +5,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart'; // ignore: unnecessary_import
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
@@ -27,8 +28,8 @@ class ScrollingMapBody extends StatefulWidget {
 }
 
 class _ScrollingMapBodyState extends State<ScrollingMapBody> {
-  MapboxMapController controllerOne;
-  MapboxMapController controllerTwo;
+  late MapboxMapController controllerOne;
+  late MapboxMapController controllerTwo;
 
   final LatLng center = const LatLng(32.080664, 34.9563837);
 

@@ -4,9 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-
-import 'main.dart';
-import 'page.dart';
+import 'package:mapbox_gl_example/main.dart';
+import 'package:mapbox_gl_example/page.dart';
 
 class AnimateCameraPage extends ExamplePage {
   AnimateCameraPage()
@@ -25,7 +24,7 @@ class AnimateCamera extends StatefulWidget {
 }
 
 class AnimateCameraState extends State<AnimateCamera> {
-  MapboxMapController mapController;
+  late MapboxMapController mapController;
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;

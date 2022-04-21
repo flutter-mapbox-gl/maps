@@ -12,9 +12,9 @@ class OfflineRegion {
     let id: Int
     let metadata: [String: Any]
     let definition: OfflineRegionDefinition
-    
+
     enum CodingKeys: CodingKey {
-      case id, metadata, definition
+        case id, metadata, definition
     }
 
     init(id: Int, metadata: [String: Any], definition: OfflineRegionDefinition) {
@@ -33,16 +33,16 @@ class OfflineRegion {
         return [
             "id": id,
             "metadata": metadata,
-            "definition": definition.toDictionary()
+            "definition": definition.toDictionary(),
         ]
     }
 
     static func fromOfflinePack(_ pack: MGLOfflinePack) -> OfflineRegion? {
         guard let region = pack.region as? MGLTilePyramidOfflineRegion,
-            let dataObject = try? JSONSerialization.jsonObject(with: pack.context, options: []),
-            let dict = dataObject as? [String: Any],
-            let id = dict["id"] as? Int,
-            let metadata = dict["metadata"] as? [String: Any] else { return nil }
+              let dataObject = try? JSONSerialization.jsonObject(with: pack.context, options: []),
+              let dict = dataObject as? [String: Any],
+              let id = dict["id"] as? Int,
+              let metadata = dict["metadata"] as? [String: Any] else { return nil }
         return OfflineRegion(
             id: id,
             metadata: metadata,

@@ -1,15 +1,9 @@
 part of mapbox_gl_web;
 
-/// Signature for when a tap has occurred.
-typedef CircleTapCallback = void Function(String id);
-
 class CircleManager extends FeatureManager<CircleOptions> {
-  final MapboxMap map;
-  final CircleTapCallback onTap;
-
   CircleManager({
-    @required this.map,
-    this.onTap,
+    required MapboxMap map,
+    ArgumentCallbacks<String>? onTap,
   }) : super(
           sourceId: 'circle_source',
           layerId: 'circle_layer',
@@ -42,7 +36,7 @@ class CircleManager extends FeatureManager<CircleOptions> {
 
   @override
   void update(String lineId, CircleOptions changes) {
-    Feature olfFeature = getFeature(lineId);
+    Feature olfFeature = getFeature(lineId)!;
     Feature newFeature = Convert.interpretCircleOptions(changes, olfFeature);
     updateFeature(newFeature);
   }

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart'; // ignore: unnecessary_import
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
@@ -29,7 +30,7 @@ class CustomMarker extends StatefulWidget {
 class CustomMarkerState extends State<CustomMarker> {
   final Random _rnd = new Random();
 
-  MapboxMapController _mapController;
+  late MapboxMapController _mapController;
   List<Marker> _markers = [];
   List<_MarkerState> _markerStates = [];
 
@@ -65,8 +66,8 @@ class CustomMarkerState extends State<CustomMarker> {
       coordinates.add(markerState.getCoordinate());
     }
 
-    _mapController.toScreenLocationBatch(coordinates).then((points){
-      _markerStates.asMap().forEach((i, value){
+    _mapController.toScreenLocationBatch(coordinates).then((points) {
+      _markerStates.asMap().forEach((i, value) {
         _markerStates[i].updatePosition(points[i]);
       });
     });
@@ -74,35 +75,33 @@ class CustomMarkerState extends State<CustomMarker> {
 
   void _addMarker(Point<double> point, LatLng coordinates) {
     setState(() {
-      _markers.add(Marker(_rnd.nextInt(100000).toString(), coordinates, point, _addMarkerStates));
+      _markers.add(Marker(_rnd.nextInt(100000).toString(), coordinates, point,
+          _addMarkerStates));
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: Stack(
-          children: [
-            MapboxMap(
-              accessToken: MapsDemo.ACCESS_TOKEN,
-              trackCameraPosition: true,
-              onMapCreated: _onMapCreated,
-              onMapLongClick: _onMapLongClickCallback,
-              onCameraIdle: _onCameraIdleCallback,
-              onStyleLoadedCallback: _onStyleLoadedCallback,
-              initialCameraPosition: const CameraPosition(target: LatLng(35.0, 135.0), zoom: 5),
-            ),
-            IgnorePointer(
-              ignoring: true,
-              child:
-                Stack(
-                  children: _markers,
-                )
-            )
-          ]
-      ),
+      body: Stack(children: [
+        MapboxMap(
+          accessToken: MapsDemo.ACCESS_TOKEN,
+          trackCameraPosition: true,
+          onMapCreated: _onMapCreated,
+          onMapLongClick: _onMapLongClickCallback,
+          onCameraIdle: _onCameraIdleCallback,
+          onStyleLoadedCallback: _onStyleLoadedCallback,
+          initialCameraPosition:
+              const CameraPosition(target: LatLng(35.0, 135.0), zoom: 5),
+        ),
+        IgnorePointer(
+            ignoring: true,
+            child: Stack(
+              children: _markers,
+            ))
+      ]),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
+        onPressed: () {
           //_measurePerformance();
 
           // Generate random markers
@@ -115,7 +114,8 @@ class CustomMarkerState extends State<CustomMarker> {
 
           _mapController.toScreenLocationBatch(param).then((value) {
             for (var i = 0; i < randomMarkerNum; i++) {
-              var point = Point<double>(value[i].x, value[i].y);
+              var point =
+                  Point<double>(value[i].x as double, value[i].y as double);
               _addMarker(point, param[i]);
             }
           });
@@ -145,12 +145,13 @@ class CustomMarkerState extends State<CustomMarker> {
         sw.start();
         var list = <Future<Point<num>>>[];
         for (var j = 0; j < batch; j++) {
-          var p = _mapController.toScreenLocation(LatLng(j.toDouble() % 80, j.toDouble() % 300));
+          var p = _mapController
+              .toScreenLocation(LatLng(j.toDouble() % 80, j.toDouble() % 300));
           list.add(p);
         }
         Future.wait(list);
         sw.stop();
-        results[batch][0] += sw.elapsedMilliseconds;
+        results[batch]![0] += sw.elapsedMilliseconds;
         sw.reset();
       }
 
@@ -165,13 +166,13 @@ class CustomMarkerState extends State<CustomMarker> {
         }
         Future.wait([_mapController.toScreenLocationBatch(param)]);
         sw.stop();
-        results[batch][1] += sw.elapsedMilliseconds;
+        results[batch]![1] += sw.elapsedMilliseconds;
         sw.reset();
       }
 
-      print('batch=$batch,primitive=${results[batch][0] / trial}ms, batch=${results[batch][1] / trial}ms');
+      print(
+          'batch=$batch,primitive=${results[batch]![0] / trial}ms, batch=${results[batch]![1] / trial}ms');
     }
-
   }
 }
 
@@ -180,7 +181,9 @@ class Marker extends StatefulWidget {
   final LatLng _coordinate;
   final void Function(_MarkerState) _addMarkerState;
 
-  Marker(String key, this._coordinate, this._initialPosition, this._addMarkerState) : super(key: Key(key));
+  Marker(
+      String key, this._coordinate, this._initialPosition, this._addMarkerState)
+      : super(key: Key(key));
 
   @override
   State<StatefulWidget> createState() {
@@ -195,8 +198,8 @@ class _MarkerState extends State with TickerProviderStateMixin {
 
   Point _position;
 
-  AnimationController _controller;
-  Animation<double> _animation;
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
   _MarkerState(this._position);
 
@@ -229,16 +232,13 @@ class _MarkerState extends State with TickerProviderStateMixin {
       ratio = Platform.isIOS ? 1.0 : MediaQuery.of(context).devicePixelRatio;
     }
 
-    return
-      Positioned(
-          left: _position.x / ratio - _iconSize / 2,
-          top: _position.y / ratio - _iconSize / 2,
-          child:
-          RotationTransition(
-              turns: _animation,
-              child:
-                Image.asset('assets/symbols/2.0x/custom-icon.png', height: _iconSize))
-      );
+    return Positioned(
+        left: _position.x / ratio - _iconSize / 2,
+        top: _position.y / ratio - _iconSize / 2,
+        child: RotationTransition(
+            turns: _animation,
+            child: Image.asset('assets/symbols/2.0x/custom-icon.png',
+                height: _iconSize)));
   }
 
   void updatePosition(Point<num> point) {
@@ -251,4 +251,3 @@ class _MarkerState extends State with TickerProviderStateMixin {
     return (widget as Marker)._coordinate;
   }
 }
-
