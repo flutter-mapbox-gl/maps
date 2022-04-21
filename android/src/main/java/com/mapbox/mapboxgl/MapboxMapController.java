@@ -1051,7 +1051,7 @@ final class MapboxMapController
               }
             );
             // moveCamera(cameraUpdate);
-          } else {
+  }else{
             result.success(false);
           }
           break;
