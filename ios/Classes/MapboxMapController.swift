@@ -876,7 +876,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             originDragCoordinate = coordinate
             previousDragCoordinate = coordinate
             mapView.allowsScrolling = false
-            let eventType = "sart"
+            let eventType = "start"
             invokeFeatureDrag(point, coordinate, eventType)
             for gestureRecognizer in mapView.gestureRecognizers! {
                 if let _ = gestureRecognizer as? UIPanGestureRecognizer {
