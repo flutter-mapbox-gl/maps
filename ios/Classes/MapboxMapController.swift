@@ -720,6 +720,40 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             mapView.style?.removeLayer(layer)
             result(nil)
 
+        case "style#setFilter":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let filter = arguments["filter"] as? String else { return }
+            guard let layer = mapView.style?.layer(withIdentifier: layerId) else {
+                result(nil)
+                return
+            }
+
+            do {
+                let filter = try JSONSerialization.jsonObject(
+                    with: filter.data(using: .utf8)!,
+                    options: .fragmentsAllowed
+                )
+                let predicate = NSPredicate(mglJSONObject: filter)
+                if let layer = layer as? MGLVectorStyleLayer {
+                    layer.predicate = predicate
+                } else {
+                    result(FlutterError(
+                        code: "invalidLayerType",
+                        message: "Invalid layer type",
+                        details: "Layer '\(layerId)' does not support filtering."
+                    ))
+                    return
+                }
+                result(nil)
+            } catch {
+                result(FlutterError(
+                    code: "invalidExpression",
+                    message: "Invalid filter expression",
+                    details: "Could not parse filter expression."
+                ))
+            }
+
         case "source#addGeoJson":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
