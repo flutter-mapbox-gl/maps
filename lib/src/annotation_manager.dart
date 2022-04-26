@@ -139,7 +139,8 @@ abstract class AnnotationManager<T extends Annotation> {
       {required Point<double> point,
       required LatLng origin,
       required LatLng current,
-      required LatLng delta}) {
+      required LatLng delta,
+      required DragEventType eventType}) {
     final annotation = byId(id);
     if (annotation != null) {
       annotation.translate(delta);

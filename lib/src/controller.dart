@@ -13,7 +13,8 @@ typedef void OnFeatureDragnCallback(dynamic id,
     {required Point<double> point,
     required LatLng origin,
     required LatLng current,
-    required LatLng delta});
+    required LatLng delta,
+    required DragEventType eventType});
 
 typedef void OnMapLongClickCallback(Point<double> point, LatLng coordinates);
 
@@ -72,11 +73,14 @@ class MapboxMapController extends ChangeNotifier {
 
     _mapboxGlPlatform.onFeatureDraggedPlatform.add((payload) {
       for (final fun in List<OnFeatureDragnCallback>.from(onFeatureDrag)) {
+        final DragEventType enmDragEventType = DragEventType.values
+            .firstWhere((element) => element.name == payload["eventType"]);
         fun(payload["id"],
             point: payload["point"],
             origin: payload["origin"],
             current: payload["current"],
-            delta: payload["delta"]);
+            delta: payload["delta"],
+            eventType: enmDragEventType);
       }
     });
 
