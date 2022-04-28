@@ -404,6 +404,9 @@ final class MapboxMapController
     if (maxZoom != null) {
       symbolLayer.setMaxZoom(maxZoom);
     }
+    if (filter != null) {
+      symbolLayer.setFilter(filter);
+    }
     if (belowLayerId != null) {
       style.addLayerBelow(symbolLayer, belowLayerId);
     } else {
@@ -434,6 +437,9 @@ final class MapboxMapController
     }
     if (maxZoom != null) {
       lineLayer.setMaxZoom(maxZoom);
+    }
+    if (filter != null) {
+      lineLayer.setFilter(filter);
     }
     if (belowLayerId != null) {
       style.addLayerBelow(lineLayer, belowLayerId);
@@ -466,6 +472,9 @@ final class MapboxMapController
     if (maxZoom != null) {
       fillLayer.setMaxZoom(maxZoom);
     }
+    if (filter != null) {
+      fillLayer.setFilter(filter);
+    }
     if (belowLayerId != null) {
       style.addLayerBelow(fillLayer, belowLayerId);
     } else {
@@ -497,6 +506,9 @@ final class MapboxMapController
     if (maxZoom != null) {
       circleLayer.setMaxZoom(maxZoom);
     }
+    if (filter != null) {
+      circleLayer.setFilter(filter);
+    }
     if (belowLayerId != null) {
       style.addLayerBelow(circleLayer, belowLayerId);
     } else {
@@ -505,7 +517,12 @@ final class MapboxMapController
     if (enableInteraction) {
       interactiveFeatureLayerIds.add(layerName);
     }
-    ;
+  }
+
+  private Expression parseFilter(String filter) {
+    JsonParser parser = new JsonParser();
+    JsonElement filterJsonElement = parser.parse(filter);
+    return filterJsonElement.isJsonNull() ? null : Expression.Converter.convert(filterJsonElement);
   }
 
   private void addRasterLayer(
@@ -825,9 +842,13 @@ final class MapboxMapController
           final String sourceLayer = call.argument("sourceLayer");
           final Double minzoom = call.argument("minzoom");
           final Double maxzoom = call.argument("maxzoom");
+          final String filter = call.argument("filter");
           final boolean enableInteraction = call.argument("enableInteraction");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
+
+          Expression filterExpression = parseFilter(filter);
+
           addSymbolLayer(
               layerId,
               sourceId,
@@ -837,7 +858,7 @@ final class MapboxMapController
               maxzoom != null ? maxzoom.floatValue() : null,
               properties,
               enableInteraction,
-              null);
+              filterExpression);
           updateLocationComponentLayer();
 
           result.success(null);
@@ -851,9 +872,13 @@ final class MapboxMapController
           final String sourceLayer = call.argument("sourceLayer");
           final Double minzoom = call.argument("minzoom");
           final Double maxzoom = call.argument("maxzoom");
+          final String filter = call.argument("filter");
           final boolean enableInteraction = call.argument("enableInteraction");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
+
+          Expression filterExpression = parseFilter(filter);
+
           addLineLayer(
               layerId,
               sourceId,
@@ -863,7 +888,7 @@ final class MapboxMapController
               maxzoom != null ? maxzoom.floatValue() : null,
               properties,
               enableInteraction,
-              null);
+              filterExpression);
           updateLocationComponentLayer();
 
           result.success(null);
@@ -877,9 +902,13 @@ final class MapboxMapController
           final String sourceLayer = call.argument("sourceLayer");
           final Double minzoom = call.argument("minzoom");
           final Double maxzoom = call.argument("maxzoom");
+          final String filter = call.argument("filter");
           final boolean enableInteraction = call.argument("enableInteraction");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
+
+          Expression filterExpression = parseFilter(filter);
+
           addFillLayer(
               layerId,
               sourceId,
@@ -889,7 +918,7 @@ final class MapboxMapController
               maxzoom != null ? maxzoom.floatValue() : null,
               properties,
               enableInteraction,
-              null);
+              filterExpression);
           updateLocationComponentLayer();
 
           result.success(null);
@@ -903,9 +932,13 @@ final class MapboxMapController
           final String sourceLayer = call.argument("sourceLayer");
           final Double minzoom = call.argument("minzoom");
           final Double maxzoom = call.argument("maxzoom");
+          final String filter = call.argument("filter");
           final boolean enableInteraction = call.argument("enableInteraction");
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
+
+          Expression filterExpression = parseFilter(filter);
+
           addCircleLayer(
               layerId,
               sourceId,
@@ -915,7 +948,7 @@ final class MapboxMapController
               maxzoom != null ? maxzoom.floatValue() : null,
               properties,
               enableInteraction,
-              null);
+              filterExpression);
           updateLocationComponentLayer();
 
           result.success(null);

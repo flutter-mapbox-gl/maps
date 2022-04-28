@@ -346,6 +346,7 @@ class MapboxMapController extends ChangeNotifier {
       String? sourceLayer,
       double? minzoom,
       double? maxzoom,
+      dynamic filter,
       bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addSymbolLayer(
       sourceId,
@@ -355,6 +356,7 @@ class MapboxMapController extends ChangeNotifier {
       sourceLayer: sourceLayer,
       minzoom: minzoom,
       maxzoom: maxzoom,
+      filter: filter,
       enableInteraction: enableInteraction,
     );
   }
@@ -376,6 +378,7 @@ class MapboxMapController extends ChangeNotifier {
       String? sourceLayer,
       double? minzoom,
       double? maxzoom,
+      dynamic filter,
       bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addLineLayer(
       sourceId,
@@ -385,6 +388,7 @@ class MapboxMapController extends ChangeNotifier {
       sourceLayer: sourceLayer,
       minzoom: minzoom,
       maxzoom: maxzoom,
+      filter: filter,
       enableInteraction: enableInteraction,
     );
   }
@@ -406,6 +410,7 @@ class MapboxMapController extends ChangeNotifier {
       String? sourceLayer,
       double? minzoom,
       double? maxzoom,
+      dynamic filter,
       bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addFillLayer(
       sourceId,
@@ -415,6 +420,7 @@ class MapboxMapController extends ChangeNotifier {
       sourceLayer: sourceLayer,
       minzoom: minzoom,
       maxzoom: maxzoom,
+      filter: filter,
       enableInteraction: enableInteraction,
     );
   }
@@ -436,6 +442,7 @@ class MapboxMapController extends ChangeNotifier {
       String? sourceLayer,
       double? minzoom,
       double? maxzoom,
+      dynamic filter,
       bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addCircleLayer(
       sourceId,
@@ -445,6 +452,7 @@ class MapboxMapController extends ChangeNotifier {
       sourceLayer: sourceLayer,
       minzoom: minzoom,
       maxzoom: maxzoom,
+      filter: filter,
       enableInteraction: enableInteraction,
     );
   }
@@ -1111,42 +1119,53 @@ class MapboxMapController extends ChangeNotifier {
       bool enableInteraction = true,
       String? sourceLayer,
       double? minzoom,
-      double? maxzoom}) async {
+      double? maxzoom,
+      dynamic filter}) async {
     if (properties is FillLayerProperties) {
       addFillLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           enableInteraction: enableInteraction,
           sourceLayer: sourceLayer,
           minzoom: minzoom,
-          maxzoom: maxzoom);
+          maxzoom: maxzoom,
+          filter: filter);
     } else if (properties is LineLayerProperties) {
       addLineLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           enableInteraction: enableInteraction,
           sourceLayer: sourceLayer,
           minzoom: minzoom,
-          maxzoom: maxzoom);
+          maxzoom: maxzoom,
+          filter: filter);
     } else if (properties is SymbolLayerProperties) {
       addSymbolLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           enableInteraction: enableInteraction,
           sourceLayer: sourceLayer,
           minzoom: minzoom,
-          maxzoom: maxzoom);
+          maxzoom: maxzoom,
+          filter: filter);
     } else if (properties is CircleLayerProperties) {
       addCircleLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           enableInteraction: enableInteraction,
           sourceLayer: sourceLayer,
           minzoom: minzoom,
-          maxzoom: maxzoom);
+          maxzoom: maxzoom,
+          filter: filter);
     } else if (properties is RasterLayerProperties) {
+      if (filter != null) {
+        throw UnimplementedError("RasterLayer does not support filter");
+      }
       addRasterLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           sourceLayer: sourceLayer,
           minzoom: minzoom,
           maxzoom: maxzoom);
     } else if (properties is HillshadeLayerProperties) {
+      if (filter != null) {
+        throw UnimplementedError("HillShadeLayer does not support filter");
+      }
       addHillshadeLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           sourceLayer: sourceLayer,
