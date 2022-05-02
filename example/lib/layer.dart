@@ -82,6 +82,7 @@ class LayerState extends State {
         'green'
       ], fillOpacity: 0.4),
       belowLayerId: "water",
+      filter: ['==', 'id', filteredId],
     );
 
     await controller.addLineLayer(
@@ -143,7 +144,6 @@ class LayerState extends State {
       controller.setGeoJsonSource("moving", _movingFeature(t.tick / 2000));
     });
 
-    controller.setFilter('fills', ['==', 'id', filteredId]);
     filterTimer = Timer.periodic(Duration(seconds: 3), (t) {
       filteredId = filteredId == 0 ? 1 : 0;
       controller.setFilter('fills', ['==', 'id', filteredId]);
