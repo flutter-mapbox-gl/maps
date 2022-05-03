@@ -340,6 +340,10 @@ class MapboxMapController extends ChangeNotifier {
   /// If [enableInteraction] is set the layer is considered for touch or drag
   /// events. [sourceLayer] is used to selected a specific source layer from
   /// Vector source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
   /// [filter] determines which features should be rendered in the layer.
   /// Filters are written as [expressions].
   ///
@@ -376,6 +380,10 @@ class MapboxMapController extends ChangeNotifier {
   /// If [enableInteraction] is set the layer is considered for touch or drag
   /// events. [sourceLayer] is used to selected a specific source layer from
   /// Vector source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
   /// [filter] determines which features should be rendered in the layer.
   /// Filters are written as [expressions].
   ///
@@ -412,6 +420,10 @@ class MapboxMapController extends ChangeNotifier {
   /// If [enableInteraction] is set the layer is considered for touch or drag
   /// events. [sourceLayer] is used to selected a specific source layer from
   /// Vector source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
   /// [filter] determines which features should be rendered in the layer.
   /// Filters are written as [expressions].
   ///
@@ -448,6 +460,10 @@ class MapboxMapController extends ChangeNotifier {
   /// If [enableInteraction] is set the layer is considered for touch or drag
   /// events. [sourceLayer] is used to selected a specific source layer from
   /// Vector source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
   /// [filter] determines which features should be rendered in the layer.
   /// Filters are written as [expressions].
   ///
@@ -482,7 +498,11 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// Setting [belowLayerId] adds the new layer below the given id.
   /// [sourceLayer] is used to selected a specific source layer from
-  /// Raster source
+  /// Raster source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
   Future<void> addRasterLayer(
       String sourceId, String layerId, RasterLayerProperties properties,
       {String? belowLayerId,
@@ -509,7 +529,11 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// Setting [belowLayerId] adds the new layer below the given id.
   /// [sourceLayer] is used to selected a specific source layer from
-  /// Raster source
+  /// Raster source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
   Future<void> addHillshadeLayer(
       String sourceId, String layerId, HillshadeLayerProperties properties,
       {String? belowLayerId,
@@ -1129,6 +1153,10 @@ class MapboxMapController extends ChangeNotifier {
   /// [HillshadeLayerProperties].
   /// [sourceLayer] is used to selected a specific source layer from Vector
   /// source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
   /// [filter] determines which features should be rendered in the layer.
   /// Filters are written as [expressions].
   /// [filter] is not supported by RasterLayer and HillshadeLayer.
