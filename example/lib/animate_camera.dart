@@ -9,8 +9,7 @@ import 'main.dart';
 import 'page.dart';
 
 class AnimateCameraPage extends ExamplePage {
-  AnimateCameraPage()
-      : super(const Icon(Icons.map), 'Camera control, animated');
+  AnimateCameraPage() : super(const Icon(Icons.map), 'Camera control, animated');
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +43,7 @@ class AnimateCameraState extends State<AnimateCamera> {
             child: MapboxMap(
               accessToken: MapsDemo.ACCESS_TOKEN,
               onMapCreated: _onMapCreated,
-              initialCameraPosition:
-                  const CameraPosition(target: LatLng(0.0, 0.0)),
+              initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
             ),
           ),
         ),
@@ -67,8 +65,7 @@ class AnimateCameraState extends State<AnimateCamera> {
                             ),
                           ),
                         )
-                        .then((result) => print(
-                            "mapController.animateCamera() returned $result"));
+                        .then((result) => print("mapController.animateCamera() returned $result"));
                   },
                   child: const Text('newCameraPosition'),
                 ),
@@ -80,8 +77,7 @@ class AnimateCameraState extends State<AnimateCamera> {
                             const LatLng(56.1725505, 10.1850512),
                           ),
                         )
-                        .then((result) => print(
-                            "mapController.animateCamera() returned $result"));
+                        .then((result) => print("mapController.animateCamera() returned $result"));
                   },
                   child: const Text('newLatLng'),
                 ),
@@ -93,9 +89,9 @@ class AnimateCameraState extends State<AnimateCamera> {
                           southwest: const LatLng(-38.483935, 113.248673),
                           northeast: const LatLng(-8.982446, 153.823821),
                         ),
-                        left: 10,
-                        top: 5,
-                        bottom: 25,
+                        // left: 10,
+                        top: 0,
+                        bottom: 50.1,
                       ),
                     );
                   },

@@ -88,8 +88,8 @@ class MoveCameraState extends State<MoveCamera> {
                           northeast: const LatLng(-8.982446, 153.823821),
                         ),
                         left: 10,
-                        top: 5,
-                        bottom: 25,
+                        top: 0,
+                        bottom: 100,
                       ),
                     );
                   },

@@ -328,17 +328,38 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "camera#animate":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
-            if let camera = Convert
-                .parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView)
-            {
-                if let duration = arguments["duration"] as? TimeInterval {
-                    mapView.setCamera(camera, withDuration: TimeInterval(duration / 1000),
-                                      animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName
-                                          .easeInEaseOut))
-                    result(nil)
-                }
-                mapView.setCamera(camera, animated: true)
-            }
+            
+            guard let bounds = cameraUpdate[1] as? [[Double]] else { return }
+            
+            guard let paddingLeft = cameraUpdate[2] as? CGFloat else { return }
+            guard let paddingTop = cameraUpdate[3] as? CGFloat else { return }
+            guard let paddingRight = cameraUpdate[4] as? CGFloat else { return }
+            guard let paddingBottom = cameraUpdate[5] as? CGFloat else { return }
+            
+            let insets = UIEdgeInsets(
+                                top: paddingTop,
+                                left: paddingLeft,
+                                bottom: paddingBottom,
+                                right: paddingRight
+                            )
+            
+            mapView.setVisibleCoordinateBounds(MGLCoordinateBounds.fromArray(bounds), edgePadding: insets, animated: true, completionHandler: nil)
+            
+//            let coordinates = [CLLocationCoordinate2DMake(-38.483935, 113.248673),CLLocationCoordinate2DMake(-8.982446, 153.823821),]
+//            mapView.setVisibleCoordinates(coordinates, count: UInt(coordinates.count), edgePadding: UIEdgeInsets( top:0,left:100, bottom:100, right:0), animated: true)
+//            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+//            guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
+//            if let camera = Convert
+//                .parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView)
+//            {
+//                if let duration = arguments["duration"] as? TimeInterval {
+//                    mapView.setCamera(camera, withDuration: TimeInterval(duration / 1000),
+//                                      animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName
+//                                          .easeInEaseOut))
+//                    result(nil)
+//                }
+//                mapView.setCamera(camera, animated: true)
+//            }
             result(nil)
 
         case "symbolLayer#add":

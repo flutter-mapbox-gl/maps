@@ -89,14 +89,22 @@ class Convert {
             guard let paddingTop = cameraUpdate[3] as? CGFloat else { return nil }
             guard let paddingRight = cameraUpdate[4] as? CGFloat else { return nil }
             guard let paddingBottom = cameraUpdate[5] as? CGFloat else { return nil }
+    
+            let insets = UIEdgeInsets(
+                                top: paddingTop,
+                                left: paddingLeft,
+                                bottom: paddingBottom,
+                                right: paddingRight
+                            )
+            print(insets.top)
+            print(insets.bottom)
+            print(insets.left)
+            print(insets.right)
+            mapView.automaticallyAdjustsContentInset = false
+            
             return mapView.cameraThatFitsCoordinateBounds(
                 MGLCoordinateBounds.fromArray(bounds),
-                edgePadding: UIEdgeInsets(
-                    top: paddingTop,
-                    left: paddingLeft,
-                    bottom: paddingBottom,
-                    right: paddingRight
-                )
+                edgePadding: insets
             )
         case "newLatLngZoom":
             guard let coordinate = cameraUpdate[1] as? [Double] else { return nil }
