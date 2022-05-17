@@ -16,12 +16,12 @@ packages:
     source: hosted
     version: "1.2.0"
   collection:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: collection
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.15.0"
+    version: "1.16.0"
   crypto:
     dependency: transitive
     description:
@@ -52,28 +52,35 @@ packages:
       name: js
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.3"
+    version: "0.6.4"
   mapbox_gl_dart:
     dependency: transitive
     description:
       name: mapbox_gl_dart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.0-nullsafety.0"
+    version: "0.2.1"
   mapbox_gl_platform_interface:
     dependency: "direct main"
     description:
       path: mapbox_gl_platform_interface
       relative: true
     source: path
-    version: "0.14.0"
+    version: "0.15.0"
   mapbox_gl_web:
     dependency: "direct main"
     description:
       path: mapbox_gl_web
       relative: true
     source: path
-    version: "0.14.0"
+    version: "0.15.0"
+  material_color_utilities:
+    dependency: transitive
+    description:
+      name: material_color_utilities
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.4"
   meta:
     dependency: transitive
     description:
@@ -113,7 +120,7 @@ packages:
       name: vector_math
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   xml:
     dependency: transitive
     description:
@@ -122,5 +129,5 @@ packages:
     source: hosted
     version: "5.1.0"
 sdks:
-  dart: ">=2.14.0 <3.0.0"
+  dart: ">=2.17.0-0 <3.0.0"
   flutter: ">=2.0.0"
