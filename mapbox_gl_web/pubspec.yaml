@@ -1,7 +1,7 @@
 name: mapbox_gl_web
 description: Web platform implementation of mapbox_gl
 version: 0.15.0
-homepage: https://github.com/Sipioteo/flutter-mapbox-gl
+homepage: https://github.com/Sipioteo/maps_3_0_0
 
 flutter:
   plugin:
@@ -18,7 +18,7 @@ dependencies:
   meta: ^1.1.7
   mapbox_gl_platform_interface:
     git:
-      url: https://github.com/Sipioteo/flutter-mapbox-gl.git
+      url: https://github.com/Sipioteo/maps_3_0_0.git
       path: mapbox_gl_platform_interface
   mapbox_gl_dart: ^0.2.1
   image: ^3.0.0
