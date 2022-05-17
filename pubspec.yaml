@@ -8,11 +8,11 @@ dependencies:
     sdk: flutter
   mapbox_gl_platform_interface:
     git:
-      url: https://github.com/tobrun/flutter-mapbox-gl.git
+      url: https://github.com/Sipioteo/maps_3_0_0.git
       path: mapbox_gl_platform_interface
   mapbox_gl_web:
     git:
-      url: https://github.com/tobrun/flutter-mapbox-gl.git
+      url: https://github.com/Sipioteo/maps_3_0_0.git
       path: mapbox_gl_web
   collection: ^1.15.0
 
