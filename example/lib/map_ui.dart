@@ -346,6 +346,9 @@ class MapUiBodyState extends State<MapUiBody> {
       myLocationEnabled: _myLocationEnabled,
       myLocationTrackingMode: _myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
+      onStyleLoadedCallback: () async {
+        print("onStyleLoadedCallback");
+      },
       onMapClick: (point, latLng) async {
         print(
             "Map click: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
