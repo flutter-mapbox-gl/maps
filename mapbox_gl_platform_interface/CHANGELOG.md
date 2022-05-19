@@ -1,10 +1,19 @@
+## 0.16.0, May 19, 2022
+* Annotation manager moved to dart [#779](https://github.com/flutter-mapbox-gl/maps/pull/779)
+* Fix issue with map disposal on web [#895](https://github.com/flutter-mapbox-gl/maps/pull/895)
+* Add support for layer zoom limits [#934](https://github.com/flutter-mapbox-gl/maps/pull/934)
+* Add and default to Hybrid composition on Android [#916](https://github.com/flutter-mapbox-gl/maps/pull/916)
+* Implement layer filtering [#997](https://github.com/flutter-mapbox-gl/maps/pull/997)
+* Drag event types support added [#987](https://github.com/flutter-mapbox-gl/maps/pull/987)
+* Support filtering on addLayer [#1024](https://github.com/flutter-mapbox-gl/maps/pull/1024)
+
 ## 0.15.0, January 13, 2022
-* Callbacks added to onFeatureTapped will now also get the position (`Point<double>`) and the location (`LatLng`) of the click passed when called [#798](https://github.com/flutter-mapbox-gl/maps/pull/798) 
+* Callbacks added to onFeatureTapped will now also get the position (`Point<double>`) and the location (`LatLng`) of the click passed when called [#798](https://github.com/flutter-mapbox-gl/maps/pull/798)
 * Fix web issues with style loaded, feature tap, add promoteId, pointer change issue [#785](https://github.com/flutter-mapbox-gl/maps/pull/785)
 * Full style source support [#797](https://github.com/flutter-mapbox-gl/maps/pull/797)
 
 ## 0.14.0, November 13, 2021
-* Remove memory leaks by disposing internal components [#706](https://github.com/tobrun/flutter-mapbox-gl/pull/706) 
+* Remove memory leaks by disposing internal components [#706](https://github.com/tobrun/flutter-mapbox-gl/pull/706)
 * Add support for Layers, properties and expressions backed by GeoJsonSource [#723](https://github.com/tobrun/flutter-mapbox-gl/pull/723)
 * Add attribution button gravity, position normally [#731](https://github.com/tobrun/flutter-mapbox-gl/pull/731)
 * Remove MapboxGlPlatform.getInstance [#710](https://github.com/tobrun/flutter-mapbox-gl/pull/710)

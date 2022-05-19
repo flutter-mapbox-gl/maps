@@ -1,5 +1,16 @@
+## 0.16.0, May 19, 2022
+* Fix type issues in query rendered features in rect [#862](https://github.com/flutter-mapbox-gl/maps/pull/862)
+* Annotation manager moved to dart [#779](https://github.com/flutter-mapbox-gl/maps/pull/779)
+* Fix issue with map disposal on web [#895](https://github.com/flutter-mapbox-gl/maps/pull/895)
+* Fix for rescale issues on web [#896](https://github.com/flutter-mapbox-gl/maps/pull/896)
+* Upgraded mapbox gl js to 2.7.0 [#889](https://github.com/flutter-mapbox-gl/maps/pull/889)
+* Add support for layer zoom limits [#934](https://github.com/flutter-mapbox-gl/maps/pull/934)
+* Implement layer filtering [#997](https://github.com/flutter-mapbox-gl/maps/pull/997)
+* Drag event types support added [#987](https://github.com/flutter-mapbox-gl/maps/pull/987)
+* Support filtering on addLayer [#1024](https://github.com/flutter-mapbox-gl/maps/pull/1024)
+
 ## 0.15.0, January 13, 2022
-* Callbacks added to onFeatureTapped will now also get the position (`Point<double>`) and the location (`LatLng`) of the click passed when called [#798](https://github.com/flutter-mapbox-gl/maps/pull/798) 
+* Callbacks added to onFeatureTapped will now also get the position (`Point<double>`) and the location (`LatLng`) of the click passed when called [#798](https://github.com/flutter-mapbox-gl/maps/pull/798)
 * Fix web issues with style loaded, feature tap, add promoteId, pointer change issue [#785](https://github.com/flutter-mapbox-gl/maps/pull/785)
 * Add check for Dart formatting [#803](https://github.com/flutter-mapbox-gl/maps/pull/803)
 * Remove unnecessary print of style height and width [#847](https://github.com/flutter-mapbox-gl/maps/pull/847)
