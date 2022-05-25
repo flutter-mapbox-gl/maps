@@ -70,8 +70,16 @@ curl: (22) The requested URL returned error: 401 Unauthorized
 Include the JavaScript and CSS files in the `<head>` of your `index.html` file:
 
 ```
-<script src='https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js'></script>
-<link href='https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' rel='stylesheet' />
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css' rel='stylesheet' />
+
+<style>
+   .mapboxgl-map {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+</style>
 ```
 
 *Note: Look for latest version in [Mapbox GL JS documentation](https://docs.mapbox.com/mapbox-gl-js/guides/).*
