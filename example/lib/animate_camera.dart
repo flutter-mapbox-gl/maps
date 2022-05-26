@@ -79,6 +79,7 @@ class AnimateCameraState extends State<AnimateCamera> {
                           CameraUpdate.newLatLng(
                             const LatLng(56.1725505, 10.1850512),
                           ),
+                          duration: Duration(seconds: 5),
                         )
                         .then((result) => print(
                             "mapController.animateCamera() returned $result"));

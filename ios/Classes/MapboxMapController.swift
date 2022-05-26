@@ -336,8 +336,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                                       animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName
                                           .easeInEaseOut))
                     result(nil)
+                } else {
+                    mapView.setCamera(camera, animated: true)
                 }
-                mapView.setCamera(camera, animated: true)
             }
             result(nil)
 
