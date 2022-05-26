@@ -449,6 +449,46 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
+  /// Add a fill extrusion layer to the map with the given properties
+  ///
+  /// Consider using [addLayer] for an unified layer api.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// If [enableInteraction] is set the layer is considered for touch or drag
+  /// events. [sourceLayer] is used to selected a specific source layer from
+  /// Vector source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
+  /// [filter] determines which features should be rendered in the layer.
+  /// Filters are written as [expressions].
+  ///
+  /// [expressions]: https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions
+  Future<void> addFillExtrusionLayer(
+      String sourceId, String layerId, FillLayerProperties properties,
+      {String? belowLayerId,
+        String? sourceLayer,
+        double? minzoom,
+        double? maxzoom,
+        dynamic filter,
+        bool enableInteraction = true}) async {
+    await _mapboxGlPlatform.addFillExtrusionLayer(
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+      sourceLayer: sourceLayer,
+      minzoom: minzoom,
+      maxzoom: maxzoom,
+      filter: filter,
+      enableInteraction: enableInteraction,
+    );
+  }
+
   /// Add a circle layer to the map with the given properties
   ///
   /// Consider using [addLayer] for an unified layer api.

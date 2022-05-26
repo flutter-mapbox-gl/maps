@@ -1751,6 +1751,161 @@ class FillLayerProperties implements LayerProperties {
   }
 }
 
+class FillExtrusionLayerProperties implements LayerProperties {
+  // Paint Properties
+  /// The opacity of the entire fill extrusion layer. In contrast to the `fill-extrusion-color`,
+  /// this value will also affect the 1px stroke around the fill, if the
+  /// stroke is used.
+  ///
+  /// Type: number
+  ///   default: 1
+  ///   minimum: 0
+  ///   maximum: 1
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
+  final dynamic fillExtrusionOpacity;
+
+  /// The color of the filled part of this layer. This color can be
+  /// specified as `rgba` with an alpha component and the color's opacity
+  /// will not affect the opacity of the 1px stroke, if it is used.
+  ///
+  /// Type: color
+  ///   default: #000000
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
+  final dynamic fillExtrusionColor;
+
+  /// The extrusion base of the extrusion object. Matches the value of `fill-extrusion-base` if
+  /// unspecified.
+  ///
+  /// Type: double
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, ios, macos
+  final dynamic fillExtrusionBase;
+
+  /// Whether to apply a vertical gradient to the sides of a fill-extrusion layer. If
+  /// true, sides will be shaded slightly darker farther down. Matches the value of `fill-extrusion-has-vertical-gradient` if
+  /// unspecified.
+  ///
+  /// Type: bool
+  ///   default: true
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic fillExtrusionHasVerticalGradient;
+
+  /// The height with which to extrude this layer. Matches the value of `fill-extrusion-height` if
+  /// unspecified.
+  ///
+  /// Type: double
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic fillExtrusionHeight;
+
+  /// Name of image in style images to use for drawing image fill-extrusions. For
+  /// seamless patterns, image width and height must be a factor of two (2, 4, 8,
+  /// ..., 512). Matches the value of `fill-extrusion-pattern` if
+  /// unspecified.
+  ///
+  /// Type: resolvedImage
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  ///   data-driven styling with js, android, macos, ios
+  final dynamic fillExtrusionPattern;
+
+  /// The geometry's offset. Matches the value of `fill-extrusion-translation` if
+  /// unspecified.
+  ///
+  /// This property is measured in points.
+  ///
+  /// Type: Point
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js
+  ///   data-driven styling with js
+  final dynamic fillExtrusionTranslation;
+
+  /// Controls the frame of reference for `fillExtrusionTranslation`.
+  ///
+  /// The default value of this property is an expression that evaluates to `map`.
+  /// Set this property to `nil` to reset it to the default value.
+  ///
+  /// This property is measured in points.
+  ///
+  /// Type: string
+  ///   default: map
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js
+  ///   data-driven styling with js
+  final dynamic fillExtrusionTranslationAnchor;
+
+  const FillExtrusionLayerProperties({
+    this.fillExtrusionOpacity,
+    this.fillExtrusionColor,
+    this.fillExtrusionBase,
+    this.fillExtrusionHasVerticalGradient,
+    this.fillExtrusionHeight,
+    this.fillExtrusionPattern,
+    this.fillExtrusionTranslation,
+    this.fillExtrusionTranslationAnchor
+  });
+
+  FillExtrusionLayerProperties copyWith(FillExtrusionLayerProperties changes) {
+    return FillExtrusionLayerProperties(
+      fillExtrusionOpacity: changes.fillExtrusionOpacity ?? fillExtrusionOpacity,
+      fillExtrusionColor: changes.fillExtrusionColor ?? fillExtrusionColor,
+      fillExtrusionBase: changes.fillExtrusionBase ?? fillExtrusionBase,
+      fillExtrusionHasVerticalGradient: changes.fillExtrusionHasVerticalGradient ?? fillExtrusionHasVerticalGradient,
+      fillExtrusionHeight: changes.fillExtrusionHeight ?? fillExtrusionHeight,
+      fillExtrusionPattern: changes.fillExtrusionPattern ?? fillExtrusionPattern,
+      fillExtrusionTranslation: changes.fillExtrusionTranslation ?? fillExtrusionTranslation,
+      fillExtrusionTranslationAnchor: changes.fillExtrusionTranslationAnchor ?? fillExtrusionTranslationAnchor
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = <String, dynamic>{};
+
+    void addIfPresent(String fieldName, dynamic value) {
+      if (value != null) {
+        json[fieldName] = value;
+      }
+    }
+
+    addIfPresent('fill-extrusion-base', fillExtrusionBase);
+    addIfPresent('fill-extrusion-color', fillExtrusionColor);
+    addIfPresent('fill-extrusion-has-vertical-gradient', fillExtrusionHasVerticalGradient);
+    addIfPresent('fill-extrusion-height', fillExtrusionHeight);
+    addIfPresent('fill-extrusion-opacity', fillExtrusionOpacity);
+    addIfPresent('fill-extrusion-pattern', fillExtrusionPattern);
+    addIfPresent('fill-extrusion-translation', fillExtrusionTranslation);
+    addIfPresent('fill-extrusion-translation-anchor', fillExtrusionTranslationAnchor);
+    return json;
+  }
+
+  factory FillExtrusionLayerProperties.fromJson(Map<String, dynamic> json) {
+    return FillExtrusionLayerProperties(
+      fillExtrusionBase: json['fill-extrusion-base'],
+      fillExtrusionColor: json['fill-extrusion-color'],
+      fillExtrusionHasVerticalGradient: json['fill-extrusion-has-vertical-gradient'],
+      fillExtrusionHeight: json['fill-extrusion-height'],
+      fillExtrusionOpacity: json['fill-extrusion-opacity'],
+      fillExtrusionPattern: json['fill-extrusion-pattern'],
+      fillExtrusionTranslation: json['fill-extrusion-translation'],
+      fillExtrusionTranslationAnchor: json['fill-extrusion-translation-anchor'],
+    );
+  }
+}
+
 class RasterLayerProperties implements LayerProperties {
   // Paint Properties
   /// The opacity at which the image will be drawn.
