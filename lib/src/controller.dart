@@ -469,7 +469,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// [expressions]: https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions
   Future<void> addFillExtrusionLayer(
-      String sourceId, String layerId, FillLayerProperties properties,
+      String sourceId, String layerId, FillExtrusionLayerProperties properties,
       {String? belowLayerId,
         String? sourceLayer,
         double? minzoom,
@@ -1212,6 +1212,14 @@ class MapboxMapController extends ChangeNotifier {
       dynamic filter}) async {
     if (properties is FillLayerProperties) {
       addFillLayer(sourceId, layerId, properties,
+          belowLayerId: belowLayerId,
+          enableInteraction: enableInteraction,
+          sourceLayer: sourceLayer,
+          minzoom: minzoom,
+          maxzoom: maxzoom,
+          filter: filter);
+    } else if (properties is FillExtrusionLayerProperties) {
+      addFillExtrusionLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           enableInteraction: enableInteraction,
           sourceLayer: sourceLayer,
