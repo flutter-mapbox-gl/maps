@@ -372,6 +372,47 @@ class LayerPropertyConverter {
     return properties.toArray(new PropertyValue[properties.size()]);
   }
 
+  static PropertyValue[] interpretFillExtrusionLayerProperties(Object o) {
+    final Map<String, String> data = (Map<String, String>) toMap(o);
+    final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
+
+    for (Map.Entry<String, String> entry : data.entrySet()) {
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
+      switch (entry.getKey()) {
+        case "fill-extrusion-base":
+          properties.add(PropertyFactory.fillExtrusionBase(expression));
+          break;
+        case "fill-extrusion-opacity":
+          properties.add(PropertyFactory.fillExtrusionOpacity(expression));
+          break;
+        case "fill-extrusion-color":
+          properties.add(PropertyFactory.fillExtrusionColor(expression));
+          break;
+        case "fill-extrusion-height":
+          properties.add(PropertyFactory.fillExtrusionHeight(expression));
+          break;
+        case "fill-extrusion-translation":
+          properties.add(PropertyFactory.fillExtrusionTranslate(expression));
+          break;
+        case "fill-extrusion-translation-anchor":
+          properties.add(PropertyFactory.fillExtrusionTranslateAnchor(expression));
+          break;
+        case "fill-extrusion-pattern":
+          properties.add(PropertyFactory.fillExtrusionPattern(expression));
+          break;
+        case "fill-extrusion-has-vertical-gradient":
+          properties.add(PropertyFactory.fillExtrusionVerticalGradient(expression));
+          break;
+        default:
+          break;
+      }
+    }
+
+    return properties.toArray(new PropertyValue[properties.size()]);
+  }
+
   static PropertyValue[] interpretRasterLayerProperties(Object o) {
     final Map<String, String> data = (Map<String, String>) toMap(o);
     final List<PropertyValue> properties = new LinkedList();

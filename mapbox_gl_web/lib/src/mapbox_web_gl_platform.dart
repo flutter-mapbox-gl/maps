@@ -949,4 +949,19 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       }
     }
   }
+
+  @override
+  Future<void> addFillExtrusionLayer(
+      String sourceId,
+      String layerId,
+      Map<String, dynamic> properties,
+      {String? belowLayerId,
+        String? sourceLayer,
+        double? minzoom,
+        double? maxzoom,
+        filter,
+        required bool enableInteraction}) {
+    // TODO: implement addFillExtrusionLayer
+    throw UnimplementedError();
+  }
 }

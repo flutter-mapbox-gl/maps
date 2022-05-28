@@ -283,6 +283,39 @@ class LayerPropertyConverter {
         }
     }
 
+    class func addFillExtrusionProperties(
+        fillExtrusionLayer: MGLFillExtrusionStyleLayer,
+        properties: [String: String]
+    ) {
+        for (propertyName, propertyValue) in properties {
+            let expression = interpretExpression(
+                propertyName: propertyName,
+                expression: propertyValue
+            )
+            switch propertyName {
+            case "fill-extrusion-base":
+                fillExtrusionLayer.fillExtrusionBase = expression
+            case "fill-extrusion-color":
+                fillExtrusionLayer.fillExtrusionColor = expression
+            case "fill-extrusion-has-vertical-gradient":
+                fillExtrusionLayer.fillExtrusionHasVerticalGradient = expression
+            case "fill-extrusion-height":
+                fillExtrusionLayer.fillExtrusionHeight = expression
+            case "fill-extrusion-opacity":
+                fillExtrusionLayer.fillExtrusionOpacity = expression
+            case "fill-extrusion-pattern":
+                fillExtrusionLayer.fillExtrusionPattern = expression
+            case "fill-extrusion-translation":
+                fillExtrusionLayer.fillExtrusionTranslation = expression
+            case "fill-extrusion-translation-anchor":
+                fillExtrusionLayer.fillExtrusionTranslationAnchor = expression
+
+            default:
+                break
+            }
+        }
+    }
+
     class func addHillshadeProperties(
         hillshadeLayer: MGLHillshadeStyleLayer,
         properties: [String: String]
