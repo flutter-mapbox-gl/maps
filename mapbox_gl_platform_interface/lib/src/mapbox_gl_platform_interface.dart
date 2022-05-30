@@ -58,6 +58,9 @@ abstract class MapboxGlPlatform {
 
   Future<void> matchMapLanguageWithDeviceDefault();
 
+  void resizeWebMap();
+  void forceResizeWebMap();
+
   Future<void> updateContentInsets(EdgeInsets insets, bool animated);
   Future<void> setMapLanguage(String language);
   Future<void> setTelemetryEnabled(bool enabled);
