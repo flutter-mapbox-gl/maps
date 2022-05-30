@@ -284,4 +284,9 @@ abstract class MapboxGlPlatform {
     throw UnimplementedError(
         'getMetersPerPixelAtLatitude() has not been implemented.');
   }
+
+  Future<String> takeSnap(SnapshotOptions snapshotOptions) async {
+    throw UnimplementedError(
+        'takeSnap() has not been implemented.');
+  }
 }

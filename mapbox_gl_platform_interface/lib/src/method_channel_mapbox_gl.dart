@@ -716,4 +716,16 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       return new Future.error(e);
     }
   }
+
+  @override
+  Future<String> takeSnap(SnapshotOptions snapshotOptions) async {
+    try {
+
+      var uri = await _channel.invokeMethod(
+          'snapshot#takeSnap', snapshotOptions.toJson());
+      return uri;
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
 }

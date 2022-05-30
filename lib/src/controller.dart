@@ -896,4 +896,9 @@ class MapboxMapController extends ChangeNotifier {
     return MapboxGlPlatform.getInstance(_id)
         .getMetersPerPixelAtLatitude(latitude);
   }
+
+  Future<String> takeSnap(SnapshotOptions snapshotOptions) async {
+    return MapboxGlPlatform.getInstance(_id)
+        .takeSnap(snapshotOptions);
+  }
 }

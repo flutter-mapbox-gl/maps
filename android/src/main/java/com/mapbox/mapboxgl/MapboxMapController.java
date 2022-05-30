@@ -34,6 +34,8 @@ import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.telemetry.TelemetryEnabler;
 import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
@@ -68,17 +70,21 @@ import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
+import com.mapbox.mapboxsdk.snapshotter.MapSnapshot;
+import com.mapbox.mapboxsdk.snapshotter.MapSnapshotter;
+import com.mapbox.mapboxsdk.storage.FileSource;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -137,16 +143,18 @@ final class MapboxMapController
   private List<String> annotationOrder;
   private List<String> annotationConsumeTapEvents;
 
+  private Map<String, MapSnapshotter> mSnapshotterMap;
+
   MapboxMapController(
-    int id,
-    Context context,
-    BinaryMessenger messenger,
-    MapboxMapsPlugin.LifecycleProvider lifecycleProvider,
-    MapboxMapOptions options,
-    String accessToken,
-    String styleStringInitial,
-    List<String> annotationOrder,
-    List<String> annotationConsumeTapEvents) {
+          int id,
+          Context context,
+          BinaryMessenger messenger,
+          MapboxMapsPlugin.LifecycleProvider lifecycleProvider,
+          MapboxMapOptions options,
+          String accessToken,
+          String styleStringInitial,
+          List<String> annotationOrder,
+          List<String> annotationConsumeTapEvents) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
@@ -162,6 +170,7 @@ final class MapboxMapController
     methodChannel.setMethodCallHandler(this);
     this.annotationOrder = annotationOrder;
     this.annotationConsumeTapEvents = annotationConsumeTapEvents;
+    this.mSnapshotterMap = new HashMap<>();
   }
 
   @Override
@@ -980,6 +989,72 @@ final class MapboxMapController
         }
         style.removeLayer((String) call.argument("imageLayerId"));
         result.success(null);
+        break;
+      }
+      case "snapshot#takeSnap": {
+        FileSource.getInstance(context).activate();
+        MapSnapshotter.Options snapShotOptions = new MapSnapshotter.Options((int) call.argument("width"), (int) call.argument("height"));
+
+        snapShotOptions.withLogo((boolean) call.argument("withLogo"));
+        Style.Builder styleBuilder = new Style.Builder();
+        if (call.hasArgument("styleUri")) {
+          styleBuilder.fromUri((String) call.argument("styleUri"));
+        } else if (call.hasArgument("styleJson")) {
+          styleBuilder.fromJson((String) call.argument("styleJson"));
+        } else {
+          if (style == null) {
+            result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+          }
+          styleBuilder.fromUri(style.getUri());
+        }
+        snapShotOptions.withStyleBuilder(styleBuilder);
+        if (call.hasArgument("bounds")) {
+          FeatureCollection bounds = FeatureCollection.fromJson((String) call.argument("bounds"));
+          snapShotOptions.withRegion(GeoJSONUtils.toLatLngBounds(bounds));
+        } else if (call.hasArgument("centerCoordinate")) {
+          Feature centerPoint = Feature.fromJson((String) call.argument("centerCoordinate"));
+          CameraPosition cameraPosition = new CameraPosition.Builder()
+                  .target(GeoJSONUtils.toLatLng((Point) centerPoint.geometry()))
+                  .tilt((double) call.argument("pitch"))
+                  .bearing((double) call.argument("heading"))
+                  .zoom((double) call.argument("zoomLevel"))
+                  .build();
+          snapShotOptions.withCameraPosition(cameraPosition);
+        } else {
+          snapShotOptions.withRegion(mapboxMap.getProjection().getVisibleRegion().latLngBounds);
+        }
+
+        final MapSnapshotter snapshotter = new MapSnapshotter(context, snapShotOptions);
+        final String snapshotterID = UUID.randomUUID().toString();
+        mSnapshotterMap.put(snapshotterID, snapshotter);
+
+        snapshotter.start(new MapSnapshotter.SnapshotReadyCallback() {
+          @Override
+          public void onSnapshotReady(MapSnapshot snapshot) {
+            Bitmap bitmap = snapshot.getBitmap();
+
+            String result1;
+            if ((boolean) call.argument("writeToDisk")) {
+              result1 = BitmapUtils.createTempFile(context, bitmap);
+            } else {
+              result1 = BitmapUtils.createBase64(bitmap);
+            }
+
+            if (result1 == null) {
+              result.error("NO_RESULT", "Could not generate snapshot, please check Android logs for more info.", null);
+              return;
+            }
+
+            result.success(result1);
+            mSnapshotterMap.remove(snapshotterID);
+          }
+        }, new MapSnapshotter.ErrorHandler() {
+          @Override
+          public void onError(String error) {
+            result.error("SNAPSHOT_ERROR", error, null);
+            mSnapshotterMap.remove(snapshotterID);
+          }
+        });
         break;
       }
       default:

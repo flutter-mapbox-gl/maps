@@ -9,6 +9,7 @@ import 'package:mapbox_gl_example/custom_marker.dart';
 import 'package:mapbox_gl_example/full_map.dart';
 import 'package:mapbox_gl_example/offline_regions.dart';
 import 'package:mapbox_gl_example/place_batch.dart';
+import 'package:mapbox_gl_example/take_snapshot.dart';
 
 import 'animate_camera.dart';
 import 'annotation_order_maps.dart';
@@ -40,11 +41,12 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   AnnotationOrderPage(),
   CustomMarkerPage(),
   BatchAddPage(),
+  TakeSnapPage(),
 ];
 
 class MapsDemo extends StatelessWidget {
   //FIXME: Add your Mapbox access token here
-  static const String ACCESS_TOKEN = "YOUR_TOKEN_HERE";
+  static const String ACCESS_TOKEN = "pk.eyJ1IjoiaHVuZ3Rybjc1IiwiYSI6ImNraWUwdndkNDFvdjEyenM1aHI4MW03MmUifQ.wxzz5LIISMr_qcmdc4U-Cg";
 
   void _pushPage(BuildContext context, ExamplePage page) async {
     if (!kIsWeb) {
