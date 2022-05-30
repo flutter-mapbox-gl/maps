@@ -717,6 +717,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
             camera.heading = heading.doubleValue
 
+            camera.centerCoordinate = mapView.centerCoordinate
             if arguments["centerCoordinate"] != nil {
                 guard let centerCoordinate = arguments["centerCoordinate"] as? [NSNumber] else {
                     result(FlutterError(code: "invalidArgument", message: "centerCoordinate is not a number list", details: nil))
@@ -736,18 +737,25 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
             let size = CGSize(width: width.doubleValue, height: height.doubleValue)
 
-            guard let styleUri = arguments["styleUri"] as? String else {
-                result(FlutterError(code: "invalidArgument", message: "height is not a number", details: nil))
-                return
+            var styleURL: URL = mapView.styleURL
+            if arguments["styleUri"] != nil {
+                guard let styleUri = arguments["styleUri"] as? String else {
+                    result(FlutterError(code: "invalidArgument", message: "styleUri is not a string", details: nil))
+                    return
+                }
+                styleURL = URL(string: styleUri)!
             }
-            let styleURL = URL(string: styleUri)
+
             let snapshotOptions: MGLMapSnapshotOptions = .init(styleURL: styleURL, camera: camera, size: size)
 
-            guard let zoomLevel = arguments["zoomLevel"] as? NSNumber else {
-                result(FlutterError(code: "invalidArgument", message: "zoomLevel is not a number", details: nil))
-                return
+            snapshotOptions.zoomLevel = mapView.zoomLevel
+            if arguments["zoomLevel"] != nil {
+                guard let zoomLevel = arguments["zoomLevel"] as? NSNumber else {
+                    result(FlutterError(code: "invalidArgument", message: "zoomLevel is not a number", details: nil))
+                    return
+                }
+                snapshotOptions.zoomLevel = zoomLevel.doubleValue
             }
-            snapshotOptions.zoomLevel = zoomLevel.doubleValue
 
             if arguments["bounds"] != nil {
                 guard let bounds = arguments["bounds"] as? [[NSNumber]] else {

@@ -90,9 +90,7 @@ class SnapshotOptions {
       }
     }
     if (centerCoordinate != null &&
-        zoomLevel != null &&
-        heading != null &&
-        pitch != null) {
+        zoomLevel != null) {
       if (Platform.isAndroid) {
         final feature = {
           "type": "Feature",
@@ -115,10 +113,9 @@ class SnapshotOptions {
       }
 
       addIfPresent('zoomLevel', zoomLevel);
-      addIfPresent('pitch', pitch);
-      addIfPresent('heading', heading);
     }
-
+    addIfPresent('pitch', pitch);
+    addIfPresent('heading', heading);
     addIfPresent('styleUri', styleUri);
     addIfPresent('styleJson', styleJson);
     addIfPresent('withLogo', withLogo);

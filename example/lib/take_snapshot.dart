@@ -35,17 +35,15 @@ class FullMapState extends State<TakeSnapshot> {
     final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
 
     final snapshotOptions = SnapshotOptions(
-      width: renderBox.size.width.toInt(),
-      height: renderBox.size.height.toInt(),
+      width: renderBox.size.width,
+      height: renderBox.size.height,
       writeToDisk: true,
       withLogo: false,
     );
     final uri = await mapController?.takeSnap(snapshotOptions);
     debugPrint("Snapshot uri: $uri");
 
-    setState(() {
-      snapshotUri = uri;
-    });
+    _setResult(uri);
   }
 
   void _onTakeSnapWithBounds() async {
@@ -53,25 +51,23 @@ class FullMapState extends State<TakeSnapshot> {
     final bounds = await mapController?.getVisibleRegion();
 
     final snapshotOptions = SnapshotOptions(
-      width: renderBox.size.width.toInt(),
-      height: renderBox.size.height.toInt(),
+      width: renderBox.size.width,
+      height: renderBox.size.height,
       writeToDisk: true,
       withLogo: false,
       bounds: bounds,
     );
     final uri = await mapController?.takeSnap(snapshotOptions);
 
-    setState(() {
-      snapshotUri = uri;
-    });
+    _setResult(uri);
   }
 
   void _onTakeSnapWithCameraPosition() async {
     final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
 
     final snapshotOptions = SnapshotOptions(
-      width: renderBox.size.width.toInt(),
-      height: renderBox.size.height.toInt(),
+      width: renderBox.size.width,
+      height: renderBox.size.height,
       writeToDisk: true,
       withLogo: false,
       centerCoordinate: LatLng(40.79796, -74.126410),
@@ -80,10 +76,15 @@ class FullMapState extends State<TakeSnapshot> {
       heading: 20,
     );
     final uri = await mapController?.takeSnap(snapshotOptions);
+    _setResult(uri);
+  }
 
-    setState(() {
-      snapshotUri = uri;
-    });
+  void _setResult(String? uri) {
+    if (uri != null) {
+      setState(() {
+        snapshotUri = uri.replaceAll("file:", "");
+      });
+    }
   }
 
   @override
@@ -104,7 +105,7 @@ class FullMapState extends State<TakeSnapshot> {
             Container(
               decoration: BoxDecoration(border: Border.all()),
               child: Image.file(
-                File(snapshotUri!.replaceAll("file:", "")),
+                File(snapshotUri!),
                 width: 200,
               ),
             ),
@@ -113,9 +114,14 @@ class FullMapState extends State<TakeSnapshot> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton(onPressed: _onTakeSnap, child: Text("Take Snap")),
-                ElevatedButton(onPressed: _onTakeSnapWithBounds, child: Text("With Bounds")),
-                ElevatedButton(onPressed: _onTakeSnapWithCameraPosition, child: Text("With Camera Position")),
+                ElevatedButton(
+                    onPressed: _onTakeSnap, child: Text("Take Snap")),
+                ElevatedButton(
+                    onPressed: _onTakeSnapWithBounds,
+                    child: Text("With Bounds")),
+                ElevatedButton(
+                    onPressed: _onTakeSnapWithCameraPosition,
+                    child: Text("With Camera Position")),
               ],
             ),
           )
