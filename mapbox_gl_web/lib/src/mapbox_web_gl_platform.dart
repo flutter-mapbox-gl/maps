@@ -966,4 +966,14 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       }
     }
   }
+
+  @override
+  void resizeWebMap() {
+    _onMapResize();
+  }
+
+  @override
+  void forceResizeWebMap() {
+    _map.resize();
+  }
 }

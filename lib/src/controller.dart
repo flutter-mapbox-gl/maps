@@ -257,6 +257,21 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Triggers a resize event for the map on web (ignored on Android or iOS).
+  ///
+  /// Checks first if a resize is required or if it looks like it is already correctly resized.
+  /// If it looks good, the resize call will be skipped.
+  ///
+  /// To force resize map (without any checks) have a look at forceResizeWebMap()
+  void resizeWebMap() {
+    _mapboxGlPlatform.resizeWebMap();
+  }
+
+  /// Triggers a hard map resize event on web and does not check if it is required or not.
+  void forceResizeWebMap() {
+    _mapboxGlPlatform.forceResizeWebMap();
+  }
+
   /// Starts an animated change of the map camera position.
   ///
   /// The returned [Future] completes after the change has been started on the
