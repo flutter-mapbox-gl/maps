@@ -274,12 +274,15 @@ class MapboxMapController extends ChangeNotifier {
 
   /// Starts an animated change of the map camera position.
   ///
+  /// [duration] is the amount of time, that the transition animation should take.
+  ///
   /// The returned [Future] completes after the change has been started on the
   /// platform side.
   /// It returns true if the camera was successfully moved and false if the movement was canceled.
   /// Note: this currently always returns immediately with a value of null on iOS
-  Future<bool?> animateCamera(CameraUpdate cameraUpdate) async {
-    return _mapboxGlPlatform.animateCamera(cameraUpdate);
+  Future<bool?> animateCamera(CameraUpdate cameraUpdate,
+      {Duration? duration}) async {
+    return _mapboxGlPlatform.animateCamera(cameraUpdate, duration: duration);
   }
 
   /// Instantaneously re-position the camera.
