@@ -90,41 +90,44 @@ class FullMapState extends State<TakeSnapshot> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: Stack(
+      body: Column(
         children: [
-          MapboxMap(
-            key: mapKey,
-            accessToken: MapsDemo.ACCESS_TOKEN,
-            onMapCreated: _onMapCreated,
-            initialCameraPosition:
-                const CameraPosition(target: LatLng(0.0, 0.0)),
-            myLocationEnabled: true,
-            styleString: MapboxStyles.SATELLITE,
-          ),
-          if (snapshotUri != null)
-            Container(
-              decoration: BoxDecoration(border: Border.all()),
-              child: Image.file(
-                File(snapshotUri!),
-                width: 200,
-              ),
-            ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Expanded(
+            child: Stack(
               children: [
-                ElevatedButton(
-                    onPressed: _onTakeSnap, child: Text("Take Snap")),
-                ElevatedButton(
-                    onPressed: _onTakeSnapWithBounds,
-                    child: Text("With Bounds")),
-                ElevatedButton(
-                    onPressed: _onTakeSnapWithCameraPosition,
-                    child: Text("With Camera Position")),
+                MapboxMap(
+                  key: mapKey,
+                  accessToken: MapsDemo.ACCESS_TOKEN,
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition:
+                      const CameraPosition(target: LatLng(0.0, 0.0)),
+                  myLocationEnabled: true,
+                  styleString: MapboxStyles.SATELLITE,
+                ),
+                if (snapshotUri != null)
+                  Container(
+                    decoration: BoxDecoration(border: Border.all()),
+                    child: Image.file(
+                      File(snapshotUri!),
+                      width: 200,
+                    ),
+                  ),
               ],
             ),
-          )
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                  onPressed: _onTakeSnap, child: Text("Take Snap")),
+              ElevatedButton(
+                  onPressed: _onTakeSnapWithBounds,
+                  child: Text("With Bounds")),
+              ElevatedButton(
+                  onPressed: _onTakeSnapWithCameraPosition,
+                  child: Text("With Camera Position")),
+            ],
+          ),
         ],
       ),
     );

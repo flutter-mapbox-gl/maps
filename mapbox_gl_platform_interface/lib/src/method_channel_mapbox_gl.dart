@@ -2,6 +2,7 @@ part of mapbox_gl_platform_interface;
 
 class MethodChannelMapboxGl extends MapboxGlPlatform {
   late MethodChannel _channel;
+  static bool useHybridComposition = false;
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
@@ -11,30 +12,43 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           onInfoWindowTappedPlatform(symbolId);
         }
         break;
-      case 'symbol#onTap':
-        final String? symbolId = call.arguments['symbol'];
-        if (symbolId != null) {
-          onSymbolTappedPlatform(symbolId);
-        }
+
+      case 'feature#onTap':
+        final id = call.arguments['id'];
+        final double x = call.arguments['x'];
+        final double y = call.arguments['y'];
+        final double lng = call.arguments['lng'];
+        final double lat = call.arguments['lat'];
+        onFeatureTappedPlatform({
+          'id': id,
+          'point': Point<double>(x, y),
+          'latLng': LatLng(lat, lng)
+        });
         break;
-      case 'line#onTap':
-        final String? lineId = call.arguments['line'];
-        if (lineId != null) {
-          onLineTappedPlatform(lineId);
-        }
+      case 'feature#onDrag':
+        final id = call.arguments['id'];
+        final double x = call.arguments['x'];
+        final double y = call.arguments['y'];
+        final double originLat = call.arguments['originLat'];
+        final double originLng = call.arguments['originLng'];
+
+        final double currentLat = call.arguments['currentLat'];
+        final double currentLng = call.arguments['currentLng'];
+
+        final double deltaLat = call.arguments['deltaLat'];
+        final double deltaLng = call.arguments['deltaLng'];
+        final String eventType = call.arguments['eventType'];
+
+        onFeatureDraggedPlatform({
+          'id': id,
+          'point': Point<double>(x, y),
+          'origin': LatLng(originLat, originLng),
+          'current': LatLng(currentLat, currentLng),
+          'delta': LatLng(deltaLat, deltaLng),
+          'eventType': eventType,
+        });
         break;
-      case 'circle#onTap':
-        final String? circleId = call.arguments['circle'];
-        if (circleId != null) {
-          onCircleTappedPlatform(circleId);
-        }
-        break;
-      case 'fill#onTap':
-        final String? fillId = call.arguments['fill'];
-        if (fillId != null) {
-          onFillTappedPlatform(fillId);
-        }
-        break;
+
       case 'camera#onMoveStarted':
         onCameraMoveStartedPlatform(null);
         break;
@@ -67,6 +81,9 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         onMapLongClickPlatform(
             {'point': Point<double>(x, y), 'latLng': LatLng(lat, lng)});
 
+        break;
+      case 'map#onAttributionClick':
+        onAttributionClickPlatform(null);
         break;
       case 'map#onCameraTrackingChanged':
         final int mode = call.arguments['mode'];
@@ -114,8 +131,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<void> initPlatform(int id) async {
     _channel = MethodChannel('plugins.flutter.io/mapbox_maps_$id');
-    await _channel.invokeMethod('map#waitForMap');
     _channel.setMethodCallHandler(_handleMethodCall);
+    await _channel.invokeMethod('map#waitForMap');
   }
 
   @override
@@ -124,13 +141,50 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       OnPlatformViewCreatedCallback onPlatformViewCreated,
       Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers) {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return AndroidView(
-        viewType: 'plugins.flutter.io/mapbox_gl',
-        onPlatformViewCreated: onPlatformViewCreated,
-        gestureRecognizers: gestureRecognizers,
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-      );
+      if (useHybridComposition) {
+        return PlatformViewLink(
+          viewType: 'plugins.flutter.io/mapbox_gl',
+          surfaceFactory: (
+            BuildContext context,
+            PlatformViewController controller,
+          ) {
+            return AndroidViewSurface(
+              controller: controller as AndroidViewController,
+              gestureRecognizers: gestureRecognizers ??
+                  const <Factory<OneSequenceGestureRecognizer>>{},
+              hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+            );
+          },
+          onCreatePlatformView: (PlatformViewCreationParams params) {
+            final SurfaceAndroidViewController controller =
+                PlatformViewsService.initSurfaceAndroidView(
+              id: params.id,
+              viewType: 'plugins.flutter.io/mapbox_gl',
+              layoutDirection: TextDirection.ltr,
+              creationParams: creationParams,
+              creationParamsCodec: const StandardMessageCodec(),
+              onFocus: () => params.onFocusChanged(true),
+            );
+            controller.addOnPlatformViewCreatedListener(
+              params.onPlatformViewCreated,
+            );
+            controller.addOnPlatformViewCreatedListener(
+              onPlatformViewCreated,
+            );
+
+            controller.create();
+            return controller;
+          },
+        );
+      } else {
+        return AndroidView(
+          viewType: 'plugins.flutter.io/mapbox_gl',
+          onPlatformViewCreated: onPlatformViewCreated,
+          gestureRecognizers: gestureRecognizers,
+          creationParams: creationParams,
+          creationParamsCodec: const StandardMessageCodec(),
+        );
+      }
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return UiKitView(
         viewType: 'plugins.flutter.io/mapbox_gl',
@@ -157,9 +211,10 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<bool?> animateCamera(cameraUpdate) async {
+  Future<bool?> animateCamera(cameraUpdate, {Duration? duration}) async {
     return await _channel.invokeMethod('camera#animate', <String, dynamic>{
       'cameraUpdate': cameraUpdate.toJson(),
+      'duration': duration?.inMilliseconds,
     });
   }
 
@@ -217,235 +272,6 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<List<Symbol>> addSymbols(List<SymbolOptions> options,
-      [List<Map>? data]) async {
-    final List<dynamic> symbolIds = await _channel.invokeMethod(
-      'symbols#addAll',
-      <String, dynamic>{
-        'options': options.map((o) => o.toJson()).toList(),
-      },
-    );
-    final List<Symbol> symbols = symbolIds
-        .asMap()
-        .map((i, id) => MapEntry(
-            i,
-            Symbol(id, options.elementAt(i),
-                data != null && data.length > i ? data.elementAt(i) : null)))
-        .values
-        .toList();
-
-    return symbols;
-  }
-
-  @override
-  Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
-    await _channel.invokeMethod('symbol#update', <String, dynamic>{
-      'symbol': symbol.id,
-      'options': changes.toJson(),
-    });
-  }
-
-  @override
-  Future<LatLng> getSymbolLatLng(Symbol symbol) async {
-    Map mapLatLng =
-        await _channel.invokeMethod('symbol#getGeometry', <String, dynamic>{
-      'symbol': symbol._id,
-    });
-    LatLng symbolLatLng =
-        new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
-    return symbolLatLng;
-  }
-
-  @override
-  Future<void> removeSymbols(Iterable<String> ids) async {
-    await _channel.invokeMethod('symbols#removeAll', <String, dynamic>{
-      'ids': ids.toList(),
-    });
-  }
-
-  @override
-  Future<Line> addLine(LineOptions options, [Map? data]) async {
-    final String lineId = await _channel.invokeMethod(
-      'line#add',
-      <String, dynamic>{
-        'options': options.toJson(),
-      },
-    );
-    return Line(lineId, options, data);
-  }
-
-  @override
-  Future<List<Line>> addLines(List<LineOptions> options,
-      [List<Map>? data]) async {
-    final List<dynamic> ids = await _channel.invokeMethod(
-      'line#addAll',
-      <String, dynamic>{
-        'options': options.map((o) => o.toJson()).toList(),
-      },
-    );
-    final List<Line> lines = ids
-        .asMap()
-        .map((i, id) => MapEntry(
-            i,
-            Line(id, options.elementAt(i),
-                data != null && data.length > i ? data.elementAt(i) : null)))
-        .values
-        .toList();
-
-    return lines;
-  }
-
-  @override
-  Future<void> updateLine(Line line, LineOptions changes) async {
-    await _channel.invokeMethod('line#update', <String, dynamic>{
-      'line': line.id,
-      'options': changes.toJson(),
-    });
-  }
-
-  @override
-  Future<List<LatLng>> getLineLatLngs(Line line) async {
-    List latLngList =
-        await _channel.invokeMethod('line#getGeometry', <String, dynamic>{
-      'line': line._id,
-    });
-    List<LatLng> resultList = [];
-    for (var latLng in latLngList) {
-      resultList.add(LatLng(latLng['latitude'], latLng['longitude']));
-    }
-    return resultList;
-  }
-
-  @override
-  Future<void> removeLine(String lineId) async {
-    await _channel.invokeMethod('line#remove', <String, dynamic>{
-      'line': lineId,
-    });
-  }
-
-  @override
-  Future<void> removeLines(Iterable<String> ids) async {
-    await _channel.invokeMethod('line#removeAll', <String, dynamic>{
-      'ids': ids.toList(),
-    });
-  }
-
-  @override
-  Future<Circle> addCircle(CircleOptions options, [Map? data]) async {
-    final String circleId = await _channel.invokeMethod(
-      'circle#add',
-      <String, dynamic>{
-        'options': options.toJson(),
-      },
-    );
-    return Circle(circleId, options, data);
-  }
-
-  @override
-  Future<List<Circle>> addCircles(List<CircleOptions> options,
-      [List<Map>? data]) async {
-    final List<dynamic> ids = await _channel.invokeMethod(
-      'circle#addAll',
-      <String, dynamic>{
-        'options': options.map((o) => o.toJson()).toList(),
-      },
-    );
-    return ids
-        .asMap()
-        .map((i, id) => MapEntry(
-            i,
-            Circle(id, options.elementAt(i),
-                data != null && data.length > i ? data.elementAt(i) : null)))
-        .values
-        .toList();
-  }
-
-  @override
-  Future<void> updateCircle(Circle circle, CircleOptions changes) async {
-    await _channel.invokeMethod('circle#update', <String, dynamic>{
-      'circle': circle.id,
-      'options': changes.toJson(),
-    });
-  }
-
-  @override
-  Future<LatLng> getCircleLatLng(Circle circle) async {
-    Map mapLatLng =
-        await _channel.invokeMethod('circle#getGeometry', <String, dynamic>{
-      'circle': circle.id,
-    });
-    return LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
-  }
-
-  @override
-  Future<void> removeCircle(String circleId) async {
-    await _channel.invokeMethod('circle#remove', <String, dynamic>{
-      'circle': circleId,
-    });
-  }
-
-  @override
-  Future<void> removeCircles(Iterable<String> ids) async {
-    await _channel.invokeMethod('circle#removeAll', <String, dynamic>{
-      'ids': ids.toList(),
-    });
-  }
-
-  @override
-  Future<Fill> addFill(FillOptions options, [Map? data]) async {
-    final String fillId = await _channel.invokeMethod(
-      'fill#add',
-      <String, dynamic>{
-        'options': options.toJson(),
-      },
-    );
-    return Fill(fillId, options, data);
-  }
-
-  @override
-  Future<List<Fill>> addFills(List<FillOptions> options,
-      [List<Map>? data]) async {
-    final List<dynamic> ids = await _channel.invokeMethod(
-      'fill#addAll',
-      <String, dynamic>{
-        'options': options.map((o) => o.toJson()).toList(),
-      },
-    );
-    final List<Fill> fills = ids
-        .asMap()
-        .map((i, id) => MapEntry(
-            i,
-            Fill(id, options.elementAt(i),
-                data != null && data.length > i ? data.elementAt(i) : null)))
-        .values
-        .toList();
-
-    return fills;
-  }
-
-  @override
-  Future<void> updateFill(Fill fill, FillOptions changes) async {
-    await _channel.invokeMethod('fill#update', <String, dynamic>{
-      'fill': fill.id,
-      'options': changes.toJson(),
-    });
-  }
-
-  @override
-  Future<void> removeFill(String fillId) async {
-    await _channel.invokeMethod('fill#remove', <String, dynamic>{
-      'fill': fillId,
-    });
-  }
-
-  @override
-  Future<void> removeFills(Iterable<String> ids) async {
-    await _channel.invokeMethod('fill#removeAll', <String, dynamic>{
-      'ids': ids.toList(),
-    });
-  }
-
-  @override
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, List<Object>? filter) async {
     try {
@@ -498,7 +324,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<LatLng> requestMyLocationLatLng() async {
     try {
-      final Map<Object, Object> reply = await _channel.invokeMethod(
+      final Map<dynamic, dynamic> reply = await _channel.invokeMethod(
           'locationComponent#getLastLocation', null);
       double latitude = 0.0, longitude = 0.0;
       if (reply.containsKey('latitude') && reply['latitude'] != null) {
@@ -538,54 +364,6 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         'bytes': bytes,
         'length': bytes.length,
         'sdf': sdf
-      });
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  @override
-  Future<void> setSymbolIconAllowOverlap(bool enable) async {
-    try {
-      await _channel
-          .invokeMethod('symbolManager#iconAllowOverlap', <String, dynamic>{
-        'iconAllowOverlap': enable,
-      });
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  @override
-  Future<void> setSymbolIconIgnorePlacement(bool enable) async {
-    try {
-      await _channel
-          .invokeMethod('symbolManager#iconIgnorePlacement', <String, dynamic>{
-        'iconIgnorePlacement': enable,
-      });
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  @override
-  Future<void> setSymbolTextAllowOverlap(bool enable) async {
-    try {
-      await _channel
-          .invokeMethod('symbolManager#textAllowOverlap', <String, dynamic>{
-        'textAllowOverlap': enable,
-      });
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  @override
-  Future<void> setSymbolTextIgnorePlacement(bool enable) async {
-    try {
-      await _channel
-          .invokeMethod('symbolManager#textIgnorePlacement', <String, dynamic>{
-        'textIgnorePlacement': enable,
       });
     } on PlatformException catch (e) {
       return new Future.error(e);
@@ -644,47 +422,64 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
-  Future<void> removeImageSource(String imageSourceId) async {
-    try {
-      return await _channel.invokeMethod('style#removeImageSource',
-          <String, Object>{'imageSourceId': imageSourceId});
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  @override
-  Future<void> addLayer(String imageLayerId, String imageSourceId) async {
-    try {
-      return await _channel.invokeMethod('style#addLayer', <String, Object>{
-        'imageLayerId': imageLayerId,
-        'imageSourceId': imageSourceId
-      });
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  @override
-  Future<void> addLayerBelow(
-      String imageLayerId, String imageSourceId, String belowLayerId) async {
-    try {
-      return await _channel
-          .invokeMethod('style#addLayerBelow', <String, Object>{
-        'imageLayerId': imageLayerId,
-        'imageSourceId': imageSourceId,
-        'belowLayerId': belowLayerId
-      });
-    } on PlatformException catch (e) {
-      return new Future.error(e);
-    }
-  }
-
-  @override
-  Future<void> removeLayer(String imageLayerId) async {
+  Future<void> removeSource(String sourceId) async {
     try {
       return await _channel.invokeMethod(
-          'style#removeLayer', <String, Object>{'imageLayerId': imageLayerId});
+        'style#removeSource',
+        <String, Object>{'sourceId': sourceId},
+      );
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> addLayer(String imageLayerId, String imageSourceId,
+      double? minzoom, double? maxzoom) async {
+    try {
+      return await _channel.invokeMethod('style#addLayer', <String, dynamic>{
+        'imageLayerId': imageLayerId,
+        'imageSourceId': imageSourceId,
+        'minzoom': minzoom,
+        'maxzoom': maxzoom
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> addLayerBelow(String imageLayerId, String imageSourceId,
+      String belowLayerId, double? minzoom, double? maxzoom) async {
+    try {
+      return await _channel
+          .invokeMethod('style#addLayerBelow', <String, dynamic>{
+        'imageLayerId': imageLayerId,
+        'imageSourceId': imageSourceId,
+        'belowLayerId': belowLayerId,
+        'minzoom': minzoom,
+        'maxzoom': maxzoom
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> removeLayer(String layerId) async {
+    try {
+      return await _channel.invokeMethod(
+          'style#removeLayer', <String, Object>{'layerId': layerId});
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
+  Future<void> setFilter(String layerId, dynamic filter) async {
+    try {
+      return await _channel.invokeMethod('style#setFilter',
+          <String, Object>{'layerId': layerId, 'filter': jsonEncode(filter)});
     } on PlatformException catch (e) {
       return new Future.error(e);
     }
@@ -716,6 +511,180 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       return new Future.error(e);
     }
   }
+
+  @override
+  Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
+      {String? promoteId}) async {
+    await _channel.invokeMethod('source#addGeoJson', <String, dynamic>{
+      'sourceId': sourceId,
+      'geojson': jsonEncode(geojson),
+    });
+  }
+
+  @override
+  Future<void> setGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojson) async {
+    await _channel.invokeMethod('source#setGeoJson', <String, dynamic>{
+      'sourceId': sourceId,
+      'geojson': jsonEncode(geojson),
+    });
+  }
+
+  @override
+  Future<void> addSymbolLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      required bool enableInteraction}) async {
+    await _channel.invokeMethod('symbolLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'sourceLayer': sourceLayer,
+      'minzoom': minzoom,
+      'maxzoom': maxzoom,
+      'filter': jsonEncode(filter),
+      'enableInteraction': enableInteraction,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
+  Future<void> addLineLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      required bool enableInteraction}) async {
+    await _channel.invokeMethod('lineLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'sourceLayer': sourceLayer,
+      'minzoom': minzoom,
+      'maxzoom': maxzoom,
+      'filter': jsonEncode(filter),
+      'enableInteraction': enableInteraction,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
+  Future<void> addCircleLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      required bool enableInteraction}) async {
+    await _channel.invokeMethod('circleLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'sourceLayer': sourceLayer,
+      'minzoom': minzoom,
+      'maxzoom': maxzoom,
+      'filter': jsonEncode(filter),
+      'enableInteraction': enableInteraction,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
+  Future<void> addFillLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      required bool enableInteraction}) async {
+    await _channel.invokeMethod('fillLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'sourceLayer': sourceLayer,
+      'minzoom': minzoom,
+      'maxzoom': maxzoom,
+      'filter': jsonEncode(filter),
+      'enableInteraction': enableInteraction,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _channel.setMethodCallHandler(null);
+  }
+
+  @override
+  Future<void> addSource(String sourceId, SourceProperties properties) async {
+    await _channel.invokeMethod('style#addSource', <String, dynamic>{
+      'sourceId': sourceId,
+      'properties': properties.toJson(),
+    });
+  }
+
+  @override
+  Future<void> addRasterLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
+    await _channel.invokeMethod('rasterLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'minzoom': minzoom,
+      'maxzoom': maxzoom,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
+  Future<void> addHillshadeLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
+    await _channel.invokeMethod('hillshadeLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'minzoom': minzoom,
+      'maxzoom': maxzoom,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  Future<void> setFeatureForGeoJsonSource(
+      String sourceId, Map<String, dynamic> geojsonFeature) async {
+    await _channel.invokeMethod('source#setFeature', <String, dynamic>{
+      'sourceId': sourceId,
+      'geojsonFeature': jsonEncode(geojsonFeature)
+    });
+  }
+
+  @override
+  void forceResizeWebMap() {}
+
+  @override
+  void resizeWebMap() {}
 
   @override
   Future<String> takeSnap(SnapshotOptions snapshotOptions) async {

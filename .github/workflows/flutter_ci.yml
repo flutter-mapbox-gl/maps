@@ -16,6 +16,42 @@ jobs:
     - run: flutter pub get
     - name: Lint analysis
       run: cd example && flutter analyze
+      
+  check-dart-formatting:
+    name: "Check Dart formatting"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: subosito/flutter-action@v1
+    - name: Check Dart formatting 
+      run: flutter format --set-exit-if-changed .
+
+  check-swift-formatting:
+    name: "Check Swift formatting"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: get SwiftFormat
+      run: wget https://github.com/nicklockwood/SwiftFormat/releases/download/0.48.18/swiftformat_linux.zip
+    - run: unzip swiftformat_linux.zip
+    - run: chmod +x swiftformat_linux
+    - name: Check Swift formatting 
+      run: ./swiftformat_linux --swiftversion 4.2 --maxwidth 100 --lint ios
+
+  check-java-formatting:
+    name: "Check Java formatting"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: get google-java-format
+      run: wget https://github.com/google/google-java-format/releases/download/v1.13.0/google-java-format-1.13.0-all-deps.jar
+    - run: java --version
+    - name: Check Java formatting 
+      run: java -jar google-java-format-1.13.0-all-deps.jar --set-exit-if-changed -n $(find . -type f -name "*.java")
+
 
   build-android:
     environment: ANDROID_CI_DOWNLOADS_TOKEN
@@ -27,7 +63,9 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: '12.x'
-    - uses: subosito/flutter-action@v1
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '2.10.5'
     - run: flutter pub get
     - name: Build example APK
       run: cd example && flutter build apk
@@ -44,18 +82,21 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: '12.x'
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '2.10.5'
       - run: flutter pub get
       - name: build iOS package
         run: |
           echo "machine api.mapbox.com
           login mapbox
           password $SDK_REGISTRY_TOKEN" >> ~/.netrc
+          chmod 600 ~/.netrc
           cd ./example
           flutter build ios --release --no-codesign
         env:
           SDK_REGISTRY_TOKEN: ${{ secrets.SDK_REGISTRY_IOS}}
-          
+
   build-web:
     name: "Build web"
     runs-on: ubuntu-latest
@@ -66,8 +107,6 @@ jobs:
       with:
         java-version: '12.x'
     - uses: subosito/flutter-action@v1
-      with:
-        channel: beta
     - run: flutter config --enable-web
     - run: flutter pub get
     - name: Build web

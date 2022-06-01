@@ -34,6 +34,22 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   static final LatLng center = const LatLng(-33.86711, 151.1947171);
   final String _fillPatternImage = "assets/fill/cat_silhouette_pattern.png";
 
+  final List<List<LatLng>> _defaultGeometry = [
+    [
+      LatLng(-33.719, 151.150),
+      LatLng(-33.858, 151.150),
+      LatLng(-33.866, 151.401),
+      LatLng(-33.747, 151.328),
+      LatLng(-33.719, 151.150),
+    ],
+    [
+      LatLng(-33.762, 151.250),
+      LatLng(-33.827, 151.250),
+      LatLng(-33.833, 151.347),
+      LatLng(-33.762, 151.250),
+    ]
+  ];
+
   MapboxMapController? controller;
   int _fillCount = 0;
   Fill? _selectedFill;
@@ -41,6 +57,27 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
     controller.onFillTapped.add(_onFillTapped);
+    this.controller!.onFeatureDrag.add(_onFeatureDrag);
+  }
+
+  void _onFeatureDrag(id,
+      {required current,
+      required delta,
+      required origin,
+      required point,
+      required eventType}) {
+    DragEventType type = eventType;
+    switch (type) {
+      case DragEventType.start:
+        // TODO: Handle this case.
+        break;
+      case DragEventType.drag:
+        // TODO: Handle this case.
+        break;
+      case DragEventType.end:
+        // TODO: Handle this case.
+        break;
+    }
   }
 
   void _onStyleLoaded() {
@@ -72,21 +109,10 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
 
   void _add() {
     controller!.addFill(
-      FillOptions(geometry: [
-        [
-          LatLng(-33.719, 151.150),
-          LatLng(-33.858, 151.150),
-          LatLng(-33.866, 151.401),
-          LatLng(-33.747, 151.328),
-          LatLng(-33.719, 151.150),
-        ],
-        [
-          LatLng(-33.762, 151.250),
-          LatLng(-33.827, 151.250),
-          LatLng(-33.833, 151.347),
-          LatLng(-33.762, 151.250),
-        ]
-      ], fillColor: "#FF0000", fillOutlineColor: "#FF0000"),
+      FillOptions(
+          geometry: _defaultGeometry,
+          fillColor: "#FF0000",
+          fillOutlineColor: "#FF0000"),
     );
     setState(() {
       _fillCount += 1;
@@ -102,7 +128,20 @@ class PlaceFillBodyState extends State<PlaceFillBody> {
   }
 
   void _changePosition() {
-    //TODO: Implement change position.
+    List<List<LatLng>>? geometry = _selectedFill!.options.geometry;
+
+    if (geometry == null) {
+      geometry = _defaultGeometry;
+    }
+
+    _updateSelectedFill(FillOptions(
+        geometry: geometry
+            .map((list) => list
+                .map(
+                    // Move to right with 0.1 degree on longitude
+                    (latLng) => LatLng(latLng.latitude, latLng.longitude + 0.1))
+                .toList())
+            .toList()));
   }
 
   void _changeDraggable() {

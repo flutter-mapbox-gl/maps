@@ -7,13 +7,11 @@ package com.mapbox.mapboxgl;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -44,19 +42,23 @@ public class MapboxMapsPlugin implements FlutterPlugin, ActivityAware {
   public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
     flutterAssets = binding.getFlutterAssets();
 
-    MethodChannel methodChannel = new MethodChannel(binding.getBinaryMessenger(), "plugins.flutter.io/mapbox_gl");
+    MethodChannel methodChannel =
+        new MethodChannel(binding.getBinaryMessenger(), "plugins.flutter.io/mapbox_gl");
     methodChannel.setMethodCallHandler(new GlobalMethodHandler(binding));
 
     binding
-      .getPlatformViewRegistry()
-      .registerViewFactory(
-        "plugins.flutter.io/mapbox_gl", new MapboxMapFactory(binding.getBinaryMessenger(), new LifecycleProvider() {
-          @Nullable
-          @Override
-          public Lifecycle getLifecycle() {
-            return lifecycle;
-          }
-        }));
+        .getPlatformViewRegistry()
+        .registerViewFactory(
+            "plugins.flutter.io/mapbox_gl",
+            new MapboxMapFactory(
+                binding.getBinaryMessenger(),
+                new LifecycleProvider() {
+                  @Nullable
+                  @Override
+                  public Lifecycle getLifecycle() {
+                    return lifecycle;
+                  }
+                }));
   }
 
   @Override
@@ -95,34 +97,32 @@ public class MapboxMapsPlugin implements FlutterPlugin, ActivityAware {
     }
     if (activity instanceof LifecycleOwner) {
       registrar
-        .platformViewRegistry()
-        .registerViewFactory(
-          VIEW_TYPE,
-          new MapboxMapFactory(
-            registrar.messenger(),
-            new LifecycleProvider() {
-              @Override
-              public Lifecycle getLifecycle() {
-                return ((LifecycleOwner) activity).getLifecycle();
-              }
-            }));
+          .platformViewRegistry()
+          .registerViewFactory(
+              VIEW_TYPE,
+              new MapboxMapFactory(
+                  registrar.messenger(),
+                  new LifecycleProvider() {
+                    @Override
+                    public Lifecycle getLifecycle() {
+                      return ((LifecycleOwner) activity).getLifecycle();
+                    }
+                  }));
     } else {
       registrar
-        .platformViewRegistry()
-        .registerViewFactory(
-          VIEW_TYPE,
-          new MapboxMapFactory(registrar.messenger(), new ProxyLifecycleProvider(activity)));
+          .platformViewRegistry()
+          .registerViewFactory(
+              VIEW_TYPE,
+              new MapboxMapFactory(registrar.messenger(), new ProxyLifecycleProvider(activity)));
     }
 
-    MethodChannel methodChannel = new MethodChannel(
-      registrar.messenger(),
-      "plugins.flutter.io/mapbox_gl"
-    );
+    MethodChannel methodChannel =
+        new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_gl");
     methodChannel.setMethodCallHandler(new GlobalMethodHandler(registrar));
   }
 
   private static final class ProxyLifecycleProvider
-    implements Application.ActivityLifecycleCallbacks, LifecycleOwner, LifecycleProvider {
+      implements Application.ActivityLifecycleCallbacks, LifecycleOwner, LifecycleProvider {
 
     private final LifecycleRegistry lifecycle = new LifecycleRegistry(this);
     private final int registrarActivityHashCode;
@@ -207,9 +207,9 @@ public class MapboxMapsPlugin implements FlutterPlugin, ActivityAware {
      */
     @NonNull
     public static Lifecycle getActivityLifecycle(
-      @NonNull ActivityPluginBinding activityPluginBinding) {
+        @NonNull ActivityPluginBinding activityPluginBinding) {
       HiddenLifecycleReference reference =
-        (HiddenLifecycleReference) activityPluginBinding.getLifecycle();
+          (HiddenLifecycleReference) activityPluginBinding.getLifecycle();
       return reference.getLifecycle();
     }
   }

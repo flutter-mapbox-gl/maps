@@ -14,6 +14,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart';
+import 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart';
+import 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart';
 
 export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
     show
@@ -33,16 +35,30 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         MyLocationTrackingMode,
         MyLocationRenderMode,
         CompassViewPosition,
+        AttributionButtonPosition,
+        Annotation,
         Circle,
         CircleOptions,
         Line,
         LineOptions,
         Fill,
         FillOptions,
-        SnapshotOptions;
+        SnapshotOptions,
+        SourceProperties,
+        RasterSourceProperties,
+        VectorSourceProperties,
+        RasterDemSourceProperties,
+        GeojsonSourceProperties,
+        VideoSourceProperties,
+        ImageSourceProperties;
 
 part 'src/controller.dart';
 part 'src/mapbox_map.dart';
 part 'src/global.dart';
 part 'src/offline_region.dart';
 part 'src/download_region_status.dart';
+part 'src/layer_expressions.dart';
+part 'src/layer_properties.dart';
+part 'src/color_tools.dart';
+part 'src/annotation_manager.dart';
+part 'src/util.dart';

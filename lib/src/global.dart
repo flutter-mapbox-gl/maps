@@ -18,6 +18,8 @@ Future<void> installOfflineMapTiles(String tilesDb) async {
   );
 }
 
+enum DragEventType { start, drag, end }
+
 Future<dynamic> setOffline(
   bool offline, {
   String? accessToken,
@@ -29,6 +31,15 @@ Future<dynamic> setOffline(
         'accessToken': accessToken,
       },
     );
+
+Future<void> setHttpHeaders(Map<String, String> headers) {
+  return _globalChannel.invokeMethod(
+    'setHttpHeaders',
+    <String, dynamic>{
+      'headers': headers,
+    },
+  );
+}
 
 Future<List<OfflineRegion>> mergeOfflineRegions(
   String path, {
@@ -100,8 +111,8 @@ Future<OfflineRegion> downloadOfflineRegion(
   String channelName =
       'downloadOfflineRegion_${DateTime.now().microsecondsSinceEpoch}';
 
-  final result =
-      _globalChannel.invokeMethod('downloadOfflineRegion', <String, dynamic>{
+  final result = await _globalChannel
+      .invokeMethod('downloadOfflineRegion', <String, dynamic>{
     'accessToken': accessToken,
     'channelName': channelName,
     'definition': definition.toMap(),
@@ -153,5 +164,5 @@ Future<OfflineRegion> downloadOfflineRegion(
     });
   }
 
-  return OfflineRegion.fromMap(json.decode(await result));
+  return OfflineRegion.fromMap(json.decode(result));
 }

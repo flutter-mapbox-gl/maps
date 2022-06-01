@@ -6,7 +6,7 @@
 
 part of mapbox_gl_platform_interface;
 
-class Circle {
+class Circle implements Annotation {
   Circle(this._id, this.options, [this._data]);
 
   /// A unique identifier for this circle.
@@ -24,6 +24,21 @@ class Circle {
   /// The returned value does not reflect any changes made to the circle through
   /// touch events. Add listeners to the owning map controller to track those.
   CircleOptions options;
+
+  @override
+  Map<String, dynamic> toGeoJson() {
+    final geojson = options.toGeoJson();
+    geojson["id"] = id;
+    geojson["properties"]["id"] = id;
+
+    return geojson;
+  }
+
+  @override
+  void translate(LatLng delta) {
+    options = options
+        .copyWith(CircleOptions(geometry: this.options.geometry! + delta));
+  }
 }
 
 /// Configuration options for [Circle] instances.
@@ -73,7 +88,7 @@ class CircleOptions {
     );
   }
 
-  dynamic toJson() {
+  dynamic toJson([bool addGeometry = true]) {
     final Map<String, dynamic> json = <String, dynamic>{};
 
     void addIfPresent(String fieldName, dynamic value) {
@@ -89,8 +104,21 @@ class CircleOptions {
     addIfPresent('circleStrokeWidth', circleStrokeWidth);
     addIfPresent('circleStrokeColor', circleStrokeColor);
     addIfPresent('circleStrokeOpacity', circleStrokeOpacity);
-    addIfPresent('geometry', geometry?.toJson());
+    if (addGeometry) {
+      addIfPresent('geometry', geometry?.toJson());
+    }
     addIfPresent('draggable', draggable);
     return json;
+  }
+
+  Map<String, dynamic> toGeoJson() {
+    return {
+      "type": "Feature",
+      "properties": toJson(false),
+      "geometry": {
+        "type": "Point",
+        "coordinates": geometry!.toGeoJsonCoordinates()
+      }
+    };
   }
 }
