@@ -23,6 +23,8 @@ class TakeSnapshot extends StatefulWidget {
 }
 
 class FullMapState extends State<TakeSnapshot> {
+  FullMapState();
+
   MapboxMapController? mapController;
   final mapKey = GlobalKey();
   String? snapshotUri;
@@ -89,47 +91,54 @@ class FullMapState extends State<TakeSnapshot> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                MapboxMap(
-                  key: mapKey,
-                  accessToken: MapsDemo.ACCESS_TOKEN,
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition:
-                      const CameraPosition(target: LatLng(0.0, 0.0)),
-                  myLocationEnabled: true,
-                  styleString: MapboxStyles.SATELLITE,
-                ),
-                if (snapshotUri != null)
-                  Container(
-                    decoration: BoxDecoration(border: Border.all()),
-                    child: Image.file(
-                      File(snapshotUri!),
-                      width: 200,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final height = MediaQuery.of(context).size.height;
+    return Column(
+      children: [
+        Expanded(
+          child: Stack(
             children: [
-              ElevatedButton(
-                  onPressed: _onTakeSnap, child: Text("Take Snap")),
-              ElevatedButton(
-                  onPressed: _onTakeSnapWithBounds,
-                  child: Text("With Bounds")),
-              ElevatedButton(
-                  onPressed: _onTakeSnapWithCameraPosition,
-                  child: Text("With Camera Position")),
+              MapboxMap(
+                key: mapKey,
+                accessToken: MapsDemo.ACCESS_TOKEN,
+                onMapCreated: _onMapCreated,
+                initialCameraPosition:
+                    const CameraPosition(target: LatLng(0.0, 0.0)),
+                myLocationEnabled: true,
+                styleString: MapboxStyles.SATELLITE,
+
+              ),
             ],
           ),
-        ],
-      ),
+        ),
+        Container(
+          height: height * 0.4,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                      onPressed: _onTakeSnap, child: Text("Take Snap")),
+                  ElevatedButton(
+                      onPressed: _onTakeSnapWithBounds,
+                      child: Text("With Bounds")),
+                  ElevatedButton(
+                      onPressed: _onTakeSnapWithCameraPosition,
+                      child: Text("With Camera Position")),
+                ],
+              ),
+              if (snapshotUri != null)
+                Container(
+                  decoration: BoxDecoration(border: Border.all()),
+                  child: Image.file(
+                    File(snapshotUri!),
+                    height: height * 0.25,
+                  ),
+                ),
+            ],
+          ),
+        )
+      ],
     );
   }
 }

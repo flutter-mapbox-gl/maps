@@ -689,7 +689,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   @override
   Future<String> takeSnap(SnapshotOptions snapshotOptions) async {
     try {
-
+      debugPrint("${snapshotOptions.toJson()}");
       var uri = await _channel.invokeMethod(
           'snapshot#takeSnap', snapshotOptions.toJson());
       return uri;

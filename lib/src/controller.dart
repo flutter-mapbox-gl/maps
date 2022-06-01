@@ -1244,7 +1244,7 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   Future<String> takeSnap(SnapshotOptions snapshotOptions) async {
-    return takeSnap(snapshotOptions);
+    return _mapboxGlPlatform.takeSnap(snapshotOptions);
   }
 
   @override

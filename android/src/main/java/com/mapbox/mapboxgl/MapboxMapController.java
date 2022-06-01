@@ -181,7 +181,7 @@ final class MapboxMapController
     if (dragEnabled) {
       this.androidGesturesManager = new AndroidGesturesManager(this.mapView.getContext(), false);
     }
-
+    this.mSnapshotterMap = new HashMap<>();
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
   }
