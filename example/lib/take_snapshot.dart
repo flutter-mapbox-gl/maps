@@ -7,7 +7,7 @@ import 'main.dart';
 import 'page.dart';
 
 class TakeSnapPage extends ExamplePage {
-  TakeSnapPage() : super(const Icon(Icons.camera_alt), 'Take snapshot map');
+  TakeSnapPage() : super(const Icon(Icons.camera_alt), 'Take snapshot');
 
   @override
   Widget build(BuildContext context) {
@@ -110,29 +110,32 @@ class FullMapState extends State<TakeSnapshot> {
             ],
           ),
         ),
+        const SizedBox(height: 5,),
         Container(
           height: height * 0.4,
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                spacing: 10,
+                alignment: WrapAlignment.center,
                 children: [
                   ElevatedButton(
                       onPressed: _onTakeSnap, child: Text("Take Snap")),
                   ElevatedButton(
                       onPressed: _onTakeSnapWithBounds,
-                      child: Text("With Bounds")),
+                      child: Text("Take snap With Bounds")),
                   ElevatedButton(
                       onPressed: _onTakeSnapWithCameraPosition,
-                      child: Text("With Camera Position")),
+                      child: Text("Take snap With Camera Position")),
                 ],
               ),
+              const SizedBox(height: 10,),
               if (snapshotUri != null)
                 Container(
                   decoration: BoxDecoration(border: Border.all()),
                   child: Image.file(
                     File(snapshotUri!),
-                    height: height * 0.25,
+                    height: height * 0.20,
                   ),
                 ),
             ],
