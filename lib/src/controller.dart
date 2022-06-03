@@ -161,6 +161,84 @@ class MapboxMapController extends ChangeNotifier {
       }
     });
 
+    _mapboxGlPlatform.onRotateBeginPlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onRotateBegin!();
+      }
+    });
+
+    _mapboxGlPlatform.onRotatePlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onRotate!();
+      }
+    });
+
+    _mapboxGlPlatform.onRotateEndPlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onRotateEnd!();
+      }
+    });
+
+    _mapboxGlPlatform.onShoveBeginPlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onShoveBegin!();
+      }
+    });
+
+    _mapboxGlPlatform.onShovePlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onShove!();
+      }
+    });
+
+    _mapboxGlPlatform.onShoveEndPlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onShoveEnd!();
+      }
+    });
+
+    _mapboxGlPlatform.onScaleBeginPlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onScaleBegin!();
+      }
+    });
+
+    _mapboxGlPlatform.onScalePlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onScale!();
+      }
+    });
+
+    _mapboxGlPlatform.onScaleEndPlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onScaleEnd!();
+      }
+    });
+
+    _mapboxGlPlatform.onFlingPlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onFling!();
+      }
+    });
+
+    _mapboxGlPlatform.onMapMoveBeginPlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onMapMoveBegin!();
+      }
+    });
+
+    _mapboxGlPlatform.onMapMovePlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onMapMove!();
+      }
+    });
+
+    _mapboxGlPlatform.onMapMoveEndPlatform.add((dict) {
+      if (onRotateEnd != null) {
+        onMapMoveEnd!();
+      }
+    });
+
     _mapboxGlPlatform.onAttributionClickPlatform.add((_) {
       if (onAttributionClick != null) {
         onAttributionClick!();
