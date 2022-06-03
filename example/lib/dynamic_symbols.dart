@@ -83,8 +83,8 @@ class LayerState extends State {
     await controller.addImage('dog', dogresponse.bodyBytes);
 
     // add source before adding a layer
-    await controller.addSource(
-        CUSTOM_SYMBOL_SOURCE, featureCollection.toJson());
+    // await controller.addSource(
+    //     CUSTOM_SYMBOL_SOURCE, featureCollection.toJson());
 
     // Sets the image according to the image-name property on the feature
     await controller

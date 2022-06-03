@@ -76,7 +76,7 @@ class LayerState extends State {
 
     polygonCollection = FeatureCollection([Feature(polygon)]);
 
-    await controller.addSource("source_1", polygonCollection.toJson());
+    // await controller.addSource("source_1", polygonCollection.toJson());
     await controller.addFillLayerCustom(
         "source_1",
         "layer_1",
