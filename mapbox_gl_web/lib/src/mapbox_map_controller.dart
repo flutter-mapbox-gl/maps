@@ -94,10 +94,10 @@ class MapboxMapController extends MapboxGlPlatform
   CameraPosition _getCurrentCameraPosition() {
     final center = _map.getCenter();
     var camera = CameraPosition(
-      bearing: _map.getBearing(),
-      target: LatLng(center.lat, center.lng),
-      tilt: _map.getPitch(),
-      zoom: _map.getZoom(),
+      bearing: _map.getBearing().toDouble(),
+      target: LatLng(center.lat.toDouble(), center.lng.toDouble()),
+      tilt: _map.getPitch().toDouble(),
+      zoom: _map.getZoom().toDouble(),
     );
 
     return camera;
