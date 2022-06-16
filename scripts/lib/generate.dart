@@ -15,6 +15,7 @@ main() async {
     "circle",
     "line",
     "fill",
+    "fill-extrusion",
     "raster",
     "hillshade"
   ];
