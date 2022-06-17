@@ -10,12 +10,12 @@ abstract class SourceProperties {
 class VectorSourceProperties implements SourceProperties {
   /// A URL to a TileJSON resource. Supported protocols are `http:`,
   /// `https:`, and `mapbox://<Tileset ID>`.
-  ///
+  /// 
   /// Type: string
   final String? url;
 
   /// An array of one or more tile source URLs, as in the TileJSON spec.
-  ///
+  /// 
   /// Type: array
   final List<String>? tiles;
 
@@ -24,14 +24,14 @@ class VectorSourceProperties implements SourceProperties {
   /// `[sw.lng, sw.lat, ne.lng, ne.lat]`. When this property is included in
   /// a source, no tiles outside of the given bounds are requested by Mapbox
   /// GL.
-  ///
+  /// 
   /// Type: array
   ///   default: [-180, -85.051129, 180, 85.051129]
   final List<double>? bounds;
 
   /// Influences the y direction of the tile coordinates. The
   /// global-mercator (aka Spherical Mercator) profile is assumed.
-  ///
+  /// 
   /// Type: enum
   ///   default: xyz
   /// Options:
@@ -43,7 +43,7 @@ class VectorSourceProperties implements SourceProperties {
 
   /// Minimum zoom level for which tiles are available, as in the TileJSON
   /// spec.
-  ///
+  /// 
   /// Type: number
   ///   default: 0
   final double? minzoom;
@@ -51,14 +51,14 @@ class VectorSourceProperties implements SourceProperties {
   /// Maximum zoom level for which tiles are available, as in the TileJSON
   /// spec. Data from tiles at the maxzoom are used when displaying the map
   /// at higher zoom levels.
-  ///
+  /// 
   /// Type: number
   ///   default: 22
   final double? maxzoom;
 
   /// Contains an attribution to be displayed when the map is shown to a
   /// user.
-  ///
+  /// 
   /// Type: string
   final String? attribution;
 
@@ -66,14 +66,14 @@ class VectorSourceProperties implements SourceProperties {
   /// property name, or an object of the form `{<sourceLayer>:
   /// <propertyName>}`. If specified as a string for a vector tile source,
   /// the same property is used across all its source layers.
-  ///
+  /// 
   /// Type: promoteId
   final String? promoteId;
 
   const VectorSourceProperties({
     this.url,
     this.tiles,
-    this.bounds = const [-180, -85.051129, 180, 85.051129],
+    this.bounds = const[-180, -85.051129, 180, 85.051129],
     this.scheme = "xyz",
     this.minzoom = 0,
     this.maxzoom = 22,
@@ -82,14 +82,14 @@ class VectorSourceProperties implements SourceProperties {
   });
 
   VectorSourceProperties copyWith(
-    String? url,
-    List<String>? tiles,
-    List<double>? bounds,
-    String? scheme,
-    double? minzoom,
-    double? maxzoom,
-    String? attribution,
-    String? promoteId,
+      String? url,
+      List<String>? tiles,
+      List<double>? bounds,
+      String? scheme,
+      double? minzoom,
+      double? maxzoom,
+      String? attribution,
+      String? promoteId,
   ) {
     return VectorSourceProperties(
       url: url ?? this.url,
@@ -111,7 +111,6 @@ class VectorSourceProperties implements SourceProperties {
         json[fieldName] = value;
       }
     }
-
     json["type"] = "vector";
     addIfPresent('url', url);
     addIfPresent('tiles', tiles);
@@ -136,17 +135,18 @@ class VectorSourceProperties implements SourceProperties {
       promoteId: json['promoteId'],
     );
   }
+
 }
 
 class RasterSourceProperties implements SourceProperties {
   /// A URL to a TileJSON resource. Supported protocols are `http:`,
   /// `https:`, and `mapbox://<Tileset ID>`.
-  ///
+  /// 
   /// Type: string
   final String? url;
 
   /// An array of one or more tile source URLs, as in the TileJSON spec.
-  ///
+  /// 
   /// Type: array
   final List<String>? tiles;
 
@@ -155,14 +155,14 @@ class RasterSourceProperties implements SourceProperties {
   /// `[sw.lng, sw.lat, ne.lng, ne.lat]`. When this property is included in
   /// a source, no tiles outside of the given bounds are requested by Mapbox
   /// GL.
-  ///
+  /// 
   /// Type: array
   ///   default: [-180, -85.051129, 180, 85.051129]
   final List<double>? bounds;
 
   /// Minimum zoom level for which tiles are available, as in the TileJSON
   /// spec.
-  ///
+  /// 
   /// Type: number
   ///   default: 0
   final double? minzoom;
@@ -170,21 +170,21 @@ class RasterSourceProperties implements SourceProperties {
   /// Maximum zoom level for which tiles are available, as in the TileJSON
   /// spec. Data from tiles at the maxzoom are used when displaying the map
   /// at higher zoom levels.
-  ///
+  /// 
   /// Type: number
   ///   default: 22
   final double? maxzoom;
 
   /// The minimum visual size to display tiles for this layer. Only
   /// configurable for raster layers.
-  ///
+  /// 
   /// Type: number
   ///   default: 512
   final double? tileSize;
 
   /// Influences the y direction of the tile coordinates. The
   /// global-mercator (aka Spherical Mercator) profile is assumed.
-  ///
+  /// 
   /// Type: enum
   ///   default: xyz
   /// Options:
@@ -196,14 +196,14 @@ class RasterSourceProperties implements SourceProperties {
 
   /// Contains an attribution to be displayed when the map is shown to a
   /// user.
-  ///
+  /// 
   /// Type: string
   final String? attribution;
 
   const RasterSourceProperties({
     this.url,
     this.tiles,
-    this.bounds = const [-180, -85.051129, 180, 85.051129],
+    this.bounds = const[-180, -85.051129, 180, 85.051129],
     this.minzoom = 0,
     this.maxzoom = 22,
     this.tileSize = 512,
@@ -212,14 +212,14 @@ class RasterSourceProperties implements SourceProperties {
   });
 
   RasterSourceProperties copyWith(
-    String? url,
-    List<String>? tiles,
-    List<double>? bounds,
-    double? minzoom,
-    double? maxzoom,
-    double? tileSize,
-    String? scheme,
-    String? attribution,
+      String? url,
+      List<String>? tiles,
+      List<double>? bounds,
+      double? minzoom,
+      double? maxzoom,
+      double? tileSize,
+      String? scheme,
+      String? attribution,
   ) {
     return RasterSourceProperties(
       url: url ?? this.url,
@@ -241,7 +241,6 @@ class RasterSourceProperties implements SourceProperties {
         json[fieldName] = value;
       }
     }
-
     json["type"] = "raster";
     addIfPresent('url', url);
     addIfPresent('tiles', tiles);
@@ -266,17 +265,18 @@ class RasterSourceProperties implements SourceProperties {
       attribution: json['attribution'],
     );
   }
+
 }
 
 class RasterDemSourceProperties implements SourceProperties {
   /// A URL to a TileJSON resource. Supported protocols are `http:`,
   /// `https:`, and `mapbox://<Tileset ID>`.
-  ///
+  /// 
   /// Type: string
   final String? url;
 
   /// An array of one or more tile source URLs, as in the TileJSON spec.
-  ///
+  /// 
   /// Type: array
   final List<String>? tiles;
 
@@ -285,14 +285,14 @@ class RasterDemSourceProperties implements SourceProperties {
   /// `[sw.lng, sw.lat, ne.lng, ne.lat]`. When this property is included in
   /// a source, no tiles outside of the given bounds are requested by Mapbox
   /// GL.
-  ///
+  /// 
   /// Type: array
   ///   default: [-180, -85.051129, 180, 85.051129]
   final List<double>? bounds;
 
   /// Minimum zoom level for which tiles are available, as in the TileJSON
   /// spec.
-  ///
+  /// 
   /// Type: number
   ///   default: 0
   final double? minzoom;
@@ -300,27 +300,27 @@ class RasterDemSourceProperties implements SourceProperties {
   /// Maximum zoom level for which tiles are available, as in the TileJSON
   /// spec. Data from tiles at the maxzoom are used when displaying the map
   /// at higher zoom levels.
-  ///
+  /// 
   /// Type: number
   ///   default: 22
   final double? maxzoom;
 
   /// The minimum visual size to display tiles for this layer. Only
   /// configurable for raster layers.
-  ///
+  /// 
   /// Type: number
   ///   default: 512
   final double? tileSize;
 
   /// Contains an attribution to be displayed when the map is shown to a
   /// user.
-  ///
+  /// 
   /// Type: string
   final String? attribution;
 
   /// The encoding used by this source. Mapbox Terrain RGB is used by
   /// default
-  ///
+  /// 
   /// Type: enum
   ///   default: mapbox
   /// Options:
@@ -336,7 +336,7 @@ class RasterDemSourceProperties implements SourceProperties {
   const RasterDemSourceProperties({
     this.url,
     this.tiles,
-    this.bounds = const [-180, -85.051129, 180, 85.051129],
+    this.bounds = const[-180, -85.051129, 180, 85.051129],
     this.minzoom = 0,
     this.maxzoom = 22,
     this.tileSize = 512,
@@ -345,14 +345,14 @@ class RasterDemSourceProperties implements SourceProperties {
   });
 
   RasterDemSourceProperties copyWith(
-    String? url,
-    List<String>? tiles,
-    List<double>? bounds,
-    double? minzoom,
-    double? maxzoom,
-    double? tileSize,
-    String? attribution,
-    String? encoding,
+      String? url,
+      List<String>? tiles,
+      List<double>? bounds,
+      double? minzoom,
+      double? maxzoom,
+      double? tileSize,
+      String? attribution,
+      String? encoding,
   ) {
     return RasterDemSourceProperties(
       url: url ?? this.url,
@@ -374,7 +374,6 @@ class RasterDemSourceProperties implements SourceProperties {
         json[fieldName] = value;
       }
     }
-
     json["type"] = "raster-dem";
     addIfPresent('url', url);
     addIfPresent('tiles', tiles);
@@ -399,24 +398,25 @@ class RasterDemSourceProperties implements SourceProperties {
       encoding: json['encoding'],
     );
   }
+
 }
 
 class GeojsonSourceProperties implements SourceProperties {
   /// A URL to a GeoJSON file, or inline GeoJSON.
-  ///
+  /// 
   /// Type: *
   final Object? data;
 
   /// Maximum zoom level at which to create vector tiles (higher means
   /// greater detail at high zoom levels).
-  ///
+  /// 
   /// Type: number
   ///   default: 18
   final double? maxzoom;
 
   /// Contains an attribution to be displayed when the map is shown to a
   /// user.
-  ///
+  /// 
   /// Type: string
   final String? attribution;
 
@@ -424,7 +424,7 @@ class GeojsonSourceProperties implements SourceProperties {
   /// A value of 512 produces a buffer as wide as the tile itself. Larger
   /// values produce fewer rendering artifacts near tile edges and slower
   /// performance.
-  ///
+  /// 
   /// Type: number
   ///   default: 128
   ///   minimum: 0
@@ -433,7 +433,7 @@ class GeojsonSourceProperties implements SourceProperties {
 
   /// Douglas-Peucker simplification tolerance (higher means simpler
   /// geometries and faster performance).
-  ///
+  /// 
   /// Type: number
   ///   default: 0.375
   final double? tolerance;
@@ -441,20 +441,20 @@ class GeojsonSourceProperties implements SourceProperties {
   /// If the data is a collection of point features, setting this to true
   /// clusters the points by radius into groups. Cluster groups become new
   /// `Point` features in the source with additional properties:
-  /// * `cluster` Is `true` if the point is a cluster
+  /// * `cluster` Is `true` if the point is a cluster 
   /// * `cluster_id` A unqiue id for the cluster to be used in conjunction
   /// with the [cluster inspection
   /// methods](https://www.mapbox.com/mapbox-gl-js/api/#geojsonsource#getclusterexpansionzoom)
   /// * `point_count` Number of original points grouped into this cluster
   /// * `point_count_abbreviated` An abbreviated point count
-  ///
+  /// 
   /// Type: boolean
   ///   default: false
   final bool? cluster;
 
   /// Radius of each cluster if clustering is enabled. A value of 512
   /// indicates a radius equal to the width of a tile.
-  ///
+  /// 
   /// Type: number
   ///   default: 50
   ///   minimum: 0
@@ -463,7 +463,7 @@ class GeojsonSourceProperties implements SourceProperties {
   /// Max zoom on which to cluster points if clustering is enabled. Defaults
   /// to one zoom less than maxzoom (so that last zoom features are not
   /// clustered).
-  ///
+  /// 
   /// Type: number
   final double? clusterMaxZoom;
 
@@ -478,13 +478,13 @@ class GeojsonSourceProperties implements SourceProperties {
   /// you can use a custom reduce expression that references a special
   /// `["accumulated"]` value, e.g.:`{"sum": [["+", ["accumulated"],
   /// ["get", "sum"]], ["get", "scalerank"]]}`
-  ///
+  /// 
   /// Type: *
   final Object? clusterProperties;
 
   /// Whether to calculate line distance metrics. This is required for line
   /// layers that specify `line-gradient` values.
-  ///
+  /// 
   /// Type: boolean
   ///   default: false
   final bool? lineMetrics;
@@ -492,7 +492,7 @@ class GeojsonSourceProperties implements SourceProperties {
   /// Whether to generate ids for the geojson features. When enabled, the
   /// `feature.id` property will be auto assigned based on its index in the
   /// `features` array, over-writing any previous values.
-  ///
+  /// 
   /// Type: boolean
   ///   default: false
   final bool? generateId;
@@ -500,7 +500,7 @@ class GeojsonSourceProperties implements SourceProperties {
   /// A property to use as a feature id (for feature state). Either a
   /// property name, or an object of the form `{<sourceLayer>:
   /// <propertyName>}`.
-  ///
+  /// 
   /// Type: promoteId
   final String? promoteId;
 
@@ -520,18 +520,18 @@ class GeojsonSourceProperties implements SourceProperties {
   });
 
   GeojsonSourceProperties copyWith(
-    Object? data,
-    double? maxzoom,
-    String? attribution,
-    double? buffer,
-    double? tolerance,
-    bool? cluster,
-    double? clusterRadius,
-    double? clusterMaxZoom,
-    Object? clusterProperties,
-    bool? lineMetrics,
-    bool? generateId,
-    String? promoteId,
+      Object? data,
+      double? maxzoom,
+      String? attribution,
+      double? buffer,
+      double? tolerance,
+      bool? cluster,
+      double? clusterRadius,
+      double? clusterMaxZoom,
+      Object? clusterProperties,
+      bool? lineMetrics,
+      bool? generateId,
+      String? promoteId,
   ) {
     return GeojsonSourceProperties(
       data: data ?? this.data,
@@ -557,7 +557,6 @@ class GeojsonSourceProperties implements SourceProperties {
         json[fieldName] = value;
       }
     }
-
     json["type"] = "geojson";
     addIfPresent('data', data);
     addIfPresent('maxzoom', maxzoom);
@@ -590,16 +589,17 @@ class GeojsonSourceProperties implements SourceProperties {
       promoteId: json['promoteId'],
     );
   }
+
 }
 
 class VideoSourceProperties implements SourceProperties {
   /// URLs to video content in order of preferred format.
-  ///
+  /// 
   /// Type: array
   final List<String>? urls;
 
   /// Corners of video specified in longitude, latitude pairs.
-  ///
+  /// 
   /// Type: array
   final List? coordinates;
 
@@ -609,8 +609,8 @@ class VideoSourceProperties implements SourceProperties {
   });
 
   VideoSourceProperties copyWith(
-    List<String>? urls,
-    List? coordinates,
+      List<String>? urls,
+      List? coordinates,
   ) {
     return VideoSourceProperties(
       urls: urls ?? this.urls,
@@ -626,7 +626,6 @@ class VideoSourceProperties implements SourceProperties {
         json[fieldName] = value;
       }
     }
-
     json["type"] = "video";
     addIfPresent('urls', urls);
     addIfPresent('coordinates', coordinates);
@@ -639,16 +638,17 @@ class VideoSourceProperties implements SourceProperties {
       coordinates: json['coordinates'],
     );
   }
+
 }
 
 class ImageSourceProperties implements SourceProperties {
   /// URL that points to an image.
-  ///
+  /// 
   /// Type: string
   final String? url;
 
   /// Corners of image specified in longitude, latitude pairs.
-  ///
+  /// 
   /// Type: array
   final List? coordinates;
 
@@ -658,8 +658,8 @@ class ImageSourceProperties implements SourceProperties {
   });
 
   ImageSourceProperties copyWith(
-    String? url,
-    List? coordinates,
+      String? url,
+      List? coordinates,
   ) {
     return ImageSourceProperties(
       url: url ?? this.url,
@@ -675,7 +675,6 @@ class ImageSourceProperties implements SourceProperties {
         json[fieldName] = value;
       }
     }
-
     json["type"] = "image";
     addIfPresent('url', url);
     addIfPresent('coordinates', coordinates);
@@ -688,4 +687,7 @@ class ImageSourceProperties implements SourceProperties {
       coordinates: json['coordinates'],
     );
   }
+
 }
+
+
