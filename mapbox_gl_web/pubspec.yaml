@@ -1,7 +1,7 @@
 name: mapbox_gl_web
 description: Web platform implementation of mapbox_gl
 version: 0.16.0
-homepage: https://github.com/mrcrow/maps-fill-extrusion.git
+homepage: https://github.com/tobrun/flutter-mapbox-gl
 
 flutter:
   plugin:
@@ -18,7 +18,7 @@ dependencies:
   meta: ^1.1.7
   mapbox_gl_platform_interface:
     git:
-      url: https://github.com/mrcrow/maps-fill-extrusion.git
+      url: https://github.com/tobrun/flutter-mapbox-gl.git
       path: mapbox_gl_platform_interface
   mapbox_gl_dart: ^0.2.1
   image: ^3.0.0
