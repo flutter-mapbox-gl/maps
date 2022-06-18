@@ -345,7 +345,7 @@ class LayerPropertyConverter {
                     fillExtrusionLayer.fillExtrusionColor = expression;
                 break;
                 case "fill-extrusion-translate":
-                    fillExtrusionLayer.fillExtrusionTranslationTransition = expression;
+                    fillExtrusionLayer.fillExtrusionTranslation = expression;
                 break;
                 case "fill-extrusion-translate-anchor":
                     fillExtrusionLayer.fillExtrusionTranslationAnchor = expression;
