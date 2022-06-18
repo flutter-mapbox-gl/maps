@@ -1145,7 +1145,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         if let style = mapView.style {
             if let source = style.source(withIdentifier: sourceId) {
                 let layer = MGLFillExtrusionStyleLayer(identifier: layerId, source: source)
-                LayerPropertyConverter.add(fillExtrusionLayer: layer, properties: properties)
+                LayerPropertyConverter.addFillExtrusionProperties(fillExtrusionLayer: layer, properties: properties)
                 if let sourceLayerIdentifier = sourceLayerIdentifier {
                     layer.sourceLayerIdentifier = sourceLayerIdentifier
                 }
