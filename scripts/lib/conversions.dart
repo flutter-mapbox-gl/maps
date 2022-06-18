@@ -31,7 +31,7 @@ const renamedIosProperties = {
   "fillTranslate": "fillTranslation",
   "fillTranslateAnchor": "fillTranslationAnchor",
   "fillExtrusionVerticalGradient" : "fillExtrusionHasVerticalGradient",
-  "fillExtrusionTranslate" : "fillExtrusionTranslationTransition",
+  "fillExtrusionTranslate" : "fillExtrusionTranslation",
   "fillExtrusionTranslateAnchor" : "fillExtrusionTranslationAnchor",
   "rasterHueRotate": "rasterHueRotation",
   "rasterResampling": "rasterResamplingMode",
