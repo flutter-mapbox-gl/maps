@@ -13,10 +13,10 @@ class LayerPropertyConverter {
                 {{#paint_properties}}
                 case "{{{value}}}":
                 {{#isIosAsCamelCase}}
-                    {{type}}Layer.{{iosAsCamelCase}} = expression;
+                    {{typeCamel}}Layer.{{iosAsCamelCase}} = expression;
                 {{/isIosAsCamelCase}}
                 {{^isIosAsCamelCase}}
-                    {{type}}Layer.{{valueAsCamelCase}} = expression;
+                    {{typeCamel}}Layer.{{valueAsCamelCase}} = expression;
                 {{/isIosAsCamelCase}}
                 break;
                 {{/paint_properties}}
@@ -24,14 +24,14 @@ class LayerPropertyConverter {
                 case "{{{value}}}":
                 {{^isVisibilityProperty}}
                 {{#isIosAsCamelCase}}
-                    {{type}}Layer.{{iosAsCamelCase}} = expression;
+                    {{typeCamel}}Layer.{{iosAsCamelCase}} = expression;
                 {{/isIosAsCamelCase}}
                 {{^isIosAsCamelCase}}
-                    {{type}}Layer.{{valueAsCamelCase}} = expression;
+                    {{typeCamel}}Layer.{{valueAsCamelCase}} = expression;
                 {{/isIosAsCamelCase}}
                 {{/isVisibilityProperty}}
                 {{#isVisibilityProperty}}
-                    {{type}}Layer.{{iosAsCamelCase}} = propertyValue == "visible";
+                    {{typeCamel}}Layer.{{iosAsCamelCase}} = propertyValue == "visible";
                 {{/isVisibilityProperty}}
                 break;
                 {{/layout_properties}}

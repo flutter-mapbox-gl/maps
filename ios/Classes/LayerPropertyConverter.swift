@@ -339,31 +339,31 @@ class LayerPropertyConverter {
             let expression = interpretExpression(propertyName: propertyName, expression: propertyValue)
             switch propertyName {
                 case "fill-extrusion-opacity":
-                    fill-extrusionLayer.fillExtrusionOpacity = expression;
+                    fillExtrusionLayer.fillExtrusionOpacity = expression;
                 break;
                 case "fill-extrusion-color":
-                    fill-extrusionLayer.fillExtrusionColor = expression;
+                    fillExtrusionLayer.fillExtrusionColor = expression;
                 break;
                 case "fill-extrusion-translate":
-                    fill-extrusionLayer.fillExtrusionTranslationTransition = expression;
+                    fillExtrusionLayer.fillExtrusionTranslationTransition = expression;
                 break;
                 case "fill-extrusion-translate-anchor":
-                    fill-extrusionLayer.fillExtrusionTranslationAnchor = expression;
+                    fillExtrusionLayer.fillExtrusionTranslationAnchor = expression;
                 break;
                 case "fill-extrusion-pattern":
-                    fill-extrusionLayer.fillExtrusionPattern = expression;
+                    fillExtrusionLayer.fillExtrusionPattern = expression;
                 break;
                 case "fill-extrusion-height":
-                    fill-extrusionLayer.fillExtrusionHeight = expression;
+                    fillExtrusionLayer.fillExtrusionHeight = expression;
                 break;
                 case "fill-extrusion-base":
-                    fill-extrusionLayer.fillExtrusionBase = expression;
+                    fillExtrusionLayer.fillExtrusionBase = expression;
                 break;
                 case "fill-extrusion-vertical-gradient":
-                    fill-extrusionLayer.fillExtrusionHasVerticalGradient = expression;
+                    fillExtrusionLayer.fillExtrusionHasVerticalGradient = expression;
                 break;
                 case "visibility":
-                    fill-extrusionLayer.isVisible = propertyValue == "visible";
+                    fillExtrusionLayer.isVisible = propertyValue == "visible";
                 break;
              
                 default:
