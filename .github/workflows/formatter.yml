@@ -1,0 +1,32 @@
+name: Formatter Dispatch
+on: [workflow_dispatch]
+
+env:
+  FLUTTER_CHANNEL: 'stable'
+  FLUTTER_VERSION: '2.10.5'
+  
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache Flutter
+        uses: actions/cache@v3.0.4
+        with:
+          path: /opt/hostedtoolcache/flutter
+          key: ${{ runner.os }}-flutter-${{ env.FLUTTER_CHANNEL }}-${{ env.FLUTTER_VERSION }} 
+      - uses: subosito/flutter-action@v2.4.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
+      - name: format
+        run: flutter format .
+      - name: push
+        run: |          
+          git config --global user.name "Format Bot"
+          git config --global user.email "format-bot@localhost"
+          git add .
+          git commit -m "format: ${{ github.event.commits[0].id }}"
+          git push
