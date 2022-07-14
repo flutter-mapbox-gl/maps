@@ -7,8 +7,7 @@ import 'package:recase/recase.dart';
 import 'conversions.dart';
 
 main() async {
-  var styleJson =
-      jsonDecode(await new File('input/style.json').readAsString());
+  var styleJson = jsonDecode(await new File('input/style.json').readAsString());
 
   final layerTypes = [
     "symbol",
@@ -78,8 +77,7 @@ Future<void> render(
   final outputPath = pathItems.join("/");
 
   print("Rendering $filename");
-  var templateFile =
-      await File('templates/$filename.template').readAsString();
+  var templateFile = await File('templates/$filename.template').readAsString();
 
   var template = Template(templateFile);
   var outputFile = File('$outputPath/$filename');
@@ -126,10 +124,12 @@ Map<String, dynamic> buildSourceProperty(
   final typeSwift = swiftTypeMappingTable[value["type"]];
   // final nestedTypeDart = dartTypeMappingTable[value["value"]] ??
   // dartTypeMappingTable[value["value"]["type"]];
-  final nestedTypeDart = value["value"] != null ? dartTypeMappingTable[value["value"]] : null;
+  final nestedTypeDart =
+      value["value"] != null ? dartTypeMappingTable[value["value"]] : null;
   // final nestedTypeSwift = swiftTypeMappingTable[value["value"]] ??
   // swiftTypeMappingTable[value["value"]["type"]];
-  final nestedTypeSwift = value["value"] != null ? swiftTypeMappingTable[value["value"]] : null;
+  final nestedTypeSwift =
+      value["value"] != null ? swiftTypeMappingTable[value["value"]] : null;
 
   var defaultValue = value["default"];
   if (defaultValue is List) {

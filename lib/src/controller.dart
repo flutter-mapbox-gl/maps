@@ -489,11 +489,11 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> addFillExtrusionLayer(
       String sourceId, String layerId, FillExtrusionLayerProperties properties,
       {String? belowLayerId,
-        String? sourceLayer,
-        double? minzoom,
-        double? maxzoom,
-        dynamic filter,
-        bool enableInteraction = true}) async {
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      bool enableInteraction = true}) async {
     await _mapboxGlPlatform.addFillExtrusionLayer(
       sourceId,
       layerId,

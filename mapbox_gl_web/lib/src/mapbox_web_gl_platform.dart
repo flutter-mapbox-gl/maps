@@ -769,11 +769,11 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   Future<void> addFillExtrusionLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId,
-        String? sourceLayer,
-        double? minzoom,
-        double? maxzoom,
-        dynamic filter,
-        required bool enableInteraction}) async {
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      required bool enableInteraction}) async {
     return _addLayer(sourceId, layerId, properties, "fill-extrusion",
         belowLayerId: belowLayerId,
         sourceLayer: sourceLayer,
