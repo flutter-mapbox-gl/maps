@@ -425,7 +425,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             case .success: result(nil)
             case let .failure(error): result(error.flutterError)
             }
-            
+
         case "fillExtrusionLayer#add":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }
@@ -1172,7 +1172,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         return .success(())
     }
-    
+
     func addCircleLayer(
         sourceId: String,
         layerId: String,
