@@ -172,7 +172,6 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
               onPlatformViewCreated,
             );
 
-            controller.create();
             return controller;
           },
         );
