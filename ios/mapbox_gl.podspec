@@ -17,6 +17,7 @@ A new Flutter plugin.
   s.dependency 'Flutter'
   s.dependency 'MapboxAnnotationExtension', '~> 0.0.1-beta.1'
   s.dependency 'Mapbox-iOS-SDK', '~> 6.4.0'
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386 arm64' }
   s.swift_version = '4.2'
   s.ios.deployment_target = '9.0'
 end
