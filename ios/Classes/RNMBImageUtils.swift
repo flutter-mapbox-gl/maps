@@ -8,11 +8,11 @@
 class RNMBImageUtils {
   static func createTempFile(_ image: UIImage) -> URL {
     let fileID = UUID().uuidString
-    let pathComponent = "Documents/rctmgl-snapshot-\(fileID).png"
+    let pathComponent = "Documents/rctmgl-snapshot-\(fileID).jpeg"
     
     let filePath = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(pathComponent)
     
-    let data = image.pngData()
+    let data = image.jpegData(compressionQuality: 1.0)
     try! data?.write(to: filePath, options: [.atomic])
     return filePath
   }
