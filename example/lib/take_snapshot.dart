@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -27,25 +29,24 @@ class FullMapState extends State<TakeSnapshot> {
 
   MapboxMapController? mapController;
   final mapKey = GlobalKey();
-  String? snapshotUri;
+  String? snapshotResult;
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
   }
 
-  void _onTakeSnap() async {
+  void _onTakeSnap([bool writeToDisk = true]) async {
     final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
 
     final snapshotOptions = SnapshotOptions(
       width: renderBox.size.width,
       height: renderBox.size.height,
-      writeToDisk: true,
+      writeToDisk: writeToDisk,
       withLogo: false,
     );
-    final uri = await mapController?.takeSnap(snapshotOptions);
-    debugPrint("Snapshot uri: $uri");
-
-    _setResult(uri);
+    final result = await mapController?.takeSnap(snapshotOptions);
+    debugPrint("result: $result");
+    _setResult(result);
   }
 
   void _onTakeSnapWithBounds() async {
@@ -81,12 +82,16 @@ class FullMapState extends State<TakeSnapshot> {
     _setResult(uri);
   }
 
-  void _setResult(String? uri) {
-    if (uri != null) {
+  void _setResult(String? result) {
+    if (result != null) {
       setState(() {
-        snapshotUri = uri.replaceAll("file:", "");
+        snapshotResult = result.replaceAll("file:", "");
       });
     }
+  }
+
+  Uint8List convertBase64Image(String base64String) {
+    return Base64Decoder().convert(base64String.split(',').last);
   }
 
   @override
@@ -95,22 +100,19 @@ class FullMapState extends State<TakeSnapshot> {
     return Column(
       children: [
         Expanded(
-          child: Stack(
-            children: [
-              MapboxMap(
-                key: mapKey,
-                accessToken: MapsDemo.ACCESS_TOKEN,
-                onMapCreated: _onMapCreated,
-                initialCameraPosition:
-                    const CameraPosition(target: LatLng(0.0, 0.0)),
-                myLocationEnabled: true,
-                styleString: MapboxStyles.SATELLITE,
-
-              ),
-            ],
+          child: MapboxMap(
+            key: mapKey,
+            accessToken: MapsDemo.ACCESS_TOKEN,
+            onMapCreated: _onMapCreated,
+            initialCameraPosition:
+                const CameraPosition(target: LatLng(0.0, 0.0)),
+            myLocationEnabled: true,
+            styleString: MapboxStyles.SATELLITE,
           ),
         ),
-        const SizedBox(height: 5,),
+        const SizedBox(
+          height: 5,
+        ),
         Container(
           height: height * 0.4,
           child: Column(
@@ -120,23 +122,39 @@ class FullMapState extends State<TakeSnapshot> {
                 alignment: WrapAlignment.center,
                 children: [
                   ElevatedButton(
-                      onPressed: _onTakeSnap, child: Text("Take Snap")),
+                    onPressed: _onTakeSnap,
+                    child: Text("Take Snap"),
+                  ),
                   ElevatedButton(
-                      onPressed: _onTakeSnapWithBounds,
-                      child: Text("Take snap With Bounds")),
+                    onPressed: _onTakeSnapWithBounds,
+                    child: Text("With Bounds"),
+                  ),
                   ElevatedButton(
-                      onPressed: _onTakeSnapWithCameraPosition,
-                      child: Text("Take snap With Camera Position")),
+                    onPressed: _onTakeSnapWithCameraPosition,
+                    child: Text("With Camera Position"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _onTakeSnap(false),
+                    child: Text("With Base64"),
+                  ),
                 ],
               ),
-              const SizedBox(height: 10,),
-              if (snapshotUri != null)
+              const SizedBox(
+                height: 10,
+              ),
+              if (snapshotResult != null)
                 Container(
                   decoration: BoxDecoration(border: Border.all()),
-                  child: Image.file(
-                    File(snapshotUri!),
-                    height: height * 0.20,
-                  ),
+                  child: snapshotResult!.contains("base64")
+                      ? Image.memory(
+                          convertBase64Image(snapshotResult!),
+                          gaplessPlayback: true,
+                          height: height * 0.20,
+                        )
+                      : Image.file(
+                          File(snapshotResult!),
+                          height: height * 0.20,
+                        ),
                 ),
             ],
           ),
