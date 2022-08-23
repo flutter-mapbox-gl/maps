@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
-import android.util.LruCache;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -13,10 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * Created by nickitaliano on 10/9/17.
- */
-
+/** Created by nickitaliano on 10/9/17. */
 public class BitmapUtils {
   private static final String LOG_TAG = "BitmapUtils";
 
@@ -60,4 +56,3 @@ public class BitmapUtils {
     }
   }
 }
-

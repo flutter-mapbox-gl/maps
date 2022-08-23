@@ -20,10 +20,12 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -75,10 +77,7 @@ import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
-import io.flutter.plugin.common.BinaryMessenger;
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.platform.PlatformView;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -90,6 +89,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.platform.PlatformView;
 
 /** Controller of a single MapboxMaps MapView instance. */
 @SuppressLint("MissingPermission")
@@ -1195,7 +1199,9 @@ final class MapboxMapController
       case "snapshot#takeSnapshot":
         {
           FileSource.getInstance(context).activate();
-          MapSnapshotter.Options snapShotOptions = new MapSnapshotter.Options((int) call.argument("width"), (int) call.argument("height"));
+          MapSnapshotter.Options snapShotOptions =
+              new MapSnapshotter.Options(
+                  (int) call.argument("width"), (int) call.argument("height"));
 
           snapShotOptions.withLogo((boolean) call.argument("withLogo"));
           Style.Builder styleBuilder = new Style.Builder();
@@ -1205,7 +1211,10 @@ final class MapboxMapController
             styleBuilder.fromJson((String) call.argument("styleJson"));
           } else {
             if (style == null) {
-              result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+              result.error(
+                  "STYLE IS NULL",
+                  "The style is null. Has onStyleLoaded() already been invoked?",
+                  null);
             }
             styleBuilder.fromUri(style.getUri());
           }
@@ -1215,7 +1224,8 @@ final class MapboxMapController
             snapShotOptions.withRegion(GeoJSONUtils.toLatLngBounds(bounds));
           } else if (call.hasArgument("centerCoordinate")) {
             Feature centerPoint = Feature.fromJson((String) call.argument("centerCoordinate"));
-            CameraPosition cameraPosition = new CameraPosition.Builder()
+            CameraPosition cameraPosition =
+                new CameraPosition.Builder()
                     .target(GeoJSONUtils.toLatLng((Point) centerPoint.geometry()))
                     .tilt((double) call.argument("pitch"))
                     .bearing((double) call.argument("heading"))
@@ -1230,33 +1240,38 @@ final class MapboxMapController
           final String snapshotterID = UUID.randomUUID().toString();
           mSnapshotterMap.put(snapshotterID, snapshotter);
 
-          snapshotter.start(new MapSnapshotter.SnapshotReadyCallback() {
-            @Override
-            public void onSnapshotReady(MapSnapshot snapshot) {
-              Bitmap bitmap = snapshot.getBitmap();
+          snapshotter.start(
+              new MapSnapshotter.SnapshotReadyCallback() {
+                @Override
+                public void onSnapshotReady(MapSnapshot snapshot) {
+                  Bitmap bitmap = snapshot.getBitmap();
 
-              String result1;
-              if ((boolean) call.argument("writeToDisk")) {
-                result1 = BitmapUtils.createTempFile(context, bitmap);
-              } else {
-                result1 = BitmapUtils.createBase64(bitmap);
-              }
+                  String result1;
+                  if ((boolean) call.argument("writeToDisk")) {
+                    result1 = BitmapUtils.createTempFile(context, bitmap);
+                  } else {
+                    result1 = BitmapUtils.createBase64(bitmap);
+                  }
 
-              if (result1 == null) {
-                result.error("NO_RESULT", "Could not generate snapshot, please check Android logs for more info.", null);
-                return;
-              }
+                  if (result1 == null) {
+                    result.error(
+                        "NO_RESULT",
+                        "Could not generate snapshot, please check Android logs for more info.",
+                        null);
+                    return;
+                  }
 
-              result.success(result1);
-              mSnapshotterMap.remove(snapshotterID);
-            }
-          }, new MapSnapshotter.ErrorHandler() {
-            @Override
-            public void onError(String error) {
-              result.error("SNAPSHOT_ERROR", error, null);
-              mSnapshotterMap.remove(snapshotterID);
-            }
-          });
+                  result.success(result1);
+                  mSnapshotterMap.remove(snapshotterID);
+                }
+              },
+              new MapSnapshotter.ErrorHandler() {
+                @Override
+                public void onError(String error) {
+                  result.error("SNAPSHOT_ERROR", error, null);
+                  mSnapshotterMap.remove(snapshotterID);
+                }
+              });
           break;
         }
       default:
