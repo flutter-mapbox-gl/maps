@@ -18,14 +18,7 @@ import java.io.OutputStream;
  */
 
 public class BitmapUtils {
-  public static final String LOG_TAG = "BitmapUtils";
-
-  private static int CACHE_SIZE = 1024 * 1024;
-  private static LruCache<String, Bitmap> mCache = new LruCache<String, Bitmap>(CACHE_SIZE) {
-    protected int sizeOf(String key, Bitmap bitmap) {
-      return bitmap.getByteCount();
-    }
-  };
+  private static final String LOG_TAG = "BitmapUtils";
 
   public static String createTempFile(Context context, Bitmap bitmap) {
     File tempFile = null;
