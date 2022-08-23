@@ -1,7 +1,6 @@
 name: Flutter CI
 
-on:
-  workflow_dispatch:
+on: [push]
 
 jobs:
   lint:
