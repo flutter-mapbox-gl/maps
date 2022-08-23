@@ -687,7 +687,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   void resizeWebMap() {}
 
   @override
-  Future<String> takeSnap(SnapshotOptions snapshotOptions) async {
+  Future<String> takeSnapshot(SnapshotOptions snapshotOptions) async {
     try {
       debugPrint("${snapshotOptions.toJson()}");
       var uri = await _channel.invokeMethod(

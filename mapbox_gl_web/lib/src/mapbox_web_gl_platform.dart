@@ -984,7 +984,7 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   }
 
   @override
-  Future<String> takeSnap(SnapshotOptions snapshotOptions) {
+  Future<String> takeSnapshot(SnapshotOptions snapshotOptions) {
     throw UnimplementedError();
   }
 
@@ -997,6 +997,4 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   void forceResizeWebMap() {
     _map.resize();
   }
-
-
 }

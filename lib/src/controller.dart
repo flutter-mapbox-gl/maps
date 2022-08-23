@@ -1243,8 +1243,8 @@ class MapboxMapController extends ChangeNotifier {
     }
   }
 
-  Future<String> takeSnap(SnapshotOptions snapshotOptions) async {
-    return _mapboxGlPlatform.takeSnap(snapshotOptions);
+  Future<String> takeSnapshot(SnapshotOptions snapshotOptions) async {
+    return _mapboxGlPlatform.takeSnapshot(snapshotOptions);
   }
 
   @override
@@ -1252,6 +1252,4 @@ class MapboxMapController extends ChangeNotifier {
     super.dispose();
     _mapboxGlPlatform.dispose();
   }
-
-
 }

@@ -212,7 +212,7 @@ An offline region is a defined region of a map that is available for use in cond
 The snapshotManager generates static raster images of the map.
 Each snapshot image depicts a portion of a map defined by an SnapshotOptions object you provide.
 
-* Call `takeSnap` with predefined `SnapshotOptions`
+* Call `takeSnapshot` with predefined `SnapshotOptions`
 
 ```   
     final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
@@ -224,7 +224,7 @@ Each snapshot image depicts a portion of a map defined by an SnapshotOptions obj
       withLogo: false,
     );
     
-    final uri = await mapController?.takeSnap(snapshotOptions);
+    final uri = await mapController?.takeSnapshot(snapshotOptions);
 ```   
 
 ## Location features

@@ -17,23 +17,22 @@ class SnapshotOptions {
   final bool withLogo;
   final bool writeToDisk;
 
-  SnapshotOptions({required this.width,
-    required this.height,
-    this.centerCoordinate,
-    this.bounds,
-    this.zoomLevel,
-    double? pitch,
-    double? heading,
-    this.styleUri,
-    this.styleJson,
-    bool? withLogo,
-    bool? writeToDisk})
+  SnapshotOptions(
+      {required this.width,
+      required this.height,
+      this.centerCoordinate,
+      this.bounds,
+      this.zoomLevel,
+      double? pitch,
+      double? heading,
+      this.styleUri,
+      this.styleJson,
+      bool? withLogo,
+      bool? writeToDisk})
       : this.withLogo = withLogo ?? false,
         this.writeToDisk = writeToDisk ?? true,
         this.pitch = pitch ?? 0,
-        this.heading = heading ?? 0
-
-  ;
+        this.heading = heading ?? 0;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = <String, dynamic>{};
@@ -78,19 +77,20 @@ class SnapshotOptions {
         };
         addIfPresent("bounds", featureCollection.toString());
       } else {
-        final list = [[
-          bounds!.southwest.latitude,
-          bounds!.southwest.longitude,
-        ], [
-          bounds!.northeast.latitude,
-          bounds!.northeast.longitude,
-        ]
+        final list = [
+          [
+            bounds!.southwest.latitude,
+            bounds!.southwest.longitude,
+          ],
+          [
+            bounds!.northeast.latitude,
+            bounds!.northeast.longitude,
+          ]
         ];
         addIfPresent("bounds", list);
       }
     }
-    if (centerCoordinate != null &&
-        zoomLevel != null) {
+    if (centerCoordinate != null && zoomLevel != null) {
       if (Platform.isAndroid) {
         final feature = {
           "type": "Feature",

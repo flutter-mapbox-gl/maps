@@ -697,7 +697,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let geojson = arguments["geojsonFeature"] as? String else { return }
             setFeature(sourceId: sourceId, geojsonFeature: geojson)
             result(nil)
-        case "snapshot#takeSnap":
+        case "snapshot#takeSnapshot":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             let camera = MGLMapCamera()
 

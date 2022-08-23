@@ -35,7 +35,7 @@ class FullMapState extends State<TakeSnapshot> {
     mapController = controller;
   }
 
-  void _onTakeSnap([bool writeToDisk = true]) async {
+  void _onTakeSnapshot([bool writeToDisk = true]) async {
     final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
 
     final snapshotOptions = SnapshotOptions(
@@ -44,12 +44,12 @@ class FullMapState extends State<TakeSnapshot> {
       writeToDisk: writeToDisk,
       withLogo: false,
     );
-    final result = await mapController?.takeSnap(snapshotOptions);
+    final result = await mapController?.takeSnapshot(snapshotOptions);
     debugPrint("result: $result");
     _setResult(result);
   }
 
-  void _onTakeSnapWithBounds() async {
+  void _onTakeSnapshotWithBounds() async {
     final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
     final bounds = await mapController?.getVisibleRegion();
 
@@ -60,12 +60,12 @@ class FullMapState extends State<TakeSnapshot> {
       withLogo: false,
       bounds: bounds,
     );
-    final uri = await mapController?.takeSnap(snapshotOptions);
+    final uri = await mapController?.takeSnapshot(snapshotOptions);
 
     _setResult(uri);
   }
 
-  void _onTakeSnapWithCameraPosition() async {
+  void _onTakeSnapshotWithCameraPosition() async {
     final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
 
     final snapshotOptions = SnapshotOptions(
@@ -78,7 +78,7 @@ class FullMapState extends State<TakeSnapshot> {
       pitch: 30,
       heading: 20,
     );
-    final uri = await mapController?.takeSnap(snapshotOptions);
+    final uri = await mapController?.takeSnapshot(snapshotOptions);
     _setResult(uri);
   }
 
@@ -122,19 +122,19 @@ class FullMapState extends State<TakeSnapshot> {
                 alignment: WrapAlignment.center,
                 children: [
                   ElevatedButton(
-                    onPressed: _onTakeSnap,
+                    onPressed: _onTakeSnapshot,
                     child: Text("Take Snap"),
                   ),
                   ElevatedButton(
-                    onPressed: _onTakeSnapWithBounds,
+                    onPressed: _onTakeSnapshotWithBounds,
                     child: Text("With Bounds"),
                   ),
                   ElevatedButton(
-                    onPressed: _onTakeSnapWithCameraPosition,
+                    onPressed: _onTakeSnapshotWithCameraPosition,
                     child: Text("With Camera Position"),
                   ),
                   ElevatedButton(
-                    onPressed: () => _onTakeSnap(false),
+                    onPressed: () => _onTakeSnapshot(false),
                     child: Text("With Base64"),
                   ),
                 ],

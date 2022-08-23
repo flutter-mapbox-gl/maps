@@ -14,8 +14,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart';
-import 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart';
-import 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart';
 
 export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
     show

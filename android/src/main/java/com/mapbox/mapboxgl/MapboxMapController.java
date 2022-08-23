@@ -1192,7 +1192,7 @@ final class MapboxMapController
           result.success(null);
           break;
         }
-      case "snapshot#takeSnap":
+      case "snapshot#takeSnapshot":
         {
           FileSource.getInstance(context).activate();
           MapSnapshotter.Options snapShotOptions = new MapSnapshotter.Options((int) call.argument("width"), (int) call.argument("height"));

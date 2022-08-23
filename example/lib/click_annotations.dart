@@ -145,7 +145,6 @@ class ClickAnnotationBodyState extends State<ClickAnnotationBody> {
         target: center,
         zoom: 12.0,
       ),
-
     );
   }
 }
