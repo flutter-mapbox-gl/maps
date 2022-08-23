@@ -8,7 +8,6 @@ import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.turf.TurfMeasurement;
-
 import java.util.ArrayList;
 import java.util.List;
 

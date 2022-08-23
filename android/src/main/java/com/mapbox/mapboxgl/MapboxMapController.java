@@ -20,12 +20,10 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -61,7 +59,6 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
-import com.mapbox.mapboxsdk.snapshotter.MapSnapshot;
 import com.mapbox.mapboxsdk.snapshotter.MapSnapshotter;
 import com.mapbox.mapboxsdk.storage.FileSource;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
@@ -77,7 +74,10 @@ import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
-
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.platform.PlatformView;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -89,11 +89,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import io.flutter.plugin.common.BinaryMessenger;
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.platform.PlatformView;
 
 /** Controller of a single MapboxMaps MapView instance. */
 @SuppressLint("MissingPermission")
@@ -117,6 +112,9 @@ final class MapboxMapController
   private final float density;
   private final Context context;
   private final String styleStringInitial;
+  private final Set<String> interactiveFeatureLayerIds;
+  private final Map<String, FeatureCollection> addedFeaturesByLayer;
+  private final Map<String, MapSnapshotter> mSnapshotterMap;
   private MapView mapView;
   private MapboxMap mapboxMap;
   private boolean trackCameraPosition = false;
@@ -133,13 +131,8 @@ final class MapboxMapController
   private Style style;
   private Feature draggedFeature;
   private AndroidGesturesManager androidGesturesManager;
-
   private LatLng dragOrigin;
   private LatLng dragPrevious;
-
-  private Set<String> interactiveFeatureLayerIds;
-  private Map<String, FeatureCollection> addedFeaturesByLayer;
-
   private LatLngBounds bounds = null;
   Style.OnStyleLoaded onStyleLoadedCallback =
       new Style.OnStyleLoaded() {
@@ -160,8 +153,6 @@ final class MapboxMapController
           methodChannel.invokeMethod("map#onStyleLoaded", null);
         }
       };
-
-  private Map<String, MapSnapshotter> mSnapshotterMap;
 
   MapboxMapController(
       int id,
@@ -1241,29 +1232,26 @@ final class MapboxMapController
           mSnapshotterMap.put(snapshotterID, snapshotter);
 
           snapshotter.start(
-              new MapSnapshotter.SnapshotReadyCallback() {
-                @Override
-                public void onSnapshotReady(MapSnapshot snapshot) {
-                  Bitmap bitmap = snapshot.getBitmap();
+              snapshot -> {
+                Bitmap bitmap = snapshot.getBitmap();
 
-                  String result1;
-                  if ((boolean) call.argument("writeToDisk")) {
-                    result1 = BitmapUtils.createTempFile(context, bitmap);
-                  } else {
-                    result1 = BitmapUtils.createBase64(bitmap);
-                  }
-
-                  if (result1 == null) {
-                    result.error(
-                        "NO_RESULT",
-                        "Could not generate snapshot, please check Android logs for more info.",
-                        null);
-                    return;
-                  }
-
-                  result.success(result1);
-                  mSnapshotterMap.remove(snapshotterID);
+                String result1;
+                if ((boolean) call.argument("writeToDisk")) {
+                  result1 = BitmapUtils.createTempFile(context, bitmap);
+                } else {
+                  result1 = BitmapUtils.createBase64(bitmap);
                 }
+
+                if (result1 == null) {
+                  result.error(
+                      "NO_RESULT",
+                      "Could not generate snapshot, please check Android logs for more info.",
+                      null);
+                  return;
+                }
+
+                result.success(result1);
+                mSnapshotterMap.remove(snapshotterID);
               },
               new MapSnapshotter.ErrorHandler() {
                 @Override

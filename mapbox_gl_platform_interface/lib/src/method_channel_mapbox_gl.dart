@@ -691,7 +691,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     try {
       debugPrint("${snapshotOptions.toJson()}");
       var uri = await _channel.invokeMethod(
-          'snapshot#takeSnap', snapshotOptions.toJson());
+          'snapshot#takeSnapshot', snapshotOptions.toJson());
       return uri;
     } on PlatformException catch (e) {
       return new Future.error(e);
