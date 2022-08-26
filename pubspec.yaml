@@ -10,12 +10,7 @@ dependencies:
     git:
       url: https://github.com/revoltgames/neopolis_mapbox.git
       path: mapbox_gl_platform_interface
-      ref: v0.15.7
-  mapbox_gl_web:
-    git:
-      url: https://github.com/revoltgames/neopolis_mapbox.git
-      path: mapbox_gl_web
-      ref: v0.15.7
+      ref: v0.15.8
   collection: ^1.15.0
 
 dependency_overrides:

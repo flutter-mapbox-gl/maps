@@ -153,15 +153,20 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
             );
           },
           onCreatePlatformView: (PlatformViewCreationParams params) {
-            return PlatformViewsService.initExpensiveAndroidView(
+            final controller = PlatformViewsService.initAndroidView(
               id: params.id,
               viewType: viewType,
               layoutDirection: TextDirection.ltr,
               creationParams: creationParams,
               creationParamsCodec: const StandardMessageCodec(),
-            )
-              ..addOnPlatformViewCreatedListener(onPlatformViewCreated)
-              ..create();
+            );
+            controller.addOnPlatformViewCreatedListener(
+              params.onPlatformViewCreated,
+            );
+            controller.addOnPlatformViewCreatedListener(
+              onPlatformViewCreated,
+            );
+            return controller;
           },
         );
       } else {
