@@ -1126,6 +1126,11 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.removeLayer(layerId);
   }
 
+  /// Shows/Hides a Mapbox style layer
+  Future<void> setLayerVisibility(bool visibility, String imageLayerId) {
+    return _mapboxGlPlatform.setLayerVisibility(visibility, imageLayerId);
+  }
+
   Future<void> setFilter(String layerId, dynamic filter) {
     return _mapboxGlPlatform.setFilter(layerId, filter);
   }

@@ -69,6 +69,11 @@ import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
 import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -1142,6 +1147,19 @@ final class MapboxMapController
           style.removeLayer(layerId);
           interactiveFeatureLayerIds.remove(layerId);
 
+          result.success(null);
+          break;
+        }
+      case "style#setLayerVisibility":
+        {
+          if (style == null) {
+            result.error("STYLE IS NULL", "The style is null. Has onStyleLoaded() already been invoked?", null);
+          }
+          if (call.argument("visibility")) {
+            style.getLayer(call.argument("imageLayerId")).setProperties(visibility(VISIBLE));
+          } else {
+            style.getLayer(call.argument("imageLayerId")).setProperties(visibility(NONE));
+          }
           result.success(null);
           break;
         }

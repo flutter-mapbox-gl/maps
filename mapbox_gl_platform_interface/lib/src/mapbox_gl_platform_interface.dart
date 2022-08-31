@@ -89,6 +89,10 @@ abstract class MapboxGlPlatform {
 
   Future<void> removeLayer(String imageLayerId);
 
+  Future<void> setLayerVisibility(bool visibility, String imageLayerId) async {
+    throw UnimplementedError('setLayerVisibility() has not been implemented.');
+  }
+
   Future<void> setFilter(String layerId, dynamic filter);
 
   Future<Point> toScreenLocation(LatLng latLng);
