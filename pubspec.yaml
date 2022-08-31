@@ -9,12 +9,10 @@ dependencies:
   mapbox_gl_platform_interface:
     git:
       url: https://github.com/specure/flutter-mapbox-gl.git
-      ref: layers-visibility
       path: mapbox_gl_platform_interface
   mapbox_gl_web:
     git:
       url: https://github.com/specure/flutter-mapbox-gl.git
-      ref: layers-visibility
       path: mapbox_gl_web
   collection: ^1.15.0
 
