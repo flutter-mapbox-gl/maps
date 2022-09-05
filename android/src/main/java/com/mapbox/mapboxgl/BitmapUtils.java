@@ -37,10 +37,10 @@ public class BitmapUtils {
 
   public static String createBase64(Bitmap bitmap) {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
     byte[] bitmapBytes = outputStream.toByteArray();
     closeSnapshotOutputStream(outputStream);
-    String base64Prefix = "data:image/png;base64,";
+    String base64Prefix = "data:image/jpeg;base64,";
     return base64Prefix + Base64.encodeToString(bitmapBytes, Base64.NO_WRAP);
   }
 

@@ -18,9 +18,9 @@ enum RNMBImageUtils {
     }
 
     static func createBase64(_ image: UIImage) -> URL {
-        let data = image.pngData()
+        let data = image.jpegData(compressionQuality: 1.0)
         let b64string: String = data!.base64EncodedString(options: [.endLineWithCarriageReturn])
-        let result = "data:image/png;base64,\(b64string)"
+        let result = "data:image/jpeg;base64,\(b64string)"
         return URL(string: result)!
     }
 }
