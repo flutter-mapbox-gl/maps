@@ -5,6 +5,7 @@
 import 'dart:async'; // ignore: unnecessary_import
 import 'dart:core';
 import 'dart:math';
+// ignore: unnecessary_import
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
