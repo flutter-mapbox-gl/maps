@@ -91,8 +91,12 @@ class SourcePropertyConverter {
 
     final Object clusterProperties = data.get("clusterProperties");
     if (clusterProperties != null) {
-      for (Map.Entry<String, List> entry : ((Map<String, List>)Convert.toMap(clusterProperties)).entrySet()) {
-        Expression operatorExpr = Expression.Converter.convert(entry.getValue().get(0).toString());
+      for (Map.Entry<String, List> entry : ((Map<String, List>) Convert.toMap(clusterProperties)).entrySet()) {
+        Expression operatorExpr;
+        if (entry.getValue().get(0) instanceof String)
+          operatorExpr = Expression.literal(entry.getValue().get(0));
+        else
+          operatorExpr = Expression.Converter.convert(entry.getValue().get(0).toString());
         Expression mapExpr = Expression.Converter.convert(entry.getValue().get(1).toString());
         options = options.withClusterProperty(entry.getKey(), operatorExpr, mapExpr);
       }
