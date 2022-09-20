@@ -99,6 +99,56 @@ class FullMapState extends State<FullMap> {
         ));
   }
 
+  static Future<void> addGeojsonClusterWithClusterProperty(MapboxMapController controller) async {
+    await controller.addSource(
+      "earthquakes",
+      GeojsonSourceProperties(
+        data: 'https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson',
+        cluster: true,
+        clusterMaxZoom: 14, // Max zoom to cluster points on
+        clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+        clusterProperties: {
+          "totalMagnitude": [
+            "+",
+            ["get", "mag"]
+          ],
+        },
+      ),
+    );
+    await controller.addLayer(
+        "earthquakes",
+        "earthquakes-circles",
+        CircleLayerProperties(circleColor: [
+          Expressions.step,
+          [Expressions.get, 'totalMagnitude'],
+          '#51bbd6',
+          100,
+          '#f1f075',
+          750,
+          '#f28cb1'
+        ], circleRadius: [
+          Expressions.step,
+          [Expressions.get, 'totalMagnitude'],
+          20,
+          100,
+          30,
+          750,
+          40
+        ]));
+    await controller.addLayer(
+        "earthquakes",
+        "earthquakes-count",
+        SymbolLayerProperties(
+          textField: [
+            Expressions.numberFormat,
+            [Expressions.get, 'totalMagnitude'],
+            {'max-fraction-digits': 1}
+          ],
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+        ));
+  }
+
   static Future<void> addVector(MapboxMapController controller) async {
     await controller.addSource(
         "terrain",
@@ -189,6 +239,12 @@ class FullMapState extends State<FullMap> {
       name: "Geojson cluster",
       baseStyle: MapboxStyles.LIGHT,
       addDetails: addGeojsonCluster,
+      position: CameraPosition(target: LatLng(33.5, -118.1), zoom: 5),
+    ),
+    StyleInfo(
+      name: "Geojson cluster accumulated",
+      baseStyle: MapboxStyles.LIGHT,
+      addDetails: addGeojsonClusterWithClusterProperty,
       position: CameraPosition(target: LatLng(33.5, -118.1), zoom: 5),
     ),
     StyleInfo(
