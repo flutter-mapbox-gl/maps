@@ -6,6 +6,7 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngQuad;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
@@ -86,6 +87,15 @@ class SourcePropertyConverter {
     final Object clusterRadius = data.get("clusterRadius");
     if (clusterRadius != null) {
       options = options.withClusterRadius(Convert.toInt(clusterRadius));
+    }
+
+    final Object clusterProperties = data.get("clusterProperties");
+    if (clusterProperties != null) {
+      for (Map.Entry<String, List> entry : ((Map<String, List>)Convert.toMap(clusterProperties)).entrySet()) {
+        Expression operatorExpr = Expression.Converter.convert(entry.getValue().get(0).toString());
+        Expression mapExpr = Expression.Converter.convert(entry.getValue().get(1).toString());
+        options = options.withClusterProperty(entry.getKey(), operatorExpr, mapExpr);
+      }
     }
 
     final Object lineMetrics = data.get("lineMetrics");
