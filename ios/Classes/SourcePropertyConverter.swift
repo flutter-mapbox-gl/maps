@@ -98,9 +98,15 @@ class SourcePropertyConverter {
         if let clusterMaxZoom = properties["clusterMaxZoom"] as? Double {
             options[.maximumZoomLevelForClustering] = clusterMaxZoom
         }
-
-        // TODO: clusterProperties not implemneted for IOS
-
+        if let ccProperties = properties["clusterProperties"] as? [NSString: [Any]] {
+            var cProperties = [NSString: Any]()
+            for (key, value) in ccProperties {
+                let operatorExpr = NSExpression(format: "sum:({$featureAccumulated, \(key)})")
+                let mapExpr = NSExpression(mglJSONObject: value[1])
+                cProperties[key] = [operatorExpr, mapExpr]
+            }
+            options[.clusterProperties] = cProperties
+        }
         if let lineMetrics = properties["lineMetrics"] as? Bool {
             options[.lineDistanceMetrics] = lineMetrics
         }
