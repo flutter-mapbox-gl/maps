@@ -992,4 +992,10 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   void forceResizeWebMap() {
     _map.resize();
   }
+
+  @override
+  Future<bool> sourceExists(String sourceId) {
+    // TODO: implement sourceExists
+    throw UnimplementedError();
+  }
 }
