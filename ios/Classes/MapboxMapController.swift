@@ -550,6 +550,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             mapView.style?.addSource(source)
 
             result(nil)
+        case "style#sourceExists":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let sourceId = arguments["sourceId"] as? String else { return }
+            if let source = mapView.style?.source(withIdentifier: sourceId) {
+                return result(true)
+            } else { return result(false) }
         case "style#removeSource":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let sourceId = arguments["sourceId"] as? String else { return }

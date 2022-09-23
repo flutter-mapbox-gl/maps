@@ -81,6 +81,8 @@ abstract class MapboxGlPlatform {
   Future<void> addImageSource(
       String imageSourceId, Uint8List bytes, LatLngQuad coordinates);
 
+  Future<bool> sourceExists(String sourceId);
+
   Future<void> addLayer(String imageLayerId, String imageSourceId,
       double? minzoom, double? maxzoom);
 

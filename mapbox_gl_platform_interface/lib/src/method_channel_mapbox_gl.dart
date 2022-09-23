@@ -387,6 +387,17 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<bool> sourceExists(String sourceId) async {
+    try {
+      return await _channel.invokeMethod('style#sourceExists', <String, Object>{
+        'sourceId': sourceId,
+      });
+    } catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
   Future<Point> toScreenLocation(LatLng latLng) async {
     try {
       var screenPosMap =

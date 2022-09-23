@@ -142,6 +142,21 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                           : null,
                     ),
                     TextButton(
+                      child: const Text('Check if source exits'),
+                      onPressed: () async {
+                        final exist = await controller.sourceExists(SOURCE_ID);
+
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            duration: const Duration(milliseconds: 600),
+                            content: Text(
+                                "Source ${exist ? '' : 'does not'} exists"),
+                          ),
+                        );
+                      },
+                    ),
+                    TextButton(
                       child: const Text('Show layer'),
                       onPressed: sourceAdded
                           ? () => addLayer(LAYER_ID, SOURCE_ID)
