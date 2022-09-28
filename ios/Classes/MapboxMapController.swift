@@ -697,6 +697,120 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let geojson = arguments["geojsonFeature"] as? String else { return }
             setFeature(sourceId: sourceId, geojsonFeature: geojson)
             result(nil)
+        case "snapshot#takeSnapshot":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            let camera = MGLMapCamera()
+
+            guard let pitch = arguments["pitch"] as? NSNumber else {
+                result(FlutterError(code: "invalidArgument", message: "pitch is not a number",
+                                    details: nil))
+                return
+            }
+            camera.pitch = pitch.doubleValue
+
+            guard let heading = arguments["heading"] as? NSNumber else {
+                result(FlutterError(code: "invalidArgument", message: "heading is not a number",
+                                    details: nil))
+                return
+            }
+            camera.heading = heading.doubleValue
+
+            camera.centerCoordinate = mapView.centerCoordinate
+            if arguments["centerCoordinate"] != nil {
+                guard let centerCoordinate = arguments["centerCoordinate"] as? [NSNumber] else {
+                    result(FlutterError(
+                        code: "invalidArgument",
+                        message: "centerCoordinate is not a number list",
+                        details: nil
+                    ))
+                    return
+                }
+                camera.centerCoordinate = CLLocationCoordinate2D(
+                    latitude: centerCoordinate[0].doubleValue,
+                    longitude: centerCoordinate[1].doubleValue
+                )
+            }
+
+            guard let width = arguments["width"] as? NSNumber else {
+                result(FlutterError(code: "invalidArgument", message: "width is not a number",
+                                    details: nil))
+                return
+            }
+            guard let height = arguments["height"] as? NSNumber else {
+                result(FlutterError(code: "invalidArgument", message: "height is not a number",
+                                    details: nil))
+                return
+            }
+
+            let size = CGSize(width: width.doubleValue, height: height.doubleValue)
+
+            var styleURL: URL = mapView.styleURL
+            if arguments["styleUri"] != nil {
+                guard let styleUri = arguments["styleUri"] as? String else {
+                    result(
+                        FlutterError(code: "invalidArgument", message: "styleUri is not a string",
+                                     details: nil)
+                    )
+                    return
+                }
+                styleURL = URL(string: styleUri)!
+            }
+
+            let snapshotOptions: MGLMapSnapshotOptions = .init(
+                styleURL: styleURL,
+                camera: camera,
+                size: size
+            )
+
+            snapshotOptions.zoomLevel = mapView.zoomLevel
+            if arguments["zoomLevel"] != nil {
+                guard let zoomLevel = arguments["zoomLevel"] as? NSNumber else {
+                    result(FlutterError(code: "invalidArgument",
+                                        message: "zoomLevel is not a number", details: nil))
+                    return
+                }
+                snapshotOptions.zoomLevel = zoomLevel.doubleValue
+            }
+
+            if arguments["bounds"] != nil {
+                guard let bounds = arguments["bounds"] as? [[NSNumber]] else {
+                    result(FlutterError(code: "invalidArgument",
+                                        message: "bounds is not a number list", details: nil))
+                    return
+                }
+                let sw = bounds[0]
+                let ne = bounds[1]
+                snapshotOptions.coordinateBounds = MGLCoordinateBounds(
+                    sw: CLLocationCoordinate2D(latitude: sw[0].doubleValue,
+                                               longitude: sw[1].doubleValue),
+                    ne: CLLocationCoordinate2D(
+                        latitude: ne[0].doubleValue,
+                        longitude: ne[1].doubleValue
+                    )
+                )
+            }
+
+            let snapshotter: MGLMapSnapshotter? = MGLMapSnapshotter(options: snapshotOptions)
+
+            snapshotter?.start { snapshot, error in
+                if error != nil {
+                    result(FlutterError(
+                        code: "canCreateSnapshot",
+                        message: error?.localizedDescription,
+                        details: error.debugDescription
+                    ))
+                } else if let image = snapshot?.image {
+                    guard let writeToDisk = arguments["writeToDisk"] as? NSNumber else {
+                        result(FlutterError(code: "invalidArgument",
+                                            message: "writeToDisk is not a boolean", details: nil))
+                        return
+                    }
+
+                    let value = writeToDisk.boolValue ? RNMBImageUtils
+                        .createTempFile(image) : RNMBImageUtils.createBase64(image)
+                    result(value.absoluteString)
+                }
+            }
         default:
             result(FlutterMethodNotImplemented)
         }

@@ -161,6 +161,8 @@ abstract class MapboxGlPlatform {
 
   Future<void> addSource(String sourceId, SourceProperties properties);
 
+  Future<String> takeSnapshot(SnapshotOptions snapshotOptions);
+
   @mustCallSuper
   void dispose() {
     // clear all callbacks to avoid cyclic refs
