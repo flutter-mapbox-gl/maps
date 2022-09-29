@@ -2070,3 +2070,141 @@ class HillshadeLayerProperties implements LayerProperties {
     );
   }
 }
+
+class HeatmapLayerProperties implements LayerProperties {
+  // Radius of influence of one heatmap point in pixels
+  // Increasing the value makes the heatmap smoother, but less detailed
+  // `queryRenderedFeatures` on heatmap layers will return points within this radius.
+  ///
+  /// Type: number
+  ///   default: 30
+  ///   minimum: 1
+  ///
+  /// Units
+  ///   pixels
+  ///
+  /// Expression
+  /// `zoom, feature, feature-state`
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic heatmapRadius;
+
+  /// A measure of how much an individual point contributes to the heatmap
+  /// A value of 10 would be equivalent to having 10 points of weight 1 in the same spot
+  /// Especially useful when combined with clustering
+  ///
+  /// Type: number
+  ///   default: 1
+  ///   minimum: 1
+  ///
+  /// Expression
+  /// `zoom, feature, feature-state`
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic heatmapWeight;
+
+  /// Similar to `heatmapWeight` but controls the intensity of the heatmap globally. Primarily used for adjusting the heatmap based on zoom level
+  ///
+  /// Type: number
+  ///   default: 1
+  ///   minimum: 0
+  ///
+  /// Expression
+  /// `zoom`
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic heatmapIntensity;
+
+  /// Defines the color of each pixel based on its density value in a heatmap. Should be an expression that uses `["heatmapDensity"]` as input
+  ///
+  /// Type: color
+  ///   default: `interpolate,linear,heatmap-density,0,rgba(0, 0, 255, 0),0.1,royalblue,0.3,cyan,0.5,lime,0.7,yellow,1,red`
+  ///
+  /// Expression
+  /// `heatmap-density`
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic heatmapColor;
+
+  /// The global opacity at which the heatmap layer will be drawn
+  ///
+  /// Type: number
+  ///   default: 1
+  ///   minimum: 0
+  ///   maximum: 1
+  ///
+  /// Expression
+  /// `zoom`
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic heatmapOpacity;
+
+  // Layout Properties
+  /// Whether this layer is displayed.
+  ///
+  /// Type: enum
+  ///   default: visible
+  /// Options:
+  ///   "visible"
+  ///      The layer is shown.
+  ///   "none"
+  ///      The layer is not shown.
+  ///
+  /// Sdk Support:
+  ///   basic functionality with js, android, ios, macos
+  final dynamic visibility;
+
+  const HeatmapLayerProperties({
+    this.heatmapRadius,
+    this.heatmapWeight,
+    this.heatmapIntensity,
+    this.heatmapColor,
+    this.heatmapOpacity,
+    this.visibility,
+  });
+
+  HeatmapLayerProperties copyWith(HeatmapLayerProperties changes) {
+    return HeatmapLayerProperties(
+      heatmapRadius: changes.heatmapRadius ?? heatmapRadius,
+      heatmapWeight: changes.heatmapWeight ?? heatmapWeight,
+      heatmapIntensity: changes.heatmapIntensity ?? heatmapIntensity,
+      heatmapColor: changes.heatmapColor ?? heatmapColor,
+      heatmapOpacity: changes.heatmapOpacity ?? heatmapOpacity,
+      visibility: changes.visibility ?? visibility,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = <String, dynamic>{};
+
+    void addIfPresent(String fieldName, dynamic value) {
+      if (value != null) {
+        json[fieldName] = value;
+      }
+    }
+
+    addIfPresent('heatmap-radius', heatmapRadius);
+    addIfPresent('heatmap-weight', heatmapWeight);
+    addIfPresent('heatmap-intensity', heatmapIntensity);
+    addIfPresent('heatmap-color', heatmapColor);
+    addIfPresent('heatmap-opacity', heatmapOpacity);
+    addIfPresent('visibility', visibility);
+    return json;
+  }
+
+  factory HeatmapLayerProperties.fromJson(Map<String, dynamic> json) {
+    return HeatmapLayerProperties(
+      heatmapRadius: json['heatmap-radius'],
+      heatmapWeight: json['heatmap-weight'],
+      heatmapIntensity: json['heatmap-intensity'],
+      heatmapColor: json['heatmap-color'],
+      heatmapOpacity: json['heatmap-opacity'],
+      visibility: json['visibility'],
+    );
+  }
+}

@@ -159,6 +159,13 @@ abstract class MapboxGlPlatform {
       double? minzoom,
       double? maxzoom});
 
+  Future<void> addHeatmapLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom});
+
   Future<void> addSource(String sourceId, SourceProperties properties);
 
   Future<String> takeSnapshot(SnapshotOptions snapshotOptions);

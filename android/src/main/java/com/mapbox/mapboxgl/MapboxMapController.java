@@ -573,6 +573,29 @@ final class MapboxMapController
     }
   }
 
+  private void addHeatmapLayer(
+      String layerName,
+      String sourceName,
+      Float minZoom,
+      Float maxZoom,
+      String belowLayerId,
+      PropertyValue[] properties,
+      Expression filter) {
+    HeatmapLayer layer = new HeatmapLayer(layerName, sourceName);
+    layer.setProperties(properties);
+    if (minZoom != null) {
+      layer.setMinZoom(minZoom);
+    }
+    if (maxZoom != null) {
+      layer.setMaxZoom(maxZoom);
+    }
+    if (belowLayerId != null) {
+      style.addLayerBelow(layer, belowLayerId);
+    } else {
+      style.addLayer(layer);
+    }
+  }
+
   private Feature firstFeatureOnLayers(RectF in) {
     if (style != null) {
       final List<Layer> layers = style.getLayers();
@@ -988,6 +1011,28 @@ final class MapboxMapController
           final PropertyValue[] properties =
               LayerPropertyConverter.interpretHillshadeLayerProperties(call.argument("properties"));
           addHillshadeLayer(
+              layerId,
+              sourceId,
+              minzoom != null ? minzoom.floatValue() : null,
+              maxzoom != null ? maxzoom.floatValue() : null,
+              belowLayerId,
+              properties,
+              null);
+          updateLocationComponentLayer();
+
+          result.success(null);
+          break;
+        }
+      case "heatmapLayer#add":
+        {
+          final String sourceId = call.argument("sourceId");
+          final String layerId = call.argument("layerId");
+          final String belowLayerId = call.argument("belowLayerId");
+          final Double minzoom = call.argument("minzoom");
+          final Double maxzoom = call.argument("maxzoom");
+          final PropertyValue[] properties =
+              LayerPropertyConverter.interpretHeatmapLayerProperties(call.argument("properties"));
+          addHeatmapLayer(
               layerId,
               sourceId,
               minzoom != null ? minzoom.floatValue() : null,

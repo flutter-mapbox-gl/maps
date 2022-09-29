@@ -453,4 +453,39 @@ class LayerPropertyConverter {
 
     return properties.toArray(new PropertyValue[properties.size()]);
   }
+
+  static PropertyValue[] interpretHeatmapLayerProperties(Object o) {
+    final Map<String, String> data = (Map<String, String>) toMap(o);
+    final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
+
+    for (Map.Entry<String, String> entry : data.entrySet()) {
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
+      switch (entry.getKey()) {
+        case "heatmap-radius":
+          properties.add(PropertyFactory.heatmapRadius(expression));
+          break;
+        case "heatmap-weight":
+          properties.add(PropertyFactory.heatmapWeight(expression));
+          break;
+        case "heatmap-intensity":
+          properties.add(PropertyFactory.heatmapIntensity(expression));
+          break;
+        case "heatmap-color":
+          properties.add(PropertyFactory.heatmapColor(expression));
+          break;
+        case "heatmap-opacity":
+          properties.add(PropertyFactory.heatmapOpacity(expression));
+          break;
+        case "visibility":
+          properties.add(PropertyFactory.visibility(entry.getValue()));
+          break;
+        default:
+          break;
+      }
+    }
+
+    return properties.toArray(new PropertyValue[properties.size()]);
+  }
 }
