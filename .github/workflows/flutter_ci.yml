@@ -1,6 +1,6 @@
 name: Flutter CI
 
-on: [pull]
+on: [pull_request]
 
 jobs:
   lint:
