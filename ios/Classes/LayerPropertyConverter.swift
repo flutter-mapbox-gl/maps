@@ -313,7 +313,7 @@ class LayerPropertyConverter {
             }
         }
     }
-    
+
     class func addHeatmapProperties(
         heatmapLayer: MGLHeatmapStyleLayer,
         properties: [String: String]
