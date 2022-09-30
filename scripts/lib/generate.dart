@@ -8,6 +8,7 @@ import 'package:path/path.dart' as p;
 import 'conversions.dart';
 
 main() async {
+  print(p.current);
   var styleJson = jsonDecode(
       await new File('${p.current}/input/style.json').readAsString());
 
@@ -56,7 +57,7 @@ main() async {
       ...type["layout_properties"].map((p) => p["value"]).toList()
   ].toSet().map((p) => {"property": p}).toList();
 
-  final rootPath = p.current.replaceFirst("scripts", "");
+  final rootPath = p.current.replaceFirst("/scripts", "");
   final templates = [
     "$rootPath/android/src/main/java/com/mapbox/mapboxgl/LayerPropertyConverter.java",
     "$rootPath/ios/Classes/LayerPropertyConverter.swift",
