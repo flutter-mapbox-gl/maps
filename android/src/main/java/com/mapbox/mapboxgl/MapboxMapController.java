@@ -396,6 +396,7 @@ final class MapboxMapController
       PropertyValue[] properties,
       boolean enableInteraction,
       Expression filter) {
+
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
     symbolLayer.setProperties(properties);
     if (sourceLayer != null) {
@@ -465,6 +466,40 @@ final class MapboxMapController
       boolean enableInteraction,
       Expression filter) {
     FillLayer fillLayer = new FillLayer(layerName, sourceName);
+    fillLayer.setProperties(properties);
+    if (sourceLayer != null) {
+      fillLayer.setSourceLayer(sourceLayer);
+    }
+    if (minZoom != null) {
+      fillLayer.setMinZoom(minZoom);
+    }
+    if (maxZoom != null) {
+      fillLayer.setMaxZoom(maxZoom);
+    }
+    if (filter != null) {
+      fillLayer.setFilter(filter);
+    }
+    if (belowLayerId != null) {
+      style.addLayerBelow(fillLayer, belowLayerId);
+    } else {
+      style.addLayer(fillLayer);
+    }
+    if (enableInteraction) {
+      interactiveFeatureLayerIds.add(layerName);
+    }
+  }
+
+  private void addFillExtrusionLayer(
+      String layerName,
+      String sourceName,
+      String belowLayerId,
+      String sourceLayer,
+      Float minZoom,
+      Float maxZoom,
+      PropertyValue[] properties,
+      boolean enableInteraction,
+      Expression filter) {
+    FillExtrusionLayer fillLayer = new FillExtrusionLayer(layerName, sourceName);
     fillLayer.setProperties(properties);
     if (sourceLayer != null) {
       fillLayer.setSourceLayer(sourceLayer);
@@ -938,6 +973,37 @@ final class MapboxMapController
           Expression filterExpression = parseFilter(filter);
 
           addFillLayer(
+              layerId,
+              sourceId,
+              belowLayerId,
+              sourceLayer,
+              minzoom != null ? minzoom.floatValue() : null,
+              maxzoom != null ? maxzoom.floatValue() : null,
+              properties,
+              enableInteraction,
+              filterExpression);
+          updateLocationComponentLayer();
+
+          result.success(null);
+          break;
+        }
+      case "fillExtrusionLayer#add":
+        {
+          final String sourceId = call.argument("sourceId");
+          final String layerId = call.argument("layerId");
+          final String belowLayerId = call.argument("belowLayerId");
+          final String sourceLayer = call.argument("sourceLayer");
+          final Double minzoom = call.argument("minzoom");
+          final Double maxzoom = call.argument("maxzoom");
+          final String filter = call.argument("filter");
+          final boolean enableInteraction = call.argument("enableInteraction");
+          final PropertyValue[] properties =
+              LayerPropertyConverter.interpretFillExtrusionLayerProperties(
+                  call.argument("properties"));
+
+          Expression filterExpression = parseFilter(filter);
+
+          addFillExtrusionLayer(
               layerId,
               sourceId,
               belowLayerId,

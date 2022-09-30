@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 class LayerPropertyConverter {
-
   static PropertyValue[] interpretSymbolLayerProperties(Object o) {
     final Map<String, String> data = (Map<String, String>) toMap(o);
     final List<PropertyValue> properties = new LinkedList();
@@ -361,6 +360,50 @@ class LayerPropertyConverter {
           break;
         case "fill-sort-key":
           properties.add(PropertyFactory.fillSortKey(expression));
+          break;
+        case "visibility":
+          properties.add(PropertyFactory.visibility(entry.getValue()));
+          break;
+        default:
+          break;
+      }
+    }
+
+    return properties.toArray(new PropertyValue[properties.size()]);
+  }
+
+  static PropertyValue[] interpretFillExtrusionLayerProperties(Object o) {
+    final Map<String, String> data = (Map<String, String>) toMap(o);
+    final List<PropertyValue> properties = new LinkedList();
+    final JsonParser parser = new JsonParser();
+
+    for (Map.Entry<String, String> entry : data.entrySet()) {
+      final JsonElement jsonElement = parser.parse(entry.getValue());
+      Expression expression = Expression.Converter.convert(jsonElement);
+      switch (entry.getKey()) {
+        case "fill-extrusion-opacity":
+          properties.add(PropertyFactory.fillExtrusionOpacity(expression));
+          break;
+        case "fill-extrusion-color":
+          properties.add(PropertyFactory.fillExtrusionColor(expression));
+          break;
+        case "fill-extrusion-translate":
+          properties.add(PropertyFactory.fillExtrusionTranslate(expression));
+          break;
+        case "fill-extrusion-translate-anchor":
+          properties.add(PropertyFactory.fillExtrusionTranslateAnchor(expression));
+          break;
+        case "fill-extrusion-pattern":
+          properties.add(PropertyFactory.fillExtrusionPattern(expression));
+          break;
+        case "fill-extrusion-height":
+          properties.add(PropertyFactory.fillExtrusionHeight(expression));
+          break;
+        case "fill-extrusion-base":
+          properties.add(PropertyFactory.fillExtrusionBase(expression));
+          break;
+        case "fill-extrusion-vertical-gradient":
+          properties.add(PropertyFactory.fillExtrusionVerticalGradient(expression));
           break;
         case "visibility":
           properties.add(PropertyFactory.visibility(entry.getValue()));
