@@ -98,17 +98,14 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Center(
-          child: SizedBox(
-            width: 300.0,
-            height: 200.0,
-            child: MapboxMap(
-              accessToken: MapsDemo.ACCESS_TOKEN,
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(-33.852, 151.211),
-                zoom: 11.0,
-              ),
+        SizedBox(
+          height: 300.0,
+          child: MapboxMap(
+            accessToken: MapsDemo.ACCESS_TOKEN,
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(-33.852, 151.211),
+              zoom: 11.0,
             ),
           ),
         ),
