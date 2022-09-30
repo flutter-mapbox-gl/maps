@@ -35,6 +35,7 @@ const renamedIosProperties = {
   "visibility": "isVisible",
   "rasterBrightnessMin": "minimumRasterBrightness",
   "rasterBrightnessMax": "maximumRasterBrightness",
+  "fillExtrusion": "fillExtrusion",
 };
 
 const dartTypeMappingTable = {

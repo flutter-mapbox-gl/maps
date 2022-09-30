@@ -17,6 +17,7 @@ main() async {
     "circle",
     "line",
     "fill",
+    "fill-extrusion",
     "raster",
     "hillshade",
     "heatmap"
@@ -36,6 +37,7 @@ main() async {
         {
           "type": type,
           "typePascal": ReCase(type).pascalCase,
+          "typeCamel": ReCase(type).camelCase,
           "paint_properties": buildStyleProperties(styleJson, "paint_$type"),
           "layout_properties": buildStyleProperties(styleJson, "layout_$type"),
         },
@@ -45,6 +47,7 @@ main() async {
         {
           "type": type.replaceAll("_", "-"),
           "typePascal": ReCase(type).pascalCase,
+          "typeCamel": ReCase(type).camelCase,
           "properties": buildSourceProperties(styleJson, "source_$type"),
         },
     ],
