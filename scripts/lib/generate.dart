@@ -3,14 +3,12 @@ import 'dart:convert';
 
 import 'package:mustache_template/mustache_template.dart';
 import 'package:recase/recase.dart';
-import 'package:path/path.dart' as p;
 
 import 'conversions.dart';
 
 main() async {
-  print(p.current);
-  var styleJson = jsonDecode(
-      await new File('${p.current}/input/style.json').readAsString());
+  var styleJson =
+      jsonDecode(await new File('scripts/input/style.json').readAsString());
 
   final layerTypes = [
     "symbol",
@@ -60,14 +58,13 @@ main() async {
       ...type["layout_properties"].map((p) => p["value"]).toList()
   ].toSet().map((p) => {"property": p}).toList();
 
-  final rootPath = p.current.replaceFirst("/scripts", "");
   final templates = [
-    "$rootPath/android/src/main/java/com/mapbox/mapboxgl/LayerPropertyConverter.java",
-    "$rootPath/ios/Classes/LayerPropertyConverter.swift",
-    "$rootPath/lib/src/layer_expressions.dart",
-    "$rootPath/lib/src/layer_properties.dart",
-    "$rootPath/mapbox_gl_web/lib/src/layer_tools.dart",
-    "$rootPath/mapbox_gl_platform_interface/lib/src/source_properties.dart",
+    "android/src/main/java/com/mapbox/mapboxgl/LayerPropertyConverter.java",
+    "ios/Classes/LayerPropertyConverter.swift",
+    "lib/src/layer_expressions.dart",
+    "lib/src/layer_properties.dart",
+    "mapbox_gl_web/lib/src/layer_tools.dart",
+    "mapbox_gl_platform_interface/lib/src/source_properties.dart",
   ];
 
   for (var template in templates) await render(renderContext, template);
@@ -83,7 +80,7 @@ Future<void> render(
 
   print("Rendering $filename");
   var templateFile =
-      await File('${p.current}/templates/$filename.template').readAsString();
+      await File('scripts/templates/$filename.template').readAsString();
 
   var template = Template(templateFile);
   var outputFile = File('$outputPath/$filename');
@@ -129,13 +126,9 @@ Map<String, dynamic> buildSourceProperty(
   final typeDart = dartTypeMappingTable[value["type"]];
   final typeSwift = swiftTypeMappingTable[value["type"]];
   final nestedTypeDart = dartTypeMappingTable[value["value"]] ??
-      (value["value"] != null
-          ? dartTypeMappingTable[value["value"]["type"]]
-          : null);
+      dartTypeMappingTable[value["value"]?["type"]];
   final nestedTypeSwift = swiftTypeMappingTable[value["value"]] ??
-      (value["value"] != null
-          ? swiftTypeMappingTable[value["value"]["type"]]
-          : null);
+      swiftTypeMappingTable[value["value"]?["type"]];
 
   var defaultValue = value["default"];
   if (defaultValue is List) {
