@@ -1248,6 +1248,16 @@ class MapboxMapController extends ChangeNotifier {
     }
   }
 
+  /// Generates static raster images of the map. Each snapshot image depicts a portion of a map defined by an [SnapshotOptions] object you provide
+  /// Android/iOS: Return snapshot uri in app specific cache storage or base64 string
+  /// Web: Return base64 string with current camera posision of [MapboxMap]
+  ///
+  /// Default will return snapshot uri in Android and iOS
+  /// If you want base64 value, you must set writeToDisk option to False
+  Future<String> takeSnapshot(SnapshotOptions snapshotOptions) async {
+    return _mapboxGlPlatform.takeSnapshot(snapshotOptions);
+  }
+
   @override
   void dispose() {
     super.dispose();
