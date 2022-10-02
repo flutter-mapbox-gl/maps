@@ -1074,7 +1074,7 @@ final class MapboxMapController
           break;
         }
 
-        case "style#sourceExists":
+      case "style#sourceExists":
         {
           if (style == null) {
             result.error(
@@ -1083,7 +1083,7 @@ final class MapboxMapController
                 null);
             break;
           }
-          
+
           final String id = Convert.toString(call.argument("sourceId"));
 
           try {
