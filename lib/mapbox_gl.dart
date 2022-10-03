@@ -41,6 +41,7 @@ export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
         LineOptions,
         Fill,
         FillOptions,
+        SnapshotOptions,
         SourceProperties,
         RasterSourceProperties,
         VectorSourceProperties,

@@ -47,6 +47,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   AnnotationOrderPage(),
   CustomMarkerPage(),
   BatchAddPage(),
+  TakeSnapPage(),
   ClickAnnotationPage(),
   Sources()
 ];

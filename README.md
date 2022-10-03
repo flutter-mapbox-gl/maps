@@ -20,6 +20,7 @@
   - [Map Styles](#map-styles)
   - [Offline Sideloading](#offline-sideloading)
   - [Downloading Offline Regions](#downloading-offline-regions)
+  - [Create a static map snapshot](#create-a-static-map-snapshot)
   - [Location features](#location-features)
     - [Android](#android)
     - [iOS](#ios)
@@ -206,7 +207,25 @@ An offline region is a defined region of a map that is available for use in cond
 
     downloadOfflineRegionStream(offlineRegion, onEvent);
 ```
+## Create a static map snapshot
 
+The snapshotManager generates static raster images of the map.
+Each snapshot image depicts a portion of a map defined by an SnapshotOptions object you provide.
+
+* Call `takeSnapshot` with predefined `SnapshotOptions`
+
+```   
+    final renderBox = mapKey.currentContext?.findRenderObject() as RenderBox;
+
+    final snapshotOptions = SnapshotOptions(
+      width: renderBox.size.width,
+      height: renderBox.size.height,
+      writeToDisk: true,
+      withLogo: false,
+    );
+    
+    final uri = await mapController?.takeSnapshot(snapshotOptions);
+```   
 
 ## Location features
 ### Android
