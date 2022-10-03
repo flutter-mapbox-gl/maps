@@ -1179,6 +1179,32 @@ final class MapboxMapController
           result.success(null);
           break;
         }
+      case "style#updateImageSource":
+        {
+          if (style == null) {
+            result.error(
+                "STYLE IS NULL",
+                "The style is null. Has onStyleLoaded() already been invoked?",
+                null);
+          }
+          ImageSource imageSource = style.getSourceAs(call.argument("imageSourceId"));
+          List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"), false);
+          if (coordinates != null) {
+            // https://github.com/mapbox/mapbox-maps-android/issues/302
+            imageSource.setCoordinates(
+                new LatLngQuad(
+                    coordinates.get(0),
+                    coordinates.get(1),
+                    coordinates.get(2),
+                    coordinates.get(3)));
+          }
+          byte[] bytes = call.argument("bytes");
+          if (bytes != null) {
+            imageSource.setImage(BitmapFactory.decodeByteArray(bytes, 0, call.argument("length")));
+          }
+          result.success(null);
+          break;
+        }
       case "style#addSource":
         {
           final String id = Convert.toString(call.argument("sourceId"));

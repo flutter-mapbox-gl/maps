@@ -977,6 +977,12 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
     throw UnimplementedError();
   }
 
+  Future<void> updateImageSource(
+      String imageSourceId, Uint8List? bytes, LatLngQuad? coordinates) {
+    // TODO: implement addImageSource
+    throw UnimplementedError();
+  }
+
   @override
   Future<void> addLayer(String imageLayerId, String imageSourceId,
       double? minzoom, double? maxzoom) {
