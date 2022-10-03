@@ -141,7 +141,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       OnPlatformViewCreatedCallback onPlatformViewCreated,
       Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers) {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      if (useHybridComposition) {
+      final useDelayedDisposalParam =
+          (creationParams['useDelayedDisposal'] ?? false) as bool;
+      final useHybridCompositionParam =
+          (creationParams['useHybridCompositionOverride'] ??
+              useHybridComposition) as bool;
+      if (useHybridCompositionParam) {
         return PlatformViewLink(
           viewType: 'plugins.flutter.io/mapbox_gl',
           surfaceFactory: (
@@ -156,14 +161,26 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
             );
           },
           onCreatePlatformView: (PlatformViewCreationParams params) {
-            final controller = WrappedPlatformViewsService.initAndroidView(
-              id: params.id,
-              viewType: 'plugins.flutter.io/mapbox_gl',
-              layoutDirection: TextDirection.ltr,
-              creationParams: creationParams,
-              creationParamsCodec: const StandardMessageCodec(),
-              onFocus: () => params.onFocusChanged(true),
-            );
+            late AndroidViewController controller;
+            if (useDelayedDisposalParam) {
+              controller = WrappedPlatformViewsService.initAndroidView(
+                id: params.id,
+                viewType: 'plugins.flutter.io/mapbox_gl',
+                layoutDirection: TextDirection.ltr,
+                creationParams: creationParams,
+                creationParamsCodec: const StandardMessageCodec(),
+                onFocus: () => params.onFocusChanged(true),
+              );
+            } else {
+              controller = PlatformViewsService.initAndroidView(
+                id: params.id,
+                viewType: 'plugins.flutter.io/mapbox_gl',
+                layoutDirection: TextDirection.ltr,
+                creationParams: creationParams,
+                creationParamsCodec: const StandardMessageCodec(),
+                onFocus: () => params.onFocusChanged(true),
+              );
+            }
             controller.addOnPlatformViewCreatedListener(
               params.onPlatformViewCreated,
             );
@@ -176,7 +193,16 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
           },
         );
       } else {
-        return AndroidViewWithWrappedController(
+        if (useDelayedDisposalParam) {
+          return AndroidViewWithWrappedController(
+            viewType: 'plugins.flutter.io/mapbox_gl',
+            onPlatformViewCreated: onPlatformViewCreated,
+            gestureRecognizers: gestureRecognizers,
+            creationParams: creationParams,
+            creationParamsCodec: const StandardMessageCodec(),
+          );
+        }
+        return AndroidView(
           viewType: 'plugins.flutter.io/mapbox_gl',
           onPlatformViewCreated: onPlatformViewCreated,
           gestureRecognizers: gestureRecognizers,
