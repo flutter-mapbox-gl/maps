@@ -155,9 +155,8 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
               hitTestBehavior: PlatformViewHitTestBehavior.opaque,
             );
           },
-          onCreatePlatformView: (PlatformViewCreationParams params) {            
-            final controller =
-                WrappedPlatformViewsService.initAndroidView(
+          onCreatePlatformView: (PlatformViewCreationParams params) {
+            final controller = WrappedPlatformViewsService.initAndroidView(
               id: params.id,
               viewType: 'plugins.flutter.io/mapbox_gl',
               layoutDirection: TextDirection.ltr,

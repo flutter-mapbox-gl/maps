@@ -4,7 +4,7 @@ part of mapbox_gl_platform_interface;
 /// It is an workaround for flutter 3, where resourses get disposed quicker than before, while Mapbox behaves badly
 /// and tries to access those resources after they had been disposed, resulting in a native crash.
 
-class WrappedPlatformViewsService {  
+class WrappedPlatformViewsService {
   static AndroidViewController initAndroidView({
     required int id,
     required String viewType,
@@ -12,31 +12,34 @@ class WrappedPlatformViewsService {
     dynamic creationParams,
     MessageCodec<dynamic>? creationParamsCodec,
     VoidCallback? onFocus,
-  }) {    
+  }) {
     final view = PlatformViewsService.initAndroidView(
-      id: id, 
-      viewType: viewType, 
-      layoutDirection: layoutDirection, 
+      id: id,
+      viewType: viewType,
+      layoutDirection: layoutDirection,
       creationParams: creationParams,
       creationParamsCodec: creationParamsCodec,
       onFocus: onFocus,
     );
-    return TextureAndroidViewControllerWrapper(view as TextureAndroidViewController);
+    return TextureAndroidViewControllerWrapper(
+        view as TextureAndroidViewController);
   }
 }
 
-class TextureAndroidViewControllerWrapper implements TextureAndroidViewController {
+class TextureAndroidViewControllerWrapper
+    implements TextureAndroidViewController {
   TextureAndroidViewControllerWrapper(this._controller);
 
   final TextureAndroidViewController _controller;
 
   @override
   PointTransformer get pointTransformer => _controller.pointTransformer;
-  set pointTransformer(PointTransformer transformer) => _controller.pointTransformer = transformer;
+  set pointTransformer(PointTransformer transformer) =>
+      _controller.pointTransformer = transformer;
 
   @override
-  void addOnPlatformViewCreatedListener(PlatformViewCreatedCallback listener) => 
-    _controller.addOnPlatformViewCreatedListener(listener);
+  void addOnPlatformViewCreatedListener(PlatformViewCreatedCallback listener) =>
+      _controller.addOnPlatformViewCreatedListener(listener);
 
   @override
   bool get awaitingCreation => _controller.awaitingCreation;
@@ -49,10 +52,12 @@ class TextureAndroidViewControllerWrapper implements TextureAndroidViewControlle
 
   @override
   // ignore: invalid_use_of_visible_for_testing_member
-  List<PlatformViewCreatedCallback> get createdCallbacks => _controller.createdCallbacks;
+  List<PlatformViewCreatedCallback> get createdCallbacks =>
+      _controller.createdCallbacks;
 
   @override
-  Future<void> dispatchPointerEvent(PointerEvent event) => _controller.dispatchPointerEvent(event);
+  Future<void> dispatchPointerEvent(PointerEvent event) =>
+      _controller.dispatchPointerEvent(event);
 
   @override
   //! workaround for flutter 3.0
@@ -68,13 +73,17 @@ class TextureAndroidViewControllerWrapper implements TextureAndroidViewControlle
   bool get isCreated => _controller.isCreated;
 
   @override
-  void removeOnPlatformViewCreatedListener(PlatformViewCreatedCallback listener) => _controller.removeOnPlatformViewCreatedListener(listener);
+  void removeOnPlatformViewCreatedListener(
+          PlatformViewCreatedCallback listener) =>
+      _controller.removeOnPlatformViewCreatedListener(listener);
 
   @override
-  Future<void> sendMotionEvent(AndroidMotionEvent event) => _controller.sendMotionEvent(event);
+  Future<void> sendMotionEvent(AndroidMotionEvent event) =>
+      _controller.sendMotionEvent(event);
 
   @override
-  Future<void> setLayoutDirection(TextDirection layoutDirection) => _controller.setLayoutDirection(layoutDirection);
+  Future<void> setLayoutDirection(TextDirection layoutDirection) =>
+      _controller.setLayoutDirection(layoutDirection);
 
   @override
   Future<void> setOffset(Offset off) => _controller.setOffset(off);
@@ -100,11 +109,11 @@ class AndroidViewWithWrappedController extends StatefulWidget {
     this.creationParams,
     this.creationParamsCodec,
     this.clipBehavior = Clip.hardEdge,
-  }) : assert(viewType != null),
-       assert(hitTestBehavior != null),
-       assert(creationParams == null || creationParamsCodec != null),
-       assert(clipBehavior != null), 
-       super(key: key);
+  })  : assert(viewType != null),
+        assert(hitTestBehavior != null),
+        assert(creationParams == null || creationParamsCodec != null),
+        assert(clipBehavior != null),
+        super(key: key);
 
   final String viewType;
   final PlatformViewCreatedCallback? onPlatformViewCreated;
@@ -116,10 +125,12 @@ class AndroidViewWithWrappedController extends StatefulWidget {
   final Clip clipBehavior;
 
   @override
-  State<AndroidViewWithWrappedController> createState() => _AndroidViewWithWrappedControllerState();
+  State<AndroidViewWithWrappedController> createState() =>
+      _AndroidViewWithWrappedControllerState();
 }
 
-class _AndroidViewWithWrappedControllerState extends State<AndroidViewWithWrappedController> {
+class _AndroidViewWithWrappedControllerState
+    extends State<AndroidViewWithWrappedController> {
   int? _id;
   late AndroidViewController _controller;
   TextDirection? _layoutDirection;
@@ -127,7 +138,7 @@ class _AndroidViewWithWrappedControllerState extends State<AndroidViewWithWrappe
   FocusNode? _focusNode;
 
   static final Set<Factory<OneSequenceGestureRecognizer>> _emptyRecognizersSet =
-    <Factory<OneSequenceGestureRecognizer>>{};
+      <Factory<OneSequenceGestureRecognizer>>{};
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +167,8 @@ class _AndroidViewWithWrappedControllerState extends State<AndroidViewWithWrappe
   void didChangeDependencies() {
     super.didChangeDependencies();
     final TextDirection newLayoutDirection = _findLayoutDirection();
-    final bool didChangeLayoutDirection = _layoutDirection != newLayoutDirection;
+    final bool didChangeLayoutDirection =
+        _layoutDirection != newLayoutDirection;
     _layoutDirection = newLayoutDirection;
 
     _initializeOnce();
@@ -172,7 +184,8 @@ class _AndroidViewWithWrappedControllerState extends State<AndroidViewWithWrappe
     super.didUpdateWidget(oldWidget);
 
     final TextDirection newLayoutDirection = _findLayoutDirection();
-    final bool didChangeLayoutDirection = _layoutDirection != newLayoutDirection;
+    final bool didChangeLayoutDirection =
+        _layoutDirection != newLayoutDirection;
     _layoutDirection = newLayoutDirection;
 
     if (widget.viewType != oldWidget.viewType) {
@@ -187,7 +200,8 @@ class _AndroidViewWithWrappedControllerState extends State<AndroidViewWithWrappe
   }
 
   TextDirection _findLayoutDirection() {
-    assert(widget.layoutDirection != null || debugCheckHasDirectionality(context));
+    assert(
+        widget.layoutDirection != null || debugCheckHasDirectionality(context));
     return widget.layoutDirection ?? Directionality.of(context);
   }
 
@@ -210,7 +224,8 @@ class _AndroidViewWithWrappedControllerState extends State<AndroidViewWithWrappe
       },
     );
     if (widget.onPlatformViewCreated != null) {
-      _controller.addOnPlatformViewCreatedListener(widget.onPlatformViewCreated!);
+      _controller
+          .addOnPlatformViewCreatedListener(widget.onPlatformViewCreated!);
     }
   }
 
@@ -255,10 +270,10 @@ class _CopyPastedAndroidPlatformView extends LeafRenderObjectWidget {
     required this.hitTestBehavior,
     required this.gestureRecognizers,
     this.clipBehavior = Clip.hardEdge,
-  }) : assert(controller != null),
-       assert(hitTestBehavior != null),
-       assert(gestureRecognizers != null),
-       assert(clipBehavior != null);
+  })  : assert(controller != null),
+        assert(hitTestBehavior != null),
+        assert(gestureRecognizers != null),
+        assert(clipBehavior != null);
 
   final AndroidViewController controller;
   final PlatformViewHitTestBehavior hitTestBehavior;
@@ -266,8 +281,7 @@ class _CopyPastedAndroidPlatformView extends LeafRenderObjectWidget {
   final Clip clipBehavior;
 
   @override
-  RenderObject createRenderObject(BuildContext context) =>
-      RenderAndroidView(
+  RenderObject createRenderObject(BuildContext context) => RenderAndroidView(
         viewController: controller,
         hitTestBehavior: hitTestBehavior,
         gestureRecognizers: gestureRecognizers,
@@ -275,7 +289,8 @@ class _CopyPastedAndroidPlatformView extends LeafRenderObjectWidget {
       );
 
   @override
-  void updateRenderObject(BuildContext context, RenderAndroidView renderObject) {
+  void updateRenderObject(
+      BuildContext context, RenderAndroidView renderObject) {
     renderObject.controller = controller;
     renderObject.hitTestBehavior = hitTestBehavior;
     renderObject.updateGestureRecognizers(gestureRecognizers);
