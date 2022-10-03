@@ -29,6 +29,7 @@ import 'place_source.dart';
 import 'place_symbol.dart';
 import 'scrolling_map.dart';
 import 'sources.dart';
+import 'take_snapshot.dart';
 
 final List<ExamplePage> _allPages = <ExamplePage>[
   MapUiPage(),
