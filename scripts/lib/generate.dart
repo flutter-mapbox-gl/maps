@@ -15,8 +15,10 @@ main() async {
     "circle",
     "line",
     "fill",
+    "fill-extrusion",
     "raster",
-    "hillshade"
+    "hillshade",
+    "heatmap"
   ];
   final sourceTypes = [
     "vector",
@@ -33,6 +35,7 @@ main() async {
         {
           "type": type,
           "typePascal": ReCase(type).pascalCase,
+          "typeCamel": ReCase(type).camelCase,
           "paint_properties": buildStyleProperties(styleJson, "paint_$type"),
           "layout_properties": buildStyleProperties(styleJson, "layout_$type"),
         },
@@ -42,6 +45,7 @@ main() async {
         {
           "type": type.replaceAll("_", "-"),
           "typePascal": ReCase(type).pascalCase,
+          "typeCamel": ReCase(type).camelCase,
           "properties": buildSourceProperties(styleJson, "source_$type"),
         },
     ],
@@ -54,7 +58,7 @@ main() async {
       ...type["layout_properties"].map((p) => p["value"]).toList()
   ].toSet().map((p) => {"property": p}).toList();
 
-  const templates = [
+  final templates = [
     "android/src/main/java/com/mapbox/mapboxgl/LayerPropertyConverter.java",
     "ios/Classes/LayerPropertyConverter.swift",
     "lib/src/layer_expressions.dart",
@@ -76,7 +80,7 @@ Future<void> render(
 
   print("Rendering $filename");
   var templateFile =
-      await File('./scripts/templates/$filename.template').readAsString();
+      await File('scripts/templates/$filename.template').readAsString();
 
   var template = Template(templateFile);
   var outputFile = File('$outputPath/$filename');
@@ -122,9 +126,9 @@ Map<String, dynamic> buildSourceProperty(
   final typeDart = dartTypeMappingTable[value["type"]];
   final typeSwift = swiftTypeMappingTable[value["type"]];
   final nestedTypeDart = dartTypeMappingTable[value["value"]] ??
-      dartTypeMappingTable[value["value"]["type"]];
+      dartTypeMappingTable[value["value"]?["type"]];
   final nestedTypeSwift = swiftTypeMappingTable[value["value"]] ??
-      swiftTypeMappingTable[value["value"]["type"]];
+      swiftTypeMappingTable[value["value"]?["type"]];
 
   var defaultValue = value["default"];
   if (defaultValue is List) {
