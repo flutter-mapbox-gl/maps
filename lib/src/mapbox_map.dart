@@ -225,6 +225,7 @@ class MapboxMap extends StatefulWidget {
   final OnMapIdleCallback? onMapIdle;
 
   /// Use delayed disposal of Android View Controller to avoid flutter 3.x.x crashes
+  /// Use with caution - this is not yet production ready since several users still report crashes after using this workaround
   final bool? useDelayedDisposal;
 
   /// Override hybrid mode per map instance
