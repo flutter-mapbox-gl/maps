@@ -207,6 +207,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 style.localizeLabels(into: locale)
             }
             result(nil)
+        case "map#setMaximumFps":
+            // not implemented, no support for this on iOS
+            result(nil)            
         case "map#queryRenderedFeatures":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             var styleLayerIdentifiers: Set<String>?

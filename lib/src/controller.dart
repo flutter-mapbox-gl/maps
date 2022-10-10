@@ -613,6 +613,17 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.setMapLanguage(language);
   }
 
+  /// Sets the maximum frame rate on Android at which the map view is rendered, but it can't excess the ability of device hardware.
+  /// Invokes call on native SDK - see more info here: https://docs.mapbox.com/android/maps/api/9.6.2/com/mapbox/mapboxsdk/maps/MapView.html#setMaximumFps-int-
+  /// Attention: only supported on Android, no support for this on other platforms.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> setMaximumFps(int fps) async {
+    await _mapboxGlPlatform.setMaximumFps(fps);
+  }
+
+
   /// Enables or disables the collection of anonymized telemetry data.
   ///
   /// The returned [Future] completes after the change has been made on the

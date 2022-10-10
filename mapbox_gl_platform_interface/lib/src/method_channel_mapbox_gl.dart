@@ -285,6 +285,13 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> setMaximumFps(int fps) async {
+    await _channel.invokeMethod('map#setMaximumFps', <String, dynamic>{
+      'fps': fps,
+    });    
+  }
+
+  @override
   Future<void> setTelemetryEnabled(bool enabled) async {
     await _channel.invokeMethod('map#setTelemetryEnabled', <String, dynamic>{
       'enabled': enabled,

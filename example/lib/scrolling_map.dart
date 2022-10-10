@@ -30,6 +30,7 @@ class ScrollingMapBody extends StatefulWidget {
 class _ScrollingMapBodyState extends State<ScrollingMapBody> {
   late MapboxMapController controllerOne;
   late MapboxMapController controllerTwo;
+  late MapboxMapController controllerThree;
 
   final LatLng center = const LatLng(32.080664, 34.9563837);
 
@@ -107,6 +108,43 @@ class _ScrollingMapBodyState extends State<ScrollingMapBody> {
             ),
           ),
         ),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 30.0),
+            child: Column(
+              children: <Widget>[
+                const Text('This map\'s FPS is limited to 5 on Android.'),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 12.0),
+                  child: Text(
+                      'On every other platform it still behaves the same.'),
+                ),
+                Center(
+                  child: SizedBox(
+                    width: 300.0,
+                    height: 300.0,
+                    child: MapboxMap(
+                      accessToken: MapsDemo.ACCESS_TOKEN,
+                      onMapCreated: onMapCreatedThree,
+                      onStyleLoadedCallback: () =>
+                          onStyleLoaded(controllerThree),
+                      initialCameraPosition: CameraPosition(
+                        target: center,
+                        zoom: 11.0,
+                      ),
+                      gestureRecognizers:
+                          <Factory<OneSequenceGestureRecognizer>>[
+                        Factory<OneSequenceGestureRecognizer>(
+                          () => EagerGestureRecognizer(),
+                        ),
+                      ].toSet(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -117,6 +155,11 @@ class _ScrollingMapBodyState extends State<ScrollingMapBody> {
 
   void onMapCreatedTwo(MapboxMapController controller) {
     this.controllerTwo = controller;
+  }
+
+  void onMapCreatedThree(MapboxMapController controller) {
+    this.controllerThree = controller;
+    this.controllerThree.setMaximumFps(5);
   }
 
   void onStyleLoaded(MapboxMapController controller) {
