@@ -767,6 +767,24 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   }
 
   @override
+  Future<void> addFillExtrusionLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      required bool enableInteraction}) async {
+    return _addLayer(sourceId, layerId, properties, "fill-extrusion",
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        minzoom: minzoom,
+        maxzoom: maxzoom,
+        filter: filter,
+        enableInteraction: enableInteraction);
+  }
+
+  @override
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId,
@@ -810,6 +828,21 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       double? minzoom,
       double? maxzoom}) async {
     return _addLayer(sourceId, layerId, properties, "hillshade",
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        minzoom: minzoom,
+        maxzoom: maxzoom,
+        enableInteraction: false);
+  }
+
+  @override
+  Future<void> addHeatmapLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
+    return _addLayer(sourceId, layerId, properties, "heatmap",
         belowLayerId: belowLayerId,
         sourceLayer: sourceLayer,
         minzoom: minzoom,
@@ -940,6 +973,12 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
 
   Future<void> addImageSource(
       String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
+    // TODO: implement addImageSource
+    throw UnimplementedError();
+  }
+
+  Future<void> updateImageSource(
+      String imageSourceId, Uint8List? bytes, LatLngQuad? coordinates) {
     // TODO: implement addImageSource
     throw UnimplementedError();
   }
