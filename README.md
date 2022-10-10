@@ -130,8 +130,9 @@ MapboxMap(
 | Circle Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Line Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Fill Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Fill Extrusion Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Hillshade Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-| Heatmap Layer   | :x:  | :x:  | :x:  |
+| Heatmap Layer   | :white_check_mark:  | :white_check_mark:  | :white_check_mark:  |
 | Vector Source   |  :white_check_mark:  | :white_check_mark:  | :white_check_mark:  |
 | Raster Source  |  :white_check_mark:  | :white_check_mark:  | :white_check_mark:  |
 | GeoJson Source  | :white_check_mark:   | :white_check_mark: | :white_check_mark: |

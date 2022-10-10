@@ -419,6 +419,22 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> updateImageSource(
+      String imageSourceId, Uint8List? bytes, LatLngQuad? coordinates) async {
+    try {
+      return await _channel
+          .invokeMethod('style#updateImageSource', <String, Object?>{
+        'imageSourceId': imageSourceId,
+        'bytes': bytes,
+        'length': bytes?.length,
+        'coordinates': coordinates?.toList()
+      });
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  @override
   Future<Point> toScreenLocation(LatLng latLng) async {
     try {
       var screenPosMap =
@@ -655,6 +671,29 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> addFillExtrusionLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      required bool enableInteraction}) async {
+    await _channel.invokeMethod('fillExtrusionLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'sourceLayer': sourceLayer,
+      'minzoom': minzoom,
+      'maxzoom': maxzoom,
+      'filter': jsonEncode(filter),
+      'enableInteraction': enableInteraction,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
   void dispose() {
     super.dispose();
     _channel.setMethodCallHandler(null);
@@ -694,6 +733,24 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
       double? minzoom,
       double? maxzoom}) async {
     await _channel.invokeMethod('hillshadeLayer#add', <String, dynamic>{
+      'sourceId': sourceId,
+      'layerId': layerId,
+      'belowLayerId': belowLayerId,
+      'minzoom': minzoom,
+      'maxzoom': maxzoom,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
+  Future<void> addHeatmapLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
+    await _channel.invokeMethod('heatmapLayer#add', <String, dynamic>{
       'sourceId': sourceId,
       'layerId': layerId,
       'belowLayerId': belowLayerId,
