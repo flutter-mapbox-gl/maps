@@ -1130,6 +1130,9 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.setFilter(layerId, filter);
   }
 
+  /// Sets the visibility by specifying [isVisible] of the layer with
+  /// the specified id [layerId].
+  /// Returns silently if [layerId] does not exist.
   Future<void> setVisibility(String layerId, bool isVisible) {
     return _mapboxGlPlatform.setVisibility(layerId, isVisible);
   }
