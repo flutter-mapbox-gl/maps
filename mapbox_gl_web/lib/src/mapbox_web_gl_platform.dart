@@ -912,6 +912,30 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
     _map.getCanvas().style.cursor = '';
   }
 
+  /// show a given popup when a feature of a given layer is hovered, remove the popup when the mouse leaves the feature
+  void showPopupOnFeatureHover(
+      {required String layerId, required Popup popup}) {
+    _map.on('mouseenter', layerId, (Event e) {
+      final feature = e.features.first;
+      final lngLat = e.lngLat;
+
+      final coordinates = <num>[...feature.geometry.coordinates];
+      final description = feature.properties["description"] as String?;
+
+      while ((lngLat.lng - coordinates.first).abs() > 180) {
+        coordinates.first += lngLat.lng > coordinates.first ? 360 : -360;
+      }
+
+      popup
+          .setLngLat(LngLat(coordinates.first, coordinates.last))
+          .setHTML(description)
+          .addTo(_map);
+    });
+    _map.on('mouseleave', layerId, (Event e) {
+      popup.remove();
+    });
+  }
+
   @override
   void setGestures(
       {required bool rotateGesturesEnabled,

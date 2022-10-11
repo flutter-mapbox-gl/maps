@@ -7,13 +7,14 @@ library mapbox_gl;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart';
+import 'package:mapbox_gl_web/mapbox_gl_web.dart';
+import 'package:mapbox_gl_dart/mapbox_gl_dart.dart' show Popup, PopupOptions;
 
 export 'package:mapbox_gl_platform_interface/mapbox_gl_platform_interface.dart'
     show

@@ -1333,6 +1333,42 @@ class MapboxMapController extends ChangeNotifier {
     }
   }
 
+  /// show popup when a feature of a given layer is hovered, remove the popup when the mouse leaves the feature
+  ///
+  /// You can configure how the popup will appear by setting [loseButton], [closeButton], [offset], [anchor] and [textSize].
+  ///
+  /// *This only works on web*
+  void showPopupOnFeatureHover({
+    required String layerId,
+    bool? loseButton,
+    bool? closeButton,
+    bool? closeOnClick,
+    String? anchor,
+    String? className,
+    String? maxWidth,
+    dynamic offset,
+  }) {
+    if (_mapboxGlPlatform is MapboxWebGlPlatform) {
+      final mapboxWebPlatform = _mapboxGlPlatform as MapboxWebGlPlatform;
+      final popup = Popup();
+      // Passing the option directly in constructor does not work
+      popup.options.loseButton = loseButton;
+      popup.options.closeButton = closeButton;
+      popup.options.closeOnClick = closeOnClick;
+      popup.options.anchor = anchor;
+      popup.options.className = className;
+      popup.options.maxWidth = maxWidth;
+
+      // We also don't pass the offset if it's null because it will put
+      // the popup at the top left corner of the screen
+      if (offset != null) {
+        popup.options.offset = offset;
+      }
+
+      mapboxWebPlatform.showPopupOnFeatureHover(layerId: layerId, popup: popup);
+    }
+  }
+
   /// Generates static raster images of the map. Each snapshot image depicts a portion of a map defined by an [SnapshotOptions] object you provide
   /// Android/iOS: Return snapshot uri in app specific cache storage or base64 string
   /// Web: Return base64 string with current camera posision of [MapboxMap]
