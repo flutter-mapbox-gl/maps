@@ -80,6 +80,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1201,6 +1202,32 @@ final class MapboxMapController
           byte[] bytes = call.argument("bytes");
           if (bytes != null) {
             imageSource.setImage(BitmapFactory.decodeByteArray(bytes, 0, call.argument("length")));
+          }
+          result.success(null);
+          break;
+        }
+      case "style#updateImage":
+        {
+          if (style == null) {
+            result.error(
+                "STYLE IS NULL",
+                "The style is null. Has onStyleLoaded() already been invoked?",
+                null);
+          }
+          ImageSource imageSource = style.getSourceAs(call.argument("imageSourceId"));
+          List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"), false);
+          if (coordinates != null) {
+            // https://github.com/mapbox/mapbox-maps-android/issues/302
+            imageSource.setCoordinates(
+                new LatLngQuad(
+                    coordinates.get(0),
+                    coordinates.get(1),
+                    coordinates.get(2),
+                    coordinates.get(3)));
+          }
+          String url = call.argument("url");
+          if (url != null) {
+            imageSource.setUri(URI.create(url));
           }
           result.success(null);
           break;

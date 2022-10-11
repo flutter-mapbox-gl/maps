@@ -973,14 +973,37 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
 
   Future<void> addImageSource(
       String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
-    // TODO: implement addImageSource
-    throw UnimplementedError();
+    throw UnimplementedError(
+        "MapboxJS doesn't support add image source with asset");
   }
 
   Future<void> updateImageSource(
       String imageSourceId, Uint8List? bytes, LatLngQuad? coordinates) {
-    // TODO: implement addImageSource
-    throw UnimplementedError();
+    throw UnimplementedError(
+        "MapboxJS doesn't support update image source with asset");
+  }
+
+  @override
+  Future<void> updateImage(
+      String imageSourceId, String? url, LatLngQuad? coordinates) async {
+    final source = _map.getSource(imageSourceId) as ImageSource?;
+    if (coordinates != null) {
+      final param = [
+        coordinates.topLeft.toGeoJsonCoordinates(),
+        coordinates.topRight.toGeoJsonCoordinates(),
+        coordinates.bottomRight.toGeoJsonCoordinates(),
+        coordinates.bottomLeft.toGeoJsonCoordinates(),
+      ];
+      if (url != null) {
+        final imageOptions = ImageOptions(
+          url: url,
+          coordinates: param,
+        );
+        source?.updateImage(imageOptions);
+      } else {
+        source?.setCoordinates(param);
+      }
+    }
   }
 
   @override

@@ -1165,6 +1165,12 @@ class MapboxMapController extends ChangeNotifier {
         imageSourceId, bytes, coordinates);
   }
 
+  /// Update an image source to the style currently displayed in the map, so that it can later be referred to by the provided id.
+  Future<void> updateImage(String imageSourceId,
+      {String? url, LatLngQuad? coordinates}) {
+    return _mapboxGlPlatform.updateImage(imageSourceId, url, coordinates);
+  }
+
   /// Removes previously added image source by id
   @Deprecated("This method was renamed to removeSource")
   Future<void> removeImageSource(String imageSourceId) {
