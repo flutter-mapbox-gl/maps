@@ -297,6 +297,12 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<CameraPosition?> queryCameraPosition() async {
+    final dynamic json = await _channel.invokeMethod('map#queryCameraPosition');
+    return CameraPosition.fromMap(json);
+  }
+
+  @override
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, List<Object>? filter) async {
     try {

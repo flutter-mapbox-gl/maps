@@ -257,6 +257,11 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   }
 
   @override
+  Future<CameraPosition?> queryCameraPosition() async {
+    return _getCameraPosition();
+  }
+
+  @override
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, List<Object>? filter) async {
     Map<String, dynamic> options = {};

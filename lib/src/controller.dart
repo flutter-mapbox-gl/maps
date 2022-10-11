@@ -993,6 +993,16 @@ class MapboxMapController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Queries map for current camera position at all times.
+  /// This differs from [cameraPosition] which is sometimes lagging / out of sync,
+  /// because it relies on callbacks from native side which are called only
+  /// when significant camera position changes occur.
+  ///
+  /// Will be null, if [MapboxMap.trackCameraPosition] is false.
+  Future<CameraPosition?> queryCameraPosition() async {
+    return _cameraPosition = await _mapboxGlPlatform.queryCameraPosition();
+  }
+
   /// Query rendered features at a point in screen cooridnates
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, List<Object>? filter) async {

@@ -742,6 +742,11 @@ final class MapboxMapController
           animateCamera(cameraUpdate, duration, result);
           break;
         }
+      case "map#queryCameraPosition": 
+        {
+          result.success(Convert.toJson(getCameraPosition()));
+          break;
+        }
       case "map#queryRenderedFeatures":
         {
           Map<String, Object> reply = new HashMap<>();

@@ -207,6 +207,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 style.localizeLabels(into: locale)
             }
             result(nil)
+        case "map#queryCameraPosition":
+            if let camera = getCamera() {
+                result(camera.toDict(mapView: mapView))
+            } else {
+                result(nil)
+            }
         case "map#queryRenderedFeatures":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             var styleLayerIdentifiers: Set<String>?

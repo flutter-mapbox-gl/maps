@@ -66,6 +66,7 @@ abstract class MapboxGlPlatform {
   Future<void> setTelemetryEnabled(bool enabled);
 
   Future<bool> getTelemetryEnabled();
+  Future<CameraPosition?> queryCameraPosition();
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, List<Object>? filter);
 
