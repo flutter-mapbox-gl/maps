@@ -296,6 +296,18 @@ class MapUiBodyState extends State<MapUiBody> {
     );
   }
 
+  Widget _exactCameraPositionGetter() {
+    return TextButton(
+      onPressed: () async {
+        final position = await mapController!.queryCameraPosition();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Position: ${position?.toString()}"),
+        ));
+      },
+      child: const Text('get exact camera position'),
+    );
+  }
+
   _clearFill() {
     if (_selectedFill != null) {
       mapController!.removeFill(_selectedFill!);
@@ -417,6 +429,7 @@ class MapUiBodyState extends State<MapUiBody> {
           _myLocationToggler(),
           _telemetryToggler(),
           _visibleRegionGetter(),
+          _exactCameraPositionGetter(),
         ],
       );
     }
