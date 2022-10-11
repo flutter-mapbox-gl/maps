@@ -208,8 +208,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
             result(nil)
         case "map#setMaximumFps":
-            // not implemented, no support for this on iOS
-            result(nil)            
+            result(FlutterError(
+                code: "notSupported",
+                message: "Setting FPS not supported on iOS",
+                details: "There is no platform support for setting FPS on iOS."
+            ))
         case "map#queryRenderedFeatures":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             var styleLayerIdentifiers: Set<String>?
