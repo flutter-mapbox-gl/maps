@@ -25,7 +25,8 @@ import 'page.dart';
 import 'place_batch.dart';
 import 'place_circle.dart';
 import 'place_fill.dart';
-import 'place_source.dart';
+import 'place_asset_source.dart';
+import 'place_remote_source.dart';
 import 'place_symbol.dart';
 import 'scrolling_map.dart';
 import 'sources.dart';
@@ -37,7 +38,8 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   AnimateCameraPage(),
   MoveCameraPage(),
   PlaceSymbolPage(),
-  PlaceSourcePage(),
+  PlaceAssetSourcePage(),
+  PlaceRemoteSourcePage(),
   LinePage(),
   LocalStylePage(),
   LayerPage(),
@@ -61,7 +63,8 @@ class MapsDemo extends StatefulWidget {
   //
   // Alternatively you can replace `String.fromEnvironment("ACCESS_TOKEN")`
   // in the following line with your access token directly.
-  static const String ACCESS_TOKEN = String.fromEnvironment("ACCESS_TOKEN");
+  static const String ACCESS_TOKEN =
+      "pk.eyJ1IjoiaHVuZ3Rybjc1IiwiYSI6ImNraWUwdndkNDFvdjEyenM1aHI4MW03MmUifQ.wxzz5LIISMr_qcmdc4U-Cg";
 
   @override
   State<MapsDemo> createState() => _MapsDemoState();
