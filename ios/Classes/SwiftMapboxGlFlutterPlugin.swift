@@ -17,19 +17,42 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
             switch methodCall.method {
             case "setHttpHeaders":
                 guard let arguments = methodCall.arguments as? [String: Any],
-                      let headers = arguments["headers"] as? [String: String]
+                      let headers = arguments["headers"] as? [String: String],
+                      let allowMutableHeadersAndFilterOnIOS = arguments["allowMutableHeadersAndFilterOnIOS"] as? Bool                      
                 else {
                     result(FlutterError(
                         code: "setHttpHeadersError",
                         message: "could not decode arguments",
                         details: nil
                     ))
-                    result(nil)
+                    return
+                }                
+                if allowMutableHeadersAndFilterOnIOS {
+                    let filter = arguments["filter"] as? [String]
+                    NSURLRequest.registerSwizzling()
+                    NSURLRequest.setHttpHeaders(headers, forFilter: filter)
+                } else {
+                    let sessionConfig = URLSessionConfiguration.default
+                    sessionConfig.httpAdditionalHeaders = headers // your headers here
+                    MGLNetworkConfiguration.sharedManager.sessionConfiguration = sessionConfig
+                }                               
+                result(nil)
+            case "getHttpHeaders":
+                guard let arguments = methodCall.arguments as? [String: Any],
+                      let allowMutableHeadersAndFilterOnIOS = arguments["allowMutableHeadersAndFilterOnIOS"] as? Bool
+                else {
+                    result(FlutterError(
+                        code: "getHttpHeadersError",
+                        message: "could not decode arguments",
+                        details: nil
+                    ))
                     return
                 }
-                let sessionConfig = URLSessionConfiguration.default
-                sessionConfig.httpAdditionalHeaders = headers // your headers here
-                MGLNetworkConfiguration.sharedManager.sessionConfiguration = sessionConfig
+                if allowMutableHeadersAndFilterOnIOS {
+                    result(NSURLRequest.getHttpHeaders())
+                } else {
+                    result(MGLNetworkConfiguration.sharedManager.sessionConfiguration.httpAdditionalHeaders)
+                }
                 result(nil)
             case "installOfflineMapTiles":
                 guard let arguments = methodCall.arguments as? [String: String] else { return }

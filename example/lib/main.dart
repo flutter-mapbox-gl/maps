@@ -15,6 +15,7 @@ import 'annotation_order_maps.dart';
 import 'click_annotations.dart';
 import 'custom_marker.dart';
 import 'full_map.dart';
+import 'http_headers.dart';
 import 'layer.dart';
 import 'line.dart';
 import 'local_style.dart';
@@ -40,6 +41,7 @@ final List<ExamplePage> _allPages = <ExamplePage>[
   PlaceSourcePage(),
   LinePage(),
   LocalStylePage(),
+  HttpHeadersPage(),
   LayerPage(),
   PlaceCirclePage(),
   PlaceFillPage(),
