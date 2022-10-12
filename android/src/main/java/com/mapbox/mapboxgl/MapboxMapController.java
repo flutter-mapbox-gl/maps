@@ -657,10 +657,10 @@ final class MapboxMapController
           }
           break;
         }
-      case "map#setMaximumFps": 
+      case "map#setMaximumFps":
         {
           if (mapView != null) {
-            int fps = (int)call.argument("fps");
+            int fps = (int) call.argument("fps");
             mapView.setMaximumFps(fps);
           }
           result.success(null);
@@ -1195,7 +1195,7 @@ final class MapboxMapController
 
           result.success(null);
           break;
-        }      
+        }
       case "snapshot#takeSnapshot":
         {
           FileSource.getInstance(context).activate();
