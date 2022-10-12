@@ -4,6 +4,9 @@
 
 package com.mapbox.mapboxgl;
 
+import static com.mapbox.mapboxsdk.style.layers.Property.*;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -74,8 +77,6 @@ import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
-import static com.mapbox.mapboxsdk.style.layers.Property.*;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -1203,7 +1204,7 @@ final class MapboxMapController
           if (layer != null) {
             layer.setProperties(isVisible ? visibility(VISIBLE) : visibility(NONE));
           }
-          
+
           result.success(null);
           break;
         }
