@@ -244,7 +244,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
     );
   }
 
-  @override Future<void> setMaximumFps(int value) async {
+  @override
+  Future<void> setMaximumFps(int value) async {
     throw UnsupportedError('Limiting FPS not supported in web');
   }
 

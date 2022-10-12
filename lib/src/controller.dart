@@ -623,7 +623,6 @@ class MapboxMapController extends ChangeNotifier {
     await _mapboxGlPlatform.setMaximumFps(fps);
   }
 
-
   /// Enables or disables the collection of anonymized telemetry data.
   ///
   /// The returned [Future] completes after the change has been made on the
