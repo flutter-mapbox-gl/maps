@@ -18,8 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
   private static final String TAG = GlobalMethodHandler.class.getSimpleName();
@@ -96,10 +96,11 @@ class GlobalMethodHandler implements MethodChannel.MethodCallHandler {
         List<String> filter = (List<String>) methodCall.argument("filter");
         MapboxHttpRequestUtil.setHttpHeaders(headers, filter, result);
         break;
-      case "getHttpHeaders": {
-        MapboxHttpRequestUtil.getHttpHeaders(result);
-        break;
-      }
+      case "getHttpHeaders":
+        {
+          MapboxHttpRequestUtil.getHttpHeaders(result);
+          break;
+        }
       case "downloadOfflineRegion":
         // Get args from caller
         Map<String, Object> definitionMap = (Map<String, Object>) methodCall.argument("definition");

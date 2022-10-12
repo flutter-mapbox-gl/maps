@@ -40,7 +40,8 @@ class _HttpHeadersState extends State<HttpHeaders> {
 
     _random = Random();
     _customAccessToken = _getRandomAccessToken();
-    setHttpHeaders({_authorizationHeader: 'Bearer $_customAccessToken'}, allowMutableHeadersAndFilterOnIOS: true);
+    setHttpHeaders({_authorizationHeader: 'Bearer $_customAccessToken'},
+        allowMutableHeadersAndFilterOnIOS: true);
 
     HttpServer.bind(_localServerAddress, _localServerPort).then((server) {
       setState(() {
@@ -71,13 +72,14 @@ class _HttpHeadersState extends State<HttpHeaders> {
         request.response.close();
         return;
       } else if (request.uri.path.contains('.pbf') ||
-          request.uri.path.contains('sprites')) {        
+          request.uri.path.contains('sprites')) {
         request.response.statusCode = 200;
         request.response.close();
         return;
       }
     }
-    print("Unauthorized for ${request.uri.path}: Expected $_customAccessToken, got $authorizationHeader");
+    print(
+        "Unauthorized for ${request.uri.path}: Expected $_customAccessToken, got $authorizationHeader");
     request.response.statusCode = 401;
     request.response.close();
   }
@@ -94,18 +96,19 @@ class _HttpHeadersState extends State<HttpHeaders> {
         onMapCreated: _onMapCreated,
         initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
         onStyleLoadedCallback: onStyleLoadedCallback,
-        gestureRecognizers:
-                          <Factory<OneSequenceGestureRecognizer>>[
-                        Factory<OneSequenceGestureRecognizer>(
-                          () => EagerGestureRecognizer(),
-                        ),
-                      ].toSet(),
+        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+          Factory<OneSequenceGestureRecognizer>(
+            () => EagerGestureRecognizer(),
+          ),
+        ].toSet(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           _customAccessToken = _getRandomAccessToken();
-          print("Reported headers: ${await getHttpHeaders(allowMutableHeadersAndFilterOnIOS: true)}");
-          setHttpHeaders({_authorizationHeader: 'Bearer $_customAccessToken'}, allowMutableHeadersAndFilterOnIOS: true);
+          print(
+              "Reported headers: ${await getHttpHeaders(allowMutableHeadersAndFilterOnIOS: true)}");
+          setHttpHeaders({_authorizationHeader: 'Bearer $_customAccessToken'},
+              allowMutableHeadersAndFilterOnIOS: true);
         },
         child: Icon(Icons.refresh),
       ),

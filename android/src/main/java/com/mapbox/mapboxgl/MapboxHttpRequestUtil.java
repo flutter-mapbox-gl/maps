@@ -2,14 +2,15 @@ package com.mapbox.mapboxgl;
 
 import com.mapbox.mapboxsdk.module.http.HttpRequestUtil;
 import io.flutter.plugin.common.MethodChannel;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
 abstract class MapboxHttpRequestUtil {
 
-  public static void setHttpHeaders(Map<String, String> headers, List<String> filter, MethodChannel.Result result) {
+  public static void setHttpHeaders(
+      Map<String, String> headers, List<String> filter, MethodChannel.Result result) {
     HttpRequestUtil.setOkHttpClient(getOkHttpClient(headers, filter, result).build());
     MapboxHttpRequestUtil.headers = headers;
     MapboxHttpRequestUtil.filter = filter;

@@ -35,40 +35,46 @@ Future<dynamic> setOffline(
 /// Sets custom header specified in [headers] for uris which contain strings,
 /// specified in [filter].
 ///
-/// If [filter] is omitted, headers are applied to all requests. 
+/// If [filter] is omitted, headers are applied to all requests.
 /// An non-null empty [filter] will result in no headers being applied to any request.
-/// 
+///
 /// On iOS by default changes to headers are not possible once they are set and
 /// filters can't be applied as well.
 /// You can use [allowMutableHeadersAndFilterOnIOS] to be able to change headers (e.g. when access
 /// token is invalidated) and filters to prevent leaking authentication headers. This enforces the
 /// use of swizzling and should be used with great care, since it swaps methods of exising classes
 /// and may change upon native SDK upgrade. Use with caution.
-Future<void> setHttpHeaders(Map<String, String> headers, {List<String>? filter, bool allowMutableHeadersAndFilterOnIOS = false}) {
+Future<void> setHttpHeaders(Map<String, String> headers,
+    {List<String>? filter, bool allowMutableHeadersAndFilterOnIOS = false}) {
   return _globalChannel.invokeMethod(
     'setHttpHeaders',
     <String, dynamic>{
       'headers': headers,
       'filter': filter,
-      'allowMutableHeadersAndFilterOnIOS': Platform.isIOS ? allowMutableHeadersAndFilterOnIOS : false,
+      'allowMutableHeadersAndFilterOnIOS':
+          Platform.isIOS ? allowMutableHeadersAndFilterOnIOS : false,
     },
   );
 }
 
 /// Gets custom headers that are used in Mapbox queries.
 ///
-/// If [allowMutableHeadersAndFilterOnIOS] is used on iOS, headers are reported only after they are 
+/// If [allowMutableHeadersAndFilterOnIOS] is used on iOS, headers are reported only after they are
 /// actually used in a request. This provides a proven way of checking whether setting headers works
 /// and must be used the same way as [setHttpHeaders] is called as it involves swizzling. For more
 /// information look at [setHttpHeaders] documentation. Use with caution.
-Future<Map<String, String>?> getHttpHeaders({bool allowMutableHeadersAndFilterOnIOS = false}) async {
+Future<Map<String, String>?> getHttpHeaders(
+    {bool allowMutableHeadersAndFilterOnIOS = false}) async {
   final result = await _globalChannel.invokeMethod<Map<dynamic, dynamic>>(
     'getHttpHeaders',
     <String, dynamic>{
-      'allowMutableHeadersAndFilterOnIOS': Platform.isIOS ? allowMutableHeadersAndFilterOnIOS : false,
+      'allowMutableHeadersAndFilterOnIOS':
+          Platform.isIOS ? allowMutableHeadersAndFilterOnIOS : false,
     },
   );
-  return result?.map((key, value) => MapEntry<String, String>(key.toString(), value.toString())) ?? <String, String>{};
+  return result?.map((key, value) =>
+          MapEntry<String, String>(key.toString(), value.toString())) ??
+      <String, String>{};
 }
 
 Future<List<OfflineRegion>> mergeOfflineRegions(

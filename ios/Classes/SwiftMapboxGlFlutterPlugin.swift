@@ -18,7 +18,10 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
             case "setHttpHeaders":
                 guard let arguments = methodCall.arguments as? [String: Any],
                       let headers = arguments["headers"] as? [String: String],
-                      let allowMutableHeadersAndFilterOnIOS = arguments["allowMutableHeadersAndFilterOnIOS"] as? Bool                      
+                      let allowMutableHeadersAndFilterOnIOS =
+                      arguments[
+                          "allowMutableHeadersAndFilterOnIOS"
+                      ] as? Bool
                 else {
                     result(FlutterError(
                         code: "setHttpHeadersError",
@@ -26,7 +29,7 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                         details: nil
                     ))
                     return
-                }                
+                }
                 if allowMutableHeadersAndFilterOnIOS {
                     let filter = arguments["filter"] as? [String]
                     NSURLRequest.registerSwizzling()
@@ -35,11 +38,12 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                     let sessionConfig = URLSessionConfiguration.default
                     sessionConfig.httpAdditionalHeaders = headers // your headers here
                     MGLNetworkConfiguration.sharedManager.sessionConfiguration = sessionConfig
-                }                               
+                }
                 result(nil)
             case "getHttpHeaders":
                 guard let arguments = methodCall.arguments as? [String: Any],
-                      let allowMutableHeadersAndFilterOnIOS = arguments["allowMutableHeadersAndFilterOnIOS"] as? Bool
+                      let allowMutableHeadersAndFilterOnIOS =
+                      arguments["allowMutableHeadersAndFilterOnIOS"] as? Bool
                 else {
                     result(FlutterError(
                         code: "getHttpHeadersError",
@@ -51,7 +55,8 @@ public class SwiftMapboxGlFlutterPlugin: NSObject, FlutterPlugin {
                 if allowMutableHeadersAndFilterOnIOS {
                     result(NSURLRequest.getHttpHeaders())
                 } else {
-                    result(MGLNetworkConfiguration.sharedManager.sessionConfiguration.httpAdditionalHeaders)
+                    result(MGLNetworkConfiguration.sharedManager.sessionConfiguration
+                        .httpAdditionalHeaders)
                 }
                 result(nil)
             case "installOfflineMapTiles":
