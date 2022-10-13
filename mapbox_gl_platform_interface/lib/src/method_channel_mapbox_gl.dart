@@ -299,8 +299,13 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
         <String, Object?>{
           'left': rect.left,
           'top': rect.top,
+          //specific arguments needed for android rect function
           'right': rect.right,
           'bottom': rect.bottom,
+          //specific arguments needed for iOS rect function
+          'width': rect.width,
+          'height': rect.height,
+          //arguments for mapbox
           'layerIds': layerIds,
           'filter': filter,
         },
