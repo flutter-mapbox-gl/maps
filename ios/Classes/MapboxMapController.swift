@@ -602,7 +602,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             if let source = mapView.style?.source(withIdentifier: sourceId) {
                 return result(true)
             } else { return result(false) }
-            
+
         case "style#updateImageSource":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let imageSourceId = arguments["imageSourceId"] as? String else { return }
