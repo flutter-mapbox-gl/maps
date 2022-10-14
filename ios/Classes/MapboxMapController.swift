@@ -228,12 +228,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             }
             if let top = arguments["top"] as? Double,
                let left = arguments["left"] as? Double,
-               let width = arguments["width"] as? Double, 
+               let width = arguments["width"] as? Double,
                let height = arguments["height"] as? Double
             {
                 dump(arguments)
                 features = mapView.visibleFeatures(
-                    in: CGRect(x:left, y: top, width: width, height: height),
+                    in: CGRect(x: left, y: top, width: width, height: height),
                     styleLayerIdentifiers: styleLayerIdentifiers,
                     predicate: filterExpression
                 )
