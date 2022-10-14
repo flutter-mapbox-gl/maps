@@ -11,3 +11,6 @@ format:
 
 install_formatting:
 	./install_formatting_tools.sh
+
+codegen:
+	dart scripts/lib/generate.dart

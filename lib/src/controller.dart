@@ -467,6 +467,46 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
+  /// Add a fill extrusion layer to the map with the given properties
+  ///
+  /// Consider using [addLayer] for an unified layer api.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// If [enableInteraction] is set the layer is considered for touch or drag
+  /// events. [sourceLayer] is used to selected a specific source layer from
+  /// Vector source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
+  /// [filter] determines which features should be rendered in the layer.
+  /// Filters are written as [expressions].
+  ///
+  /// [expressions]: https://docs.mapbox.com/mapbox-gl-js/style-spec/expressions
+  Future<void> addFillExtrusionLayer(
+      String sourceId, String layerId, FillExtrusionLayerProperties properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      bool enableInteraction = true}) async {
+    await _mapboxGlPlatform.addFillExtrusionLayer(
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+      sourceLayer: sourceLayer,
+      minzoom: minzoom,
+      maxzoom: maxzoom,
+      filter: filter,
+      enableInteraction: enableInteraction,
+    );
+  }
+
   /// Add a circle layer to the map with the given properties
   ///
   /// Consider using [addLayer] for an unified layer api.
@@ -559,6 +599,37 @@ class MapboxMapController extends ChangeNotifier {
       double? minzoom,
       double? maxzoom}) async {
     await _mapboxGlPlatform.addHillshadeLayer(
+      sourceId,
+      layerId,
+      properties.toJson(),
+      belowLayerId: belowLayerId,
+      sourceLayer: sourceLayer,
+      minzoom: minzoom,
+      maxzoom: maxzoom,
+    );
+  }
+
+  /// Add a heatmap layer to the map with the given properties
+  ///
+  /// Consider using [addLayer] for an unified layer api.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  ///
+  /// Setting [belowLayerId] adds the new layer below the given id.
+  /// [sourceLayer] is used to selected a specific source layer from
+  /// Raster source.
+  /// [minzoom] is the minimum (inclusive) zoom level at which the layer is
+  /// visible.
+  /// [maxzoom] is the maximum (exclusive) zoom level at which the layer is
+  /// visible.
+  Future<void> addHeatmapLayer(
+      String sourceId, String layerId, HeatmapLayerProperties properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
+    await _mapboxGlPlatform.addHeatmapLayer(
       sourceId,
       layerId,
       properties.toJson(),
@@ -1092,6 +1163,13 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.sourceExists(sourceId);
   }
 
+  /// Update an image source to the style currently displayed in the map, so that it can later be referred to by the provided id.
+  Future<void> updateImageSource(
+      String imageSourceId, Uint8List? bytes, LatLngQuad? coordinates) {
+    return _mapboxGlPlatform.updateImageSource(
+        imageSourceId, bytes, coordinates);
+  }
+
   /// Removes previously added image source by id
   @Deprecated("This method was renamed to removeSource")
   Future<void> removeImageSource(String imageSourceId) {
@@ -1201,6 +1279,12 @@ class MapboxMapController extends ChangeNotifier {
           minzoom: minzoom,
           maxzoom: maxzoom,
           filter: filter);
+    } else if (properties is FillExtrusionLayerProperties) {
+      addFillExtrusionLayer(sourceId, layerId, properties,
+          belowLayerId: belowLayerId,
+          sourceLayer: sourceLayer,
+          minzoom: minzoom,
+          maxzoom: maxzoom);
     } else if (properties is LineLayerProperties) {
       addLineLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
@@ -1239,6 +1323,12 @@ class MapboxMapController extends ChangeNotifier {
         throw UnimplementedError("HillShadeLayer does not support filter");
       }
       addHillshadeLayer(sourceId, layerId, properties,
+          belowLayerId: belowLayerId,
+          sourceLayer: sourceLayer,
+          minzoom: minzoom,
+          maxzoom: maxzoom);
+    } else if (properties is HeatmapLayerProperties) {
+      addHeatmapLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           sourceLayer: sourceLayer,
           minzoom: minzoom,

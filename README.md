@@ -130,8 +130,9 @@ MapboxMap(
 | Circle Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Line Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Fill Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| Fill Extrusion Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
 | Hillshade Layer | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-| Heatmap Layer   | :x:  | :x:  | :x:  |
+| Heatmap Layer   | :white_check_mark:  | :white_check_mark:  | :white_check_mark:  |
 | Vector Source   |  :white_check_mark:  | :white_check_mark:  | :white_check_mark:  |
 | Raster Source  |  :white_check_mark:  | :white_check_mark:  | :white_check_mark:  |
 | GeoJson Source  | :white_check_mark:   | :white_check_mark: | :white_check_mark: |
@@ -250,6 +251,9 @@ xml ...
 ```
 
 [Recommended](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location)  explanation about "Shows your location on the map and helps improve the map".
+
+## Flutter 3.x.x issues and experimental workarounds
+Since Flutter 3.x.x was introduced, it exposed some race conditions resulting in occasional crashes upon map disposal. The parameter `useDelayedDisposal` was introduced as a workaround for this issue until Flutter and/or Mapbox fix this issue properly. Use with caution - this is not yet production ready since several users still report crashes after using this workaround.
 
 ## Running the example code
 See the [documentation about this topic](doc/RUNNING_EXAMPLE_CODE.md)
