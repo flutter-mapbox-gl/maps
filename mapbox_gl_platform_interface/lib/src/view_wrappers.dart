@@ -47,7 +47,7 @@ class TextureAndroidViewControllerWrapper
   /// A false return value does not necessarily indicate that the Future 
   /// returned by create has completed, only that creation has been started.
   // @override
-  bool get awaitingCreation => false;
+  bool awaitingCreation = true;
 
   // @override
   Future<void> clearFocus() => _controller.clearFocus();
@@ -57,7 +57,13 @@ class TextureAndroidViewControllerWrapper
   /// size is the view's initial size in logical pixel. size can be omitted 
   /// if the concrete implementation doesn't require an initial size to create 
   /// the platform view.
-  Future<void> create({Size? size}) => _controller.create();
+  Future<void> create({Size? size}) async {    
+    await _controller.create();  
+    awaitingCreation = false;  
+    if (size != null) {
+      await _controller.setSize(size);
+    }
+  }
 
   /// Beginning with flutter 3, [_controller.createdCallbacks] should be called.
   ///
