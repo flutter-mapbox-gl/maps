@@ -44,7 +44,7 @@ class TextureAndroidViewControllerWrapper
   /// Beginning with flutter 3, [_controller.awaitingCreation] should be called.
   ///
   /// A false value is returned in order to consolidate usage with flutter 2.
-  /// A false return value does not necessarily indicate that the Future 
+  /// A false return value does not necessarily indicate that the Future
   /// returned by create has completed, only that creation has been started.
   // @override
   bool awaitingCreation = true;
@@ -54,12 +54,12 @@ class TextureAndroidViewControllerWrapper
 
   /// Beginning with flutter 3, [_controller.create] with [size] should be called.
   ///
-  /// size is the view's initial size in logical pixel. size can be omitted 
-  /// if the concrete implementation doesn't require an initial size to create 
+  /// size is the view's initial size in logical pixel. size can be omitted
+  /// if the concrete implementation doesn't require an initial size to create
   /// the platform view.
-  Future<void> create({Size? size}) async {    
-    await _controller.create();  
-    awaitingCreation = false;  
+  Future<void> create({Size? size}) async {
+    await _controller.create();
+    awaitingCreation = false;
     if (size != null) {
       await _controller.setSize(size);
     }
@@ -70,7 +70,7 @@ class TextureAndroidViewControllerWrapper
   /// This is for testing purposes only and is not relevant for production code.
   // @override
   // ignore: invalid_use_of_visible_for_testing_member
-  List<PlatformViewCreatedCallback> get createdCallbacks => []; //_controller.createdCallbacks;
+  List<PlatformViewCreatedCallback> get createdCallbacks => [];
 
   // @override
   Future<void> dispatchPointerEvent(PointerEvent event) =>
@@ -107,10 +107,10 @@ class TextureAndroidViewControllerWrapper
   /// Beginning with flutter 3, [_controller.setOffset(off)] should be called.
   ///
   /// off is the view's new offset in logical pixel.
-  /// On Android, this allows the Android native view to draw the a11y highlights 
+  /// On Android, this allows the Android native view to draw the a11y highlights
   /// in the same location on the screen as the platform view widget in the Flutter framework.
   // @override
-  Future<void> setOffset(Offset off) => Future(() => {}); //_controller.setOffset(off);
+  Future<void> setOffset(Offset off) => Future(() => {});
 
   // @override
   Future<Size> setSize(Size size) async {
