@@ -32,35 +32,48 @@ class TextureAndroidViewControllerWrapper
 
   final TextureAndroidViewController _controller;
 
-  @override
+  // @override
   PointTransformer get pointTransformer => _controller.pointTransformer;
   set pointTransformer(PointTransformer transformer) =>
       _controller.pointTransformer = transformer;
 
-  @override
+  // @override
   void addOnPlatformViewCreatedListener(PlatformViewCreatedCallback listener) =>
       _controller.addOnPlatformViewCreatedListener(listener);
 
-  @override
-  bool get awaitingCreation => _controller.awaitingCreation;
+  /// Beginning with flutter 3, [_controller.awaitingCreation] should be called.
+  ///
+  /// A false value is returned in order to consolidate usage with flutter 2.
+  /// A false return value does not necessarily indicate that the Future 
+  /// returned by create has completed, only that creation has been started.
+  // @override
+  bool get awaitingCreation => false;
 
-  @override
+  // @override
   Future<void> clearFocus() => _controller.clearFocus();
 
-  @override
-  Future<void> create({Size? size}) => _controller.create(size: size);
+  /// Beginning with flutter 3, [_controller.create] with [size] should be called.
+  ///
+  /// size is the view's initial size in logical pixel. size can be omitted 
+  /// if the concrete implementation doesn't require an initial size to create 
+  /// the platform view.
+  Future<void> create({Size? size}) => _controller.create();
 
-  @override
+  /// Beginning with flutter 3, [_controller.createdCallbacks] should be called.
+  ///
+  /// This is for testing purposes only and is not relevant for production code.
+  // @override
   // ignore: invalid_use_of_visible_for_testing_member
-  List<PlatformViewCreatedCallback> get createdCallbacks =>
-      _controller.createdCallbacks;
+  List<PlatformViewCreatedCallback> get createdCallbacks => []; //_controller.createdCallbacks;
 
-  @override
+  // @override
   Future<void> dispatchPointerEvent(PointerEvent event) =>
       _controller.dispatchPointerEvent(event);
 
-  @override
-  //! workaround for flutter 3.0
+  /// Beginning with flutter 3, disposal is called to soon, resulting in crashes.
+  ///
+  /// This is a workaround for users to be able to use this plugin with flutter 3.
+  // ignore: invalid_use_of_visible_for_testing_member
   Future<void> dispose() {
     //? instead of this
     // _controller.dispose();
@@ -69,32 +82,40 @@ class TextureAndroidViewControllerWrapper
     return Future(() {});
   }
 
-  @override
+  // @override
   bool get isCreated => _controller.isCreated;
 
-  @override
+  // @override
   void removeOnPlatformViewCreatedListener(
           PlatformViewCreatedCallback listener) =>
       _controller.removeOnPlatformViewCreatedListener(listener);
 
-  @override
+  // @override
   Future<void> sendMotionEvent(AndroidMotionEvent event) =>
       _controller.sendMotionEvent(event);
 
-  @override
+  // @override
   Future<void> setLayoutDirection(TextDirection layoutDirection) =>
       _controller.setLayoutDirection(layoutDirection);
 
-  @override
-  Future<void> setOffset(Offset off) => _controller.setOffset(off);
+  /// Beginning with flutter 3, [_controller.setOffset(off)] should be called.
+  ///
+  /// off is the view's new offset in logical pixel.
+  /// On Android, this allows the Android native view to draw the a11y highlights 
+  /// in the same location on the screen as the platform view widget in the Flutter framework.
+  // @override
+  Future<void> setOffset(Offset off) => Future(() => {}); //_controller.setOffset(off);
 
-  @override
-  Future<Size> setSize(Size size) => _controller.setSize(size);
+  // @override
+  Future<Size> setSize(Size size) async {
+    await _controller.setSize(size);
+    return size;
+  }
 
-  @override
+  // @override
   int? get textureId => _controller.textureId;
 
-  @override
+  // @override
   int get viewId => _controller.viewId;
 }
 
@@ -291,7 +312,7 @@ class _CopyPastedAndroidPlatformView extends LeafRenderObjectWidget {
   @override
   void updateRenderObject(
       BuildContext context, RenderAndroidView renderObject) {
-    renderObject.controller = controller;
+    //renderObject.controller = controller;
     renderObject.hitTestBehavior = hitTestBehavior;
     renderObject.updateGestureRecognizers(gestureRecognizers);
     renderObject.clipBehavior = clipBehavior;
