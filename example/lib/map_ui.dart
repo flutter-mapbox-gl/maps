@@ -351,7 +351,7 @@ class MapUiBodyState extends State<MapUiBody> {
             "Map click: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
         print("Filter $_featureQueryFilter");
         List features = await mapController!
-            .queryRenderedFeatures(point, [], _featureQueryFilter);
+            .queryRenderedFeatures(point, ["landuse"], _featureQueryFilter);
         print('# features: ${features.length}');
         _clearFill();
         if (features.isEmpty && _featureQueryFilter != null) {
