@@ -4,8 +4,8 @@
 
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
@@ -346,12 +346,13 @@ class MapUiBodyState extends State<MapUiBody> {
       myLocationEnabled: _myLocationEnabled,
       myLocationTrackingMode: _myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
+      useDelayedDisposal: true,
       onMapClick: (point, latLng) async {
         print(
             "Map click: ${point.x},${point.y}   ${latLng.latitude}/${latLng.longitude}");
         print("Filter $_featureQueryFilter");
         List features = await mapController!
-            .queryRenderedFeatures(point, [], _featureQueryFilter);
+            .queryRenderedFeatures(point, ["landuse"], _featureQueryFilter);
         print('# features: ${features.length}');
         _clearFill();
         if (features.isEmpty && _featureQueryFilter != null) {
