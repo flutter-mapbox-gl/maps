@@ -1053,6 +1053,11 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
 
   @override
   Future<bool> sourceExists(String sourceId) async {
-    return _map.hasImage(sourceId);
+    try {
+      final source = _map.getSource(sourceId);
+      return source != null;
+    } catch (e) {
+      return false;
+    }
   }
 }
