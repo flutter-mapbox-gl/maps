@@ -13,10 +13,6 @@ buildscript {
 }
 
 rootProject.allprojects {
-    def token = 'sk.eyJ1IjoicmV2b2x0c3R1ZGlvIiwiYSI6ImNraXluY285bTQ1NnkzMXFqcm51emg0azUifQ.mVNCNojWmngoYtTwAdq4YA'
-    if (token == null || token.empty) {
-        throw new Exception("SDK Registry token is null. See README.md for more information.")
-    }
     repositories {
         google()
         mavenCentral()
@@ -27,7 +23,7 @@ rootProject.allprojects {
             }
             credentials {
                 username = "mapbox"
-                password = token
+                password = MAPBOX_DOWNLOADS_TOKEN
             }
         }
     }

@@ -135,6 +135,7 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
     await _channel.invokeMethod('map#waitForMap');
   }
 
+  // NOTE Neopolis fix
   @override
   Widget buildView(
       Map<String, dynamic> creationParams,

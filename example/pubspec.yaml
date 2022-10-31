@@ -23,7 +23,6 @@ dependency_overrides:
   mapbox_gl_platform_interface:
     path: ../mapbox_gl_platform_interface
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

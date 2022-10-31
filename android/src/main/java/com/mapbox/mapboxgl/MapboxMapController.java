@@ -90,7 +90,37 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-/** Controller of a single MapboxMaps MapView instance. */
+
+class FixedMapView extends MapView {
+
+    public FixedMapView(@NonNull Context context, @Nullable MapboxMapOptions options) {
+        super(context, options);
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        // NOTE Neopolis fix - Fix crash on Android on multitap
+        try {
+            int action = ev.getAction() & MotionEvent.ACTION_MASK;
+            int pointerIndex = (ev.getAction() & MotionEvent.ACTION_POINTER_ID_MASK) >> MotionEvent.ACTION_POINTER_ID_SHIFT;
+            int pointerId = ev.getPointerId(pointerIndex);
+            performClick();
+            return super.onTouchEvent(ev);
+        } catch (IllegalArgumentException e) {
+            return true;
+        }
+    }
+
+    @Override
+    public boolean performClick() {
+        return super.performClick();
+    }
+}
+
+/**
+ * Controller of a single MapboxMaps MapView instance.
+ */
 @SuppressLint("MissingPermission")
 final class MapboxMapController
     implements DefaultLifecycleObserver,
@@ -116,7 +146,7 @@ final class MapboxMapController
   private final Set<String> interactiveFeatureLayerIds;
   private final Map<String, FeatureCollection> addedFeaturesByLayer;
   private final Map<String, MapSnapshotter> mSnapshotterMap;
-  private MapView mapView;
+  private FixedMapView mapView;
   private MapboxMap mapboxMap;
   private boolean trackCameraPosition = false;
   private boolean myLocationEnabled = false;
@@ -169,7 +199,7 @@ final class MapboxMapController
     this.context = context;
     this.dragEnabled = dragEnabled;
     this.styleStringInitial = styleStringInitial;
-    this.mapView = new MapView(context, options);
+    this.mapView = new FixedMapView(context, options);
     this.interactiveFeatureLayerIds = new HashSet<>();
     this.addedFeaturesByLayer = new HashMap<String, FeatureCollection>();
     this.density = context.getResources().getDisplayMetrics().density;

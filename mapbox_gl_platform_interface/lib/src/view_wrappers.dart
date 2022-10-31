@@ -136,10 +136,7 @@ class AndroidViewWithWrappedController extends StatefulWidget {
     this.creationParams,
     this.creationParamsCodec,
     this.clipBehavior = Clip.hardEdge,
-  })  : assert(viewType != null),
-        assert(hitTestBehavior != null),
-        assert(creationParams == null || creationParamsCodec != null),
-        assert(clipBehavior != null),
+  })  : assert(creationParams == null || creationParamsCodec != null),
         super(key: key);
 
   final String viewType;
@@ -297,10 +294,7 @@ class _CopyPastedAndroidPlatformView extends LeafRenderObjectWidget {
     required this.hitTestBehavior,
     required this.gestureRecognizers,
     this.clipBehavior = Clip.hardEdge,
-  })  : assert(controller != null),
-        assert(hitTestBehavior != null),
-        assert(gestureRecognizers != null),
-        assert(clipBehavior != null);
+  });
 
   final AndroidViewController controller;
   final PlatformViewHitTestBehavior hitTestBehavior;
