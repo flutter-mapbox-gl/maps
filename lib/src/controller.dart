@@ -639,6 +639,10 @@ class MapboxMapController extends ChangeNotifier {
   Future<Symbol> addSymbol(SymbolOptions options, [Map? data]) async {
     final effectiveOptions = SymbolOptions.defaultOptions.copyWith(options);
     final symbol = Symbol(getRandomString(), effectiveOptions, data);
+
+    if (symbolManager == null) {
+      symbolManager = SymbolManager(this, onTap: onSymbolTapped);
+    }
     await symbolManager!.add(symbol);
     notifyListeners();
     return symbol;
@@ -659,6 +663,9 @@ class MapboxMapController extends ChangeNotifier {
         Symbol(getRandomString(),
             SymbolOptions.defaultOptions.copyWith(options[i]), data?[i])
     ];
+    if (symbolManager == null) {
+      symbolManager = SymbolManager(this, onTap: onSymbolTapped);
+    }
     await symbolManager!.addAll(symbols);
 
     notifyListeners();
@@ -673,6 +680,9 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> updateSymbol(Symbol symbol, SymbolOptions changes) async {
+    if (symbolManager == null) {
+      symbolManager = SymbolManager(this, onTap: onSymbolTapped);
+    }
     await symbolManager!
         .set(symbol..options = symbol.options.copyWith(changes));
 
@@ -694,6 +704,9 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeSymbol(Symbol symbol) async {
+    if (symbolManager == null) {
+      symbolManager = SymbolManager(this, onTap: onSymbolTapped);
+    }
     await symbolManager!.remove(symbol);
     notifyListeners();
   }
@@ -706,6 +719,9 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeSymbols(Iterable<Symbol> symbols) async {
+    if (symbolManager == null) {
+      symbolManager = SymbolManager(this, onTap: onSymbolTapped);
+    }
     await symbolManager!.removeAll(symbols);
     notifyListeners();
   }
@@ -717,6 +733,9 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> clearSymbols() async {
+    if (symbolManager == null) {
+      symbolManager = SymbolManager(this, onTap: onSymbolTapped);
+    }
     symbolManager!.clear();
     notifyListeners();
   }
@@ -731,6 +750,9 @@ class MapboxMapController extends ChangeNotifier {
   Future<Line> addLine(LineOptions options, [Map? data]) async {
     final effectiveOptions = LineOptions.defaultOptions.copyWith(options);
     final line = Line(getRandomString(), effectiveOptions, data);
+    if (lineManager == null) {
+      lineManager = LineManager(this, onTap: onLineTapped);
+    }
     await lineManager!.add(line);
     notifyListeners();
     return line;
@@ -750,6 +772,10 @@ class MapboxMapController extends ChangeNotifier {
         Line(getRandomString(), LineOptions.defaultOptions.copyWith(options[i]),
             data?[i])
     ];
+
+    if (lineManager == null) {
+      lineManager = LineManager(this, onTap: onLineTapped);
+    }
     await lineManager!.addAll(lines);
 
     notifyListeners();
@@ -765,6 +791,9 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes once listeners have been notified.
   Future<void> updateLine(Line line, LineOptions changes) async {
     line.options = line.options.copyWith(changes);
+    if (lineManager == null) {
+      lineManager = LineManager(this, onTap: onLineTapped);
+    }
     await lineManager!.set(line);
     notifyListeners();
   }
@@ -784,6 +813,9 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> removeLine(Line line) async {
+    if (lineManager == null) {
+      lineManager = LineManager(this, onTap: onLineTapped);
+    }
     await lineManager!.remove(line);
     notifyListeners();
   }
@@ -807,6 +839,9 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes once listeners have been notified.
   Future<void> clearLines() async {
+    if (lineManager == null) {
+      lineManager = LineManager(this, onTap: onLineTapped);
+    }
     await lineManager!.clear();
     notifyListeners();
   }
