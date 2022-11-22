@@ -36,6 +36,7 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
 
   bool sourceAdded = false;
   bool layerAdded = false;
+  bool layerVisible = false;
   late MapboxMapController controller;
 
   void _onMapCreated(MapboxMapController controller) {
@@ -91,6 +92,11 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
     return controller.removeLayer(imageLayerId);
   }
 
+  Future<void> setLayerVisibility(bool visible, String imageLayerId) {
+    setState(() => layerVisible = visible);
+    return controller.setLayerVisibility(visible, imageLayerId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -138,6 +144,14 @@ class PlaceSymbolBodyState extends State<PlaceSymbolBody> {
                               removeImageSource(SOURCE_ID).then((value) {
                                 setState(() => sourceAdded = false);
                               });
+                            }
+                          : null,
+                    ),
+                    TextButton(
+                      child: const Text('toggle layer visibility'),
+                      onPressed: sourceAdded
+                          ? () async {
+                              await setLayerVisibility(!layerVisible, LAYER_ID);
                             }
                           : null,
                     ),
