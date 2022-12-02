@@ -20,11 +20,13 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -75,10 +77,12 @@ import com.mapbox.mapboxsdk.style.layers.RasterLayer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.ImageSource;
+
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -94,29 +98,29 @@ import java.util.UUID;
 
 class FixedMapView extends MapView {
 
-    public FixedMapView(@NonNull Context context, @Nullable MapboxMapOptions options) {
-        super(context, options);
-    }
+  public FixedMapView(@NonNull Context context, @Nullable MapboxMapOptions options) {
+    super(context, options);
+  }
 
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        // NOTE Neopolis fix - Fix crash on Android on multitap
-        try {
-            int action = ev.getAction() & MotionEvent.ACTION_MASK;
-            int pointerIndex = (ev.getAction() & MotionEvent.ACTION_POINTER_ID_MASK) >> MotionEvent.ACTION_POINTER_ID_SHIFT;
-            int pointerId = ev.getPointerId(pointerIndex);
-            performClick();
-            return super.onTouchEvent(ev);
-        } catch (IllegalArgumentException e) {
-            return true;
-        }
+  @Override
+  public boolean onTouchEvent(MotionEvent ev) {
+    // NOTE Fix crash on Android on multitap
+    try {
+      int action = ev.getAction() & MotionEvent.ACTION_MASK;
+      int pointerIndex = (ev.getAction() & MotionEvent.ACTION_POINTER_ID_MASK) >> MotionEvent.ACTION_POINTER_ID_SHIFT;
+      int pointerId = ev.getPointerId(pointerIndex);
+      performClick();
+      return super.onTouchEvent(ev);
+    } catch (IllegalArgumentException e) {
+      return true;
     }
+  }
 
-    @Override
-    public boolean performClick() {
-        return super.performClick();
-    }
+  @Override
+  public boolean performClick() {
+    return super.performClick();
+  }
 }
 
 /**
@@ -124,7 +128,7 @@ class FixedMapView extends MapView {
  */
 @SuppressLint("MissingPermission")
 final class MapboxMapController
-    implements DefaultLifecycleObserver,
+        implements DefaultLifecycleObserver,
         MapboxMap.OnCameraIdleListener,
         MapboxMap.OnCameraMoveListener,
         MapboxMap.OnCameraMoveStartedListener,
@@ -136,16 +140,10 @@ final class MapboxMapController
         OnMapReadyCallback,
         OnCameraTrackingChangedListener,
         PlatformView {
-
   private static final String TAG = "MapboxMapController";
   private final int id;
   private final MethodChannel methodChannel;
   private final MapboxMapsPlugin.LifecycleProvider lifecycleProvider;
-  private final float density;
-  private final Context context;
-  private final String styleStringInitial;
-  private final Set<String> interactiveFeatureLayerIds;
-  private final Map<String, FeatureCollection> addedFeaturesByLayer;
   private final Map<String, MapSnapshotter> mSnapshotterMap;
   private FixedMapView mapView;
   private MapboxMap mapboxMap;
@@ -155,7 +153,10 @@ final class MapboxMapController
   private int myLocationRenderMode = 0;
   private boolean disposed = false;
   private boolean dragEnabled = true;
+  private final float density;
   private MethodChannel.Result mapReadyResult;
+  private final Context context;
+  private final String styleStringInitial;
   private LocationComponent locationComponent = null;
   private LocationEngine locationEngine = null;
   private LocationEngineCallback<LocationEngineResult> locationEngineCallback = null;
@@ -163,44 +164,31 @@ final class MapboxMapController
   private Style style;
   private Feature draggedFeature;
   private AndroidGesturesManager androidGesturesManager;
+
   private LatLng dragOrigin;
   private LatLng dragPrevious;
+
+  private Set<String> interactiveFeatureLayerIds;
+  private Map<String, FeatureCollection> addedFeaturesByLayer;
+
   private LatLngBounds bounds = null;
-  Style.OnStyleLoaded onStyleLoadedCallback =
-      new Style.OnStyleLoaded() {
-        @Override
-        public void onStyleLoaded(@NonNull Style style) {
-          MapboxMapController.this.style = style;
-
-          updateMyLocationEnabled();
-
-          if (null != bounds) {
-            mapboxMap.setLatLngBoundsForCameraTarget(bounds);
-          }
-
-          mapboxMap.addOnMapClickListener(MapboxMapController.this);
-          mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
-          localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
-
-          methodChannel.invokeMethod("map#onStyleLoaded", null);
-        }
-      };
 
   MapboxMapController(
-      int id,
-      Context context,
-      BinaryMessenger messenger,
-      MapboxMapsPlugin.LifecycleProvider lifecycleProvider,
-      MapboxMapOptions options,
-      String accessToken,
-      String styleStringInitial,
-      boolean dragEnabled) {
+          int id,
+          Context context,
+          BinaryMessenger messenger,
+          MapboxMapsPlugin.LifecycleProvider lifecycleProvider,
+          MapboxMapOptions options,
+          String accessToken,
+          String styleStringInitial,
+          boolean dragEnabled) {
     MapBoxUtils.getMapbox(context, accessToken);
     this.id = id;
     this.context = context;
     this.dragEnabled = dragEnabled;
     this.styleStringInitial = styleStringInitial;
     this.mapView = new FixedMapView(context, options);
+    this.mSnapshotterMap = new HashMap<>();
     this.interactiveFeatureLayerIds = new HashSet<>();
     this.addedFeaturesByLayer = new HashMap<String, FeatureCollection>();
     this.density = context.getResources().getDisplayMetrics().density;
@@ -208,7 +196,7 @@ final class MapboxMapController
     if (dragEnabled) {
       this.androidGesturesManager = new AndroidGesturesManager(this.mapView.getContext(), false);
     }
-    this.mSnapshotterMap = new HashMap<>();
+
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/mapbox_maps_" + id);
     methodChannel.setMethodCallHandler(this);
   }
@@ -246,27 +234,14 @@ final class MapboxMapController
     mapboxMap.addOnCameraMoveListener(this);
     mapboxMap.addOnCameraIdleListener(this);
 
-    if (androidGesturesManager != null) {
-      androidGesturesManager.setMoveGestureListener(new MoveGestureListener());
-      mapView.setOnTouchListener(
-          new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-              androidGesturesManager.onTouchEvent(event);
-
-              return draggedFeature != null;
-            }
-          });
-    }
-
     mapView.addOnStyleImageMissingListener(
-        (id) -> {
-          DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-          final Bitmap bitmap = getScaledImage(id, displayMetrics.density);
-          if (bitmap != null) {
-            mapboxMap.getStyle().addImage(id, bitmap);
-          }
-        });
+            (id) -> {
+              DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+              final Bitmap bitmap = getScaledImage(id, displayMetrics.density);
+              if (bitmap != null) {
+                mapboxMap.getStyle().addImage(id, bitmap);
+              }
+            });
 
     mapView.addOnDidBecomeIdleListener(this);
 
@@ -286,10 +261,10 @@ final class MapboxMapController
     } else if (styleString.startsWith("/")) {
       // Absolute path
       mapboxMap.setStyle(
-          new Style.Builder().fromUri("file://" + styleString), onStyleLoadedCallback);
+              new Style.Builder().fromUri("file://" + styleString), onStyleLoadedCallback);
     } else if (!styleString.startsWith("http://")
-        && !styleString.startsWith("https://")
-        && !styleString.startsWith("mapbox://")) {
+            && !styleString.startsWith("https://")
+            && !styleString.startsWith("mapbox://")) {
       // We are assuming that the style will be loaded from an asset here.
       String key = MapboxMapsPlugin.flutterAssets.getAssetFilePathByName(styleString);
       mapboxMap.setStyle(new Style.Builder().fromUri("asset://" + key), onStyleLoadedCallback);
@@ -298,13 +273,33 @@ final class MapboxMapController
     }
   }
 
+  Style.OnStyleLoaded onStyleLoadedCallback =
+          new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
+              MapboxMapController.this.style = style;
+
+              updateMyLocationEnabled();
+
+              if (null != bounds) {
+                mapboxMap.setLatLngBoundsForCameraTarget(bounds);
+              }
+
+              mapboxMap.addOnMapClickListener(MapboxMapController.this);
+              mapboxMap.addOnMapLongClickListener(MapboxMapController.this);
+              localizationPlugin = new LocalizationPlugin(mapView, mapboxMap, style);
+
+              methodChannel.invokeMethod("map#onStyleLoaded", null);
+            }
+          };
+
   @SuppressWarnings({"MissingPermission"})
   private void enableLocationComponent(@NonNull Style style) {
     if (hasLocationPermission()) {
       locationEngine = LocationEngineProvider.getBestLocationEngine(context);
       locationComponent = mapboxMap.getLocationComponent();
       locationComponent.activateLocationComponent(
-          context, style, buildLocationComponentOptions(style));
+              context, style, buildLocationComponentOptions(style));
       locationComponent.setLocationComponentEnabled(true);
       // locationComponent.setRenderMode(RenderMode.COMPASS); // remove or keep default?
       locationComponent.setLocationEngine(locationEngine);
@@ -348,7 +343,7 @@ final class MapboxMapController
 
   private LocationComponentOptions buildLocationComponentOptions(Style style) {
     final LocationComponentOptions.Builder optionsBuilder =
-        LocationComponentOptions.builder(context);
+            LocationComponentOptions.builder(context);
     optionsBuilder.trackingGesturesManagement(true);
 
     final String lastLayerId = getLastLayerOnStyle(style);
@@ -364,17 +359,17 @@ final class MapboxMapController
     }
 
     final Map<String, Object> userLocation = new HashMap<>(6);
-    userLocation.put("position", new double[] {location.getLatitude(), location.getLongitude()});
+    userLocation.put("position", new double[]{location.getLatitude(), location.getLongitude()});
     userLocation.put("speed", location.getSpeed());
     userLocation.put("altitude", location.getAltitude());
     userLocation.put("bearing", location.getBearing());
     userLocation.put("horizontalAccuracy", location.getAccuracy());
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       userLocation.put(
-          "verticalAccuracy",
-          (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-              ? location.getVerticalAccuracyMeters()
-              : null);
+              "verticalAccuracy",
+              (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                      ? location.getVerticalAccuracyMeters()
+                      : null);
     }
     userLocation.put("timestamp", location.getTime());
 
@@ -418,16 +413,15 @@ final class MapboxMapController
   }
 
   private void addSymbolLayer(
-      String layerName,
-      String sourceName,
-      String belowLayerId,
-      String sourceLayer,
-      Float minZoom,
-      Float maxZoom,
-      PropertyValue[] properties,
-      boolean enableInteraction,
-      Expression filter) {
-
+          String layerName,
+          String sourceName,
+          String belowLayerId,
+          String sourceLayer,
+          Float minZoom,
+          Float maxZoom,
+          PropertyValue[] properties,
+          boolean enableInteraction,
+          Expression filter) {
     SymbolLayer symbolLayer = new SymbolLayer(layerName, sourceName);
     symbolLayer.setProperties(properties);
     if (sourceLayer != null) {
@@ -453,15 +447,15 @@ final class MapboxMapController
   }
 
   private void addLineLayer(
-      String layerName,
-      String sourceName,
-      String belowLayerId,
-      String sourceLayer,
-      Float minZoom,
-      Float maxZoom,
-      PropertyValue[] properties,
-      boolean enableInteraction,
-      Expression filter) {
+          String layerName,
+          String sourceName,
+          String belowLayerId,
+          String sourceLayer,
+          Float minZoom,
+          Float maxZoom,
+          PropertyValue[] properties,
+          boolean enableInteraction,
+          Expression filter) {
     LineLayer lineLayer = new LineLayer(layerName, sourceName);
     lineLayer.setProperties(properties);
     if (sourceLayer != null) {
@@ -486,50 +480,16 @@ final class MapboxMapController
     }
   }
 
-  private void addFillLayer(
-      String layerName,
-      String sourceName,
-      String belowLayerId,
-      String sourceLayer,
-      Float minZoom,
-      Float maxZoom,
-      PropertyValue[] properties,
-      boolean enableInteraction,
-      Expression filter) {
-    FillLayer fillLayer = new FillLayer(layerName, sourceName);
-    fillLayer.setProperties(properties);
-    if (sourceLayer != null) {
-      fillLayer.setSourceLayer(sourceLayer);
-    }
-    if (minZoom != null) {
-      fillLayer.setMinZoom(minZoom);
-    }
-    if (maxZoom != null) {
-      fillLayer.setMaxZoom(maxZoom);
-    }
-    if (filter != null) {
-      fillLayer.setFilter(filter);
-    }
-    if (belowLayerId != null) {
-      style.addLayerBelow(fillLayer, belowLayerId);
-    } else {
-      style.addLayer(fillLayer);
-    }
-    if (enableInteraction) {
-      interactiveFeatureLayerIds.add(layerName);
-    }
-  }
-
   private void addFillExtrusionLayer(
-      String layerName,
-      String sourceName,
-      String belowLayerId,
-      String sourceLayer,
-      Float minZoom,
-      Float maxZoom,
-      PropertyValue[] properties,
-      boolean enableInteraction,
-      Expression filter) {
+          String layerName,
+          String sourceName,
+          String belowLayerId,
+          String sourceLayer,
+          Float minZoom,
+          Float maxZoom,
+          PropertyValue[] properties,
+          boolean enableInteraction,
+          Expression filter) {
     FillExtrusionLayer fillLayer = new FillExtrusionLayer(layerName, sourceName);
     fillLayer.setProperties(properties);
     if (sourceLayer != null) {
@@ -554,16 +514,51 @@ final class MapboxMapController
     }
   }
 
+
+  private void addFillLayer(
+          String layerName,
+          String sourceName,
+          String belowLayerId,
+          String sourceLayer,
+          Float minZoom,
+          Float maxZoom,
+          PropertyValue[] properties,
+          boolean enableInteraction,
+          Expression filter) {
+    FillLayer fillLayer = new FillLayer(layerName, sourceName);
+    fillLayer.setProperties(properties);
+    if (sourceLayer != null) {
+      fillLayer.setSourceLayer(sourceLayer);
+    }
+    if (minZoom != null) {
+      fillLayer.setMinZoom(minZoom);
+    }
+    if (maxZoom != null) {
+      fillLayer.setMaxZoom(maxZoom);
+    }
+    if (filter != null) {
+      fillLayer.setFilter(filter);
+    }
+    if (belowLayerId != null) {
+      style.addLayerBelow(fillLayer, belowLayerId);
+    } else {
+      style.addLayer(fillLayer);
+    }
+    if (enableInteraction) {
+      interactiveFeatureLayerIds.add(layerName);
+    }
+  }
+
   private void addCircleLayer(
-      String layerName,
-      String sourceName,
-      String belowLayerId,
-      String sourceLayer,
-      Float minZoom,
-      Float maxZoom,
-      PropertyValue[] properties,
-      boolean enableInteraction,
-      Expression filter) {
+          String layerName,
+          String sourceName,
+          String belowLayerId,
+          String sourceLayer,
+          Float minZoom,
+          Float maxZoom,
+          PropertyValue[] properties,
+          boolean enableInteraction,
+          Expression filter) {
     CircleLayer circleLayer = new CircleLayer(layerName, sourceName);
     circleLayer.setProperties(properties);
     if (sourceLayer != null) {
@@ -586,22 +581,17 @@ final class MapboxMapController
     if (enableInteraction) {
       interactiveFeatureLayerIds.add(layerName);
     }
-  }
-
-  private Expression parseFilter(String filter) {
-    JsonParser parser = new JsonParser();
-    JsonElement filterJsonElement = parser.parse(filter);
-    return filterJsonElement.isJsonNull() ? null : Expression.Converter.convert(filterJsonElement);
+    ;
   }
 
   private void addRasterLayer(
-      String layerName,
-      String sourceName,
-      Float minZoom,
-      Float maxZoom,
-      String belowLayerId,
-      PropertyValue[] properties,
-      Expression filter) {
+          String layerName,
+          String sourceName,
+          Float minZoom,
+          Float maxZoom,
+          String belowLayerId,
+          PropertyValue[] properties,
+          Expression filter) {
     RasterLayer layer = new RasterLayer(layerName, sourceName);
     layer.setProperties(properties);
     if (minZoom != null) {
@@ -618,13 +608,13 @@ final class MapboxMapController
   }
 
   private void addHillshadeLayer(
-      String layerName,
-      String sourceName,
-      Float minZoom,
-      Float maxZoom,
-      String belowLayerId,
-      PropertyValue[] properties,
-      Expression filter) {
+          String layerName,
+          String sourceName,
+          Float minZoom,
+          Float maxZoom,
+          String belowLayerId,
+          PropertyValue[] properties,
+          Expression filter) {
     HillshadeLayer layer = new HillshadeLayer(layerName, sourceName);
     layer.setProperties(properties);
     if (minZoom != null) {
@@ -640,14 +630,20 @@ final class MapboxMapController
     }
   }
 
+  private Expression parseFilter(String filter) {
+    JsonParser parser = new JsonParser();
+    JsonElement filterJsonElement = parser.parse(filter);
+    return filterJsonElement.isJsonNull() ? null : Expression.Converter.convert(filterJsonElement);
+  }
+
   private void addHeatmapLayer(
-      String layerName,
-      String sourceName,
-      Float minZoom,
-      Float maxZoom,
-      String belowLayerId,
-      PropertyValue[] properties,
-      Expression filter) {
+          String layerName,
+          String sourceName,
+          Float minZoom,
+          Float maxZoom,
+          String belowLayerId,
+          PropertyValue[] properties,
+          Expression filter) {
     HeatmapLayer layer = new HeatmapLayer(layerName, sourceName);
     layer.setProperties(properties);
     if (minZoom != null) {
@@ -669,9 +665,7 @@ final class MapboxMapController
       final List<String> layersInOrder = new ArrayList<String>();
       for (Layer layer : layers) {
         String id = layer.getId();
-        if (interactiveFeatureLayerIds.contains(id)) {
-          layersInOrder.add(id);
-        }
+        if (interactiveFeatureLayerIds.contains(id)) layersInOrder.add(id);
       }
       Collections.reverse(layersInOrder);
 
@@ -684,7 +678,6 @@ final class MapboxMapController
     }
     return null;
   }
-
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
 
@@ -697,742 +690,742 @@ final class MapboxMapController
         mapReadyResult = result;
         break;
       case "map#update":
-        {
-          Convert.interpretMapboxMapOptions(call.argument("options"), this, context);
-          result.success(Convert.toJson(getCameraPosition()));
-          break;
-        }
+      {
+        Convert.interpretMapboxMapOptions(call.argument("options"), this, context);
+        result.success(Convert.toJson(getCameraPosition()));
+        break;
+      }
       case "map#updateMyLocationTrackingMode":
-        {
-          int myLocationTrackingMode = call.argument("mode");
-          setMyLocationTrackingMode(myLocationTrackingMode);
-          result.success(null);
-          break;
-        }
+      {
+        int myLocationTrackingMode = call.argument("mode");
+        setMyLocationTrackingMode(myLocationTrackingMode);
+        result.success(null);
+        break;
+      }
       case "map#matchMapLanguageWithDeviceDefault":
-        {
-          try {
-            localizationPlugin.matchMapLanguageWithDeviceDefault();
-            result.success(null);
-          } catch (RuntimeException exception) {
-            Log.d(TAG, exception.toString());
-            result.error("MAPBOX LOCALIZATION PLUGIN ERROR", exception.toString(), null);
-          }
-          break;
+      {
+        try {
+          localizationPlugin.matchMapLanguageWithDeviceDefault();
+          result.success(null);
+        } catch (RuntimeException exception) {
+          Log.d(TAG, exception.toString());
+          result.error("MAPBOX LOCALIZATION PLUGIN ERROR", exception.toString(), null);
         }
+        break;
+      }
       case "map#updateContentInsets":
-        {
-          HashMap<String, Object> insets = call.argument("bounds");
-          final CameraUpdate cameraUpdate =
-              CameraUpdateFactory.paddingTo(
-                  Convert.toPixels(insets.get("left"), density),
-                  Convert.toPixels(insets.get("top"), density),
-                  Convert.toPixels(insets.get("right"), density),
-                  Convert.toPixels(insets.get("bottom"), density));
+      {
+        HashMap<String, Object> insets = call.argument("bounds");
+        final CameraUpdate cameraUpdate =
+                CameraUpdateFactory.paddingTo(
+                        Convert.toPixels(insets.get("left"), density),
+                        Convert.toPixels(insets.get("top"), density),
+                        Convert.toPixels(insets.get("right"), density),
+                        Convert.toPixels(insets.get("bottom"), density));
 
-          if (call.argument("animated")) {
-            animateCamera(cameraUpdate, null, result);
-          } else {
-            moveCamera(cameraUpdate, result);
-          }
-          break;
-        }
-      case "map#setMapLanguage":
-        {
-          final String language = call.argument("language");
-          try {
-            localizationPlugin.setMapLanguage(language);
-            result.success(null);
-          } catch (RuntimeException exception) {
-            Log.d(TAG, exception.toString());
-            result.error("MAPBOX LOCALIZATION PLUGIN ERROR", exception.toString(), null);
-          }
-          break;
-        }
-      case "map#getVisibleRegion":
-        {
-          Map<String, Object> reply = new HashMap<>();
-          VisibleRegion visibleRegion = mapboxMap.getProjection().getVisibleRegion();
-          reply.put(
-              "sw",
-              Arrays.asList(
-                  visibleRegion.nearLeft.getLatitude(), visibleRegion.nearLeft.getLongitude()));
-          reply.put(
-              "ne",
-              Arrays.asList(
-                  visibleRegion.farRight.getLatitude(), visibleRegion.farRight.getLongitude()));
-          result.success(reply);
-          break;
-        }
-      case "map#toScreenLocation":
-        {
-          Map<String, Object> reply = new HashMap<>();
-          PointF pointf =
-              mapboxMap
-                  .getProjection()
-                  .toScreenLocation(
-                      new LatLng(call.argument("latitude"), call.argument("longitude")));
-          reply.put("x", pointf.x);
-          reply.put("y", pointf.y);
-          result.success(reply);
-          break;
-        }
-      case "map#toScreenLocationBatch":
-        {
-          double[] param = (double[]) call.argument("coordinates");
-          double[] reply = new double[param.length];
-
-          for (int i = 0; i < param.length; i += 2) {
-            PointF pointf =
-                mapboxMap.getProjection().toScreenLocation(new LatLng(param[i], param[i + 1]));
-            reply[i] = pointf.x;
-            reply[i + 1] = pointf.y;
-          }
-
-          result.success(reply);
-          break;
-        }
-      case "map#toLatLng":
-        {
-          Map<String, Object> reply = new HashMap<>();
-          LatLng latlng =
-              mapboxMap
-                  .getProjection()
-                  .fromScreenLocation(
-                      new PointF(
-                          ((Double) call.argument("x")).floatValue(),
-                          ((Double) call.argument("y")).floatValue()));
-          reply.put("latitude", latlng.getLatitude());
-          reply.put("longitude", latlng.getLongitude());
-          result.success(reply);
-          break;
-        }
-      case "map#getMetersPerPixelAtLatitude":
-        {
-          Map<String, Object> reply = new HashMap<>();
-          Double retVal =
-              mapboxMap
-                  .getProjection()
-                  .getMetersPerPixelAtLatitude((Double) call.argument("latitude"));
-          reply.put("metersperpixel", retVal);
-          result.success(reply);
-          break;
-        }
-      case "camera#move":
-        {
-          final CameraUpdate cameraUpdate =
-              Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
+        if (call.argument("animated")) {
+          animateCamera(cameraUpdate, null, result);
+        } else {
           moveCamera(cameraUpdate, result);
-          break;
         }
+        break;
+      }
+      case "map#setMapLanguage":
+      {
+        final String language = call.argument("language");
+        try {
+          localizationPlugin.setMapLanguage(language);
+          result.success(null);
+        } catch (RuntimeException exception) {
+          Log.d(TAG, exception.toString());
+          result.error("MAPBOX LOCALIZATION PLUGIN ERROR", exception.toString(), null);
+        }
+        break;
+      }
+      case "map#getVisibleRegion":
+      {
+        Map<String, Object> reply = new HashMap<>();
+        VisibleRegion visibleRegion = mapboxMap.getProjection().getVisibleRegion();
+        reply.put(
+                "sw",
+                Arrays.asList(
+                        visibleRegion.nearLeft.getLatitude(), visibleRegion.nearLeft.getLongitude()));
+        reply.put(
+                "ne",
+                Arrays.asList(
+                        visibleRegion.farRight.getLatitude(), visibleRegion.farRight.getLongitude()));
+        result.success(reply);
+        break;
+      }
+      case "map#toScreenLocation":
+      {
+        Map<String, Object> reply = new HashMap<>();
+        PointF pointf =
+                mapboxMap
+                        .getProjection()
+                        .toScreenLocation(
+                                new LatLng(call.argument("latitude"), call.argument("longitude")));
+        reply.put("x", pointf.x);
+        reply.put("y", pointf.y);
+        result.success(reply);
+        break;
+      }
+      case "map#toScreenLocationBatch":
+      {
+        double[] param = (double[]) call.argument("coordinates");
+        double[] reply = new double[param.length];
+
+        for (int i = 0; i < param.length; i += 2) {
+          PointF pointf =
+                  mapboxMap.getProjection().toScreenLocation(new LatLng(param[i], param[i + 1]));
+          reply[i] = pointf.x;
+          reply[i + 1] = pointf.y;
+        }
+
+        result.success(reply);
+        break;
+      }
+      case "map#toLatLng":
+      {
+        Map<String, Object> reply = new HashMap<>();
+        LatLng latlng =
+                mapboxMap
+                        .getProjection()
+                        .fromScreenLocation(
+                                new PointF(
+                                        ((Double) call.argument("x")).floatValue(),
+                                        ((Double) call.argument("y")).floatValue()));
+        reply.put("latitude", latlng.getLatitude());
+        reply.put("longitude", latlng.getLongitude());
+        result.success(reply);
+        break;
+      }
+      case "map#getMetersPerPixelAtLatitude":
+      {
+        Map<String, Object> reply = new HashMap<>();
+        Double retVal =
+                mapboxMap
+                        .getProjection()
+                        .getMetersPerPixelAtLatitude((Double) call.argument("latitude"));
+        reply.put("metersperpixel", retVal);
+        result.success(reply);
+        break;
+      }
+      case "camera#move":
+      {
+        final CameraUpdate cameraUpdate =
+                Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
+        moveCamera(cameraUpdate, result);
+        break;
+      }
       case "camera#animate":
-        {
-          final CameraUpdate cameraUpdate =
-              Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
-          final Integer duration = call.argument("duration");
+      {
+        final CameraUpdate cameraUpdate =
+                Convert.toCameraUpdate(call.argument("cameraUpdate"), mapboxMap, density);
+        final Integer duration = call.argument("duration");
 
-          animateCamera(cameraUpdate, duration, result);
-          break;
-        }
+        animateCamera(cameraUpdate, duration, result);
+        break;
+      }
       case "map#queryRenderedFeatures":
-        {
-          Map<String, Object> reply = new HashMap<>();
-          List<Feature> features;
+      {
+        Map<String, Object> reply = new HashMap<>();
+        List<Feature> features;
 
-          String[] layerIds = ((List<String>) call.argument("layerIds")).toArray(new String[0]);
+        String[] layerIds = ((List<String>) call.argument("layerIds")).toArray(new String[0]);
 
-          List<Object> filter = call.argument("filter");
-          JsonElement jsonElement = filter == null ? null : new Gson().toJsonTree(filter);
-          JsonArray jsonArray = null;
-          if (jsonElement != null && jsonElement.isJsonArray()) {
-            jsonArray = jsonElement.getAsJsonArray();
-          }
-          Expression filterExpression =
-              jsonArray == null ? null : Expression.Converter.convert(jsonArray);
-          if (call.hasArgument("x")) {
-            Double x = call.argument("x");
-            Double y = call.argument("y");
-            PointF pixel = new PointF(x.floatValue(), y.floatValue());
-            features = mapboxMap.queryRenderedFeatures(pixel, filterExpression, layerIds);
-          } else {
-            Double left = call.argument("left");
-            Double top = call.argument("top");
-            Double right = call.argument("right");
-            Double bottom = call.argument("bottom");
-            RectF rectF =
-                new RectF(
-                    left.floatValue(), top.floatValue(), right.floatValue(), bottom.floatValue());
-            features = mapboxMap.queryRenderedFeatures(rectF, filterExpression, layerIds);
-          }
-          List<String> featuresJson = new ArrayList<>();
-          for (Feature feature : features) {
-            featuresJson.add(feature.toJson());
-          }
-          reply.put("features", featuresJson);
-          result.success(reply);
-          break;
+        List<Object> filter = call.argument("filter");
+        JsonElement jsonElement = filter == null ? null : new Gson().toJsonTree(filter);
+        JsonArray jsonArray = null;
+        if (jsonElement != null && jsonElement.isJsonArray()) {
+          jsonArray = jsonElement.getAsJsonArray();
         }
+        Expression filterExpression =
+                jsonArray == null ? null : Expression.Converter.convert(jsonArray);
+        if (call.hasArgument("x")) {
+          Double x = call.argument("x");
+          Double y = call.argument("y");
+          PointF pixel = new PointF(x.floatValue(), y.floatValue());
+          features = mapboxMap.queryRenderedFeatures(pixel, filterExpression, layerIds);
+        } else {
+          Double left = call.argument("left");
+          Double top = call.argument("top");
+          Double right = call.argument("right");
+          Double bottom = call.argument("bottom");
+          RectF rectF =
+                  new RectF(
+                          left.floatValue(), top.floatValue(), right.floatValue(), bottom.floatValue());
+          features = mapboxMap.queryRenderedFeatures(rectF, filterExpression, layerIds);
+        }
+        List<String> featuresJson = new ArrayList<>();
+        for (Feature feature : features) {
+          featuresJson.add(feature.toJson());
+        }
+        reply.put("features", featuresJson);
+        result.success(reply);
+        break;
+      }
       case "map#setTelemetryEnabled":
-        {
-          final boolean enabled = call.argument("enabled");
-          Mapbox.getTelemetry().setUserTelemetryRequestState(enabled);
-          result.success(null);
-          break;
-        }
+      {
+        final boolean enabled = call.argument("enabled");
+        Mapbox.getTelemetry().setUserTelemetryRequestState(enabled);
+        result.success(null);
+        break;
+      }
       case "map#getTelemetryEnabled":
-        {
-          final TelemetryEnabler.State telemetryState =
-              TelemetryEnabler.retrieveTelemetryStateFromPreferences();
-          result.success(telemetryState == TelemetryEnabler.State.ENABLED);
-          break;
-        }
+      {
+        final TelemetryEnabler.State telemetryState =
+                TelemetryEnabler.retrieveTelemetryStateFromPreferences();
+        result.success(telemetryState == TelemetryEnabler.State.ENABLED);
+        break;
+      }
       case "map#invalidateAmbientCache":
-        {
-          OfflineManager fileSource = OfflineManager.getInstance(context);
+      {
+        OfflineManager fileSource = OfflineManager.getInstance(context);
 
-          fileSource.invalidateAmbientCache(
-              new OfflineManager.FileSourceCallback() {
-                @Override
-                public void onSuccess() {
-                  result.success(null);
-                }
-
-                @Override
-                public void onError(@NonNull String message) {
-                  result.error("MAPBOX CACHE ERROR", message, null);
-                }
-              });
-          break;
-        }
-      case "source#addGeoJson":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String geojson = call.argument("geojson");
-          addGeoJsonSource(sourceId, geojson);
-          result.success(null);
-          break;
-        }
-      case "source#setGeoJson":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String geojson = call.argument("geojson");
-          setGeoJsonSource(sourceId, geojson);
-          result.success(null);
-          break;
-        }
-      case "source#setFeature":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String geojsonFeature = call.argument("geojsonFeature");
-          setGeoJsonFeature(sourceId, geojsonFeature);
-          result.success(null);
-          break;
-        }
-      case "symbolLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final String sourceLayer = call.argument("sourceLayer");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final String filter = call.argument("filter");
-          final boolean enableInteraction = call.argument("enableInteraction");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
-
-          Expression filterExpression = parseFilter(filter);
-
-          addSymbolLayer(
-              layerId,
-              sourceId,
-              belowLayerId,
-              sourceLayer,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              properties,
-              enableInteraction,
-              filterExpression);
-          updateLocationComponentLayer();
-
-          result.success(null);
-          break;
-        }
-      case "lineLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final String sourceLayer = call.argument("sourceLayer");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final String filter = call.argument("filter");
-          final boolean enableInteraction = call.argument("enableInteraction");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
-
-          Expression filterExpression = parseFilter(filter);
-
-          addLineLayer(
-              layerId,
-              sourceId,
-              belowLayerId,
-              sourceLayer,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              properties,
-              enableInteraction,
-              filterExpression);
-          updateLocationComponentLayer();
-
-          result.success(null);
-          break;
-        }
-      case "fillLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final String sourceLayer = call.argument("sourceLayer");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final String filter = call.argument("filter");
-          final boolean enableInteraction = call.argument("enableInteraction");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
-
-          Expression filterExpression = parseFilter(filter);
-
-          addFillLayer(
-              layerId,
-              sourceId,
-              belowLayerId,
-              sourceLayer,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              properties,
-              enableInteraction,
-              filterExpression);
-          updateLocationComponentLayer();
-
-          result.success(null);
-          break;
-        }
-      case "fillExtrusionLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final String sourceLayer = call.argument("sourceLayer");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final String filter = call.argument("filter");
-          final boolean enableInteraction = call.argument("enableInteraction");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretFillExtrusionLayerProperties(
-                  call.argument("properties"));
-
-          Expression filterExpression = parseFilter(filter);
-
-          addFillExtrusionLayer(
-              layerId,
-              sourceId,
-              belowLayerId,
-              sourceLayer,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              properties,
-              enableInteraction,
-              filterExpression);
-          updateLocationComponentLayer();
-
-          result.success(null);
-          break;
-        }
-      case "circleLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final String sourceLayer = call.argument("sourceLayer");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final String filter = call.argument("filter");
-          final boolean enableInteraction = call.argument("enableInteraction");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
-
-          Expression filterExpression = parseFilter(filter);
-
-          addCircleLayer(
-              layerId,
-              sourceId,
-              belowLayerId,
-              sourceLayer,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              properties,
-              enableInteraction,
-              filterExpression);
-          updateLocationComponentLayer();
-
-          result.success(null);
-          break;
-        }
-      case "rasterLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretRasterLayerProperties(call.argument("properties"));
-          addRasterLayer(
-              layerId,
-              sourceId,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              belowLayerId,
-              properties,
-              null);
-          updateLocationComponentLayer();
-
-          result.success(null);
-          break;
-        }
-      case "hillshadeLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretHillshadeLayerProperties(call.argument("properties"));
-          addHillshadeLayer(
-              layerId,
-              sourceId,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              belowLayerId,
-              properties,
-              null);
-          updateLocationComponentLayer();
-
-          result.success(null);
-          break;
-        }
-      case "heatmapLayer#add":
-        {
-          final String sourceId = call.argument("sourceId");
-          final String layerId = call.argument("layerId");
-          final String belowLayerId = call.argument("belowLayerId");
-          final Double minzoom = call.argument("minzoom");
-          final Double maxzoom = call.argument("maxzoom");
-          final PropertyValue[] properties =
-              LayerPropertyConverter.interpretHeatmapLayerProperties(call.argument("properties"));
-          addHeatmapLayer(
-              layerId,
-              sourceId,
-              minzoom != null ? minzoom.floatValue() : null,
-              maxzoom != null ? maxzoom.floatValue() : null,
-              belowLayerId,
-              properties,
-              null);
-          updateLocationComponentLayer();
-
-          result.success(null);
-          break;
-        }
-      case "locationComponent#getLastLocation":
-        {
-          Log.e(TAG, "location component: getLastLocation");
-          if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
-            Map<String, Object> reply = new HashMap<>();
-            locationEngine.getLastLocation(
-                new LocationEngineCallback<LocationEngineResult>() {
+        fileSource.invalidateAmbientCache(
+                new OfflineManager.FileSourceCallback() {
                   @Override
-                  public void onSuccess(LocationEngineResult locationEngineResult) {
-                    Location lastLocation = locationEngineResult.getLastLocation();
-                    if (lastLocation != null) {
-                      reply.put("latitude", lastLocation.getLatitude());
-                      reply.put("longitude", lastLocation.getLongitude());
-                      reply.put("altitude", lastLocation.getAltitude());
-                      result.success(reply);
-                    } else {
-                      result.error("", "", null); // ???
-                    }
+                  public void onSuccess() {
+                    result.success(null);
                   }
 
                   @Override
-                  public void onFailure(@NonNull Exception exception) {
-                    result.error("", "", null); // ???
+                  public void onError(@NonNull String message) {
+                    result.error("MAPBOX CACHE ERROR", message, null);
                   }
                 });
-          }
-          break;
+        break;
+      }
+      case "source#addGeoJson":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String geojson = call.argument("geojson");
+        addGeoJsonSource(sourceId, geojson);
+        result.success(null);
+        break;
+      }
+      case "source#setGeoJson":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String geojson = call.argument("geojson");
+        setGeoJsonSource(sourceId, geojson);
+        result.success(null);
+        break;
+      }
+      case "source#setFeature":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String geojsonFeature = call.argument("geojsonFeature");
+        setGeoJsonFeature(sourceId, geojsonFeature);
+        result.success(null);
+        break;
+      }
+      case "symbolLayer#add":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
+        final String filter = call.argument("filter");
+        final boolean enableInteraction = call.argument("enableInteraction");
+        final PropertyValue[] properties =
+                LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
+
+        Expression filterExpression = parseFilter(filter);
+
+        addSymbolLayer(
+                layerId,
+                sourceId,
+                belowLayerId,
+                sourceLayer,
+                minzoom != null ? minzoom.floatValue() : null,
+                maxzoom != null ? maxzoom.floatValue() : null,
+                properties,
+                enableInteraction,
+                filterExpression);
+        updateLocationComponentLayer();
+
+        result.success(null);
+        break;
+      }
+      case "lineLayer#add":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
+        final String filter = call.argument("filter");
+        final boolean enableInteraction = call.argument("enableInteraction");
+        final PropertyValue[] properties =
+                LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
+
+        Expression filterExpression = parseFilter(filter);
+
+        addLineLayer(
+                layerId,
+                sourceId,
+                belowLayerId,
+                sourceLayer,
+                minzoom != null ? minzoom.floatValue() : null,
+                maxzoom != null ? maxzoom.floatValue() : null,
+                properties,
+                enableInteraction,
+                filterExpression);
+        updateLocationComponentLayer();
+
+        result.success(null);
+        break;
+      }
+      case "fillLayer#add":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
+        final String filter = call.argument("filter");
+        final boolean enableInteraction = call.argument("enableInteraction");
+        final PropertyValue[] properties =
+                LayerPropertyConverter.interpretFillLayerProperties(call.argument("properties"));
+
+        Expression filterExpression = parseFilter(filter);
+
+        addFillLayer(
+                layerId,
+                sourceId,
+                belowLayerId,
+                sourceLayer,
+                minzoom != null ? minzoom.floatValue() : null,
+                maxzoom != null ? maxzoom.floatValue() : null,
+                properties,
+                enableInteraction,
+                filterExpression);
+        updateLocationComponentLayer();
+
+        result.success(null);
+        break;
+      }
+      case "fillExtrusionLayer#add":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
+        final String filter = call.argument("filter");
+        final boolean enableInteraction = call.argument("enableInteraction");
+        final PropertyValue[] properties =
+                LayerPropertyConverter.interpretFillExtrusionLayerProperties(
+                        call.argument("properties"));
+
+        Expression filterExpression = parseFilter(filter);
+
+        addFillExtrusionLayer(
+                layerId,
+                sourceId,
+                belowLayerId,
+                sourceLayer,
+                minzoom != null ? minzoom.floatValue() : null,
+                maxzoom != null ? maxzoom.floatValue() : null,
+                properties,
+                enableInteraction,
+                filterExpression);
+        updateLocationComponentLayer();
+
+        result.success(null);
+        break;
+      }
+      case "circleLayer#add":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final String sourceLayer = call.argument("sourceLayer");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
+        final String filter = call.argument("filter");
+        final boolean enableInteraction = call.argument("enableInteraction");
+        final PropertyValue[] properties =
+                LayerPropertyConverter.interpretCircleLayerProperties(call.argument("properties"));
+
+        Expression filterExpression = parseFilter(filter);
+
+        addCircleLayer(
+                layerId,
+                sourceId,
+                belowLayerId,
+                sourceLayer,
+                minzoom != null ? minzoom.floatValue() : null,
+                maxzoom != null ? maxzoom.floatValue() : null,
+                properties,
+                enableInteraction,
+                filterExpression);
+        updateLocationComponentLayer();
+
+        result.success(null);
+        break;
+      }
+      case "rasterLayer#add":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
+        final PropertyValue[] properties =
+                LayerPropertyConverter.interpretRasterLayerProperties(call.argument("properties"));
+        addRasterLayer(
+                layerId,
+                sourceId,
+                minzoom != null ? minzoom.floatValue() : null,
+                maxzoom != null ? maxzoom.floatValue() : null,
+                belowLayerId,
+                properties,
+                null);
+        updateLocationComponentLayer();
+
+        result.success(null);
+        break;
+      }
+      case "hillshadeLayer#add":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
+        final PropertyValue[] properties =
+                LayerPropertyConverter.interpretHillshadeLayerProperties(call.argument("properties"));
+        addHillshadeLayer(
+                layerId,
+                sourceId,
+                minzoom != null ? minzoom.floatValue() : null,
+                maxzoom != null ? maxzoom.floatValue() : null,
+                belowLayerId,
+                properties,
+                null);
+        updateLocationComponentLayer();
+
+        result.success(null);
+        break;
+      }
+      case "heatmapLayer#add":
+      {
+        final String sourceId = call.argument("sourceId");
+        final String layerId = call.argument("layerId");
+        final String belowLayerId = call.argument("belowLayerId");
+        final Double minzoom = call.argument("minzoom");
+        final Double maxzoom = call.argument("maxzoom");
+        final PropertyValue[] properties =
+                LayerPropertyConverter.interpretHeatmapLayerProperties(call.argument("properties"));
+        addHeatmapLayer(
+                layerId,
+                sourceId,
+                minzoom != null ? minzoom.floatValue() : null,
+                maxzoom != null ? maxzoom.floatValue() : null,
+                belowLayerId,
+                properties,
+                null);
+        updateLocationComponentLayer();
+
+        result.success(null);
+        break;
+      }
+      case "locationComponent#getLastLocation":
+      {
+        Log.e(TAG, "location component: getLastLocation");
+        if (this.myLocationEnabled && locationComponent != null && locationEngine != null) {
+          Map<String, Object> reply = new HashMap<>();
+          locationEngine.getLastLocation(
+                  new LocationEngineCallback<LocationEngineResult>() {
+                    @Override
+                    public void onSuccess(LocationEngineResult locationEngineResult) {
+                      Location lastLocation = locationEngineResult.getLastLocation();
+                      if (lastLocation != null) {
+                        reply.put("latitude", lastLocation.getLatitude());
+                        reply.put("longitude", lastLocation.getLongitude());
+                        reply.put("altitude", lastLocation.getAltitude());
+                        result.success(reply);
+                      } else {
+                        result.error("", "", null); // ???
+                      }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                      result.error("", "", null); // ???
+                    }
+                  });
         }
+        break;
+      }
       case "style#addImage":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          style.addImage(
-              call.argument("name"),
-              BitmapFactory.decodeByteArray(call.argument("bytes"), 0, call.argument("length")),
-              call.argument("sdf"));
-          result.success(null);
-          break;
-        }
-      case "style#addImageSource":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"), false);
-          style.addSource(
-              new ImageSource(
-                  call.argument("imageSourceId"),
-                  new LatLngQuad(
-                      coordinates.get(0),
-                      coordinates.get(1),
-                      coordinates.get(2),
-                      coordinates.get(3)),
-                  BitmapFactory.decodeByteArray(
-                      call.argument("bytes"), 0, call.argument("length"))));
-          result.success(null);
-          break;
-        }
-      case "style#updateImageSource":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          ImageSource imageSource = style.getSourceAs(call.argument("imageSourceId"));
-          List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"), false);
-          if (coordinates != null) {
-            // https://github.com/mapbox/mapbox-maps-android/issues/302
-            imageSource.setCoordinates(
-                new LatLngQuad(
-                    coordinates.get(0),
-                    coordinates.get(1),
-                    coordinates.get(2),
-                    coordinates.get(3)));
-          }
-          byte[] bytes = call.argument("bytes");
-          if (bytes != null) {
-            imageSource.setImage(BitmapFactory.decodeByteArray(bytes, 0, call.argument("length")));
-          }
-          result.success(null);
-          break;
-        }
-      case "style#addSource":
-        {
-          final String id = Convert.toString(call.argument("sourceId"));
-          final Map<String, Object> properties = (Map<String, Object>) call.argument("properties");
-          SourcePropertyConverter.addSource(id, properties, style);
-          result.success(null);
-          break;
-        }
-
-      case "style#removeSource":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          style.removeSource((String) call.argument("sourceId"));
-          result.success(null);
-          break;
-        }
-      case "style#addLayer":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          addRasterLayer(
-              call.argument("imageLayerId"),
-              call.argument("imageSourceId"),
-              call.argument("minzoom") != null
-                  ? ((Double) call.argument("minzoom")).floatValue()
-                  : null,
-              call.argument("maxzoom") != null
-                  ? ((Double) call.argument("maxzoom")).floatValue()
-                  : null,
-              null,
-              new PropertyValue[] {},
-              null);
-          result.success(null);
-          break;
-        }
-      case "style#addLayerBelow":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          addRasterLayer(
-              call.argument("imageLayerId"),
-              call.argument("imageSourceId"),
-              call.argument("minzoom") != null
-                  ? ((Double) call.argument("minzoom")).floatValue()
-                  : null,
-              call.argument("maxzoom") != null
-                  ? ((Double) call.argument("maxzoom")).floatValue()
-                  : null,
-              call.argument("belowLayerId"),
-              new PropertyValue[] {},
-              null);
-          result.success(null);
-          break;
-        }
-      case "style#removeLayer":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          String layerId = call.argument("layerId");
-          style.removeLayer(layerId);
-          interactiveFeatureLayerIds.remove(layerId);
-
-          result.success(null);
-          break;
-        }
-      case "style#setFilter":
-        {
-          if (style == null) {
-            result.error(
-                "STYLE IS NULL",
-                "The style is null. Has onStyleLoaded() already been invoked?",
-                null);
-          }
-          String layerId = call.argument("layerId");
-          String filter = call.argument("filter");
-
-          Layer layer = style.getLayer(layerId);
-
-          JsonParser parser = new JsonParser();
-          JsonElement jsonElement = parser.parse(filter);
-          Expression expression = Expression.Converter.convert(jsonElement);
-
-          if (layer instanceof CircleLayer) {
-            ((CircleLayer) layer).setFilter(expression);
-          } else if (layer instanceof FillExtrusionLayer) {
-            ((FillExtrusionLayer) layer).setFilter(expression);
-          } else if (layer instanceof FillLayer) {
-            ((FillLayer) layer).setFilter(expression);
-          } else if (layer instanceof HeatmapLayer) {
-            ((HeatmapLayer) layer).setFilter(expression);
-          } else if (layer instanceof LineLayer) {
-            ((LineLayer) layer).setFilter(expression);
-          } else if (layer instanceof SymbolLayer) {
-            ((SymbolLayer) layer).setFilter(expression);
-          } else {
-            result.error(
-                "INVALID LAYER TYPE",
-                String.format("Layer '%s' does not support filtering.", layerId),
-                null);
-            break;
-          }
-
-          result.success(null);
-          break;
-        }
-      case "snapshot#takeSnapshot":
-        {
-          FileSource.getInstance(context).activate();
-          MapSnapshotter.Options snapShotOptions =
-              new MapSnapshotter.Options(
-                  (int) call.argument("width"), (int) call.argument("height"));
-
-          snapShotOptions.withLogo((boolean) call.argument("withLogo"));
-          Style.Builder styleBuilder = new Style.Builder();
-          if (call.hasArgument("styleUri")) {
-            styleBuilder.fromUri((String) call.argument("styleUri"));
-          } else if (call.hasArgument("styleJson")) {
-            styleBuilder.fromJson((String) call.argument("styleJson"));
-          } else {
-            if (style == null) {
-              result.error(
+      {
+        if (style == null) {
+          result.error(
                   "STYLE IS NULL",
                   "The style is null. Has onStyleLoaded() already been invoked?",
                   null);
-            }
-            styleBuilder.fromUri(style.getUri());
-          }
-          snapShotOptions.withStyleBuilder(styleBuilder);
-          if (call.hasArgument("bounds")) {
-            FeatureCollection bounds = FeatureCollection.fromJson((String) call.argument("bounds"));
-            snapShotOptions.withRegion(GeoJSONUtils.toLatLngBounds(bounds));
-          } else if (call.hasArgument("centerCoordinate")) {
-            Feature centerPoint = Feature.fromJson((String) call.argument("centerCoordinate"));
-            CameraPosition cameraPosition =
-                new CameraPosition.Builder()
-                    .target(GeoJSONUtils.toLatLng((Point) centerPoint.geometry()))
-                    .tilt((double) call.argument("pitch"))
-                    .bearing((double) call.argument("heading"))
-                    .zoom((double) call.argument("zoomLevel"))
-                    .build();
-            snapShotOptions.withCameraPosition(cameraPosition);
-          } else {
-            snapShotOptions.withRegion(mapboxMap.getProjection().getVisibleRegion().latLngBounds);
-          }
+        }
+        style.addImage(
+                call.argument("name"),
+                BitmapFactory.decodeByteArray(call.argument("bytes"), 0, call.argument("length")),
+                call.argument("sdf"));
+        result.success(null);
+        break;
+      }
+      case "style#addImageSource":
+      {
+        if (style == null) {
+          result.error(
+                  "STYLE IS NULL",
+                  "The style is null. Has onStyleLoaded() already been invoked?",
+                  null);
+        }
+        List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"), false);
+        style.addSource(
+                new ImageSource(
+                        call.argument("imageSourceId"),
+                        new LatLngQuad(
+                                coordinates.get(0),
+                                coordinates.get(1),
+                                coordinates.get(2),
+                                coordinates.get(3)),
+                        BitmapFactory.decodeByteArray(
+                                call.argument("bytes"), 0, call.argument("length"))));
+        result.success(null);
+        break;
+      }
+      case "style#updateImageSource":
+      {
+        if (style == null) {
+          result.error(
+                  "STYLE IS NULL",
+                  "The style is null. Has onStyleLoaded() already been invoked?",
+                  null);
+        }
+        ImageSource imageSource = style.getSourceAs(call.argument("imageSourceId"));
+        List<LatLng> coordinates = Convert.toLatLngList(call.argument("coordinates"), false);
+        if (coordinates != null) {
+          // https://github.com/mapbox/mapbox-maps-android/issues/302
+          imageSource.setCoordinates(
+                  new LatLngQuad(
+                          coordinates.get(0),
+                          coordinates.get(1),
+                          coordinates.get(2),
+                          coordinates.get(3)));
+        }
+        byte[] bytes = call.argument("bytes");
+        if (bytes != null) {
+          imageSource.setImage(BitmapFactory.decodeByteArray(bytes, 0, call.argument("length")));
+        }
+        result.success(null);
+        break;
+      }
+      case "style#addSource":
+      {
+        final String id = Convert.toString(call.argument("sourceId"));
+        final Map<String, Object> properties = (Map<String, Object>) call.argument("properties");
+        SourcePropertyConverter.addSource(id, properties, style);
+        result.success(null);
+        break;
+      }
 
-          final MapSnapshotter snapshotter = new MapSnapshotter(context, snapShotOptions);
-          final String snapshotterID = UUID.randomUUID().toString();
-          mSnapshotterMap.put(snapshotterID, snapshotter);
+      case "style#removeSource":
+      {
+        if (style == null) {
+          result.error(
+                  "STYLE IS NULL",
+                  "The style is null. Has onStyleLoaded() already been invoked?",
+                  null);
+        }
+        style.removeSource((String) call.argument("sourceId"));
+        result.success(null);
+        break;
+      }
+      case "style#addLayer":
+      {
+        if (style == null) {
+          result.error(
+                  "STYLE IS NULL",
+                  "The style is null. Has onStyleLoaded() already been invoked?",
+                  null);
+        }
+        addRasterLayer(
+                call.argument("imageLayerId"),
+                call.argument("imageSourceId"),
+                call.argument("minzoom") != null
+                        ? ((Double) call.argument("minzoom")).floatValue()
+                        : null,
+                call.argument("maxzoom") != null
+                        ? ((Double) call.argument("maxzoom")).floatValue()
+                        : null,
+                null,
+                new PropertyValue[] {},
+                null);
+        result.success(null);
+        break;
+      }
+      case "style#addLayerBelow":
+      {
+        if (style == null) {
+          result.error(
+                  "STYLE IS NULL",
+                  "The style is null. Has onStyleLoaded() already been invoked?",
+                  null);
+        }
+        addRasterLayer(
+                call.argument("imageLayerId"),
+                call.argument("imageSourceId"),
+                call.argument("minzoom") != null
+                        ? ((Double) call.argument("minzoom")).floatValue()
+                        : null,
+                call.argument("maxzoom") != null
+                        ? ((Double) call.argument("maxzoom")).floatValue()
+                        : null,
+                call.argument("belowLayerId"),
+                new PropertyValue[] {},
+                null);
+        result.success(null);
+        break;
+      }
+      case "style#removeLayer":
+      {
+        if (style == null) {
+          result.error(
+                  "STYLE IS NULL",
+                  "The style is null. Has onStyleLoaded() already been invoked?",
+                  null);
+        }
+        String layerId = call.argument("layerId");
+        style.removeLayer(layerId);
+        interactiveFeatureLayerIds.remove(layerId);
 
-          snapshotter.start(
-              snapshot -> {
-                Bitmap bitmap = snapshot.getBitmap();
+        result.success(null);
+        break;
+      }
+      case "style#setFilter":
+      {
+        if (style == null) {
+          result.error(
+                  "STYLE IS NULL",
+                  "The style is null. Has onStyleLoaded() already been invoked?",
+                  null);
+        }
+        String layerId = call.argument("layerId");
+        String filter = call.argument("filter");
 
-                String result1;
-                if ((boolean) call.argument("writeToDisk")) {
-                  result1 = BitmapUtils.createTempFile(context, bitmap);
-                } else {
-                  result1 = BitmapUtils.createBase64(bitmap);
-                }
+        Layer layer = style.getLayer(layerId);
 
-                if (result1 == null) {
-                  result.error(
-                      "NO_RESULT",
-                      "Could not generate snapshot, please check Android logs for more info.",
-                      null);
-                  return;
-                }
+        JsonParser parser = new JsonParser();
+        JsonElement jsonElement = parser.parse(filter);
+        Expression expression = Expression.Converter.convert(jsonElement);
 
-                result.success(result1);
-                mSnapshotterMap.remove(snapshotterID);
-              },
-              new MapSnapshotter.ErrorHandler() {
-                @Override
-                public void onError(String error) {
-                  result.error("SNAPSHOT_ERROR", error, null);
-                  mSnapshotterMap.remove(snapshotterID);
-                }
-              });
+        if (layer instanceof CircleLayer) {
+          ((CircleLayer) layer).setFilter(expression);
+        } else if (layer instanceof FillExtrusionLayer) {
+          ((FillExtrusionLayer) layer).setFilter(expression);
+        } else if (layer instanceof FillLayer) {
+          ((FillLayer) layer).setFilter(expression);
+        } else if (layer instanceof HeatmapLayer) {
+          ((HeatmapLayer) layer).setFilter(expression);
+        } else if (layer instanceof LineLayer) {
+          ((LineLayer) layer).setFilter(expression);
+        } else if (layer instanceof SymbolLayer) {
+          ((SymbolLayer) layer).setFilter(expression);
+        } else {
+          result.error(
+                  "INVALID LAYER TYPE",
+                  String.format("Layer '%s' does not support filtering.", layerId),
+                  null);
           break;
         }
+
+        result.success(null);
+        break;
+      }
+      case "snapshot#takeSnapshot":
+      {
+        FileSource.getInstance(context).activate();
+        MapSnapshotter.Options snapShotOptions =
+                new MapSnapshotter.Options(
+                        (int) call.argument("width"), (int) call.argument("height"));
+
+        snapShotOptions.withLogo((boolean) call.argument("withLogo"));
+        Style.Builder styleBuilder = new Style.Builder();
+        if (call.hasArgument("styleUri")) {
+          styleBuilder.fromUri((String) call.argument("styleUri"));
+        } else if (call.hasArgument("styleJson")) {
+          styleBuilder.fromJson((String) call.argument("styleJson"));
+        } else {
+          if (style == null) {
+            result.error(
+                    "STYLE IS NULL",
+                    "The style is null. Has onStyleLoaded() already been invoked?",
+                    null);
+          }
+          styleBuilder.fromUri(style.getUri());
+        }
+        snapShotOptions.withStyleBuilder(styleBuilder);
+        if (call.hasArgument("bounds")) {
+          FeatureCollection bounds = FeatureCollection.fromJson((String) call.argument("bounds"));
+          snapShotOptions.withRegion(GeoJSONUtils.toLatLngBounds(bounds));
+        } else if (call.hasArgument("centerCoordinate")) {
+          Feature centerPoint = Feature.fromJson((String) call.argument("centerCoordinate"));
+          CameraPosition cameraPosition =
+                  new CameraPosition.Builder()
+                          .target(GeoJSONUtils.toLatLng((Point) centerPoint.geometry()))
+                          .tilt((double) call.argument("pitch"))
+                          .bearing((double) call.argument("heading"))
+                          .zoom((double) call.argument("zoomLevel"))
+                          .build();
+          snapShotOptions.withCameraPosition(cameraPosition);
+        } else {
+          snapShotOptions.withRegion(mapboxMap.getProjection().getVisibleRegion().latLngBounds);
+        }
+
+        final MapSnapshotter snapshotter = new MapSnapshotter(context, snapShotOptions);
+        final String snapshotterID = UUID.randomUUID().toString();
+        mSnapshotterMap.put(snapshotterID, snapshotter);
+
+        snapshotter.start(
+                snapshot -> {
+                  Bitmap bitmap = snapshot.getBitmap();
+
+                  String result1;
+                  if ((boolean) call.argument("writeToDisk")) {
+                    result1 = BitmapUtils.createTempFile(context, bitmap);
+                  } else {
+                    result1 = BitmapUtils.createBase64(bitmap);
+                  }
+
+                  if (result1 == null) {
+                    result.error(
+                            "NO_RESULT",
+                            "Could not generate snapshot, please check Android logs for more info.",
+                            null);
+                    return;
+                  }
+
+                  result.success(result1);
+                  mSnapshotterMap.remove(snapshotterID);
+                },
+                new MapSnapshotter.ErrorHandler() {
+                  @Override
+                  public void onError(String error) {
+                    result.error("SNAPSHOT_ERROR", error, null);
+                    mSnapshotterMap.remove(snapshotterID);
+                  }
+                });
+        break;
+      }
       default:
         result.notImplemented();
     }
@@ -1532,20 +1525,20 @@ final class MapboxMapController
     if (cameraUpdate != null) {
       // camera transformation not handled yet
       mapboxMap.moveCamera(
-          cameraUpdate,
-          new OnCameraMoveFinishedListener() {
-            @Override
-            public void onFinish() {
-              super.onFinish();
-              result.success(true);
-            }
+              cameraUpdate,
+              new OnCameraMoveFinishedListener() {
+                @Override
+                public void onFinish() {
+                  super.onFinish();
+                  result.success(true);
+                }
 
-            @Override
-            public void onCancel() {
-              super.onCancel();
-              result.success(false);
-            }
-          });
+                @Override
+                public void onCancel() {
+                  super.onCancel();
+                  result.success(false);
+                }
+              });
 
       // moveCamera(cameraUpdate);
     } else {
@@ -1554,21 +1547,21 @@ final class MapboxMapController
   }
 
   private void animateCamera(
-      CameraUpdate cameraUpdate, Integer duration, MethodChannel.Result result) {
+          CameraUpdate cameraUpdate, Integer duration, MethodChannel.Result result) {
     final OnCameraMoveFinishedListener onCameraMoveFinishedListener =
-        new OnCameraMoveFinishedListener() {
-          @Override
-          public void onFinish() {
-            super.onFinish();
-            result.success(true);
-          }
+            new OnCameraMoveFinishedListener() {
+              @Override
+              public void onFinish() {
+                super.onFinish();
+                result.success(true);
+              }
 
-          @Override
-          public void onCancel() {
-            super.onCancel();
-            result.success(false);
-          }
-        };
+              @Override
+              public void onCancel() {
+                super.onCancel();
+                result.success(false);
+              }
+            };
     if (cameraUpdate != null && duration != null) {
       // camera transformation not handled yet
       mapboxMap.animateCamera(cameraUpdate, duration, onCameraMoveFinishedListener);
@@ -1824,29 +1817,30 @@ final class MapboxMapController
 
   private void startListeningForLocationUpdates() {
     if (locationEngineCallback == null
-        && locationComponent != null
-        && locationComponent.getLocationEngine() != null) {
+            && locationComponent != null
+            && locationComponent.getLocationEngine() != null) {
       locationEngineCallback =
-          new LocationEngineCallback<LocationEngineResult>() {
-            @Override
-            public void onSuccess(LocationEngineResult result) {
-              onUserLocationUpdate(result.getLastLocation());
-            }
+              new LocationEngineCallback<LocationEngineResult>() {
+                @Override
+                public void onSuccess(LocationEngineResult result) {
+                  onUserLocationUpdate(result.getLastLocation());
+                }
 
-            @Override
-            public void onFailure(@NonNull Exception exception) {}
-          };
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                }
+              };
       locationComponent
-          .getLocationEngine()
-          .requestLocationUpdates(
-              locationComponent.getLocationEngineRequest(), locationEngineCallback, null);
+              .getLocationEngine()
+              .requestLocationUpdates(
+                      locationComponent.getLocationEngineRequest(), locationEngineCallback, null);
     }
   }
 
   private void stopListeningForLocationUpdates() {
     if (locationEngineCallback != null
-        && locationComponent != null
-        && locationComponent.getLocationEngine() != null) {
+            && locationComponent != null
+            && locationComponent.getLocationEngine() != null) {
       locationComponent.getLocationEngine().removeLocationUpdates(locationEngineCallback);
       locationEngineCallback = null;
     }
@@ -1854,21 +1848,21 @@ final class MapboxMapController
 
   private void updateMyLocationTrackingMode() {
     int[] mapboxTrackingModes =
-        new int[] {
-          CameraMode.NONE, CameraMode.TRACKING, CameraMode.TRACKING_COMPASS, CameraMode.TRACKING_GPS
-        };
+            new int[]{
+                    CameraMode.NONE, CameraMode.TRACKING, CameraMode.TRACKING_COMPASS, CameraMode.TRACKING_GPS
+            };
     locationComponent.setCameraMode(mapboxTrackingModes[this.myLocationTrackingMode]);
   }
 
   private void updateMyLocationRenderMode() {
-    int[] mapboxRenderModes = new int[] {RenderMode.NORMAL, RenderMode.COMPASS, RenderMode.GPS};
+    int[] mapboxRenderModes = new int[]{RenderMode.NORMAL, RenderMode.COMPASS, RenderMode.GPS};
     locationComponent.setRenderMode(mapboxRenderModes[this.myLocationRenderMode]);
   }
 
   private boolean hasLocationPermission() {
     return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED
-        || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+            || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
             == PackageManager.PERMISSION_GRANTED;
   }
 
@@ -1877,7 +1871,7 @@ final class MapboxMapController
       throw new IllegalArgumentException("permission is null");
     }
     return context.checkPermission(
-        permission, android.os.Process.myPid(), android.os.Process.myUid());
+            permission, android.os.Process.myPid(), android.os.Process.myUid());
   }
 
   /**
@@ -1943,7 +1937,7 @@ final class MapboxMapController
     // true at least once. To avoid redundant queries only check for feature if the previous event
     // was ACTION_DOWN
     if (detector.getPreviousEvent().getActionMasked() == MotionEvent.ACTION_DOWN
-        && detector.getPointersCount() == 1) {
+            && detector.getPointersCount() == 1) {
       PointF pointf = detector.getFocalPoint();
       LatLng origin = mapboxMap.getProjection().fromScreenLocation(pointf);
       RectF rectF = new RectF(pointf.x - 10, pointf.y - 10, pointf.x + 10, pointf.y + 10);
@@ -1995,9 +1989,9 @@ final class MapboxMapController
 
   boolean startDragging(@NonNull Feature feature, @NonNull LatLng origin) {
     final boolean draggable =
-        feature.hasNonNullValueForProperty("draggable")
-            ? feature.getBooleanProperty("draggable")
-            : false;
+            feature.hasNonNullValueForProperty("draggable")
+                    ? feature.getBooleanProperty("draggable")
+                    : false;
     if (draggable) {
       draggedFeature = feature;
       dragPrevious = origin;
@@ -2012,6 +2006,7 @@ final class MapboxMapController
     dragOrigin = null;
     dragPrevious = null;
   }
+
 
   /** Simple Listener to listen for the status of camera movements. */
   public class OnCameraMoveFinishedListener implements MapboxMap.CancelableCallback {
