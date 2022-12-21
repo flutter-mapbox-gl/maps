@@ -89,6 +89,9 @@ class Convert {
             guard let paddingTop = cameraUpdate[3] as? CGFloat else { return nil }
             guard let paddingRight = cameraUpdate[4] as? CGFloat else { return nil }
             guard let paddingBottom = cameraUpdate[5] as? CGFloat else { return nil }
+            
+            mapView.automaticallyAdjustsContentInset = false
+            
             return mapView.cameraThatFitsCoordinateBounds(
                 MGLCoordinateBounds.fromArray(bounds),
                 edgePadding: UIEdgeInsets(
