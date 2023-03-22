@@ -8,69 +8,73 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-java@v1
-      with:
-        java-version: '12.x'
-    - uses: subosito/flutter-action@v1
-    - run: flutter pub get
-    - name: Lint analysis
-      run: cd example && flutter analyze
-      
+      - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: "12.x"
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: "2.10.5"
+      - run: flutter pub get
+      - name: Lint analysis
+        run: cd example && flutter analyze
+
   check-dart-formatting:
     name: "Check Dart formatting"
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v1
-    - uses: subosito/flutter-action@v1
-    - name: Check Dart formatting 
-      run: flutter format --set-exit-if-changed .
+      - uses: actions/checkout@v1
+      - uses: subosito/flutter-action@v1
+      - name: Check Dart formatting
+        run: flutter format --set-exit-if-changed .
 
   check-swift-formatting:
     name: "Check Swift formatting"
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v1
-    - name: get SwiftFormat
-      run: wget https://github.com/nicklockwood/SwiftFormat/releases/download/0.48.18/swiftformat_linux.zip
-    - run: unzip swiftformat_linux.zip
-    - run: chmod +x swiftformat_linux
-    - name: Check Swift formatting 
-      run: ./swiftformat_linux --swiftversion 4.2 --maxwidth 100 --lint ios
+      - uses: actions/checkout@v1
+      - name: get SwiftFormat
+        run: ./install_formatting_tools.sh
+      - name: Check Swift formatting
+        run: ./swiftformat --swiftversion 4.2 --maxwidth 100 --lint ios
 
   check-java-formatting:
     name: "Check Java formatting"
     runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v1
-    - name: get google-java-format
-      run: wget https://github.com/google/google-java-format/releases/download/v1.13.0/google-java-format-1.13.0-all-deps.jar
-    - run: java --version
-    - name: Check Java formatting 
-      run: java -jar google-java-format-1.13.0-all-deps.jar --set-exit-if-changed -n $(find . -type f -name "*.java")
 
+    steps:
+      - uses: actions/checkout@v1
+      - name: get google-java-format
+        run: ./install_formatting_tools.sh
+      - name: Check Java formatting
+        run: >
+          java 
+          --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+          --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+          --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+          --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+          --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+          -jar google-java-format-1.13.0-all-deps.jar --set-exit-if-changed -n $(find . -type f -name "*.java")
 
   build-android:
     environment: ANDROID_CI_DOWNLOADS_TOKEN
     name: "Build Android apk"
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-java@v1
-      with:
-        java-version: '12.x'
-    - uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '2.10.5'
-    - run: flutter pub get
-    - name: Build example APK
-      run: cd example && flutter build apk
-      env:
-        SDK_REGISTRY_TOKEN: ${{ secrets.SDK_REGISTRY_ANDROID}}
+      - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: "12.x"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "2.10.5"
+      - run: flutter pub get
+      - name: Build example APK
+        run: cd example && flutter build apk
+        env:
+          SDK_REGISTRY_TOKEN: ${{ secrets.SDK_REGISTRY_ANDROID}}
 
   build-iOS:
     environment: ANDROID_CI_DOWNLOADS_TOKEN
@@ -81,10 +85,10 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-java@v1
         with:
-          java-version: '12.x'
+          java-version: "12.x"
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.10.5'
+          flutter-version: "2.10.5"
       - run: flutter pub get
       - name: build iOS package
         run: |
@@ -102,12 +106,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-java@v1
-      with:
-        java-version: '12.x'
-    - uses: subosito/flutter-action@v1
-    - run: flutter config --enable-web
-    - run: flutter pub get
-    - name: Build web
-      run: cd example && flutter build web
+      - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: "12.x"
+      - uses: subosito/flutter-action@v1
+      - run: flutter config --enable-web
+      - run: flutter pub get
+      - name: Build web
+        run: cd example && flutter build web

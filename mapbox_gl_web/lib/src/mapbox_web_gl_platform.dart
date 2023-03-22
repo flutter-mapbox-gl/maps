@@ -75,6 +75,7 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
           zoom: camera['zoom'],
           bearing: camera['bearing'],
           pitch: camera['tilt'],
+          preserveDrawingBuffer: true,
         ),
       );
       _map.on('load', _onStyleLoaded);
@@ -766,6 +767,24 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   }
 
   @override
+  Future<void> addFillExtrusionLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom,
+      dynamic filter,
+      required bool enableInteraction}) async {
+    return _addLayer(sourceId, layerId, properties, "fill-extrusion",
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        minzoom: minzoom,
+        maxzoom: maxzoom,
+        filter: filter,
+        enableInteraction: enableInteraction);
+  }
+
+  @override
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId,
@@ -809,6 +828,21 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       double? minzoom,
       double? maxzoom}) async {
     return _addLayer(sourceId, layerId, properties, "hillshade",
+        belowLayerId: belowLayerId,
+        sourceLayer: sourceLayer,
+        minzoom: minzoom,
+        maxzoom: maxzoom,
+        enableInteraction: false);
+  }
+
+  @override
+  Future<void> addHeatmapLayer(
+      String sourceId, String layerId, Map<String, dynamic> properties,
+      {String? belowLayerId,
+      String? sourceLayer,
+      double? minzoom,
+      double? maxzoom}) async {
+    return _addLayer(sourceId, layerId, properties, "heatmap",
         belowLayerId: belowLayerId,
         sourceLayer: sourceLayer,
         minzoom: minzoom,
@@ -943,6 +977,12 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
     throw UnimplementedError();
   }
 
+  Future<void> updateImageSource(
+      String imageSourceId, Uint8List? bytes, LatLngQuad? coordinates) {
+    // TODO: implement addImageSource
+    throw UnimplementedError();
+  }
+
   @override
   Future<void> addLayer(String imageLayerId, String imageSourceId,
       double? minzoom, double? maxzoom) {
@@ -981,6 +1021,24 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
         source.setData(newData);
       }
     }
+  }
+
+  @override
+  Future<String> takeSnapshot(SnapshotOptions snapshotOptions) async {
+    if (snapshotOptions.styleUri != null || snapshotOptions.styleJson != null) {
+      throw UnsupportedError("style option is not supported");
+    }
+    if (snapshotOptions.bounds != null) {
+      throw UnsupportedError("bounds option is not supported");
+    }
+    if (snapshotOptions.centerCoordinate != null ||
+        snapshotOptions.zoomLevel != null ||
+        snapshotOptions.pitch != 0 ||
+        snapshotOptions.heading != 0) {
+      throw UnsupportedError("camera posision option is not supported");
+    }
+    final base64String = await _map.getCanvas().toDataUrl('image/jpeg');
+    return base64String;
   }
 
   @override

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'main.dart';
@@ -99,6 +102,89 @@ class FullMapState extends State<FullMap> {
         ));
   }
 
+  static Future<void> addGeojsonHeatmap(MapboxMapController controller) async {
+    await controller.addSource(
+        "earthquakes-heatmap-source",
+        GeojsonSourceProperties(
+          data:
+              'https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson',
+        ));
+    await controller.addLayer(
+        "earthquakes-heatmap-source",
+        "earthquakes-heatmap-layer",
+        HeatmapLayerProperties(
+          heatmapColor: [
+            Expressions.interpolate,
+            ["linear"],
+            ["heatmap-density"],
+            0,
+            "rgba(33.0, 102.0, 172.0, 0.0)",
+            0.2,
+            "rgb(103.0, 169.0, 207.0)",
+            0.4,
+            "rgb(209.0, 229.0, 240.0)",
+            0.6,
+            "rgb(253.0, 219.0, 240.0)",
+            0.8,
+            "rgb(239.0, 138.0, 98.0)",
+            1,
+            "rgb(178.0, 24.0, 43.0)",
+          ],
+          heatmapWeight: [
+            Expressions.interpolate,
+            ["linear"],
+            [Expressions.get, "mag"],
+            0,
+            0,
+            6,
+            1,
+          ],
+          heatmapIntensity: [
+            Expressions.interpolate,
+            ["linear"],
+            [Expressions.zoom],
+            0,
+            1,
+            9,
+            3,
+          ],
+          heatmapRadius: [
+            Expressions.interpolate,
+            ["linear"],
+            [Expressions.zoom],
+            0,
+            2,
+            9,
+            20,
+          ],
+          heatmapOpacity: [
+            Expressions.interpolate,
+            ["linear"],
+            [Expressions.zoom],
+            7,
+            1,
+            9,
+            0.5
+          ],
+        ));
+  }
+
+  static Future<void> addIndoorBuilding(MapboxMapController controller) async {
+    final jsonStr =
+        await rootBundle.loadString("assets/fill-extrusion/indoor_3d_map.json");
+    await controller.addGeoJsonSource(
+        "indoor-building-source", jsonDecode(jsonStr));
+    await controller.addFillExtrusionLayer(
+        "indoor-building-source",
+        "indoor-building-layer",
+        FillExtrusionLayerProperties(
+          fillExtrusionOpacity: 0.5,
+          fillExtrusionHeight: [Expressions.get, "height"],
+          fillExtrusionBase: [Expressions.get, "base_height"],
+          fillExtrusionColor: [Expressions.get, "color"],
+        ));
+  }
+
   static Future<void> addVector(MapboxMapController controller) async {
     await controller.addSource(
         "terrain",
@@ -190,6 +276,19 @@ class FullMapState extends State<FullMap> {
       baseStyle: MapboxStyles.LIGHT,
       addDetails: addGeojsonCluster,
       position: CameraPosition(target: LatLng(33.5, -118.1), zoom: 5),
+    ),
+    StyleInfo(
+      name: "Geojson heatmap",
+      baseStyle: MapboxStyles.DARK,
+      addDetails: addGeojsonHeatmap,
+      position: CameraPosition(target: LatLng(33.5, -118.1), zoom: 5),
+    ),
+    StyleInfo(
+      name: "Indoor Building",
+      baseStyle: MapboxStyles.LIGHT,
+      addDetails: addIndoorBuilding,
+      position: CameraPosition(
+          target: LatLng(41.86625, -87.61694), zoom: 16, tilt: 20, bearing: 40),
     ),
     StyleInfo(
       name: "Raster",

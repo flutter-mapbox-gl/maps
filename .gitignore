@@ -9,6 +9,7 @@
 .buildlog/
 .history
 .svn/
+.fvm/
 
 # IntelliJ related
 *.iml
@@ -98,9 +99,14 @@ unlinked_spec.ds
 **/macos/Flutter/Flutter-Debug.xcconfig
 **/macos/Flutter/Flutter-Release.xcconfig
 **/macos/Flutter/Flutter-Profile.xcconfig
+__MACOSX/
 
 # Coverage
 coverage/
+
+# Binaries
+google-java-format-1.13.0-all-deps.jar
+swiftformat
 
 # Symbols
 app.*.symbols
@@ -112,3 +118,4 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+
