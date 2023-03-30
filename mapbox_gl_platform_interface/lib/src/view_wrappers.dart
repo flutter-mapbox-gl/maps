@@ -34,6 +34,7 @@ class TextureAndroidViewControllerWrapper
 
   // @override
   PointTransformer get pointTransformer => _controller.pointTransformer;
+
   set pointTransformer(PointTransformer transformer) =>
       _controller.pointTransformer = transformer;
 
@@ -57,11 +58,14 @@ class TextureAndroidViewControllerWrapper
   /// size is the view's initial size in logical pixel. size can be omitted
   /// if the concrete implementation doesn't require an initial size to create
   /// the platform view.
-  Future<void> create({Size? size}) async {
+  Future<void> create({Size? size, Offset? position}) async {
     await _controller.create();
     awaitingCreation = false;
     if (size != null) {
       await _controller.setSize(size);
+      if (position != null) {
+        await _controller.setOffset(position);
+      }
     }
   }
 
@@ -123,6 +127,9 @@ class TextureAndroidViewControllerWrapper
 
   // @override
   int get viewId => _controller.viewId;
+
+  // @override
+  bool get requiresViewComposition => _controller.requiresViewComposition;
 }
 
 class AndroidViewWithWrappedController extends StatefulWidget {
