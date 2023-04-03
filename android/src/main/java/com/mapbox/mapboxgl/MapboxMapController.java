@@ -1556,7 +1556,7 @@ final class MapboxMapController
 
     mapView.onStop();
     mapView.onDestroy();
-    
+
     if (locationComponent != null) {
       locationComponent.setLocationComponentEnabled(false);
     }
