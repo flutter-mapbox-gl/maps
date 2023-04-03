@@ -224,7 +224,7 @@ class MapboxMap extends StatefulWidget {
   /// * All fade/transition animations have completed
   final OnMapIdleCallback? onMapIdle;
 
-  // no has any effect and is not needed any longer
+  // This flag has no effect anymore and will be removed in the next major release.
   @deprecated
   final bool? useDelayedDisposal;
 
