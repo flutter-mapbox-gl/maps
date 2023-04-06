@@ -224,8 +224,8 @@ class MapboxMap extends StatefulWidget {
   /// * All fade/transition animations have completed
   final OnMapIdleCallback? onMapIdle;
 
-  /// Use delayed disposal of Android View Controller to avoid flutter 3.x.x crashes
-  /// Use with caution - this is not yet production ready since several users still report crashes after using this workaround
+  // This flag has no effect anymore and will be removed in the next major release.
+  @deprecated
   final bool? useDelayedDisposal;
 
   /// Override hybrid mode per map instance
@@ -261,7 +261,6 @@ class _MapboxMapState extends State<MapboxMap> {
       'accessToken': widget.accessToken,
       'onAttributionClickOverride': widget.onAttributionClick != null,
       'dragEnabled': widget.dragEnabled,
-      'useDelayedDisposal': widget.useDelayedDisposal,
       'useHybridCompositionOverride': widget.useHybridCompositionOverride,
     };
     return _mapboxGlPlatform.buildView(
