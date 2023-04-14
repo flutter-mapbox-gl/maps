@@ -641,7 +641,13 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
     }
     _interactiveFeatureLayerIds.clear();
 
-    _map.setStyle(styleString);
+    try {
+      final styleJson = jsonDecode(styleString ?? '');
+      final styleJsObject = jsUtil.jsify(styleJson);
+      _map.setStyle(styleJsObject);
+    } catch(_) {
+      _map.setStyle(styleString);
+    }
     // catch style loaded for later style changes
     if (_mapReady) {
       _map.once("styledata", _onStyleLoaded);
