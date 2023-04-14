@@ -645,7 +645,7 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       final styleJson = jsonDecode(styleString ?? '');
       final styleJsObject = jsUtil.jsify(styleJson);
       _map.setStyle(styleJsObject);
-    } catch(_) {
+    } catch (_) {
       _map.setStyle(styleString);
     }
     // catch style loaded for later style changes
@@ -692,8 +692,10 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
 
   @override
   Future<void> removeLayer(String layerId) async {
-    _interactiveFeatureLayerIds.remove(layerId);
-    _map.removeLayer(layerId);
+    if (_map.getLayer(layerId) != null) {
+      _interactiveFeatureLayerIds.remove(layerId);
+      _map.removeLayer(layerId);
+    }
   }
 
   @override
@@ -883,6 +885,8 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
         properties.entries.where((entry) => isLayoutProperty(entry.key)));
     final paint = Map.fromEntries(
         properties.entries.where((entry) => !isLayoutProperty(entry.key)));
+
+    removeLayer(layerId);
 
     _map.addLayer({
       'id': layerId,
