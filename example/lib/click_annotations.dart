@@ -28,6 +28,7 @@ class ClickAnnotationBody extends StatefulWidget {
 class ClickAnnotationBodyState extends State<ClickAnnotationBody> {
   ClickAnnotationBodyState();
   static const LatLng center = const LatLng(-33.88, 151.16);
+  bool overlapping = false;
 
   MapboxMapController? controller;
 
@@ -131,20 +132,37 @@ class ClickAnnotationBodyState extends State<ClickAnnotationBody> {
 
   @override
   Widget build(BuildContext context) {
-    return MapboxMap(
-      accessToken: MapsDemo.ACCESS_TOKEN,
-      annotationOrder: [
-        AnnotationType.fill,
-        AnnotationType.line,
-        AnnotationType.circle,
-        AnnotationType.symbol,
-      ],
-      onMapCreated: _onMapCreated,
-      onStyleLoadedCallback: _onStyleLoaded,
-      initialCameraPosition: const CameraPosition(
-        target: center,
-        zoom: 12.0,
+    return Scaffold(
+      body: MapboxMap(
+        accessToken: MapsDemo.ACCESS_TOKEN,
+        annotationOrder: [
+          AnnotationType.fill,
+          AnnotationType.line,
+          AnnotationType.circle,
+          AnnotationType.symbol,
+        ],
+        onMapCreated: _onMapCreated,
+        onStyleLoadedCallback: _onStyleLoaded,
+        initialCameraPosition: const CameraPosition(
+          target: center,
+          zoom: 12.0,
+        ),
       ),
+      floatingActionButton: ElevatedButton(
+          onPressed: () {
+            setState(() {
+              overlapping = !overlapping;
+            });
+            controller!.setSymbolIconAllowOverlap(overlapping);
+            controller!.setSymbolIconIgnorePlacement(overlapping);
+
+            controller!.setSymbolTextAllowOverlap(overlapping);
+            controller!.setSymbolTextIgnorePlacement(overlapping);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Toggle overlapping"),
+          )),
     );
   }
 }

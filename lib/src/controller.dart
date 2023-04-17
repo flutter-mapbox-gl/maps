@@ -1241,7 +1241,7 @@ class MapboxMapController extends ChangeNotifier {
   /// Add a layer to the map with the given properties
   ///
   /// The returned [Future] completes after the change has been made on the
-  /// platform side.
+  /// platform side. If the layer already exists, the layer is updated.
   ///
   /// Setting [belowLayerId] adds the new layer below the given id.
   /// If [enableInteraction] is set the layer is considered for touch or drag
