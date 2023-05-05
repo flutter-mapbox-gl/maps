@@ -1208,6 +1208,13 @@ class MapboxMapController extends ChangeNotifier {
     return _mapboxGlPlatform.setFilter(layerId, filter);
   }
 
+  /// Sets the visibility by specifying [isVisible] of the layer with
+  /// the specified id [layerId].
+  /// Returns silently if [layerId] does not exist.
+  Future<void> setVisibility(String layerId, bool isVisible) {
+    return _mapboxGlPlatform.setVisibility(layerId, isVisible);
+  }
+
   /// Returns the point on the screen that corresponds to a geographical coordinate ([latLng]). The screen location is in screen pixels (not display pixels) relative to the top left of the map (not of the whole screen)
   ///
   /// Note: The resulting x and y coordinates are rounded to [int] on web, on other platforms they may differ very slightly (in the range of about 10^-10) from the actual nearest screen coordinate.

@@ -24,7 +24,9 @@ class LayerState extends State {
   late MapboxMapController controller;
   Timer? bikeTimer;
   Timer? filterTimer;
+  Timer? visibilityTimer;
   int filteredId = 0;
+  bool isVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +150,18 @@ class LayerState extends State {
       filteredId = filteredId == 0 ? 1 : 0;
       controller.setFilter('fills', ['==', 'id', filteredId]);
     });
+
+    visibilityTimer = Timer.periodic(Duration(seconds: 5), (t) {
+      isVisible = !isVisible;
+      controller.setVisibility('water', isVisible);
+    });
   }
 
   @override
   void dispose() {
     bikeTimer?.cancel();
     filterTimer?.cancel();
+    visibilityTimer?.cancel();
     super.dispose();
   }
 }

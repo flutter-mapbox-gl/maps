@@ -4,6 +4,9 @@
 
 package com.mapbox.mapboxgl;
 
+import static com.mapbox.mapboxsdk.style.layers.Property.*;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -1328,6 +1331,24 @@ final class MapboxMapController
                 String.format("Layer '%s' does not support filtering.", layerId),
                 null);
             break;
+          }
+
+          result.success(null);
+          break;
+        }
+      case "style#setVisibility":
+        {
+          if (style == null) {
+            result.error(
+                "STYLE IS NULL",
+                "The style is null. Has onStyleLoaded() already been invoked?",
+                null);
+          }
+          String layerId = call.argument("layerId");
+          boolean isVisible = call.argument("isVisible");
+          Layer layer = style.getLayer(layerId);
+          if (layer != null) {
+            layer.setProperties(isVisible ? visibility(VISIBLE) : visibility(NONE));
           }
 
           result.success(null);

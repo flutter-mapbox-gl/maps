@@ -704,6 +704,15 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   }
 
   @override
+  Future<void> setVisibility(String layerId, bool isVisible) async {
+    final layer = _map.getLayer(layerId);
+    if (layer != null) {
+      _map.setLayoutProperty(
+          layerId, 'visibility', isVisible ? 'visible' : 'none');
+    }
+  }
+
+  @override
   Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
       {String? promoteId}) async {
     final data = _makeFeatureCollection(geojson);
