@@ -226,17 +226,17 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                     predicate: filterExpression
                 )
             }
-            if let top = arguments["top"] as? Double,
-               let bottom = arguments["bottom"] as? Double,
+            if let top = arguments["top"] as? Double,               
                let left = arguments["left"] as? Double,
-               let right = arguments["right"] as? Double
+               let width = arguments["width"] as? Double,
+               let height = arguments["height"] as? Double
             {
+                dump(arguments)
                 features = mapView.visibleFeatures(
-                    in: CGRect(x: left, y: top, width: right, height: bottom),
+                    in: CGRect(x: left, y: top, width: width, height: height),
                     styleLayerIdentifiers: styleLayerIdentifiers,
                     predicate: filterExpression
                 )
-            }
             var featuresJson = [String]()
             for feature in features {
                 let dictionary = feature.geoJSONDictionary()
