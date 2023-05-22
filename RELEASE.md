@@ -29,7 +29,7 @@ Update library version in `mapbox_gl_web/pubspec.yaml` in `mapbox_gl_platform_in
 Replace:
 mapbox_gl_platform_interface:
   git:
-    url: https://github.com/tobrun/flutter-mapbox-gl.git
+    url: https://github.com/flutter-mapbox-gl/maps.git
     path: mapbox_gl_platform_interface
 
 With:

@@ -1,7 +1,7 @@
 name: mapbox_gl_platform_interface
 description: A common platform interface for the mapbox_gl plugin.
 version: 0.16.0
-homepage: https://github.com/tobrun/flutter-mapbox-gl
+homepage: https://github.com/flutter-mapbox-gl/maps
 
 dependencies:
   flutter:

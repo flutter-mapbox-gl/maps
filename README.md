@@ -2,7 +2,7 @@
 
 > **Please note that this project is community driven and is not an official Mapbox product.** 
 > 
-> We welcome [feedback](https://github.com/tobrun/flutter-mapbox-gl/issues) and contributions.
+> We welcome [feedback](https://github.com/flutter-mapbox-gl/maps/issues) and contributions.
 
 
 ## Table of contents
@@ -260,4 +260,4 @@ See the [documentation about this topic](doc/RUNNING_EXAMPLE_CODE.md)
 
 ## Contributing
 
-We welcome contributions to this repository! If you're interested in helping build this Mapbox-Flutter integration, please read [the contribution guide](https://github.com/tobrun/flutter-mapbox-gl/blob/master/CONTRIBUTING.md) to learn how to get started.
+We welcome contributions to this repository! If you're interested in helping build this Mapbox-Flutter integration, please read [the contribution guide](https://github.com/flutter-mapbox-gl/maps/blob/master/CONTRIBUTING.md) to learn how to get started.
