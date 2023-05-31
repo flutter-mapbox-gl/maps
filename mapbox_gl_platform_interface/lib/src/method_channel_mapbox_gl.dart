@@ -583,6 +583,16 @@ class MethodChannelMapboxGl extends MapboxGlPlatform {
   }
 
   @override
+  Future<void> setLineLayerProperties(
+      String layerId, Map<String, dynamic> properties) async {
+    await _channel.invokeMapMethod('lineLayer#setProperties', <String, dynamic>{
+      'layerId': layerId,
+      'properties': properties
+          .map((key, value) => MapEntry<String, String>(key, jsonEncode(value)))
+    });
+  }
+
+  @override
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId,

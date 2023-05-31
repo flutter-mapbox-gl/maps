@@ -138,6 +138,8 @@ final class MapboxMapController
   private LatLng dragOrigin;
   private LatLng dragPrevious;
   private LatLngBounds bounds = null;
+  private HashMap<String, LineLayer > lineLayers = new HashMap<String, LineLayer>();
+
   Style.OnStyleLoaded onStyleLoadedCallback =
       new Style.OnStyleLoaded() {
         @Override
@@ -424,6 +426,11 @@ final class MapboxMapController
     }
   }
 
+  private void setLineLayerProperties(String layerName, PropertyValue[] properties){
+    LineLayer layer = lineLayers.get(layerName);
+    layer.setProperties(properties);
+  }
+
   private void addLineLayer(
       String layerName,
       String sourceName,
@@ -456,6 +463,8 @@ final class MapboxMapController
     if (enableInteraction) {
       interactiveFeatureLayerIds.add(layerName);
     }
+
+    lineLayers.put(layerName, lineLayer);
   }
 
   private void addFillLayer(
@@ -1429,6 +1438,18 @@ final class MapboxMapController
               });
           break;
         }
+      case "lineLayer#setProperties":
+      {
+
+        final PropertyValue[] properties =  LayerPropertyConverter.interpretLineLayerProperties(call.argument("properties"));
+        final String layerId = call.argument("layerId");
+
+        setLineLayerProperties(layerId, properties);
+
+        result.success(null);
+
+        break;
+      }
       default:
         result.notImplemented();
     }

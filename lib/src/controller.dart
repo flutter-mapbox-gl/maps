@@ -387,6 +387,12 @@ class MapboxMapController extends ChangeNotifier {
     );
   }
 
+  Future<void> setLineLayerProperties(
+      String layerId, LineLayerProperties properties) async {
+    await _mapboxGlPlatform.setLineLayerProperties(
+        layerId, properties.toJson());
+  }
+
   /// Add a line layer to the map with the given properties
   ///
   /// Consider using [addLayer] for an unified layer api.

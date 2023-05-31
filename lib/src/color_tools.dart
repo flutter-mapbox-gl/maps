@@ -7,4 +7,8 @@ extension MapBoxColorConversion on Color {
     final b = blue.toRadixString(16).padLeft(2, '0');
     return '#$r$g$b';
   }
+
+  String toRgbWithAlphaString() {
+    return 'rgba($red,$green, $blue, ${alpha / 255})';
+  }
 }

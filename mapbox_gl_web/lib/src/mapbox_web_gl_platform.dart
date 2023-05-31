@@ -1069,4 +1069,11 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
   void forceResizeWebMap() {
     _map.resize();
   }
+
+  @override
+  Future<void> setLineLayerProperties(
+      String layerId, Map<String, dynamic> properties) {
+    // TODO: implement setLineLayerProperties
+    throw UnimplementedError();
+  }
 }
