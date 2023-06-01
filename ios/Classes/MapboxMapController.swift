@@ -28,6 +28,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var interactiveFeatureLayerIds = Set<String>()
     private var addedShapesByLayer = [String: MGLShape]()
 
+    private var lineLayers = [String : MGLLineStyleLayer]()
+
     func view() -> UIView {
         return mapView
     }
@@ -396,6 +398,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 properties: properties
             )
             switch addResult {
+            case .success: result(nil)
+            case let .failure(error): result(error.flutterError)
+            }
+        
+        case "lineLayer#setProperties":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+
+            let editResult = setLineLayerProperties(
+                layerId: layerId,
+                properties: properties
+            )
+
+            switch editResult {
             case .success: result(nil)
             case let .failure(error): result(error.flutterError)
             }
@@ -916,6 +933,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         if let layer = mapView.style?.layer(withIdentifier: layerId) {
             mapView.style?.removeLayer(layer)
             interactiveFeatureLayerIds.remove(layerId)
+            lineLayers.removeValue(forKey: layerId)
         }
     }
 
@@ -1236,6 +1254,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         return .success(())
     }
 
+    func setLineLayerProperties(layerId: String, properties: [String: String]) -> Result<Void, MethodCallError> {
+        let layer : MGLLineStyleLayer? = lineLayers[layerId]
+        if let lineLayer = layer {
+            LayerPropertyConverter.addLineProperties(lineLayer: lineLayer, properties: properties)
+        }
+
+        return .success(())
+    }
+
     func addLineLayer(
         sourceId: String,
         layerId: String,
@@ -1273,6 +1300,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 if enableInteraction {
                     interactiveFeatureLayerIds.insert(layerId)
                 }
+
+                lineLayers[layerId] = layer;
             }
         }
         return .success(())

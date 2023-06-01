@@ -2010,6 +2010,7 @@ final class MapboxMapController
     if (style != null && layerId != null) {
       style.removeLayer(layerId);
       interactiveFeatureLayerIds.remove(layerId);
+      lineLayers.remove(layerId);
     }
   }
 
