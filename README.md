@@ -250,7 +250,7 @@ xml ...
     <string>[Your explanation here]</string>
 ```
 
-[Recommended](https://docs.mapbox.com/help/tutorials/first-steps-ios-sdk/#display-the-users-location)  explanation about "Shows your location on the map and helps improve the map".
+[Recommended](https://docs.mapbox.com/ios/maps/guides/user-location/)  explanation about "Shows your location on the map and helps improve the map".
 
 ## Flutter 3.x.x issues and experimental workarounds
 Since Flutter 3.x.x was introduced, it exposed some race conditions resulting in occasional crashes upon map disposal. The parameter `useDelayedDisposal` was introduced as a workaround for this issue until Flutter and/or Mapbox fix this issue properly. Use with caution - this is not yet production ready since several users still report crashes after using this workaround.
