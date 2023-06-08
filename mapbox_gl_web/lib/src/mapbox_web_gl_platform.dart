@@ -1076,4 +1076,11 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
     // TODO: implement setLineLayerProperties
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> setSymbolLayerProperties(
+      String layerId, Map<String, dynamic> properties) {
+    // TODO: implement setSymbolLayerProperties
+    throw UnimplementedError();
+  }
 }

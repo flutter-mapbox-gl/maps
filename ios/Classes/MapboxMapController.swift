@@ -29,6 +29,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var addedShapesByLayer = [String: MGLShape]()
 
     private var lineLayers = [String : MGLLineStyleLayer]()
+    private var symbolLayers = [String : MGLSymbolStyleLayer]()
 
     func view() -> UIView {
         return mapView
@@ -47,6 +48,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         }
         mapView = MGLMapView(frame: frame)
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        mapView.logoView.isHidden = true
+        mapView.attributionButton.isHidden = true
         self.registrar = registrar
 
         super.init()
@@ -408,6 +411,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let properties = arguments["properties"] as? [String: String] else { return }
 
             let editResult = setLineLayerProperties(
+                layerId: layerId,
+                properties: properties
+            )
+
+            switch editResult {
+            case .success: result(nil)
+            case let .failure(error): result(error.flutterError)
+            }
+        
+        case "symbolLayer#setProperties":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+
+            let editResult = setSymbolLayerProperties(
                 layerId: layerId,
                 properties: properties
             )
@@ -934,6 +952,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             mapView.style?.removeLayer(layer)
             interactiveFeatureLayerIds.remove(layerId)
             lineLayers.removeValue(forKey: layerId)
+            symbolLayers.removeValue(forKey: layerId)
         }
     }
 
@@ -1249,6 +1268,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 if enableInteraction {
                     interactiveFeatureLayerIds.insert(layerId)
                 }
+
+                symbolLayers[layerId] = layer;
             }
         }
         return .success(())
@@ -1258,6 +1279,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         let layer : MGLLineStyleLayer? = lineLayers[layerId]
         if let lineLayer = layer {
             LayerPropertyConverter.addLineProperties(lineLayer: lineLayer, properties: properties)
+        }
+
+        return .success(())
+    }
+
+    func setSymbolLayerProperties(layerId: String, properties: [String: String]) -> Result<Void, MethodCallError> {
+        let layer : MGLSymbolStyleLayer? = symbolLayers[layerId]
+        if let symbolLayer = layer {
+            LayerPropertyConverter.addSymbolProperties(symbolLayer: symbolLayer, properties: properties)
         }
 
         return .success(())

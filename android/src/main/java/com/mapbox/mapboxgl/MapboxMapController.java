@@ -138,7 +138,8 @@ final class MapboxMapController
   private LatLng dragOrigin;
   private LatLng dragPrevious;
   private LatLngBounds bounds = null;
-  private HashMap<String, LineLayer > lineLayers = new HashMap<String, LineLayer>();
+  private HashMap<String, LineLayer> lineLayers = new HashMap<String, LineLayer>();
+  private HashMap<String, SymbolLayer> symbolLayers = new HashMap<String, SymbolLayer>();
 
   Style.OnStyleLoaded onStyleLoadedCallback =
       new Style.OnStyleLoaded() {
@@ -424,10 +425,17 @@ final class MapboxMapController
     if (enableInteraction) {
       interactiveFeatureLayerIds.add(layerName);
     }
+
+    symbolLayers.put(layerName, symbolLayer);
   }
 
   private void setLineLayerProperties(String layerName, PropertyValue[] properties){
     LineLayer layer = lineLayers.get(layerName);
+    layer.setProperties(properties);
+  }
+
+  private void setSymbolLayerProperties(String layerName, PropertyValue[] properties){
+    SymbolLayer layer = symbolLayers.get(layerName);
     layer.setProperties(properties);
   }
 
@@ -1450,6 +1458,18 @@ final class MapboxMapController
 
         break;
       }
+      case "symbolLayer#setProperties":
+      {
+
+        final PropertyValue[] properties =  LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
+        final String layerId = call.argument("layerId");
+
+        setSymbolLayerProperties(layerId, properties);
+
+        result.success(null);
+
+        break;
+      }
       default:
         result.notImplemented();
     }
@@ -2011,6 +2031,7 @@ final class MapboxMapController
       style.removeLayer(layerId);
       interactiveFeatureLayerIds.remove(layerId);
       lineLayers.remove(layerId);
+      symbolLayers.remove(layerId);
     }
   }
 

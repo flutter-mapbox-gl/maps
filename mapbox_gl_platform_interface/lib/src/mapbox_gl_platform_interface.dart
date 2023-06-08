@@ -123,7 +123,11 @@ abstract class MapboxGlPlatform {
       dynamic filter,
       required bool enableInteraction});
 
-  Future<void> setLineLayerProperties(String layerId, Map<String, dynamic> properties);
+  Future<void> setLineLayerProperties(
+      String layerId, Map<String, dynamic> properties);
+
+  Future<void> setSymbolLayerProperties(
+      String layerId, Map<String, dynamic> properties);
 
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
