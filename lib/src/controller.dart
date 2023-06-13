@@ -400,7 +400,7 @@ class MapboxMapController extends ChangeNotifier {
   }
 
   Future<void> setCircleLayerProperties(
-      String layerId, SymbolLayerProperties properties) async {
+      String layerId, CircleLayerProperties properties) async {
     await _mapboxGlPlatform.setCircleLayerProperties(
         layerId, properties.toJson());
   }
