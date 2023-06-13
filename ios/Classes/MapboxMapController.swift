@@ -30,6 +30,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     private var lineLayers = [String : MGLLineStyleLayer]()
     private var symbolLayers = [String : MGLSymbolStyleLayer]()
+    private var circleLayers = [String: MGLCircleStyleLayer]()
 
     func view() -> UIView {
         return mapView
@@ -425,6 +426,21 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let properties = arguments["properties"] as? [String: String] else { return }
 
             let editResult = setSymbolLayerProperties(
+                layerId: layerId,
+                properties: properties
+            )
+
+            switch editResult {
+            case .success: result(nil)
+            case let .failure(error): result(error.flutterError)
+            }
+        
+        case "circleLayer#setProperties":
+            guard let arguments = methodCall.arguments as? [String: Any] else { return }
+            guard let layerId = arguments["layerId"] as? String else { return }
+            guard let properties = arguments["properties"] as? [String: String] else { return }
+
+            let editResult = setCircleLayerProperties(
                 layerId: layerId,
                 properties: properties
             )
@@ -952,6 +968,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             interactiveFeatureLayerIds.remove(layerId)
             lineLayers.removeValue(forKey: layerId)
             symbolLayers.removeValue(forKey: layerId)
+            circleLayers.removeValue(forKey: layerId)
         }
     }
 
@@ -1291,6 +1308,15 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
         return .success(())
     }
+    
+    func setCircleLayerProperties(layerId: String, properties: [String: String]) -> Result<Void, MethodCallError> {
+        let layer : MGLCircleStyleLayer? = circleLayers[layerId]
+        if let circleLayer = layer {
+            LayerPropertyConverter.addCircleProperties(circleLayer: circleLayer, properties: properties)
+        }
+        
+        return .success(())
+    }
 
     func addLineLayer(
         sourceId: String,
@@ -1463,6 +1489,8 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 if enableInteraction {
                     interactiveFeatureLayerIds.insert(layerId)
                 }
+                
+                circleLayers[layerId] = layer;
             }
         }
         return .success(())

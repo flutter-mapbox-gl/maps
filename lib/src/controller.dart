@@ -399,6 +399,12 @@ class MapboxMapController extends ChangeNotifier {
         layerId, properties.toJson());
   }
 
+  Future<void> setCircleLayerProperties(
+      String layerId, SymbolLayerProperties properties) async {
+    await _mapboxGlPlatform.setCircleLayerProperties(
+        layerId, properties.toJson());
+  }
+
   /// Add a line layer to the map with the given properties
   ///
   /// Consider using [addLayer] for an unified layer api.

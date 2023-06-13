@@ -129,6 +129,9 @@ abstract class MapboxGlPlatform {
   Future<void> setSymbolLayerProperties(
       String layerId, Map<String, dynamic> properties);
 
+  Future<void> setCircleLayerProperties(
+      String layerId, Map<String, dynamic> properties);
+
   Future<void> addLineLayer(
       String sourceId, String layerId, Map<String, dynamic> properties,
       {String? belowLayerId,

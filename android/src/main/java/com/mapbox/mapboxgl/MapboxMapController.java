@@ -61,6 +61,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.offline.OfflineManager;
+import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.localization.LocalizationPlugin;
 import com.mapbox.mapboxsdk.snapshotter.MapSnapshotter;
 import com.mapbox.mapboxsdk.storage.FileSource;
@@ -140,6 +141,7 @@ final class MapboxMapController
   private LatLngBounds bounds = null;
   private HashMap<String, LineLayer> lineLayers = new HashMap<String, LineLayer>();
   private HashMap<String, SymbolLayer> symbolLayers = new HashMap<String, SymbolLayer>();
+  private HashMap<String, CircleLayer> circleLayers = new HashMap<String, CircleLayer>();
 
   Style.OnStyleLoaded onStyleLoadedCallback =
       new Style.OnStyleLoaded() {
@@ -431,12 +433,23 @@ final class MapboxMapController
 
   private void setLineLayerProperties(String layerName, PropertyValue[] properties){
     LineLayer layer = lineLayers.get(layerName);
-    layer.setProperties(properties);
+    if(layer != null) {
+      layer.setProperties(properties);
+    }
   }
 
   private void setSymbolLayerProperties(String layerName, PropertyValue[] properties){
     SymbolLayer layer = symbolLayers.get(layerName);
-    layer.setProperties(properties);
+    if (layer != null) {
+      layer.setProperties(properties);
+    }
+  }
+
+  private void setCircleLayerProperties(String layerName, PropertyValue[] properties) {
+    CircleLayer layer = circleLayers.get(layerName);
+    if(layer != null) {
+      layer.setProperties(properties);
+    }
   }
 
   private void addLineLayer(
@@ -575,6 +588,8 @@ final class MapboxMapController
     if (enableInteraction) {
       interactiveFeatureLayerIds.add(layerName);
     }
+
+    circleLayers.put(layerName, circleLayer);
   }
 
   private Expression parseFilter(String filter) {
@@ -1470,6 +1485,18 @@ final class MapboxMapController
 
         break;
       }
+      case "circleLayer#setProperties":
+      {
+
+        final PropertyValue[] properties =  LayerPropertyConverter.interpretSymbolLayerProperties(call.argument("properties"));
+        final String layerId = call.argument("layerId");
+
+        setCircleLayerProperties(layerId, properties);
+
+        result.success(null);
+
+        break;
+      }
       default:
         result.notImplemented();
     }
@@ -2032,6 +2059,7 @@ final class MapboxMapController
       interactiveFeatureLayerIds.remove(layerId);
       lineLayers.remove(layerId);
       symbolLayers.remove(layerId);
+      circleLayers.remove(layerId);
     }
   }
 
