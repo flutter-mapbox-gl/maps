@@ -339,8 +339,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                 if let duration = arguments["duration"] as? TimeInterval {
                     mapView.setCamera(camera, withDuration: TimeInterval(duration / 1000),
                                       animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName
-                                          .easeInEaseOut))
-                    result(nil)
+                                          .easeInEaseOut), completionHandler: {
+                                            result(nil)
+                                        })
                 } else {
                     mapView.setCamera(camera, animated: true)
                 }
