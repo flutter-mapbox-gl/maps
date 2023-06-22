@@ -344,9 +344,10 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
                                         })
                 } else {
                     mapView.setCamera(camera, animated: true)
+                    result(nil)
                 }
             }
-            result(nil)
+            
 
         case "symbolLayer#add":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
