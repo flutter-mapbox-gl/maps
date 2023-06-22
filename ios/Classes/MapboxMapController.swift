@@ -805,7 +805,7 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             case let .failure(error): result(error.flutterError)
             }
 
-        case "map#setVisibility":
+        case "style#setVisibility":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let layerId = arguments["layerId"] as? String else { return }
             guard let isVisible = arguments["isVisible"] as? Bool else { return }
