@@ -325,7 +325,9 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
             if let camera = Convert
-                .parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView)
+                .parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView, completionHandler: {
+                    result(nil)
+                }, duration: arguments["duration"] as? TimeInterval)
             {
                 mapView.setCamera(camera, animated: false)
             }
@@ -333,8 +335,11 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
         case "camera#animate":
             guard let arguments = methodCall.arguments as? [String: Any] else { return }
             guard let cameraUpdate = arguments["cameraUpdate"] as? [Any] else { return }
+            
             if let camera = Convert
-                .parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView)
+                .parseCameraUpdate(cameraUpdate: cameraUpdate, mapView: mapView, completionHandler: {
+                    result(nil)
+                }, duration: arguments["duration"] as? TimeInterval)
             {
                 if let duration = arguments["duration"] as? TimeInterval {
                     mapView.setCamera(camera, withDuration: TimeInterval(duration / 1000),

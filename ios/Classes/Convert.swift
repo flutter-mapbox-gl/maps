@@ -72,7 +72,7 @@ class Convert {
         }
     }
 
-    class func parseCameraUpdate(cameraUpdate: [Any], mapView: MGLMapView) -> MGLMapCamera? {
+    class func parseCameraUpdate(cameraUpdate: [Any], mapView: MGLMapView, completionHandler: (() -> Void)?, duration: TimeInterval?) -> MGLMapCamera? {
         guard let type = cameraUpdate[0] as? String else { return nil }
         switch type {
         case "newCameraPosition":
@@ -89,15 +89,42 @@ class Convert {
             guard let paddingTop = cameraUpdate[3] as? CGFloat else { return nil }
             guard let paddingRight = cameraUpdate[4] as? CGFloat else { return nil }
             guard let paddingBottom = cameraUpdate[5] as? CGFloat else { return nil }
-            return mapView.cameraThatFitsCoordinateBounds(
-                MGLCoordinateBounds.fromArray(bounds),
-                edgePadding: UIEdgeInsets(
-                    top: paddingTop,
-                    left: paddingLeft,
-                    bottom: paddingBottom,
-                    right: paddingRight
-                )
-            )
+            
+            let newBounds: MGLCoordinateBounds = MGLCoordinateBounds.fromArray(bounds)
+            
+            let coordinates: [CLLocationCoordinate2D] = [
+                CLLocationCoordinate2D(latitude: newBounds.ne.latitude, longitude: newBounds.sw.longitude),
+                newBounds.sw,
+                CLLocationCoordinate2D(latitude: newBounds.sw.latitude, longitude: newBounds.ne.longitude),
+                newBounds.ne
+            ]
+            
+            let padding : UIEdgeInsets = UIEdgeInsets(
+                top: paddingTop,
+                left: paddingLeft,
+                bottom: paddingBottom,
+                right: paddingRight
+              )
+            
+            
+            if let animDur = duration {
+                mapView.setVisibleCoordinates(coordinates,
+                                              count: UInt(coordinates.count), edgePadding: padding, direction: mapView.direction,
+                                              duration: TimeInterval(animDur / 1000),
+                                              animationTimingFunction: CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut),
+                                              completionHandler: {
+                                                    if let completion = completionHandler {
+                                                        completion()
+                                                    }
+                                                })
+            } else {
+                mapView.setVisibleCoordinates(coordinates, count: UInt(coordinates.count), edgePadding: padding, animated: true)
+                if let completion = completionHandler {
+                    completion()
+                }
+            }
+            
+            return nil
         case "newLatLngZoom":
             guard let coordinate = cameraUpdate[1] as? [Double] else { return nil }
             guard let zoom = cameraUpdate[2] as? Double else { return nil }
