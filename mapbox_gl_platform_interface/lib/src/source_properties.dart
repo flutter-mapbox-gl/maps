@@ -12,7 +12,7 @@ class VectorSourceProperties implements SourceProperties {
   /// `https:`, and `mapbox://<Tileset ID>`.
   ///
   /// Type: string
-  final String? url;
+  final String url;
 
   /// An array of one or more tile source URLs, as in the TileJSON spec.
   ///
