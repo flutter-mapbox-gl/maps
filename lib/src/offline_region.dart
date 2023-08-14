@@ -54,7 +54,7 @@ class OfflineRegionDefinition {
     );
   }
 
-  static VectorSourceProperties
+ 
 }
 
 /// Description of a downloaded region including its identifier.
