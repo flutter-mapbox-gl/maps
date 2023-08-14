@@ -1,76 +1,118 @@
-part of mapbox_gl;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 
-/// Description of region to be downloaded. Identifier will be generated when
-/// the download is initiated.
-class OfflineRegionDefinition {
-  const OfflineRegionDefinition({
-    required this.bounds,
-    required this.mapStyleUrl,
-    required this.minZoom,
-    required this.maxZoom,
-    this.includeIdeographs = false,
-  });
+final offlineRegionDefinition = OfflineRegionDefinition(
+  bounds: LatLngBounds(
+    southwest: LatLng(37.7749, -122.4194),
+    northeast: LatLng(37.8049, -122.3894),
+  ),
+  mapStyleUrl: MapboxStyles.SATELLITE_STREETS,
+  minZoom: 10.0,
+  maxZoom: 16.0,
+  includeIdeographs: true,
+  vectorSourceProperties: VectorSourceProperties(
+    url: 'mapbox://mapbox.mapbox-traffic-v1',
+    // other properties for the vector source
+  ),
+);
+class StyleInfo {
+  final String name;
+  final String baseStyle;
+  final CameraPosition position;
 
-  final LatLngBounds bounds;
-  final String mapStyleUrl;
-  final double minZoom;
-  final double maxZoom;
-  final bool includeIdeographs;
+  const StyleInfo(
+      {required this.name,
+        required this.baseStyle,
+        required this.position});
+}
+class OfflineRegionMap extends StatefulWidget {
 
   @override
-  String toString() =>
-      "$runtimeType, bounds = $bounds, mapStyleUrl = $mapStyleUrl, minZoom = $minZoom, maxZoom = $maxZoom";
-
-  Map<String, dynamic> toMap() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['bounds'] = bounds.toList();
-    data['mapStyleUrl'] = mapStyleUrl;
-    data['minZoom'] = minZoom;
-    data['maxZoom'] = maxZoom;
-    data['includeIdeographs'] = includeIdeographs;
-    return data;
-  }
-
-  factory OfflineRegionDefinition.fromMap(Map<String, dynamic> map) {
-    return OfflineRegionDefinition(
-      bounds: _latLngBoundsFromList(map['bounds']),
-      mapStyleUrl: map['mapStyleUrl'],
-      // small integers may deserialize to Int
-      minZoom: map['minZoom'].toDouble(),
-      maxZoom: map['maxZoom'].toDouble(),
-      includeIdeographs: map['includeIdeographs'] ?? false,
-    );
-  }
-
-  static LatLngBounds _latLngBoundsFromList(List<dynamic> json) {
-    return LatLngBounds(
-      southwest: LatLng(json[0][0], json[0][1]),
-      northeast: LatLng(json[1][0], json[1][1]),
-    );
-  }
+  _OfflineRegionMapState createState() => _OfflineRegionMapState();
 }
 
-/// Description of a downloaded region including its identifier.
-class OfflineRegion {
-  const OfflineRegion({
-    required this.id,
-    required this.definition,
-    required this.metadata,
-  });
-
-  final int id;
-  final OfflineRegionDefinition definition;
-  final Map<String, dynamic> metadata;
-
-  factory OfflineRegion.fromMap(Map<String, dynamic> json) {
-    return OfflineRegion(
-      id: json['id'],
-      definition: OfflineRegionDefinition.fromMap(json['definition']),
-      metadata: json['metadata'],
+class _OfflineRegionMapState extends State<OfflineRegionMap> {
+  MapboxMapController? _controller;
+  _onMapCreated(MapboxMapController controller) {
+    _controller = controller;
+  }
+  static Future<void> addVector(MapboxMapController controller) async {
+    await controller.addSource(
+      "traffic",
+     offlineRegionDefinition.vectorSourceProperties.url,
     );
+
+
+// // Adding a layer using the "traffic" source
+//     await controller.addLayer(
+//       "traffic",
+//       "traffic-layer",
+//       const LineLayerProperties(
+//         lineColor: "#ff0000", // Red color
+//         lineWidth: 2,
+//         lineCap: "round",
+//         lineJoin: "round",
+//       ),
+//       sourceLayer: "traffic",
+//     );
+//     await controller.addSource(
+//         "terrain",
+//         const VectorSourceProperties(
+//           url: "mapbox://mapbox.mapbox-terrain-v2",
+//         ));
+//
+//     await controller.addLayer(
+//         "terrain",
+//         "contour",
+//         const LineLayerProperties(
+//           lineColor: "#ff69b4",
+//           lineWidth: 10,
+//           lineCap: "round",
+//           lineJoin: "round",
+//         ),
+//
+//
+//         sourceLayer: "contour");
+
+
   }
 
+
+  // static const _stylesAndLoaders = [
+  //   StyleInfo(
+  //     name: "Vector ",
+  //     baseStyle: MapboxStyles.MAPBOX_STREETS,
+  //     position: CameraPosition(target: LatLng(34.052235, -118.243683), zoom: 12),
+  //   ),
+  // ];
+  _onStyleLoadedCallback() async {
+    // final styleInfo = _stylesAndLoaders[0];
+    addVector(_controller!);
+    _controller!
+        .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(34.052235, -118.243683), zoom: 12)));
+  }
   @override
-  String toString() =>
-      "$runtimeType, id = $id, definition = $definition, metadata = $metadata";
+
+
+  Widget build(BuildContext context) {
+    // final styleInfo = _stylesAndLoaders[0];
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("offline rendered"),
+      ),
+      body: MapboxMap(
+        styleString: offlineRegionDefinition.mapStyleUrl,
+        accessToken: "sk.eyJ1IjoidXRzYXYwMSIsImEiOiJjbGwyMmQwMXQwd2szM29wMzZueXl4ejBwIn0.aWDCoRxRA_1o5luDfZIF6A",
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: CameraPosition(target: LatLng(34.052235, -118.243683), zoom: 12),
+        onStyleLoadedCallback: _onStyleLoadedCallback,
+      ),
+
+    );
+
+  }
+
+
+
 }
