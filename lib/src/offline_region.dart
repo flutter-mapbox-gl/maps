@@ -43,7 +43,7 @@ class OfflineRegionDefinition {
       maxZoom: map['maxZoom'].toDouble(),
       includeIdeographs: map['includeIdeographs'] ?? false,
       vectorSourceProperties:
-      VectorSourceProperties.fromJson(map['vectorSourceProperties']),
+      VectorSourceProperties(map['vectorSourceProperties']),
     );
   }
 
