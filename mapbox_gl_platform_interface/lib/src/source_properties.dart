@@ -102,7 +102,7 @@ class VectorSourceProperties implements SourceProperties {
       promoteId: promoteId ?? this.promoteId,
     );
   }
-
+@override
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = <String, dynamic>{};
 
