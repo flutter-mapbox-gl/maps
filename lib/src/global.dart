@@ -5,7 +5,7 @@
 part of mapbox_gl;
 
 final MethodChannel _globalChannel =
-    MethodChannel('plugins.flutter.io/mapbox_gl');
+    MethodChannel('plugins.flutter.io/mapbox_tileset_support-b676ed7315143cf003a42bf7b586d41acfcddba9');
 
 /// Copy tiles db file passed in to the tiles cache directory (sideloaded) to
 /// make tiles available offline.
