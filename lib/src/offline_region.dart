@@ -30,7 +30,7 @@ class OfflineRegionDefinition {
     data['minZoom'] = minZoom;
     data['maxZoom'] = maxZoom;
     data['includeIdeographs'] = includeIdeographs;
-    data['vectorSourceProperties'] = vectorSourceProperties;
+    data['vectorSourceProperties'] = vectorSourceProperties.toJson();
     return data;
   }
 
