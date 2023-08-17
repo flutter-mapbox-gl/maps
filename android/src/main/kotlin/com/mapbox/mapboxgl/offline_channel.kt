@@ -69,6 +69,8 @@ import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorBearingChangedListener
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
+import android.os.Handler
+import android.os.Looper
 
 class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -77,13 +79,17 @@ class MainActivity : FlutterActivity() {
         val channelName = "offline_manager_plugin"
         val messenger: BinaryMessenger = flutterEngine.dartExecutor.binaryMessenger
         private val mapBoxDownload = MapBoxDownload(application)
-
+        private val downloadTextChangeHandler: Handler by lazy {
+            Handler(Looper.getMainLooper())
+        }
         val channel = MethodChannel(messenger, channelName)
         channel.setMethodCallHandler { call, result ->
             if (call.method == "download_tileset") {
                 val networkOrFeederId = "mapbox.mapbox-traffic-v1"
                 mapBoxDownload.cacheMapLayer(networkOrFeederId) { progress ->
-                    println("Debugiing 1  caching successful")
+                    downloadTextChangeHandler.postDelayed(
+                        println("caching successfull"), 0
+                    )
                 }
 
                 result.success("kkkkkkkkkkkkkkkkk")
