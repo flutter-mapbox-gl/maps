@@ -138,60 +138,57 @@ class MapBoxDownload(private val mContext: Application){
 //        }
 //    }
     suspend fun cacheMapLayer(networkOrFeederId: String, taskCallBack :(Double?) -> Unit) {
-        val tileRegionLoadOptions = TileRegionLoadOptions.Builder()
-            .geometry(Point.fromLngLat(12.9716,77.5946))
-            .descriptors(listOf(tilesetDescriptorLines, tilesetDescriptorForStyle))
-            .acceptExpired(true)
-            .networkRestriction(NetworkRestriction.NONE)
-            .build()
-        val tileStyleLoadOptions = StylePackLoadOptions.Builder()
-            .glyphsRasterizationMode(GlyphsRasterizationMode.IDEOGRAPHS_RASTERIZED_LOCALLY)
-            .build()
-        val tileRegionId = networkOrFeederId
-        tileStore.loadTileRegion(
-            tileRegionId,
-            tileRegionLoadOptions,
-            { progress ->
-                taskCallBack((progress.completedResourceCount*100/progress.requiredResourceCount).toDouble())
-            }
-        ) { expected ->
-            if (expected.isValue) {
-                if(expected.value?.completedResourceCount == expected.value?.requiredResourceCount) {
-                    val stylePackCancelable = offlineManager.loadStylePack(
-                        Style.SATELLITE_STREETS,
-                        // Build Style pack load options
-                        tileStyleLoadOptions,
-                        { progress ->
-
-                        },
-                        { expected ->
-                            if (expected.isValue) {
-                                expected.value?.let { stylePack ->
-                                    if(stylePack.completedResourceCount == stylePack.requiredResourceCount) {
-                                        println("Map Downloaded SuccessFully")
-                                    }
-                                }
-                            }
-                            expected.error?.let {
-
-                                taskCallBack(null)
-                            }
-                        }
-                    )
-                }
-
-            }
-            expected.error?.let {
-                // Handle errors that occurred during the tile region download.
-
-                taskCallBack(null)
-            }
-        }
+        taskCallBack(90)
+//        val tileRegionLoadOptions = TileRegionLoadOptions.Builder()
+//            .geometry(Point.fromLngLat(12.9716,77.5946))
+//            .descriptors(listOf(tilesetDescriptorLines, tilesetDescriptorForStyle))
+//            .acceptExpired(true)
+//            .networkRestriction(NetworkRestriction.NONE)
+//            .build()
+//        val tileStyleLoadOptions = StylePackLoadOptions.Builder()
+//            .glyphsRasterizationMode(GlyphsRasterizationMode.IDEOGRAPHS_RASTERIZED_LOCALLY)
+//            .build()
+//        val tileRegionId = networkOrFeederId
+//        tileStore.loadTileRegion(
+//            tileRegionId,
+//            tileRegionLoadOptions,
+//            { progress ->
+//                taskCallBack((progress.completedResourceCount*100/progress.requiredResourceCount).toDouble())
+//            }
+//        ) { expected ->
+//            if (expected.isValue) {
+//                if(expected.value?.completedResourceCount == expected.value?.requiredResourceCount) {
+//                    val stylePackCancelable = offlineManager.loadStylePack(
+//                        Style.SATELLITE_STREETS,
+//                        // Build Style pack load options
+//                        tileStyleLoadOptions,
+//                        { progress ->
+//
+//                        },
+//                        { expected ->
+//                            if (expected.isValue) {
+//                                expected.value?.let { stylePack ->
+//                                    if(stylePack.completedResourceCount == stylePack.requiredResourceCount) {
+//                                        println("Map Downloaded SuccessFully")
+//                                    }
+//                                }
+//                            }
+//                            expected.error?.let {
+//
+//                                taskCallBack(null)
+//                            }
+//                        }
+//                    )
+//                }
+//
+//            }
+//            expected.error?.let {
+//                // Handle errors that occurred during the tile region download.
+//
+//                taskCallBack(null)
+//            }
+//        }
     }
-
-
-
-
 
 
 }
