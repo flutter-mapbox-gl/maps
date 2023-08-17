@@ -76,7 +76,7 @@ class OfflineManagerActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        val channelName = 'offline_manager_plugin'
+        val channelName = "offline_manager_plugin"
         val messenger: BinaryMessenger = flutterEngine.dartExecutor.binaryMessenger
         private val mapBoxDownload = MapBoxDownload(application)
 //        private val downloadTextChangeHandler: Handler =
@@ -84,7 +84,7 @@ class OfflineManagerActivity : FlutterActivity() {
 
         val channel = MethodChannel(messenger, channelName)
         channel.setMethodCallHandler { call, result ->
-            if (call.method == 'download_tileset') {
+            if (call.method == "download_tileset") {
 //                val networkOrFeederId = "mapbox.mapbox-traffic-v1"
 //                mapBoxDownload.cacheMapLayer(networkOrFeederId) { progress ->
 //                    downloadTextChangeHandler.postDelayed(
