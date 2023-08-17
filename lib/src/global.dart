@@ -2,27 +2,37 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+
 part of mapbox_gl;
 
 // final MethodChannel _globalChannel =
 //     MethodChannel("caching_plugin");
-final platform=MethodChannel("caching_plugin");
+// final platform=MethodChannel("caching_plugin");
 
-Future<void> offlineManager() async{
-  String value=" ";
-  try{
-    value=await platform.invokeMethod("download_tileset");
-  }catch(e){
-    if (kDebugMode) {
-      print("catch called");
-      print(e);
-    }
-  }
-  if (kDebugMode) {
-    print(value);
-    print("channel called");
+Future<String> offlineManager() async {
+  const kotlinChannel = MethodChannel('caching_plugin');
+  try {
+    final String response = await kotlinChannel.invokeMethod('helloFromKotlin');
+    return response;
+  } on PlatformException catch (e) {
+    return "Error: ${e.message}";
   }
 }
+// Future<void> offlineManager() async{
+//   String value=" ";
+//   try{
+//     value=await platform.invokeMethod("download_tileset");
+//   }catch(e){
+//     if (kDebugMode) {
+//       print("catch called");
+//       print(e);
+//     }
+//   }
+//   if (kDebugMode) {
+//     print(value);
+//     print("channel called");
+//   }
+// }
 
 
 /// Copy tiles db file passed in to the tiles cache directory (sideloaded) to
