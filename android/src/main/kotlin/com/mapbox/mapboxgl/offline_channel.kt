@@ -76,7 +76,7 @@ class OfflineManagerActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        val channelName = "offline_manager_plugin"
+        val channelName = "caching_plugin"
         val messenger: BinaryMessenger = flutterEngine.dartExecutor.binaryMessenger
         private val mapBoxDownload = MapBoxDownload(application)
 //        private val downloadTextChangeHandler: Handler =

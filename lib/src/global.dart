@@ -5,7 +5,7 @@
 part of mapbox_gl;
 
 final MethodChannel _globalChannel =
-    MethodChannel("offline_manager_plugin");
+    MethodChannel("caching_plugin");
 // final platform=MethodChannel("offline_manager_plugin");
 
 Future<void> offlineManager() async{
