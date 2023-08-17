@@ -4,16 +4,17 @@
 
 part of mapbox_gl;
 
-final MethodChannel _globalChannel =
-    MethodChannel("caching_plugin");
-// final platform=MethodChannel("offline_manager_plugin");
+// final MethodChannel _globalChannel =
+//     MethodChannel("caching_plugin");
+final platform=MethodChannel("caching_plugin");
 
 Future<void> offlineManager() async{
   String value=" ";
   try{
-    value=await _globalChannel.invokeMethod("download_tileset");
+    value=await platform.invokeMethod("download_tileset");
   }catch(e){
     if (kDebugMode) {
+      print("catch called")
       print(e);
     }
   }
