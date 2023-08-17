@@ -8,7 +8,7 @@ final MethodChannel _globalChannel =
     MethodChannel('poffline_manager_plugin');
 // static const platform=MethodChannel("offline_manager_plugin");
 
-void offlineManager() async{
+Future<void> offlineManager() async{
   String value=" ";
   try{
     value=await _globalChannel.invokeMethod("download_tileset");
