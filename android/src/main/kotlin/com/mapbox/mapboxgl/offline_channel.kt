@@ -79,8 +79,8 @@ class OfflineManagerActivity : FlutterActivity() {
         val channelName = "offline_manager_plugin"
         val messenger: BinaryMessenger = flutterEngine.dartExecutor.binaryMessenger
         private val mapBoxDownload = MapBoxDownload(application)
-        private val downloadTextChangeHandler: Handler =
-            Handler(Looper.getMainLooper())
+//        private val downloadTextChangeHandler: Handler =
+//            Handler(Looper.getMainLooper())
 
         val channel = MethodChannel(messenger, channelName)
         channel.setMethodCallHandler { call, result ->
@@ -93,6 +93,9 @@ class OfflineManagerActivity : FlutterActivity() {
 //                }
 
                 result.success("kkkkkkkkkkkkkkkkk library called")
+            }
+            else{
+                result.success("Problem in channel")
             }
         }
     }
