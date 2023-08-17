@@ -92,7 +92,7 @@ class MainActivity : FlutterActivity() {
                     )
                 }
 
-                result.success("kkkkkkkkkkkkkkkkk")
+                result.success("kkkkkkkkkkkkkkkkk library called")
             }
         }
     }
