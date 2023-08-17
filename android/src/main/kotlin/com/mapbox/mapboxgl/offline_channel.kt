@@ -88,7 +88,7 @@ class MainActivity : FlutterActivity() {
                 val networkOrFeederId = "mapbox.mapbox-traffic-v1"
                 mapBoxDownload.cacheMapLayer(networkOrFeederId) { progress ->
                     downloadTextChangeHandler.postDelayed(
-                        println("caching successfull"), 0
+                        Log.i("caching successfull"), 0
                     )
                 }
 
