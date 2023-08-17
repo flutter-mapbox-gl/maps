@@ -85,12 +85,12 @@ class MainActivity : FlutterActivity() {
         val channel = MethodChannel(messenger, channelName)
         channel.setMethodCallHandler { call, result ->
             if (call.method == "download_tileset") {
-                val networkOrFeederId = "mapbox.mapbox-traffic-v1"
-                mapBoxDownload.cacheMapLayer(networkOrFeederId) { progress ->
-                    downloadTextChangeHandler.postDelayed(
-                        Log.i("caching successfull"), 0
-                    )
-                }
+//                val networkOrFeederId = "mapbox.mapbox-traffic-v1"
+//                mapBoxDownload.cacheMapLayer(networkOrFeederId) { progress ->
+//                    downloadTextChangeHandler.postDelayed(
+//                        Log.i("caching successfull"), 0
+//                    )
+//                }
 
                 result.success("kkkkkkkkkkkkkkkkk library called")
             }
