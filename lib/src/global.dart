@@ -14,7 +14,7 @@ Future<void> offlineManager() async{
     value=await platform.invokeMethod("download_tileset");
   }catch(e){
     if (kDebugMode) {
-      print("catch called")
+      print("catch called");
       print(e);
     }
   }
