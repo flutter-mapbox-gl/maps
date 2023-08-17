@@ -79,9 +79,9 @@ class MainActivity : FlutterActivity() {
         val channelName = "offline_manager_plugin"
         val messenger: BinaryMessenger = flutterEngine.dartExecutor.binaryMessenger
         private val mapBoxDownload = MapBoxDownload(application)
-        private val downloadTextChangeHandler: Handler by lazy {
+        private val downloadTextChangeHandler: Handler =
             Handler(Looper.getMainLooper())
-        }
+
         val channel = MethodChannel(messenger, channelName)
         channel.setMethodCallHandler { call, result ->
             if (call.method == "download_tileset") {
