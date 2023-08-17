@@ -5,7 +5,7 @@
 part of mapbox_gl;
 
 final MethodChannel _globalChannel =
-    MethodChannel('poffline_manager_plugin');
+    MethodChannel('offline_manager_plugin');
 // static const platform=MethodChannel("offline_manager_plugin");
 
 Future<void> offlineManager() async{
