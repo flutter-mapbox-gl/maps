@@ -7,13 +7,13 @@ part of mapbox_gl;
 
 // final MethodChannel _globalChannel =
 //     MethodChannel("caching_plugin");
-final platform=MethodChannel("caching_plugin");
+final platform = MethodChannel("caching_plugin");
 
-Future<void> offlineManager() async{
-  String value=" ";
-  try{
-    value=await platform.invokeMethod("download_tileset");
-  }catch(e){
+Future<void> offlineManager() async {
+  String value = " ";
+  try {
+    value = await platform.invokeMethod("download_tileset");
+  } catch (e) {
     if (kDebugMode) {
       print("catch called");
       print(e);
@@ -24,7 +24,6 @@ Future<void> offlineManager() async{
     print("channel called");
   }
 }
-
 
 /// Copy tiles db file passed in to the tiles cache directory (sideloaded) to
 /// make tiles available offline.

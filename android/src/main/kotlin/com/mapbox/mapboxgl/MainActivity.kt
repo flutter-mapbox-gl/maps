@@ -101,10 +101,15 @@ class MainActivity : FlutterActivity() {
 
                 result.success("kkkkkkkkkkkkkkkkk library called")
             }
+            else {
+                result.notImplemented()
+            }
+
 
         }
     }
 }
+
 //class MapBoxDownload(private val mContext: Application){
 //    private val offlineManager:OfflineManager= OfflineManager(MapInitOptions.getDefaultResourceOptions(mContext))
 //    private var tilesetDescriptorLines: TilesetDescriptor = offlineManager.createTilesetDescriptor(
