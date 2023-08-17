@@ -4,14 +4,14 @@
 
 part of mapbox_gl;
 
-// final MethodChannel _globalChannel =
-//     MethodChannel('plugins.flutter.io/mapbox_gl');
-static const platform=MethodChannel("offline_manager_plugin");
+final MethodChannel _globalChannel =
+    MethodChannel('poffline_manager_plugin');
+// static const platform=MethodChannel("offline_manager_plugin");
 
 void offlineManager() async{
   String value=" ";
   try{
-    value=await platform.invokeMethod("download_tileset");
+    value=await _globalChannel.invokeMethod("download_tileset");
   }catch(e){
     if (kDebugMode) {
       print(e);
