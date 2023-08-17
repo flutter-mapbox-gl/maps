@@ -73,57 +73,38 @@ import android.os.Handler
 import android.os.Looper
 
 
-class MyKotlinChannelHandler : MethodChannel.MethodCallHandler {
-    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        when (call.method) {
-            "helloFromKotlin" -> result.success("Hello from Kotlin!")
-            else -> result.notImplemented()
+
+
+
+
+
+class MainActivity : FlutterActivity() {
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+
+
+        val channelName = "caching_plugin"
+        val messenger: BinaryMessenger = flutterEngine.dartExecutor.binaryMessenger
+//        private val mapBoxDownload = MapBoxDownload(application)
+//        private val downloadTextChangeHandler: Handler =
+//            Handler(Looper.getMainLooper())
+
+        val channel = MethodChannel(messenger, channelName)
+        channel.setMethodCallHandler { call, result ->
+            if (call.method == "download_tileset") {
+//                val networkOrFeederId = "mapbox.mapbox-traffic-v1"
+//                mapBoxDownload.cacheMapLayer(networkOrFeederId) { progress ->
+//                    downloadTextChangeHandler.postDelayed(
+//                        Log.i("caching successfull"), 0
+//                    )
+//                }
+
+                result.success("kkkkkkkkkkkkkkkkk library called")
+            }
+
         }
     }
 }
-
-// Inside your Flutter plugin's main class
-class MyFlutterPlugin : FlutterPlugin {
-    lateinit var kotlinChannel: MethodChannel
-
-    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        kotlinChannel = MethodChannel(binding.binaryMessenger, "caching_plugin")
-        kotlinChannel.setMethodCallHandler(MyKotlinChannelHandler())
-    }
-
-.
-}
-
-
-
-
-//class MainActivity : FlutterActivity() {
-//    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-//        super.configureFlutterEngine(flutterEngine)
-//
-//
-//        val channelName = "caching_plugin"
-//        val messenger: BinaryMessenger = flutterEngine.dartExecutor.binaryMessenger
-////        private val mapBoxDownload = MapBoxDownload(application)
-////        private val downloadTextChangeHandler: Handler =
-////            Handler(Looper.getMainLooper())
-//
-//        val channel = MethodChannel(messenger, channelName)
-//        channel.setMethodCallHandler { call, result ->
-//            if (call.method == "download_tileset") {
-////                val networkOrFeederId = "mapbox.mapbox-traffic-v1"
-////                mapBoxDownload.cacheMapLayer(networkOrFeederId) { progress ->
-////                    downloadTextChangeHandler.postDelayed(
-////                        Log.i("caching successfull"), 0
-////                    )
-////                }
-//
-//                result.success("kkkkkkkkkkkkkkkkk library called")
-//            }
-//
-//        }
-//    }
-//}
 //class MapBoxDownload(private val mContext: Application){
 //    private val offlineManager:OfflineManager= OfflineManager(MapInitOptions.getDefaultResourceOptions(mContext))
 //    private var tilesetDescriptorLines: TilesetDescriptor = offlineManager.createTilesetDescriptor(
