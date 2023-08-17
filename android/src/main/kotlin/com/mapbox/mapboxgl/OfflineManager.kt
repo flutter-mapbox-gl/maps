@@ -76,101 +76,101 @@ class OfflineManager : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        private inner class MapBoxDownload(private val mContext: Application){
-            private val offlineManager:OfflineManager= OfflineManager(MapInitOptions.getDefaultResourceOptions(mContext))
-            private var tilesetDescriptorLines: TilesetDescriptor = offlineManager.createTilesetDescriptor(
-                TilesetDescriptorOptionsForTilesets.Builder()
-                    .tilesets(getTileSetIds())
-                    .minZoom(0)
-                    .maxZoom(16)
-                    .build()
-            )
-            private var tilesetDescriptorForStyle: TilesetDescriptor = offlineManager.createTilesetDescriptor(
-                TilesetDescriptorOptions.Builder()
-                    .styleURI(Style.OUTDOORS)
-                    .minZoom(0)
-                    .maxZoom(16)
-                    .build()
-            )
-            private val tileStore = TileStore.create().also {
-                it.setOption(
-                    TileStoreOptions.MAPBOX_ACCESS_TOKEN,
-                    TileDataDomain.MAPS,
-                    Value(mContext.getString(R.string.mapbox_access_token))
-                )
-            }
-            private fun getTileSetIds() : List<String> {
-                val list = arrayListOf<String>()
-                list.add("mapbox://mapbox.mapbox-traffic-v1")
-                list.add("mapbox://mapbox.mapbox-terrain-v2")
-
-                return list
-            }
-            //    val StyleCheck : Unit = offlineManager.getAllStylePacks { expected ->
-//        if (expected.isValue) {
-//            expected.value?.let { stylePackList ->
-//                Log.d("Existing style packs: $stylePackList")
+//        private inner class MapBoxDownload(private val mContext: Application){
+//            private val offlineManager:OfflineManager= OfflineManager(MapInitOptions.getDefaultResourceOptions(mContext))
+//            private var tilesetDescriptorLines: TilesetDescriptor = offlineManager.createTilesetDescriptor(
+//                TilesetDescriptorOptionsForTilesets.Builder()
+//                    .tilesets(getTileSetIds())
+//                    .minZoom(0)
+//                    .maxZoom(16)
+//                    .build()
+//            )
+//            private var tilesetDescriptorForStyle: TilesetDescriptor = offlineManager.createTilesetDescriptor(
+//                TilesetDescriptorOptions.Builder()
+//                    .styleURI(Style.OUTDOORS)
+//                    .minZoom(0)
+//                    .maxZoom(16)
+//                    .build()
+//            )
+//            private val tileStore = TileStore.create().also {
+//                it.setOption(
+//                    TileStoreOptions.MAPBOX_ACCESS_TOKEN,
+//                    TileDataDomain.MAPS,
+//                    Value(mContext.getString(R.string.mapbox_access_token))
+//                )
 //            }
+//            private fun getTileSetIds() : List<String> {
+//                val list = arrayListOf<String>()
+//                list.add("mapbox://mapbox.mapbox-traffic-v1")
+//                list.add("mapbox://mapbox.mapbox-terrain-v2")
+//
+//                return list
+//            }
+//            //    val StyleCheck : Unit = offlineManager.getAllStylePacks { expected ->
+////        if (expected.isValue) {
+////            expected.value?.let { stylePackList ->
+////                Log.d("Existing style packs: $stylePackList")
+////            }
+////        }
+////        expected.error?.let { stylePackError ->
+////            Log.e("StylePackError: $stylePackError")
+////        }
+////    }
+//            suspend fun cacheMapLayer(networkOrFeederId: String, taskCallBack :(Double?) -> Unit) {
+//                taskCallBack(90)
+////        val tileRegionLoadOptions = TileRegionLoadOptions.Builder()
+////            .geometry(Point.fromLngLat(12.9716,77.5946))
+////            .descriptors(listOf(tilesetDescriptorLines, tilesetDescriptorForStyle))
+////            .acceptExpired(true)
+////            .networkRestriction(NetworkRestriction.NONE)
+////            .build()
+////        val tileStyleLoadOptions = StylePackLoadOptions.Builder()
+////            .glyphsRasterizationMode(GlyphsRasterizationMode.IDEOGRAPHS_RASTERIZED_LOCALLY)
+////            .build()
+////        val tileRegionId = networkOrFeederId
+////        tileStore.loadTileRegion(
+////            tileRegionId,
+////            tileRegionLoadOptions,
+////            { progress ->
+////                taskCallBack((progress.completedResourceCount*100/progress.requiredResourceCount).toDouble())
+////            }
+////        ) { expected ->
+////            if (expected.isValue) {
+////                if(expected.value?.completedResourceCount == expected.value?.requiredResourceCount) {
+////                    val stylePackCancelable = offlineManager.loadStylePack(
+////                        Style.SATELLITE_STREETS,
+////                        // Build Style pack load options
+////                        tileStyleLoadOptions,
+////                        { progress ->
+////
+////                        },
+////                        { expected ->
+////                            if (expected.isValue) {
+////                                expected.value?.let { stylePack ->
+////                                    if(stylePack.completedResourceCount == stylePack.requiredResourceCount) {
+////                                        println("Map Downloaded SuccessFully")
+////                                    }
+////                                }
+////                            }
+////                            expected.error?.let {
+////
+////                                taskCallBack(null)
+////                            }
+////                        }
+////                    )
+////                }
+////
+////            }
+////            expected.error?.let {
+////                // Handle errors that occurred during the tile region download.
+////
+////                taskCallBack(null)
+////            }
+////        }
+//            }
+//
+//
 //        }
-//        expected.error?.let { stylePackError ->
-//            Log.e("StylePackError: $stylePackError")
-//        }
-//    }
-            suspend fun cacheMapLayer(networkOrFeederId: String, taskCallBack :(Double?) -> Unit) {
-                taskCallBack(90)
-//        val tileRegionLoadOptions = TileRegionLoadOptions.Builder()
-//            .geometry(Point.fromLngLat(12.9716,77.5946))
-//            .descriptors(listOf(tilesetDescriptorLines, tilesetDescriptorForStyle))
-//            .acceptExpired(true)
-//            .networkRestriction(NetworkRestriction.NONE)
-//            .build()
-//        val tileStyleLoadOptions = StylePackLoadOptions.Builder()
-//            .glyphsRasterizationMode(GlyphsRasterizationMode.IDEOGRAPHS_RASTERIZED_LOCALLY)
-//            .build()
-//        val tileRegionId = networkOrFeederId
-//        tileStore.loadTileRegion(
-//            tileRegionId,
-//            tileRegionLoadOptions,
-//            { progress ->
-//                taskCallBack((progress.completedResourceCount*100/progress.requiredResourceCount).toDouble())
-//            }
-//        ) { expected ->
-//            if (expected.isValue) {
-//                if(expected.value?.completedResourceCount == expected.value?.requiredResourceCount) {
-//                    val stylePackCancelable = offlineManager.loadStylePack(
-//                        Style.SATELLITE_STREETS,
-//                        // Build Style pack load options
-//                        tileStyleLoadOptions,
-//                        { progress ->
-//
-//                        },
-//                        { expected ->
-//                            if (expected.isValue) {
-//                                expected.value?.let { stylePack ->
-//                                    if(stylePack.completedResourceCount == stylePack.requiredResourceCount) {
-//                                        println("Map Downloaded SuccessFully")
-//                                    }
-//                                }
-//                            }
-//                            expected.error?.let {
-//
-//                                taskCallBack(null)
-//                            }
-//                        }
-//                    )
-//                }
-//
-//            }
-//            expected.error?.let {
-//                // Handle errors that occurred during the tile region download.
-//
-//                taskCallBack(null)
-//            }
-//        }
-            }
-
-
-        }
 
 
         val channelName = "caching_plugin"
