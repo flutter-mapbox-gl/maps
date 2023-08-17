@@ -34,7 +34,7 @@ void offlineManager() async{
 //   );
 // }
 //
-// enum DragEventType { start, drag, end }
+enum DragEventType { start, drag, end }
 //
 // Future<dynamic> setOffline(
 //   bool offline, {
