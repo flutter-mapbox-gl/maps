@@ -72,7 +72,7 @@ import com.mapbox.maps.plugin.locationcomponent.location
 import android.os.Handler
 import android.os.Looper
 
-class OfflineManager : FlutterActivity() {
+class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
