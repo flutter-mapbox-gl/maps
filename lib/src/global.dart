@@ -18,7 +18,7 @@ Future<void> offlineManager() async{
     }
   }
   if (kDebugMode) {
-    print(value);
+    print("channel called");
   }
 }
 
