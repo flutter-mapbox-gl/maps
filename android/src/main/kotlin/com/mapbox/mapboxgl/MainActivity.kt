@@ -1,4 +1,4 @@
-package com.example.newoffliine
+package com.mapbox.mapboxgl;
 
 
 import io.flutter.embedding.android.FlutterActivity
