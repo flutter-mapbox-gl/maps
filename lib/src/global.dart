@@ -10,9 +10,10 @@ part of mapbox_gl;
 final platform = MethodChannel("caching_plugin");
 
 Future<void> offlineManager() async {
-  String value = " ";
+  String value="";
   try {
     value = await platform.invokeMethod("download_tileset");
+    print("try is getting called");
   } catch (e) {
     if (kDebugMode) {
       print("catch called");
