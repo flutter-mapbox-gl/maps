@@ -12,8 +12,9 @@ final platform = MethodChannel("caching_plugin");
 Future<void> offlineManager() async {
   String value="";
   try {
-    value = await platform.invokeMethod("download_tileset");
     print("try is getting called");
+    value = await platform.invokeMethod("download_tileset");
+
   } catch (e) {
     if (kDebugMode) {
       print("catch called");
