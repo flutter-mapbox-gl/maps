@@ -454,7 +454,7 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
     _removeGeolocateControl();
     _geolocateControl = GeolocateControl(
       GeolocateControlOptions(
-        positionOptions: PositionOptions(enableHighAccuracy: true),
+        positionOptions: PositionOptions(enableHighAccuracy: true, timeout: double.infinity, maximumAge: 0),
         trackUserLocation: trackUserLocation,
         showAccuracyCircle: true,
         showUserLocation: true,
