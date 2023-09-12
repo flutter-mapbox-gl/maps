@@ -173,6 +173,7 @@ class MapboxMapController extends ChangeNotifier {
       onUserLocationUpdated?.call(location);
     });
   }
+  bool _disposed = false;
 
   FillManager? fillManager;
   LineManager? lineManager;
@@ -253,6 +254,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes after listeners have been notified.
   Future<void> _updateMapOptions(Map<String, dynamic> optionsUpdate) async {
+    _disposeGuard();
     _cameraPosition = await _mapboxGlPlatform.updateMapOptions(optionsUpdate);
     notifyListeners();
   }
@@ -264,12 +266,22 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// To force resize map (without any checks) have a look at forceResizeWebMap()
   void resizeWebMap() {
+    _disposeGuard();
     _mapboxGlPlatform.resizeWebMap();
   }
 
   /// Triggers a hard map resize event on web and does not check if it is required or not.
   void forceResizeWebMap() {
+    _disposeGuard();
     _mapboxGlPlatform.forceResizeWebMap();
+  }
+
+  void _disposeGuard() {
+    if (_disposed) {
+      throw StateError(
+        'This MapboxMapController has already been disposed. This happens if flutter disposes a MapboxMap and you try to use its Controller afterwards.',
+      );
+    }
   }
 
   /// Starts an animated change of the map camera position.
@@ -282,6 +294,7 @@ class MapboxMapController extends ChangeNotifier {
   /// Note: this currently always returns immediately with a value of null on iOS
   Future<bool?> animateCamera(CameraUpdate cameraUpdate,
       {Duration? duration}) async {
+    _disposeGuard();
     return _mapboxGlPlatform.animateCamera(cameraUpdate, duration: duration);
   }
 
@@ -293,6 +306,7 @@ class MapboxMapController extends ChangeNotifier {
   /// It returns true if the camera was successfully moved and false if the movement was canceled.
   /// Note: this currently always returns immediately with a value of null on iOS
   Future<bool?> moveCamera(CameraUpdate cameraUpdate) async {
+    _disposeGuard();
     return _mapboxGlPlatform.moveCamera(cameraUpdate);
   }
 
@@ -310,6 +324,7 @@ class MapboxMapController extends ChangeNotifier {
   ///
   Future<void> addGeoJsonSource(String sourceId, Map<String, dynamic> geojson,
       {String? promoteId}) async {
+    _disposeGuard();
     await _mapboxGlPlatform.addGeoJsonSource(sourceId, geojson,
         promoteId: promoteId);
   }
@@ -327,6 +342,7 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> setGeoJsonSource(
       String sourceId, Map<String, dynamic> geojson) async {
+    _disposeGuard();
     await _mapboxGlPlatform.setGeoJsonSource(sourceId, geojson);
   }
 
@@ -343,6 +359,7 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> setGeoJsonFeature(
       String sourceId, Map<String, dynamic> geojsonFeature) async {
+    _disposeGuard();
     await _mapboxGlPlatform.setFeatureForGeoJsonSource(
         sourceId, geojsonFeature);
   }
@@ -374,6 +391,7 @@ class MapboxMapController extends ChangeNotifier {
       double? maxzoom,
       dynamic filter,
       bool enableInteraction = true}) async {
+    _disposeGuard();
     await _mapboxGlPlatform.addSymbolLayer(
       sourceId,
       layerId,
@@ -414,6 +432,7 @@ class MapboxMapController extends ChangeNotifier {
       double? maxzoom,
       dynamic filter,
       bool enableInteraction = true}) async {
+    _disposeGuard();
     await _mapboxGlPlatform.addLineLayer(
       sourceId,
       layerId,
@@ -454,6 +473,7 @@ class MapboxMapController extends ChangeNotifier {
       double? maxzoom,
       dynamic filter,
       bool enableInteraction = true}) async {
+    _disposeGuard();
     await _mapboxGlPlatform.addFillLayer(
       sourceId,
       layerId,
@@ -494,6 +514,7 @@ class MapboxMapController extends ChangeNotifier {
       double? maxzoom,
       dynamic filter,
       bool enableInteraction = true}) async {
+    _disposeGuard();
     await _mapboxGlPlatform.addFillExtrusionLayer(
       sourceId,
       layerId,
@@ -534,6 +555,7 @@ class MapboxMapController extends ChangeNotifier {
       double? maxzoom,
       dynamic filter,
       bool enableInteraction = true}) async {
+    _disposeGuard();
     await _mapboxGlPlatform.addCircleLayer(
       sourceId,
       layerId,
@@ -567,6 +589,7 @@ class MapboxMapController extends ChangeNotifier {
       String? sourceLayer,
       double? minzoom,
       double? maxzoom}) async {
+    _disposeGuard();
     await _mapboxGlPlatform.addRasterLayer(
       sourceId,
       layerId,
@@ -598,6 +621,7 @@ class MapboxMapController extends ChangeNotifier {
       String? sourceLayer,
       double? minzoom,
       double? maxzoom}) async {
+    _disposeGuard();
     await _mapboxGlPlatform.addHillshadeLayer(
       sourceId,
       layerId,
@@ -629,6 +653,7 @@ class MapboxMapController extends ChangeNotifier {
       String? sourceLayer,
       double? minzoom,
       double? maxzoom}) async {
+    _disposeGuard();
     await _mapboxGlPlatform.addHeatmapLayer(
       sourceId,
       layerId,
@@ -646,6 +671,7 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> updateMyLocationTrackingMode(
       MyLocationTrackingMode myLocationTrackingMode) async {
+    _disposeGuard();
     return _mapboxGlPlatform
         .updateMyLocationTrackingMode(myLocationTrackingMode);
   }
@@ -655,6 +681,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   Future<void> matchMapLanguageWithDeviceDefault() async {
+    _disposeGuard();
     return _mapboxGlPlatform.matchMapLanguageWithDeviceDefault();
   }
 
@@ -671,6 +698,7 @@ class MapboxMapController extends ChangeNotifier {
   /// platform side.
   Future<void> updateContentInsets(EdgeInsets insets,
       [bool animated = false]) async {
+    _disposeGuard();
     return _mapboxGlPlatform.updateContentInsets(insets, animated);
   }
 
@@ -681,6 +709,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   Future<void> setMapLanguage(String language) async {
+    _disposeGuard();
     return _mapboxGlPlatform.setMapLanguage(language);
   }
 
@@ -689,6 +718,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
   Future<void> setTelemetryEnabled(bool enabled) async {
+    _disposeGuard();
     return _mapboxGlPlatform.setTelemetryEnabled(enabled);
   }
 
@@ -697,6 +727,7 @@ class MapboxMapController extends ChangeNotifier {
   /// The returned [Future] completes after the query has been made on the
   /// platform side.
   Future<bool> getTelemetryEnabled() async {
+    _disposeGuard();
     return _mapboxGlPlatform.getTelemetryEnabled();
   }
 
@@ -1067,17 +1098,20 @@ class MapboxMapController extends ChangeNotifier {
   /// Query rendered features at a point in screen cooridnates
   Future<List> queryRenderedFeatures(
       Point<double> point, List<String> layerIds, List<Object>? filter) async {
+    _disposeGuard();
     return _mapboxGlPlatform.queryRenderedFeatures(point, layerIds, filter);
   }
 
   /// Query rendered features in a Rect in screen coordinates
   Future<List> queryRenderedFeaturesInRect(
       Rect rect, List<String> layerIds, String? filter) async {
+    _disposeGuard();
     return _mapboxGlPlatform.queryRenderedFeaturesInRect(
         rect, layerIds, filter);
   }
 
   Future invalidateAmbientCache() async {
+    _disposeGuard();
     return _mapboxGlPlatform.invalidateAmbientCache();
   }
 
@@ -1085,11 +1119,13 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// Return last latlng, nullable
   Future<LatLng?> requestMyLocationLatLng() async {
+    _disposeGuard();
     return _mapboxGlPlatform.requestMyLocationLatLng();
   }
 
   /// This method returns the boundaries of the region currently displayed in the map.
   Future<LatLngBounds> getVisibleRegion() async {
+    _disposeGuard();
     return _mapboxGlPlatform.getVisibleRegion();
   }
 
@@ -1129,6 +1165,7 @@ class MapboxMapController extends ChangeNotifier {
   /// }
   /// ```
   Future<void> addImage(String name, Uint8List bytes, [bool sdf = false]) {
+    _disposeGuard();
     return _mapboxGlPlatform.addImage(name, bytes, sdf);
   }
 
@@ -1155,12 +1192,14 @@ class MapboxMapController extends ChangeNotifier {
   /// Adds an image source to the style currently displayed in the map, so that it can later be referred to by the provided id.
   Future<void> addImageSource(
       String imageSourceId, Uint8List bytes, LatLngQuad coordinates) {
+    _disposeGuard();
     return _mapboxGlPlatform.addImageSource(imageSourceId, bytes, coordinates);
   }
 
   /// Update an image source to the style currently displayed in the map, so that it can later be referred to by the provided id.
   Future<void> updateImageSource(
       String imageSourceId, Uint8List? bytes, LatLngQuad? coordinates) {
+    _disposeGuard();
     return _mapboxGlPlatform.updateImageSource(
         imageSourceId, bytes, coordinates);
   }
@@ -1168,17 +1207,20 @@ class MapboxMapController extends ChangeNotifier {
   /// Removes previously added image source by id
   @Deprecated("This method was renamed to removeSource")
   Future<void> removeImageSource(String imageSourceId) {
+    _disposeGuard();
     return _mapboxGlPlatform.removeSource(imageSourceId);
   }
 
   /// Removes previously added source by id
   Future<void> removeSource(String sourceId) {
+    _disposeGuard();
     return _mapboxGlPlatform.removeSource(sourceId);
   }
 
   /// Adds a Mapbox image layer to the map's style at render time.
   Future<void> addImageLayer(String layerId, String imageSourceId,
       {double? minzoom, double? maxzoom}) {
+    _disposeGuard();
     return _mapboxGlPlatform.addLayer(layerId, imageSourceId, minzoom, maxzoom);
   }
 
@@ -1186,6 +1228,7 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> addImageLayerBelow(
       String layerId, String sourceId, String imageSourceId,
       {double? minzoom, double? maxzoom}) {
+    _disposeGuard();
     return _mapboxGlPlatform.addLayerBelow(
         layerId, sourceId, imageSourceId, minzoom, maxzoom);
   }
@@ -1195,16 +1238,19 @@ class MapboxMapController extends ChangeNotifier {
   Future<void> addLayerBelow(
       String layerId, String sourceId, String imageSourceId,
       {double? minzoom, double? maxzoom}) {
+    _disposeGuard();
     return _mapboxGlPlatform.addLayerBelow(
         layerId, sourceId, imageSourceId, minzoom, maxzoom);
   }
 
   /// Removes a Mapbox style layer
   Future<void> removeLayer(String layerId) {
+    _disposeGuard();
     return _mapboxGlPlatform.removeLayer(layerId);
   }
 
   Future<void> setFilter(String layerId, dynamic filter) {
+    _disposeGuard();
     return _mapboxGlPlatform.setFilter(layerId, filter);
   }
 
@@ -1222,26 +1268,31 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// Returns null if [latLng] is not currently visible on the map.
   Future<Point> toScreenLocation(LatLng latLng) async {
+    _disposeGuard();
     return _mapboxGlPlatform.toScreenLocation(latLng);
   }
 
   Future<List<Point>> toScreenLocationBatch(Iterable<LatLng> latLngs) async {
+    _disposeGuard();
     return _mapboxGlPlatform.toScreenLocationBatch(latLngs);
   }
 
   /// Returns the geographic location (as [LatLng]) that corresponds to a point on the screen. The screen location is specified in screen pixels (not display pixels) relative to the top left of the map (not the top left of the whole screen).
   Future<LatLng> toLatLng(Point screenLocation) async {
+    _disposeGuard();
     return _mapboxGlPlatform.toLatLng(screenLocation);
   }
 
   /// Returns the distance spanned by one pixel at the specified [latitude] and current zoom level.
   /// The distance between pixels decreases as the latitude approaches the poles. This relationship parallels the relationship between longitudinal coordinates at different latitudes.
   Future<double> getMetersPerPixelAtLatitude(double latitude) async {
+    _disposeGuard();
     return _mapboxGlPlatform.getMetersPerPixelAtLatitude(latitude);
   }
 
   /// Add a new source to the map
   Future<void> addSource(String sourceid, SourceProperties properties) async {
+    _disposeGuard();
     return _mapboxGlPlatform.addSource(sourceid, properties);
   }
 
@@ -1285,6 +1336,7 @@ class MapboxMapController extends ChangeNotifier {
       addFillExtrusionLayer(sourceId, layerId, properties,
           belowLayerId: belowLayerId,
           sourceLayer: sourceLayer,
+          enableInteraction: enableInteraction,
           minzoom: minzoom,
           maxzoom: maxzoom);
     } else if (properties is LineLayerProperties) {
@@ -1347,11 +1399,13 @@ class MapboxMapController extends ChangeNotifier {
   /// Default will return snapshot uri in Android and iOS
   /// If you want base64 value, you must set writeToDisk option to False
   Future<String> takeSnapshot(SnapshotOptions snapshotOptions) async {
+    _disposeGuard();
     return _mapboxGlPlatform.takeSnapshot(snapshotOptions);
   }
 
   @override
   void dispose() {
+    _disposed = true;
     super.dispose();
     _mapboxGlPlatform.dispose();
   }
