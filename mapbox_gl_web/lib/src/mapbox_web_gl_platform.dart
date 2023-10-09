@@ -70,7 +70,7 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       _map = MapboxMap(
         MapOptions(
           container: _mapElement,
-          style: 'mapbox://styles/mapbox/streets-v11',
+          style: _creationParams["options"]["styleString"],
           center: LngLat(camera['target'][1], camera['target'][0]),
           zoom: camera['zoom'],
           bearing: camera['bearing'],
