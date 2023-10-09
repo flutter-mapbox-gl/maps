@@ -12,7 +12,7 @@ dependencies:
       path: mapbox_gl_platform_interface
   mapbox_gl_web:
     git:
-      url: https://github.com/tobrun/flutter-mapbox-gl.git
+      url: https://github.com/ssyuk/maps.git
       path: mapbox_gl_web
   collection: ^1.15.0
 
