@@ -13,6 +13,7 @@ class CameraPosition {
     required this.target,
     this.tilt = 0.0,
     this.zoom = 0.0,
+    this.padding,
   });
 
   /// The camera's bearing in degrees, measured clockwise from north.
@@ -48,11 +49,21 @@ class CameraPosition {
   /// will be silently clamped to the supported range.
   final double zoom;
 
+  final EdgeInsets? padding;
+
   dynamic toMap() => <String, dynamic>{
         'bearing': bearing,
         'target': target.toJson(),
         'tilt': tilt,
         'zoom': zoom,
+        'padding': padding != null
+            ? {
+                'top': padding!.top,
+                'bottom': padding!.bottom,
+                'left': padding!.left,
+                'right': padding!.right,
+              }
+            : null,
       };
 
   @visibleForTesting
@@ -60,11 +71,21 @@ class CameraPosition {
     if (json == null) {
       return null;
     }
+    var mapPadding = json['padding'] as Map<String, dynamic>?;
+
     return CameraPosition(
       bearing: json['bearing'],
       target: LatLng._fromJson(json['target']),
       tilt: json['tilt'],
       zoom: json['zoom'],
+      padding: mapPadding != null
+          ? EdgeInsets.fromLTRB(
+              mapPadding['left'],
+              mapPadding['top'],
+              mapPadding['right'],
+              mapPadding['bottom'],
+            )
+          : null,
     );
   }
 
@@ -76,7 +97,8 @@ class CameraPosition {
     return bearing == typedOther.bearing &&
         target == typedOther.target &&
         tilt == typedOther.tilt &&
-        zoom == typedOther.zoom;
+        zoom == typedOther.zoom &&
+        padding == padding;
   }
 
   @override
@@ -84,7 +106,7 @@ class CameraPosition {
 
   @override
   String toString() =>
-      'CameraPosition(bearing: $bearing, target: $target, tilt: $tilt, zoom: $zoom)';
+      'CameraPosition(bearing: $bearing, target: $target, tilt: $tilt, zoom: $zoom, padding: ${padding.toString()})';
 }
 
 /// Defines a camera move, supporting absolute moves as well as moves relative

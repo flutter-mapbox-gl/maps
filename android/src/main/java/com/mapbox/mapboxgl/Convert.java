@@ -36,6 +36,14 @@ class Convert {
     builder.target(toLatLng(data.get("target")));
     builder.tilt(toFloat(data.get("tilt")));
     builder.zoom(toFloat(data.get("zoom")));
+    HashMap paddingMap = ((HashMap) data.get("padding"));
+    if(paddingMap != null) {
+      builder.padding(toDouble(paddingMap.get("left")),
+              toDouble(paddingMap.get("top")),
+              toDouble(paddingMap.get("right")),
+              toDouble(paddingMap.get("bottom")));
+    }
+
     return builder.build();
   }
 
