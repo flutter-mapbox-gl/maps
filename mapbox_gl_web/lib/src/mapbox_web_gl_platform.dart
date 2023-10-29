@@ -45,7 +45,7 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
 
   void _registerViewFactory(Function(int) callback, int identifier) {
     // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(
+    ui_web.platformViewRegistry.registerViewFactory(
         'plugins.flutter.io/mapbox_gl_$identifier', (int viewId) {
       _mapElement = DivElement()
         ..style.position = 'absolute'
