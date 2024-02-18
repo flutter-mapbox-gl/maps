@@ -38,6 +38,10 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 31
     ndkVersion "20.1.5948944"
+    // Condition for namespace compatibility in AGP 8
+    if (project.android.hasProperty("namespace")) {
+        namespace 'com.mapbox.mapboxgl'
+    }
 
     defaultConfig {
         minSdkVersion 20
