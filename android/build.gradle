@@ -30,13 +30,19 @@ rootProject.allprojects {
                 password = token
             }
         }
+        // Has to be forced as this is the latest mapbox-core-android supports
+        configurations.all {
+            resolutionStrategy {
+                force "com.google.android.gms:play-services-location:20.0.0"
+            }
+        }
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 34
     ndkVersion "20.1.5948944"
 
     defaultConfig {
