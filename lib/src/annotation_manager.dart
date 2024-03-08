@@ -44,7 +44,8 @@ abstract class AnnotationManager<T extends Annotation> {
       final layerId = _makeLayerId(i);
       controller.addGeoJsonSource(layerId, buildFeatureCollection([]),
           promoteId: "id");
-      controller.addLayer(layerId, layerId, allLayerProperties[i]);
+      controller.addLayer(layerId, layerId, allLayerProperties[i],
+          enableInteraction: enableInteraction);
     }
 
     if (onTap != null) {
@@ -58,7 +59,8 @@ abstract class AnnotationManager<T extends Annotation> {
   Future<void> _rebuildLayers() async {
     for (var i = 0; i < allLayerProperties.length; i++) {
       final layerId = _makeLayerId(i);
-      await controller.addLayer(layerId, layerId, allLayerProperties[i]);
+      await controller.addLayer(layerId, layerId, allLayerProperties[i],
+          enableInteraction: enableInteraction);
     }
   }
 
