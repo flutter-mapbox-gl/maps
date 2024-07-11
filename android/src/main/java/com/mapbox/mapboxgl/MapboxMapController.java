@@ -185,6 +185,13 @@ final class MapboxMapController
     methodChannel.setMethodCallHandler(this);
   }
 
+public void setMapProjection(String projection) {
+    if (mapboxMap != null) {
+      mapboxMap.setStyle(new Style.Builder().fromUri(
+        projection.equals("globe") ? "mapbox://styles/mapbox/globe-v9" : "mapbox://styles/mapbox/streets-v12"
+      ));
+    }
+  }
   @Override
   public View getView() {
     return mapView;
@@ -661,6 +668,11 @@ final class MapboxMapController
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
 
     switch (call.method) {
+      case "setMapProjection": 
+      String projection = call.argument("projection");
+      setMapProjection(projection);
+      result.success(null);
+      break;
       case "map#waitForMap":
         if (mapboxMap != null) {
           result.success(null);

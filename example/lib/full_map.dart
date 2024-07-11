@@ -26,6 +26,7 @@ class FullMapState extends State<FullMap> {
 
   _onMapCreated(MapboxMapController controller) {
     mapController = controller;
+    controller.setMapProjection("globe");
   }
 
   _onStyleLoadedCallback() {
@@ -51,7 +52,9 @@ class FullMapState extends State<FullMap> {
         body: MapboxMap(
           styleString: isLight ? MapboxStyles.LIGHT : MapboxStyles.DARK,
           accessToken: MapsDemo.ACCESS_TOKEN,
-          onMapCreated: _onMapCreated,
+          onMapCreated: (MapboxMapController controller) {
+            _onMapCreated(controller);
+          },
           initialCameraPosition: const CameraPosition(target: LatLng(0.0, 0.0)),
           onStyleLoadedCallback: _onStyleLoadedCallback,
         ));

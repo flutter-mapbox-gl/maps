@@ -203,4 +203,6 @@ abstract class MapboxGlPlatform {
     onMapIdlePlatform.clear();
     onUserLocationUpdatedPlatform.clear();
   }
+
+  setMapProjection(String projection) {}
 }

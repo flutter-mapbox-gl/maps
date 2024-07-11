@@ -29,6 +29,7 @@ class AnimateCameraState extends State<AnimateCamera> {
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
+    controller.setMapProjection("globe");
   }
 
   @override
@@ -43,7 +44,9 @@ class AnimateCameraState extends State<AnimateCamera> {
             height: 200.0,
             child: MapboxMap(
               accessToken: MapsDemo.ACCESS_TOKEN,
-              onMapCreated: _onMapCreated,
+              onMapCreated: (MapboxMapController controller) {
+                _onMapCreated(controller);
+              },
               initialCameraPosition:
                   const CameraPosition(target: LatLng(0.0, 0.0)),
             ),

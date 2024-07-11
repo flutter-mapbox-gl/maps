@@ -1,7 +1,7 @@
 part of mapbox_gl_web;
 
 const _mapboxGlCssUrl =
-    'https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css';
+    'https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.css';
 
 class MapboxWebGlPlatform extends MapboxGlPlatform
     implements MapboxMapOptionsSink {
@@ -70,7 +70,7 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       _map = MapboxMap(
         MapOptions(
           container: _mapElement,
-          style: 'mapbox://styles/mapbox/streets-v11',
+          style: 'mapbox://styles/mapbox/streets-v12',
           center: LngLat(camera['target'][1], camera['target'][0]),
           zoom: camera['zoom'],
           bearing: camera['bearing'],
@@ -95,6 +95,16 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       _initResizeObserver();
     }
     Convert.interpretMapboxMapOptions(_creationParams['options'], this);
+    setMapProjection("globe");
+  }
+
+  Future<void> setMapProjection(String projection) async {
+    if (_map != null) {
+      final styleUri = projection == "globe"
+          ? "mapbox://styles/mapbox/globe-v9"
+          : "mapbox://styles/mapbox/streets-v12";
+      _map.setStyle(styleUri);
+    }
   }
 
   void _initResizeObserver() {

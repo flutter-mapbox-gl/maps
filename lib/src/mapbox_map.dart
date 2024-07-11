@@ -302,6 +302,7 @@ class _MapboxMapState extends State<MapboxMap> {
 
   Future<void> onPlatformViewCreated(int id) async {
     final MapboxMapController controller = MapboxMapController(
+      id: id,
       mapboxGlPlatform: _mapboxGlPlatform,
       initialCameraPosition: widget.initialCameraPosition,
       onStyleLoadedCallback: () {

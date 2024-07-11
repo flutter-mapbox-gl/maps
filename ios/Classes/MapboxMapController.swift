@@ -28,6 +28,14 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
     private var interactiveFeatureLayerIds = Set<String>()
     private var addedShapesByLayer = [String: MGLShape]()
 
+     func setMapProjection(projection: String) {
+    if projection == "globe" {
+      mapView.styleURL = MGLStyle.satelliteStreetsStyleURL
+    } else {
+      mapView.styleURL = MGLStyle.streetsStyleURL
+    }
+  }
+
     func view() -> UIView {
         return mapView
     }
@@ -127,6 +135,12 @@ class MapboxMapController: NSObject, FlutterPlatformView, MGLMapViewDelegate, Ma
 
     func onMethodCall(methodCall: FlutterMethodCall, result: @escaping FlutterResult) {
         switch methodCall.method {
+            case "setMapProjection":
+        if let args = call.arguments as? [String: Any],
+           let projection = args["projection"] as? String {
+          setMapProjection(projection: projection)
+        }
+        result(nil)
         case "map#waitForMap":
             if isMapReady {
                 result(nil)
