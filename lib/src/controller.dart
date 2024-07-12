@@ -48,7 +48,6 @@ typedef void OnMapIdleCallback();
 /// Circle tap events can be received by adding callbacks to [onCircleTapped].
 class MapboxMapController extends ChangeNotifier {
   MapboxMapController({
-    required int id,
     required MapboxGlPlatform mapboxGlPlatform,
     required CameraPosition initialCameraPosition,
     required Iterable<AnnotationType> annotationOrder,
@@ -62,8 +61,7 @@ class MapboxMapController extends ChangeNotifier {
     this.onMapIdle,
     this.onUserLocationUpdated,
     this.onCameraIdle,
-  })  : _mapboxGlPlatform = mapboxGlPlatform,
-        _channel = MethodChannel('plugins.flutter.io/mapbox_maps_$id') {
+  }) : _mapboxGlPlatform = mapboxGlPlatform {
     _cameraPosition = initialCameraPosition;
 
     _mapboxGlPlatform.onFeatureTappedPlatform.add((payload) {
@@ -247,12 +245,7 @@ class MapboxMapController extends ChangeNotifier {
   CameraPosition? get cameraPosition => _cameraPosition;
   CameraPosition? _cameraPosition;
 
-  final MethodChannel _channel;
   final MapboxGlPlatform _mapboxGlPlatform; //ignore: unused_field
-
-  Future<void> setMapProjection(String projection) async {
-    await _channel.invokeMethod('setMapProjection', {'projection': projection});
-  }
 
   /// Updates configuration options of the map user interface.
   ///

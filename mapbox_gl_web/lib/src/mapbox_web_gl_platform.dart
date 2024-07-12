@@ -95,16 +95,6 @@ class MapboxWebGlPlatform extends MapboxGlPlatform
       _initResizeObserver();
     }
     Convert.interpretMapboxMapOptions(_creationParams['options'], this);
-    setMapProjection("globe");
-  }
-
-  Future<void> setMapProjection(String projection) async {
-    if (_map != null) {
-      final styleUri = projection == "globe"
-          ? "mapbox://styles/mapbox/globe-v9"
-          : "mapbox://styles/mapbox/streets-v12";
-      _map.setStyle(styleUri);
-    }
   }
 
   void _initResizeObserver() {

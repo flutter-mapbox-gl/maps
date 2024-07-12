@@ -29,7 +29,6 @@ class AnimateCameraState extends State<AnimateCamera> {
 
   void _onMapCreated(MapboxMapController controller) {
     mapController = controller;
-    controller.setMapProjection("globe");
   }
 
   @override

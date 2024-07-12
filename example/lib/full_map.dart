@@ -26,7 +26,6 @@ class FullMapState extends State<FullMap> {
 
   _onMapCreated(MapboxMapController controller) {
     mapController = controller;
-    controller.setMapProjection("globe");
   }
 
   _onStyleLoadedCallback() {
