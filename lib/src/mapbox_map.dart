@@ -55,6 +55,7 @@ class MapboxMap extends StatefulWidget {
       AnnotationType.line,
       AnnotationType.circle,
     ],
+    this.onDispose,
     this.useDelayedDisposal,
     this.useHybridCompositionOverride,
   })  : assert(annotationOrder.length <= 4),
@@ -231,6 +232,9 @@ class MapboxMap extends StatefulWidget {
   /// Override hybrid mode per map instance
   final bool? useHybridCompositionOverride;
 
+  // This function is called before the mapController is Disposed
+  final Function()? onDispose;
+
   /// Set `MapboxMap.useHybridComposition` to `false` in order use Virtual-Display
   /// (better for Android 9 and below but may result in errors on Android 12)
   /// or leave it `true` (default) to use Hybrid composition (Slower on Android 9 and below).
@@ -277,6 +281,7 @@ class _MapboxMapState extends State<MapboxMap> {
   void dispose() async {
     super.dispose();
     if (_controller.isCompleted) {
+      widget.onDispose?.call();
       final controller = await _controller.future;
       controller.dispose();
     }
