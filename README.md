@@ -4,7 +4,7 @@
 > 
 > We welcome [feedback](https://github.com/tobrun/flutter-mapbox-gl/issues) and contributions.
 
-
+ 
 ## Table of contents
 
 - [Flutter Mapbox GL](#flutter-mapbox-gl)
