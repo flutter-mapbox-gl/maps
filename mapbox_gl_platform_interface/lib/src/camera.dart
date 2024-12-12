@@ -80,7 +80,8 @@ class CameraPosition {
   }
 
   @override
-  int get hashCode => hashValues(bearing, target, tilt, zoom);
+  int get hashCode =>
+      Object.hashAll([bearing.toStringAsFixed(6), target, tilt, zoom]);
 
   @override
   String toString() =>
