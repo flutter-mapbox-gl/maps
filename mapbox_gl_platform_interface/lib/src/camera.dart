@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// ignore_for_file: sdk_version_since
+
 part of mapbox_gl_platform_interface;
 
 /// The position of the map "camera", the view point from which the world is
@@ -80,7 +82,7 @@ class CameraPosition {
   }
 
   @override
-  int get hashCode => hashValues(bearing, target, tilt, zoom);
+  int get hashCode => Object.hash(bearing, target, tilt, zoom);
 
   @override
   String toString() =>
