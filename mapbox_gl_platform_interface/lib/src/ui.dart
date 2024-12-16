@@ -141,7 +141,7 @@ class MinMaxZoomPreference {
   }
 
   @override
-  int get hashCode => Object.hashAll([minZoom, maxZoom]);
+  int get hashCode => Object.hash(minZoom, maxZoom);
 
   @override
   String toString() {
