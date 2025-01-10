@@ -9,5 +9,5 @@ dependencies:
   meta: ^1.0.5
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.14.0 <3.0.0'
   flutter: ">=2.0.0"
