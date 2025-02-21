@@ -17,7 +17,6 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * Plugin for controlling a set of MapboxMap views to be shown as overlays on top of the Flutter
@@ -84,41 +83,6 @@ public class MapboxMapsPlugin implements FlutterPlugin, ActivityAware {
   @Override
   public void onDetachedFromActivity() {
     lifecycle = null;
-  }
-
-  // Old Plugin APIs
-
-  public static void registerWith(Registrar registrar) {
-    final Activity activity = registrar.activity();
-    if (activity == null) {
-      // When a background flutter view tries to register the plugin, the registrar has no activity.
-      // We stop the registration process as this plugin is foreground only.
-      return;
-    }
-    if (activity instanceof LifecycleOwner) {
-      registrar
-          .platformViewRegistry()
-          .registerViewFactory(
-              VIEW_TYPE,
-              new MapboxMapFactory(
-                  registrar.messenger(),
-                  new LifecycleProvider() {
-                    @Override
-                    public Lifecycle getLifecycle() {
-                      return ((LifecycleOwner) activity).getLifecycle();
-                    }
-                  }));
-    } else {
-      registrar
-          .platformViewRegistry()
-          .registerViewFactory(
-              VIEW_TYPE,
-              new MapboxMapFactory(registrar.messenger(), new ProxyLifecycleProvider(activity)));
-    }
-
-    MethodChannel methodChannel =
-        new MethodChannel(registrar.messenger(), "plugins.flutter.io/mapbox_gl");
-    methodChannel.setMethodCallHandler(new GlobalMethodHandler(registrar));
   }
 
   private static final class ProxyLifecycleProvider
